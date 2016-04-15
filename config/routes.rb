@@ -1,6 +1,4 @@
 Rails.application.routes.draw do
-  #root 'detail_types#index'
-
   resources 'detail_types'
 
   # The priority is based upon order of creation: first created -> highest priority.

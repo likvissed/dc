@@ -1,12 +1,15 @@
-= button_to "Добавить", new_detail_type_path, method: :get
-%table
-  %th Имя
-  %th
-  %th
-  - @detail_types.each do |detail|
-    %tr
-      %td= detail.name
-      %td
-        = link_to "Редактировать", edit_detail_type_path(detail.id)
-      %td
-        = link_to "Удалить", detail_type_path(detail.id), method: :delete, data: { confirm: "Вы действительно хотите удалить?" }
+.detail-types
+  = button_to "Добавить", new_detail_type_path, method: :get
+  %table.table.table-hover.table-bordered
+    %th #
+    %th Имя
+    %th
+      %th
+    - @detail_types.each_with_index do |detail, index|
+      %tr
+        %td= index.next
+        %td= detail.name
+        %td
+          = link_to "Редактировать", edit_detail_type_path(detail.id)
+        %td
+          = link_to "Удалить", detail_type_path(detail.id), method: :delete, data: { confirm: "Вы действительно хотите удалить?" }

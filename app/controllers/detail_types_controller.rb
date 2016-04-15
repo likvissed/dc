@@ -1,5 +1,6 @@
 class DetailTypesController < ApplicationController
 
+  before_action :check_for_cancel, only: [:create, :update]
   before_action :find_details_type, only: [:show, :edit, :update, :destroy]
 
   def index
@@ -56,6 +57,11 @@ class DetailTypesController < ApplicationController
   # Поиск данных о типе запчасти по id
   def find_details_type
     @detail_type = DetailType.find(params[:id])
+  end
+
+  # Проверка, была ли нажата кнопка "Отмена"
+  def check_for_cancel
+    redirect_to detail_types_path if params[:cancel]
   end
 
 end

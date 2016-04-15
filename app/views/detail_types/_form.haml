@@ -1,3 +1,6 @@
-= simple_form_for [@detail_type] do |f|
-  = f.input :name, label: "Описание"
-  = f.button :submit, "Готово"
+.detail-types
+  = simple_form_for [@detail_type] do |f|
+    = f.input :name, label: "Описание"
+    = f.button :submit, "Готово"
+    = button_tag "Отмена", type: "submit", name: "cancel", value: true
+
