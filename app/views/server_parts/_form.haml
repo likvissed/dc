@@ -1,0 +1,9 @@
+.server-parts
+  = simple_form_for [@server_part] do |f|
+    = f.input :name, label: "Наименование"
+    = f.input :part_num, label: "Номер"
+    = f.association :detail_type, label: "Тип"
+    = f.input :comment, label: "Комментарий"
+    = f.button :submit, "Готово"
+    = button_tag "Отмена", type: "submit", name: "cancel", value: true
+

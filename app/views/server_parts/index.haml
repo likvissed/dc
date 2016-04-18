@@ -1,0 +1,21 @@
+.server-parts
+  = button_to "Добавить", new_server_part_path, method: :get
+  %table.table.table-hover.table-bordered
+    %th #
+    %th Тип
+    %th Имя
+    %th Номер
+    %th Комментарий
+    %th
+    %th
+    - @server_parts.each_with_index do |part, index|
+      %tr
+        %td= index.next
+        %td= part.detail_type.name
+        %td= part.name
+        %td= part.part_num
+        %td= part.comment
+        %td
+          = link_to "Редактировать", edit_server_part_path(part)
+        %td
+          = link_to "Удалить", server_part_path(part), method: :delete, data: { confirm: "Вы действительно хотите удалить?" }
