@@ -1,0 +1,9 @@
+class TemplateServerDetail < ActiveRecord::Base
+
+  belongs_to :server_type
+  belongs_to :server_part
+
+  validates :count, presence: true, numericality: { greater_than: 0 }
+  #validates :server_part_id, presence: true
+
+end

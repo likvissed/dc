@@ -2,6 +2,7 @@
   .navbar-inner
     .container
       .navbar-brand
+        Logo
       .nav-collapse
         %ul.nav.navbar-nav
           %li.divider-vertical
@@ -22,14 +23,15 @@
                 %b.caret
               %ul.dropdown-menu
                 %li
-                  %a{ href: "#" } Просмотр
+                  %a{ href: servers_path } Просмотр
                 %li
-                  %a{ href: server_parts_path } Запчасти серверов
+                  %a{ href: server_parts_path } Комплектующие серверов
                 %li
-                  %a{ href: detail_types_path } Типы запчастей
+                  %a{ href: detail_types_path } Типы комплектующих
                 %li
-                  %a{ href: "#" } Типы серверов
-
+                  %a{ href: server_types_path } Типы серверов
+                %li
+                  %a{ href: clusters_path } Кластеры
           %li.divider-vertical
             %li.dropdown
               %a.dropdown-toggle{ href: "#", "data-toggle": "dropdown" }
@@ -39,4 +41,5 @@
                 %li
                   %a{ href: "#" } файл
           %li.divider-vertical
+          %p.navbar-text= yield(:title)
 

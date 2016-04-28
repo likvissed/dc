@@ -1,12 +1,14 @@
 !!!
 %html
   %head
-    %title
+    %title= yield(:title)
     = stylesheet_link_tag    'application', media: 'all'
-    = javascript_include_tag 'application'
+    = javascript_include_tag 'application', controller_name
     = csrf_meta_tags
   %body
     = render partial: "layouts/header"
+    /.alert.alert-success.text-center= flash[:success]
+    /.alert.alert-danger.text-center= flash[:error]
     %p= flash[:success]
     %p= flash[:error]
     .main-content

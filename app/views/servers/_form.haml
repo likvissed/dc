@@ -1,0 +1,16 @@
+.detail-types
+  %h3 Новый тип сервера
+  = simple_form_for @server_type do |type|
+    = type.input :name, label: false, input_html: { placeholder: "Тип" }
+    %h4 Состав сервера
+    = type.simple_fields_for :template_server_details do |detail|
+      .row
+        .col-xs-8
+          = detail.association :server_part, label: false, input_html: { class: "form-control detail-width" }
+        .col-xs-2
+          = detail.input :count, label: false, input_html: { class: "form-control count-width", value: detail.object.count || 1 }
+        /= link_to icon("fa fa-plus fa-1g"), "", data: { disable_with: "Waiting.." }
+        = button_tag icon("fa fa-plus fa-1g"), disabled: true, class: "btn-primary"
+        = button_tag icon("fa fa-minus fa-1g"), disabled: true, class: "btn-danger"
+    = type.button :submit, "Готово", class: "btn-primary"
+    = button_tag "Отмена", type: "submit", name: "cancel", value: true, class: "btn-default"

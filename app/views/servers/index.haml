@@ -1,0 +1,17 @@
+.detail-types
+  = button_to "Добавить", new_server_path, method: :get, class: "btn btn-primary"
+  %table.table.table-hover.table-bordered
+    %th #
+    %th Имя
+    %th Расположение
+    %th
+    %th
+    - @servers.each_with_index do |server, index|
+      %tr
+        %td= index.next
+        %td= server.name
+        %td= server.location
+        %td
+          = link_to icon("fa fa-pencil-square-o fa-2x"), edit_server_type_path(server)
+        %td
+          = link_to "Удалить", server_type_path(server), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ server.name }\"?" }

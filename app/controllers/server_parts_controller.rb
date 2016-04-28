@@ -40,7 +40,7 @@ class ServerPartsController < ApplicationController
 
   def destroy
     if @server_part.destroy
-      flash[:success] = "Данные успешно удалены"
+      flash[:success] = "Данные удалены"
     else
       flash[:error] = "Ошибка удаления данных. #{ @server_part.errors.full_messages }"
     end

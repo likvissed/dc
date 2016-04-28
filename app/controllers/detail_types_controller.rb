@@ -39,8 +39,8 @@ class DetailTypesController < ApplicationController
   end
 
   def destroy
-  if @detail_type.destroy
-      flash[:success] = "Данные успешно удалены"
+    if @detail_type.destroy
+      flash[:success] = "Данные удалены"
     else
       flash[:error] = "Ошибка удаления данных. #{ @detail_type.errors.full_messages }"
     end

@@ -1,6 +1,18 @@
 Rails.application.routes.draw do
+
+  root 'detail_types#index'
+
   resources 'detail_types'
   resources 'server_parts'
+  resources 'servers' do
+    resources 'real_server_details'
+  end
+  resources 'server_types' do
+    resources 'template_server_details'
+  end
+
+
+  resources 'clusters'
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

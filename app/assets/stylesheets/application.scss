@@ -1,11 +1,9 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
+/*@import "bootstrap/theme";*/
 
 @import "font-awesome-sprockets";
 @import "font-awesome";
-
-input[type="submit"] { @extend .btn, .btn-default; }
-button { @extend .btn, .btn-default; }
 
 /* Основной файл со стилями и заголовок */
 @import "main";
@@ -13,3 +11,6 @@ button { @extend .btn, .btn-default; }
 
 @import "detail_types";
 @import "server_parts";
+@import "server_types";
+@import "servers";
+@import "clusters";
