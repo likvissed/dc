@@ -56,7 +56,7 @@ class DetailTypesController < ApplicationController
 
   # Поиск данных о типе запчасти по id
   def find_details_type
-    @detail_type = DetailType.find(params[:id])
+    @detail_type = DetailType.find_by(name: params[:name])
   end
 
   # Проверка, была ли нажата кнопка "Отмена"

@@ -1,5 +1,5 @@
 !!!
-%html
+%html{ "ng-app": "servers" }
   %head
     %title= yield(:title)
     = stylesheet_link_tag    'application', media: 'all'
@@ -7,9 +7,9 @@
     = csrf_meta_tags
   %body
     = render partial: "layouts/header"
-    /.alert.alert-success.text-center= flash[:success]
-    /.alert.alert-danger.text-center= flash[:error]
-    %p= flash[:success]
-    %p= flash[:error]
+    .absolute{ "ng-controller": "FlashMessageCtrl as flash", "data-success": flash[:success], "data-error": flash[:error] }
+      .alert.alert-success.text-center{ "ng-show": "flash.success" }= flash[:success]
+      .alert.alert-danger.text-center{ "ng-show": "flash.error" }= flash[:error]
     .main-content
       = yield
+

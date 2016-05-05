@@ -17,6 +17,6 @@
         %td= part.part_num
         %td= part.comment
         %td
-          = link_to icon("fa fa-pencil-square-o fa-1g"), edit_server_part_path(part), class: "default-color", title: "Редактировать"
+          = link_to icon("fa fa-pencil-square-o fa-1g"), edit_server_part_path(part.name), class: "default-color", title: "Редактировать"
         %td
-          = link_to icon("fa fa-trash-o fa-1g"), server_part_path(part), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ part.name }\"?" }, class: "text-danger", title: "Удалить"
+          = link_to icon("fa fa-trash-o fa-1g"), server_part_path(part.name), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ part.name }\"?" }, class: "text-danger", title: "Удалить"

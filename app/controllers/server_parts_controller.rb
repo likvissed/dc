@@ -56,7 +56,7 @@ class ServerPartsController < ApplicationController
 
   # Поиск данных о типе запчасти по id
   def find_server_part
-    @server_part = ServerPart.find(params[:id])
+    @server_part = ServerPart.find_by(name: params[:name])
   end
 
   # Проверка, была ли нажата кнопка "Отмена"

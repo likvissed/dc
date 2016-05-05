@@ -25,26 +25,22 @@ class ServerTypesController < ApplicationController
 
   def create
     @server_type = ServerType.new(permit_params)
-    respond_to do |format|
-      if @server_type.save
-        flash[:success] = "Данные добавлены."
-        format.html { redirect_to action: :index }
-      else
-        flash.now[:error] = "Ошибка добавления данных. #{ @server_type.errors.full_messages }."
-        format.html { render :new }
-      end
+    if @server_type.save
+      flash[:success] = "Данные добавлены."
+      redirect_to action: :index
+    else
+      flash.now[:error] = "Ошибка добавления данных. #{ @server_type.errors.full_messages }."
+      render :new
     end
   end
 
   def edit
     respond_to do |format|
-      format.html do
-        render :edit
-      end
+      format.html { render :edit }
       format.json do
-        detail_type   = @server_type.template_server_details
-        server_parts  = ServerPart.all
-        render json: { detail_types: detail_type.as_json(include: :server_part) , server_parts: server_parts }
+        server_details  = @server_type.template_server_details
+        server_parts    = ServerPart.all
+        render json: { server_details: server_details.as_json(include: :server_part) , server_parts: server_parts }
       end
     end
   end
@@ -77,7 +73,7 @@ class ServerTypesController < ApplicationController
 
   # Поиск данных о типе запчасти по id
   def find_server_type
-    @server_type = ServerType.find(params[:id])
+    @server_type = ServerType.find_by(name: params[:name])
   end
 
   # Проверка, была ли нажата кнопка "Отмена"

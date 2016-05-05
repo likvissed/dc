@@ -11,6 +11,6 @@
         %td= index.next
         %td= server.name
         %td
-          = link_to icon("fa fa-pencil-square-o fa-1g"), edit_server_type_path(server), class: "default-color"
+          = link_to icon("fa fa-pencil-square-o fa-1g"), edit_server_type_path(server.name), class: "default-color"
         %td
-          = link_to icon("fa fa-trash-o fa-1g"), server_type_path(server), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ server.name }\"?" }, class: "text-danger", title: "Удалить"
+          = link_to icon("fa fa-trash-o fa-1g"), server_type_path(server.name), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ server.name }\"?" }, class: "text-danger", title: "Удалить"

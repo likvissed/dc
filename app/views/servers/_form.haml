@@ -1,16 +1,27 @@
 .detail-types
-  %h3 Новый тип сервера
-  = simple_form_for @server_type do |type|
-    = type.input :name, label: false, input_html: { placeholder: "Тип" }
-    %h4 Состав сервера
-    = type.simple_fields_for :template_server_details do |detail|
+  %div{ "ng-controller": "ServEditCtrl" }
+    = simple_form_for @server, html: { "serv-form": @server.id || 0 } do |s|
+      = s.input :name, label: "Имя сервера"
+      = s.input :inventory_num, label: "Инвентарный номер"
+      = s.input :serial_num, label: "Серийный номер"
+      = s.input :location, label: "Расположение"
+      %h5
+        %b Тип сервера
       .row
+        .col-xs-12
+          = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.server_type", "ng-options": "type.name for type in types track by type.id", "ng-change": "changeType(server.server_type)", prompt: "Выберите тип сервера"
+      %h5
+        %b Состав
+      .row{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy" }
+        = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][id]", "{{ detail.id }}"
+        = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][_destroy]", "{{ detail.destroy }}"
         .col-xs-8
-          = detail.association :server_part, label: false, input_html: { class: "form-control detail-width" }
+          = select_tag "server[real_server_details_attributes][{{ $index }}][server_part_id]", nil, class: "form-control","ng-model": "detail.server_part", "ng-options": "part.name for part in parts track by part.id"
         .col-xs-2
-          = detail.input :count, label: false, input_html: { class: "form-control count-width", value: detail.object.count || 1 }
-        /= link_to icon("fa fa-plus fa-1g"), "", data: { disable_with: "Waiting.." }
-        = button_tag icon("fa fa-plus fa-1g"), disabled: true, class: "btn-primary"
-        = button_tag icon("fa fa-minus fa-1g"), disabled: true, class: "btn-danger"
-    = type.button :submit, "Готово", class: "btn-primary"
-    = button_tag "Отмена", type: "submit", name: "cancel", value: true, class: "btn-default"
+          = text_field_tag "server[real_server_details_attributes][{{ $index }}][count]", nil, class: "form-control count-width", "ng-model": "detail.count"
+
+        = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addServPart()"
+        = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delServPart(detail)"
+
+      = s.button :submit, "Готово", class: "btn-primary"
+      = button_tag "Отмена", type: "submit", name: "cancel", value: true, class: "btn-default"
