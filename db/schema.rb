@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160420075429) do
+ActiveRecord::Schema.define(version: 20160511044007) do
 
   create_table "clusters", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -19,11 +19,15 @@ ActiveRecord::Schema.define(version: 20160420075429) do
     t.datetime "updated_at",             null: false
   end
 
+  add_index "clusters", ["name"], name: "index_clusters_on_name", using: :btree
+
   create_table "detail_types", force: :cascade do |t|
     t.string   "name",       limit: 255
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  add_index "detail_types", ["name"], name: "index_detail_types_on_name", using: :btree
 
   create_table "real_server_details", force: :cascade do |t|
     t.integer  "server_id",      limit: 4
@@ -45,11 +49,15 @@ ActiveRecord::Schema.define(version: 20160420075429) do
     t.datetime "updated_at",                   null: false
   end
 
+  add_index "server_parts", ["name"], name: "index_server_parts_on_name", using: :btree
+
   create_table "server_types", force: :cascade do |t|
     t.string   "name",       limit: 255
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  add_index "server_types", ["name"], name: "index_server_types_on_name", using: :btree
 
   create_table "servers", force: :cascade do |t|
     t.integer  "cluster_id",     limit: 4
@@ -61,6 +69,8 @@ ActiveRecord::Schema.define(version: 20160420075429) do
     t.datetime "created_at",                 null: false
     t.datetime "updated_at",                 null: false
   end
+
+  add_index "servers", ["name"], name: "index_servers_on_name", using: :btree
 
   create_table "template_server_details", force: :cascade do |t|
     t.integer  "server_type_id", limit: 4

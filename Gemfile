@@ -1,5 +1,9 @@
 source 'https://rubygems.org'
 
+# Strip attributes for input data
+gem 'strip_attributes'
+# DataTables
+# gem 'jquery-datatables-rails'
 # MySQL
 gem 'mysql2'
 # icons

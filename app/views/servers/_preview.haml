@@ -1,0 +1,34 @@
+.modal.fade#servModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+  .modal-dialog
+    .modal-content
+      .modal-header
+        /= link_to icon("fa fa-times fa-fw"), "#", class: "pull-right default-color", title: "Закрыть", "aria-hidden": true
+        = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData", title: "Редактировать"
+        %h4.modal-title
+      .modal-body
+        %h4 Описание
+        %table.table.table-striped
+          %tbody
+            %tr
+              %td.col-md-4 Расположение
+              %td{ "data-id": "srvLocation" }
+            %tr
+              %td Тип сервера
+              %td{ "data-id": "srvType" }
+            %tr
+              %td Кластер
+              %td{ "data-id": "srvCluster" }
+            %tr
+              %td Серийный номер
+              %td{ "data-id": "srvSerial" }
+            %tr
+              %td Инветнартный номер
+              %td{ "data-id": "srvInventory" }
+        %h4 Состав
+        %table.table.table-striped{ "data-id": "details" }
+          %tbody
+            %tr.hidden
+              %td
+              %td.col-md-1
+      .modal-footer
+        = button_tag "Закрыть", class: "btn-primary", "data-id": "closeModal"

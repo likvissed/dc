@@ -11,6 +11,6 @@
         %td= index.next
         %td= detail.name
         %td
-          = link_to icon("fa fa-pencil-square-o fa-1g"), edit_detail_type_path(detail.name), class: "default-color", title: "Редактировать"
+          = link_to icon("fa fa-pencil-square-o fa-1g"), "/detail_types/" + detail.name + "/edit", class: "default-color", title: "Редактировать"
         %td
-          = link_to icon("fa fa-trash-o fa-1g"), detail_type_path(detail.name), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ detail.name }\"?" }, class: "text-danger", title: "Удалить"
+          = link_to icon("fa fa-trash-o fa-1g"), detail_type_path(detail.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ detail.name }\"?" }, class: "text-danger", title: "Удалить"

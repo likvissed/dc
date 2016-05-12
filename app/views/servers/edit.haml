@@ -1,2 +1,2 @@
 = title "Редактирование сервера"
-= render partial: "form"
+= render partial: "form", locals: { url: server_path(@server.name) }

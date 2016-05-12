@@ -1,13 +1,35 @@
 class ServersController < ApplicationController
 
-  before_action :check_for_cancel, only: [:create, :update]
-  before_action :find_server_type, only: [:show, :edit, :update, :destroy]
+  before_action { |ctrl| ctrl.check_for_cancel servers_path }
+  before_action :find_server_by_name, only: [:edit, :update]
+  before_action :find_server_by_id, only: [:show, :destroy]
 
   def index
-    @servers = Server.all
+    @servers = Server.select(:id, :name, :location)
+    respond_to do |format|
+      format.html { render :index }
+      format.json do
+        data = @servers.as_json.each do |s|
+          s['DT_RowId'] = s['id']
+          s['del']      = "<a href='/servers/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
+          s.delete('id')
+        end
+        render json: { data: data }
+      end
+    end
   end
 
   def show
+    respond_to do |format|
+      format.json { render json: @server.as_json(include: {
+        server_type: { only: :name },
+        cluster: { only: :name },
+        real_server_details: {
+          only: :count,
+          include: { server_part: { only: :name } } },
+      },
+        except: [:id, :created_at, :updated_at, :server_type_id, :cluster_id]) }
+    end
   end
 
   def new
@@ -29,7 +51,7 @@ class ServersController < ApplicationController
       flash[:success] = "Данные добавлены."
       redirect_to action: :index
     else
-      flash.now[:error] = "Ошибка добавления данных. #{ @server.errors.full_messages }"
+      flash.now[:error] = "Ошибка добавления данных. #{ @server.errors.full_messages.join(", ") }"
       render :new
     end
   end
@@ -51,7 +73,7 @@ class ServersController < ApplicationController
       flash[:success] = "Данные изменены"
       redirect_to action: :index
     else
-      flash.now[:error] = "Ошибка изменения данных. #{ @server.errors.full_messages }"
+      flash.now[:error] = "Ошибка изменения данных. #{ @server.errors.full_messages.join(", ") }"
       render :edit
     end
   end
@@ -60,7 +82,7 @@ class ServersController < ApplicationController
     if @server.destroy
       flash[:success] = "Данные удалены"
     else
-      flash[:error] = "Ошибка удаления данных. #{ @server.errors.full_messages }"
+      flash[:error] = "Ошибка удаления данных. #{ @server.errors.full_messages.join(", ") }"
     end
     redirect_to action: :index
   end
@@ -72,14 +94,14 @@ class ServersController < ApplicationController
     params.require(:server).permit(:cluster_id, :server_type_id, :name, :inventory_num, :serial_num, :location, real_server_details_attributes: [:id, :server_id, :server_part_id, :count])
   end
 
-  # Поиск данных о типе запчасти по id
-  def find_server_type
+  # Поиск данных о типе запчасти по name
+  def find_server_by_name
     @server = Server.find_by(name: params[:name])
   end
 
-  # Проверка, была ли нажата кнопка "Отмена"
-  def check_for_cancel
-    redirect_to servers_path if params[:cancel]
+  # Поиск данных о типе запчасти по id
+  def find_server_by_id
+    @server = Server.find(params[:id])
   end
 
 end

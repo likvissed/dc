@@ -1,17 +1,27 @@
 Rails.application.routes.draw do
 
   root 'servers#index'
+
   constraints name: /[^\/]+/ do
-    resources 'detail_types', param: :name
-    resources 'server_parts', param: :name
-    resources 'servers', param: :name do
-      resources 'real_server_details'
-    end
-    resources 'server_types', param: :name do
-      resources 'template_server_details'
-    end
+    get   '/servers/:name/edit', to: 'servers#edit'
+    patch '/servers/:name', to: 'servers#update'
+
+    get   '/server_types/:name/edit', to: 'server_types#edit'
+    patch '/server_types/:name', to: 'server_types#update'
+
+    get   '/detail_types/:name/edit', to: 'detail_types#edit'
+    patch '/detail_types/:name', to: 'detail_types#update'
+
+    get   '/server_parts/:name/edit', to: 'server_parts#edit'
+    patch '/server_parts/:name', to: 'server_parts#update'
+
     resources 'clusters'
   end
+
+  resources 'servers', except: [:edit, :update]
+  resources 'server_types', except: [:edit, :update]
+  resources 'detail_types', except: [:edit, :update]
+  resources 'server_parts', except: [:edit, :update]
 
   # The priority is based upon order of creation: first created -> highest priority.
   # See how all your routes lay out with "rake routes".

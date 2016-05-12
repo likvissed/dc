@@ -15,7 +15,7 @@ app.directive('servTypeForm', function($http) {
       scope.server_type = {
         name: $('#server_type_name').val()
       }
-      $http.get('/server_types/' + attrs.servTypeForm + '/edit.json')
+      $http.get('/server_types/' + attrs.servTypeName + '/edit.json')
         .success(function(data, status, headers, config) {
           scope.details = data.server_details;
           scope.parts = data.server_parts;
@@ -41,3 +41,73 @@ app.controller('ServEditTypeCtrl', function($scope, $http) {
       $scope.details.splice($.inArray(detail, $scope.details), 1)
   }
 });
+
+$(function () {
+  var
+    modal = $('#servTypeModal'),
+    table = $('#servTypeTable').DataTable({
+      columns: [
+        {
+          data: 'index',
+          defaultContent: 0
+        },
+        {
+          data: 'name'
+        },
+        {
+          data:       'del',
+          orderable:  false,
+          searchable: false,
+          className:  'text-center'
+        }
+      ],
+      ajax: {
+        url:    'server_types.json',
+        async:  false,
+        type:   'get'
+      },
+      createdRow: function(row, data, dataIndex) {
+        data.index = dataIndex + 1;
+        $(row).find('td:first-child').text(data.index);
+      },
+      drawCallback: function () {
+        showServer();
+      },
+    });
+
+  // Закрыть модальное окно
+  modal.find('button[data-id="closeModal"]').on('click', function () {
+    modal.modal('hide');
+  });
+
+  // Событие после закрытия окна
+  modal.on('hidden.bs.modal', function () {
+    //Удалить созданные строки таблицы
+    modal.find('table[data-id="details"] tr').not('tr.hidden').remove();
+  });
+});
+
+// Показать информацию о сервере
+function showServer() {
+  $('#servTypeTable > tbody > tr').not('a').off().on('click', function (event) {
+    if (event.target.tagName == 'I' )
+      return true;
+
+    $.get('server_types/' + this.id + '.json', function(data) {
+      var modal = $('#servTypeModal');
+
+      modal.find('.modal-header .modal-title').text(data.name)
+      // Заполнение поля "Состав"
+      $.each(data.template_server_details, function (index) {
+        modal.find('tr.hidden').clone().appendTo('table[data-id="details"]').removeClass('hidden')
+          .find('td:first-child').text(this.server_part.name)
+          .end().find('td:last-child').text(this.count);
+      });
+
+      // Ссылка на изменение данных о сервере
+      modal.find('a[data-id="changeData"]').attr('href', '/server_types/' + data.name + '/edit');
+
+      modal.modal('show');
+    });
+  })
+}

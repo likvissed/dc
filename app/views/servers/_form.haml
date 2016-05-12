@@ -1,18 +1,24 @@
 .detail-types
   %div{ "ng-controller": "ServEditCtrl" }
-    = simple_form_for @server, html: { "serv-form": @server.id || 0 } do |s|
+    = simple_form_for @server, url: url, html: { "serv-form": @server.id || 0, "serv-name": @server.name } do |s|
       = s.input :name, label: "Имя сервера"
       = s.input :inventory_num, label: "Инвентарный номер"
       = s.input :serial_num, label: "Серийный номер"
       = s.input :location, label: "Расположение"
-      %h5
-        %b Тип сервера
       .row
         .col-xs-12
-          = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.server_type", "ng-options": "type.name for type in types track by type.id", "ng-change": "changeType(server.server_type)", prompt: "Выберите тип сервера"
+          - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
+          %div{ class: error_class }
+            %label.control-label{ for: "server_server_type_id" }
+              %h5
+                %abbr{ title: "required" } *
+                %b Тип сервера
+            = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.server_type", "ng-options": "type.name for type in types track by type.id", "ng-change": "changeType(server.server_type)", prompt: "Выберите тип сервера"
+            %span.help-block= get_errors @server.errors[:server_type_id]
+
       %h5
-        %b Состав
-      .row{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy" }
+        %b Состав сервера
+      .row.row-margin-bot{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy" }
         = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][id]", "{{ detail.id }}"
         = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][_destroy]", "{{ detail.destroy }}"
         .col-xs-8
@@ -23,5 +29,5 @@
         = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addServPart()"
         = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delServPart(detail)"
 
-      = s.button :submit, "Готово", class: "btn-primary"
+      = s.button :submit, "Готово", class: "btn-success"
       = button_tag "Отмена", type: "submit", name: "cancel", value: true, class: "btn-default"

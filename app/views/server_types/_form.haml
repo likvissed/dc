@@ -1,9 +1,10 @@
 .detail-types
   %div{ "ng-controller": "ServEditTypeCtrl" }
-    = simple_form_for @server_type, html: { "serv-type-form": @server_type.id || 0 } do |type|
+    = simple_form_for @server_type, url: url, html: { "serv-type-form": @server_type.id || 0, "serv-type-name": @server_type.name } do |type|
       = type.input :name, label: "Наименование", input_html: { "ng-model": "server_type.name" }
-      %h4 Состав сервера
-      .row{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy" }
+      %h5
+        %b Состав сервера
+      .row.row-margin-bot{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy" }
         = hidden_field_tag "server_type[template_server_details_attributes][{{ $index }}][id]", "{{ detail.id }}"
         = hidden_field_tag "server_type[template_server_details_attributes][{{ $index }}][_destroy]", "{{ detail.destroy }}"
         .col-xs-8
@@ -13,5 +14,5 @@
 
         = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addServPart()"
         = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delServPart(detail)"
-      = type.button :submit, "Готово", class: "btn-primary"
+      = type.button :submit, "Готово", class: "btn-success"
       = button_tag "Отмена", type: "submit", name: "cancel", value: true, class: "btn-default"

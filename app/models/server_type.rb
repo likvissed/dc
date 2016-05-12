@@ -6,6 +6,8 @@ class ServerType < ActiveRecord::Base
 
   accepts_nested_attributes_for :template_server_details, allow_destroy: true, reject_if: proc { |attr| attr["server_part_id"].blank? }
 
-  validates :name, presence: true, uniqueness: true
+  strip_attributes allow_empty: true, collapse_spaces: true
+
+  validates :name, presence: true, uniqueness: { case_sensitive: false }
 
 end

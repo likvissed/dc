@@ -11,22 +11,32 @@
 
 /*input[type="submit"] { @extend .btn; }*/
 button { @extend .btn, .btn-default; }
+a.default-color { color: $btn-default-color !important; }
 
-/* ================================== Отступ таблиц ================================== */
+// Для отображения flash
+.absolute {
+  position: absolute;
+  width: 100%;
+}
+
+/* ================================== Таблицы ========================================= */
+
 .table {
   @extend .table;
   margin: 10px 0 !important;
 }
 
-table {
-  a.default-color { color: $btn-default-color !important; }
+.table-hover {
+  @extend .table-hover;
+  cursor: pointer;
 }
 
-.row {
+.row-margin-bot {
   margin-bottom: 15px;
 }
 
-.absolute {
-  position: absolute;
-  width: 100%;
+/* ================================== Модальное окно ================================== */
+
+.modal-body {
+  table + h4 { padding-top: 15px; }
 }

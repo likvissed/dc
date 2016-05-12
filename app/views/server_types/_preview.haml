@@ -1,0 +1,15 @@
+.modal.fade#servTypeModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+  .modal-dialog
+    .modal-content
+      .modal-header
+        = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData", title: "Редактировать"
+        %h4.modal-title
+      .modal-body
+        %h4 Состав
+        %table.table.table-striped{ "data-id": "details" }
+          %tbody
+            %tr.hidden
+              %td
+              %td.col-md-1
+      .modal-footer
+        = button_tag "Закрыть", class: "btn-primary", "data-id": "closeModal"

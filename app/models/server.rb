@@ -8,6 +8,9 @@ class Server < ActiveRecord::Base
 
   accepts_nested_attributes_for :real_server_details, allow_destroy: true, reject_if: proc { |attr| attr["server_part_id"].blank? }
 
+  strip_attributes allow_empty: true, collapse_spaces: true
+
   validates :server_type_id, :name, presence: true
+  validates :name, uniqueness: { case_sensitive: false }
 
 end

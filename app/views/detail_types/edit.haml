@@ -1,2 +1,2 @@
 = title "Редактирование типа комплектующей"
-= render partial: "form"
+= render partial: "form", locals: { url: detail_type_path(@detail_type.name) }

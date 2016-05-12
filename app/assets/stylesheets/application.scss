@@ -1,6 +1,11 @@
 @import "bootstrap-sprockets";
 @import "bootstrap";
-/*@import "bootstrap/theme";*/
+//@import "bootstrap/theme";
+
+//@import "dataTables/jquery.dataTables";
+//@import "dataTables/angular-datatables";
+@import "dataTables/dataTables.bootstrap.min";
+
 
 @import "font-awesome-sprockets";
 @import "font-awesome";
