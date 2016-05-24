@@ -1,22 +1,24 @@
 = title "Комплектующие серверов"
-.server-parts
-  = button_to "Добавить", new_server_part_path, method: :get, class: "btn btn-primary"
-  %table.table.table-hover
-    %th #
-    %th Тип
-    %th Имя
-    %th.col-md-2 Номер
-    %th.col-md-2 Комментарий
-    %th
-    %th
-    - @server_parts.each_with_index do |part, index|
+.big-content
+  = button_to "Добавить", new_server_part_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+  %table.table.table-hover#servPartTable
+    %thead
       %tr
-        %td= index.next
-        %td= part.detail_type.name
-        %td= part.name
-        %td= part.part_num
-        %td= part.comment
-        %td
-          = link_to icon("fa fa-pencil-square-o fa-1g"), "/server_parts/" + part.name + "/edit", class: "default-color", title: "Редактировать"
-        %td
-          = link_to icon("fa fa-trash-o fa-1g"), server_part_path(part.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ part.name }\"?" }, class: "text-danger", title: "Удалить"
+        %th.col-md-1 #
+        %th Тип
+        %th Имя
+        %th.col-md-2 Номер
+        %th.col-md-1
+    /- @server_parts.each_with_index do |part, index|
+    /  %tr
+    /    %td= index.next
+    /    %td= part.detail_type.name
+    /    %td= part.name
+    /    %td= part.part_num
+    /    %td= part.comment
+    /    %td
+    /      = link_to icon("fa fa-pencil-square-o fa-1g"), "/server_parts/" + part.name + "/edit", class: "default-color", title: "Редактировать"
+    /    %td
+    /      = link_to icon("fa fa-trash-o fa-1g"), server_part_path(part.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ part.name }\"?" }, class: "text-danger", title: "Удалить"
+
+= render partial: "preview"

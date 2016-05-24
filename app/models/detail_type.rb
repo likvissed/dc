@@ -1,5 +1,9 @@
 class DetailType < ActiveRecord::Base
 
+  resourcify
+
+  paginates_per 20
+
   has_many :server_parts, dependent: :restrict_with_error
 
   strip_attributes allow_empty: true, collapse_spaces: true

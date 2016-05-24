@@ -1,5 +1,7 @@
 class ServerPart < ActiveRecord::Base
 
+  resourcify
+
   has_many :template_server_details, dependent: :restrict_with_error
   has_many :server_types, through: :template_server_details
 

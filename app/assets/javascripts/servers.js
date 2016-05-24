@@ -54,7 +54,7 @@ app.controller('ServEditCtrl', ['$scope', '$http', function($scope, $http) {
 
 $(function() {
   var
-    modal = $('#servModal'),
+    modal = $('#modal'),
     table = $('#servTable').DataTable({
       columns: [
         {
@@ -85,7 +85,7 @@ $(function() {
       },
       drawCallback: function () {
         showServer();
-      },
+      }
     });
 
   // Закрыть модальное окно
@@ -107,7 +107,7 @@ function showServer() {
       return true;
 
     $.get('servers/' + this.id + '.json', function(data) {
-      var modal = $('#servModal');
+      var modal = $('#modal');
 
       // Заполнение поля "Описание"
       modal.find('.modal-header .modal-title').text(data.name)

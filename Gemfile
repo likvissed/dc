@@ -1,5 +1,13 @@
 source 'https://rubygems.org'
 
+# Paginator
+gem 'kaminari'
+# Devise authentication
+gem 'devise'
+# Access manager
+gem 'cancancan'
+# Roles
+gem 'rolify'
 # Strip attributes for input data
 gem 'strip_attributes'
 # DataTables
@@ -14,6 +22,8 @@ gem 'bootstrap-sass'
 gem 'simple_form'
 # haml
 gem 'haml-rails'
+# i18n
+gem 'rails-i18n'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
 gem 'rails', '4.2.6'
 # Use SCSS for stylesheets

@@ -44,7 +44,7 @@ app.controller('ServEditTypeCtrl', function($scope, $http) {
 
 $(function () {
   var
-    modal = $('#servTypeModal'),
+    modal = $('#modal'),
     table = $('#servTypeTable').DataTable({
       columns: [
         {
@@ -71,7 +71,7 @@ $(function () {
         $(row).find('td:first-child').text(data.index);
       },
       drawCallback: function () {
-        showServer();
+        showServerType();
       },
     });
 
@@ -88,13 +88,14 @@ $(function () {
 });
 
 // Показать информацию о сервере
-function showServer() {
+function showServerType() {
   $('#servTypeTable > tbody > tr').not('a').off().on('click', function (event) {
     if (event.target.tagName == 'I' )
       return true;
 
     $.get('server_types/' + this.id + '.json', function(data) {
-      var modal = $('#servTypeModal');
+      console.log(data);
+      var modal = $('#modal');
 
       modal.find('.modal-header .modal-title').text(data.name)
       // Заполнение поля "Состав"

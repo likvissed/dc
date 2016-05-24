@@ -1,5 +1,7 @@
 class RealServerDetail < ActiveRecord::Base
 
+  resourcify
+
   belongs_to :server
   belongs_to :server_part
 

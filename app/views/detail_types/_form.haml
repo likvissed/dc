@@ -1,6 +1,6 @@
-.detail-types
+.medium-content
   = simple_form_for @detail_type, url: url do |f|
-    = f.input :name, label: "Наименование"
+    = f.input :name, label: "Наименование", autofocus: true
     = f.button :submit, "Готово", class: "btn-success"
     = button_tag "Отмена", type: "submit", name: "cancel", value: true
 

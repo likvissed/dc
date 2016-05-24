@@ -8,13 +8,12 @@ app.directive('stopClick', function() {
 });
 
 app.controller("FlashMessageCtrl",['$attrs', '$timeout', function($attrs, $timeout) {
-  controller         = this;
-  controller.success = $attrs.success;
-  controller.error   = $attrs.error;
+  controller        = this;
+  controller.notice = $attrs.notice;
+  controller.alert  = $attrs.alert;
 
   $timeout(function() {
-    controller.success = null;
-    controller.error   = null;
+    controller.notice = null;
   }, 2000);
 
 }]);
@@ -22,6 +21,8 @@ app.controller("FlashMessageCtrl",['$attrs', '$timeout', function($attrs, $timeo
 /* ======================================================================================= */
 
 $(function () {
+  var modal = $('modal')
+
   // Настройки DataTable
   $.extend(true, $.fn.DataTable.defaults, {
     info: false,
@@ -48,4 +49,5 @@ $(function () {
     keyboard: true,
     show:     false
   });
+
 });

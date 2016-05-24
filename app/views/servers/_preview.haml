@@ -1,9 +1,10 @@
-.modal.fade#servModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+.modal.fade#modal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
   .modal-dialog
     .modal-content
       .modal-header
         /= link_to icon("fa fa-times fa-fw"), "#", class: "pull-right default-color", title: "Закрыть", "aria-hidden": true
-        = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData", title: "Редактировать"
+        - if can? :manage, Server
+          = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData", title: "Редактировать"
         %h4.modal-title
       .modal-body
         %h4 Описание

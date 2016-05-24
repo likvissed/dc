@@ -1,0 +1,21 @@
+.server-parts
+  = simple_form_for @user, url: url do |f|
+    .form-inputs
+      = f.input :username, label: "Пользователь", required: true, autofocus: true
+      = f.input :password, label: "Пароль", required: true, hint: ("#{@minimum_password_length} characters minimum" if @minimum_password_length)
+      = f.input :password_confirmation, label: "Подтвердите пароль", required: true
+      %h4 Роли:
+      %ul.list-unstyled
+        - @roles.each do |role|
+          - flag_checked = false
+          - @user.roles.each { |user_role| flag_checked = true and break if user_role.name == role.name }
+          %li
+            = hidden_field_tag "roles[" + role.name + "]", 0
+            - if flag_checked and !@user.username.nil?
+              = check_box_tag "roles[" + role.name + "]", 1, true, id: role.name + "_role"
+            - else
+              = check_box_tag "roles[" + role.name + "]", 1, false, id: role.name + "_role"
+            = label_tag role.name + "_role", role.name
+    .form-actions
+      = f.button :submit, "Готово", class: "btn-success"
+      = button_tag "Отмена", type: "submit", name: "cancel", value: true, class: "btn-default"

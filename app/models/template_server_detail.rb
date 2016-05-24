@@ -1,5 +1,7 @@
 class TemplateServerDetail < ActiveRecord::Base
 
+  resourcify
+
   belongs_to :server_type
   belongs_to :server_part
 

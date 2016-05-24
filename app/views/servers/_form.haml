@@ -1,7 +1,7 @@
-.detail-types
+.medium-content
   %div{ "ng-controller": "ServEditCtrl" }
     = simple_form_for @server, url: url, html: { "serv-form": @server.id || 0, "serv-name": @server.name } do |s|
-      = s.input :name, label: "Имя сервера"
+      = s.input :name, label: "Имя сервера", autofocus: true
       = s.input :inventory_num, label: "Инвентарный номер"
       = s.input :serial_num, label: "Серийный номер"
       = s.input :location, label: "Расположение"

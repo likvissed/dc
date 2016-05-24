@@ -1,11 +1,13 @@
 class DetailTypesController < ApplicationController
 
+  load_and_authorize_resource
+
   before_action { |ctrl| ctrl.check_for_cancel detail_types_path }
-  before_action :find_detail_type_by_name, only: [:edit, :update]
-  before_action :find_detail_type_by_id, only: [:show, :destroy]
+  before_action :find_detail_type_by_name,  only: [:edit, :update]
+  before_action :find_detail_type_by_id,    only: [:show, :destroy]
 
   def index
-    @detail_types = DetailType.all
+    @detail_types = DetailType.all.page params[:page]
   end
 
   def show
@@ -16,12 +18,12 @@ class DetailTypesController < ApplicationController
   end
 
   def create
-    @detail_type = DetailType.new(permit_params)
+    @detail_type = DetailType.new(detail_type_params)
     if @detail_type.save
-      flash[:success] = "Данные добавлены"
+      flash[:notice] = "Данные добавлены"
       redirect_to action: :index
     else
-      flash.now[:error] = "Ошибка добавления данных. #{ @detail_type.errors.full_messages.join(", ") }"
+      flash.now[:alert] = "Ошибка добавления данных. #{ @detail_type.errors.full_messages.join(", ") }"
       render :new
     end
   end
@@ -30,20 +32,20 @@ class DetailTypesController < ApplicationController
   end
 
   def update
-    if @detail_type.update_attributes(permit_params)
-      flash[:success] = "Данные изменены"
+    if @detail_type.update_attributes(detail_type_params)
+      flash[:notice] = "Данные изменены"
       redirect_to action: :index
     else
-      flash.now[:error] = "Ошибка изменения данных. #{ @detail_type.errors.full_messages.join(", ") }"
+      flash.now[:alert] = "Ошибка изменения данных. #{ @detail_type.errors.full_messages.join(", ") }"
       render :edit
     end
   end
 
   def destroy
     if @detail_type.destroy
-      flash[:success] = "Данные удалены"
+      flash[:notice] = "Данные удалены"
     else
-      flash[:error] = "Ошибка удаления данных. #{ @detail_type.errors.full_messages.join(", ") }"
+      flash[:alert] = "Ошибка удаления данных. #{ @detail_type.errors.full_messages.join(", ") }"
     end
     redirect_to action: :index
   end
@@ -51,7 +53,7 @@ class DetailTypesController < ApplicationController
   private
 
   # Разрешение изменения strong params
-  def permit_params
+  def detail_type_params
     params.require(:detail_type).permit(:name)
   end
 
@@ -64,6 +66,5 @@ class DetailTypesController < ApplicationController
   def find_detail_type_by_id
     @detail_type = DetailType.find(params[:id])
   end
-
 
 end

@@ -1,8 +1,10 @@
 class ServerTypesController < ApplicationController
 
+  load_and_authorize_resource
+
   before_action { |ctrl| ctrl.check_for_cancel server_types_path }
-  before_action :find_server_type_by_name, only: [:edit, :update]
-  before_action :find_server_type_by_id, only: [:show, :destroy]
+  before_action :find_server_type_by_name,  only: [:edit, :update]
+  before_action :find_server_type_by_id,    only: [:show, :destroy]
 
   def index
     @server_types = ServerType.select(:id, :name)
@@ -25,7 +27,7 @@ class ServerTypesController < ApplicationController
         template_server_details: {
           only: :count,
           include: { server_part: { only: :name } } },
-      },
+        },
         except: [:id, :created_at, :updated_at]) }
     end
   end
@@ -37,19 +39,19 @@ class ServerTypesController < ApplicationController
         render :new
       end
       format.json do
-        server_parts = ServerPart.all
-        render json: server_parts
+        @server_parts = ServerPart.all
+        render json: @server_parts
       end
     end
   end
 
   def create
-    @server_type = ServerType.new(permit_params)
+    @server_type = ServerType.new(server_type_params)
     if @server_type.save
-      flash[:success] = "Данные добавлены."
+      flash[:notice] = "Данные добавлены."
       redirect_to action: :index
     else
-      flash.now[:error] = "Ошибка добавления данных. #{ @server_type.errors.full_messages.join(", ") }."
+      flash.now[:alert] = "Ошибка добавления данных. #{ @server_type.errors.full_messages.join(", ") }."
       render :new
     end
   end
@@ -59,27 +61,27 @@ class ServerTypesController < ApplicationController
       format.html { render :edit }
       format.json do
         server_details  = @server_type.template_server_details
-        server_parts    = ServerPart.all
-        render json: { server_details: server_details.as_json(include: :server_part) , server_parts: server_parts }
+        @server_parts    = ServerPart.all
+        render json: { server_details: server_details.as_json(include: :server_part) , server_parts: @server_parts }
       end
     end
   end
 
   def update
-    if @server_type.update_attributes(permit_params)
-      flash[:success] = "Данные изменены"
+    if @server_type.update_attributes(server_type_params)
+      flash[:notice] = "Данные изменены"
       redirect_to action: :index
     else
-      flash.now[:error] = "Ошибка изменения данных. #{ @server_type.errors.full_messages.join(", ") }"
+      flash.now[:alert] = "Ошибка изменения данных. #{ @server_type.errors.full_messages.join(", ") }"
       render :edit
     end
   end
 
   def destroy
     if @server_type.destroy
-      flash[:success] = "Данные удалены"
+      flash[:notice] = "Данные удалены"
     else
-      flash[:error] = "Ошибка удаления данных. #{ @server_type.errors.full_messages.join(", ") }"
+      flash[:alert] = "Ошибка удаления данных. #{ @server_type.errors.full_messages.join(", ") }"
     end
     redirect_to action: :index
   end
@@ -87,7 +89,7 @@ class ServerTypesController < ApplicationController
   private
 
   # Разрешение изменения strong params
-  def permit_params
+  def server_type_params
     params.require(:server_type).permit(:name, template_server_details_attributes: [:id, :server_type_id, :server_part_id, :count, :_destroy])
   end
 

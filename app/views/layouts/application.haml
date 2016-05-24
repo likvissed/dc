@@ -6,8 +6,9 @@
     = javascript_include_tag 'application', controller_name
     = csrf_meta_tags
   %body
-    = render partial: "layouts/header"
     = render partial: "layouts/flash"
-    .main-content
-      = yield
+    = render partial: "layouts/header"
+    .bg-content
+      .main-content
+        = yield
 

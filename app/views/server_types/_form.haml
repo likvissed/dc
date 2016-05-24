@@ -1,7 +1,7 @@
-.detail-types
+.medium-content
   %div{ "ng-controller": "ServEditTypeCtrl" }
     = simple_form_for @server_type, url: url, html: { "serv-type-form": @server_type.id || 0, "serv-type-name": @server_type.name } do |type|
-      = type.input :name, label: "Наименование", input_html: { "ng-model": "server_type.name" }
+      = type.input :name, label: "Наименование", autofocus: true, input_html: { "ng-model": "server_type.name" }
       %h5
         %b Состав сервера
       .row.row-margin-bot{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy" }

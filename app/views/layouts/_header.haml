@@ -1,45 +1,73 @@
+.header-content
+  .header-top
+    .logo
+      = image_tag("Logo.png")
+    .user-menu
+      %ul
+        %li
+          Добро пожаловать,
+          = current_user.username
+        %li
+          = link_to "Выход", destroy_user_session_path, method: :delete
+
 .navbar.navbar-default
   .navbar-inner
     .container
-      .navbar-brand
-        Logo
+      /.navbar-brand
+      /  Logo
       .nav-collapse
         %ul.nav.navbar-nav
           %li.divider-vertical
           %li.dropdown
-            %a.dropdown-toggle{ href: "#", "data-toggle": "dropdown" }
+            = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
               Сервисы
               %b.caret
             %ul.dropdown-menu
               %li
-                %a{ href: "#" } Просмотр
+                = link_to "Просмотр", "#"
               %li
-                %a{ href: "#" } Добавить
+                = link_to "Добавить", "#"
 
           %li.divider-vertical
             %li.dropdown
-              %a.dropdown-toggle{ href: "#", "data-toggle": "dropdown" }
+              = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
                 Серверы
                 %b.caret
               %ul.dropdown-menu
                 %li
-                  %a{ href: servers_path } Просмотр
+                  = link_to "Просмотр", servers_path
                 %li
-                  %a{ href: server_parts_path } Комплектующие серверов
+                  = link_to "Комплектующие серверов", server_parts_path
                 %li
-                  %a{ href: detail_types_path } Типы комплектующих
+                  = link_to "Типы комплектующих", detail_types_path
                 %li
-                  %a{ href: server_types_path } Типы серверов
+                  = link_to "Типы серверов", server_types_path
                 %li
-                  %a{ href: "#" } Кластеры
+                  = link_to "Кластеры", "#"
           %li.divider-vertical
             %li.dropdown
-              %a.dropdown-toggle{ href: "#", "data-toggle": "dropdown" }
-                ЗИП
+              = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+                Зип
                 %b.caret
               %ul.dropdown-menu
                 %li
-                  %a{ href: "#" } файл
+                  = link_to "Файл", "#"
           %li.divider-vertical
           %p.navbar-text= yield(:title)
-
+        %ul.nav.navbar-nav.pull-right
+          - if current_user.has_role? :admin
+            %li.divider-vertical
+            %li.dropdown
+              = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+                /%span.text-danger Администрирование
+                Администрирование
+                %b.caret
+              %ul.dropdown-menu
+                %li
+                  = link_to "Пользователи", users_path
+                %li
+                  = link_to "Роли", "#"
+            %li.divider-vertical
+          /%li
+          /  = link_to "Выход", destroy_user_session_path, method: :delete
+          /%li.divider-vertical

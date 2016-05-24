@@ -1,3 +1,5 @@
-.absolute{ "ng-controller": "FlashMessageCtrl as flash", "data-success": flash[:success], "data-error": flash[:error] }
-  .alert.alert-success.text-center{ "ng-show": "flash.success" }= flash[:success]
-  .alert.alert-danger.text-center{ "ng-show": "flash.error" }= flash[:error]
+.absolute{ "ng-controller": "FlashMessageCtrl as flash", "data-notice": flash[:notice], "data-alert": flash[:alert] }
+  .alert.alert-success.text-center{ "ng-show": "flash.notice" }= flash[:notice]
+  .alert.alert-danger.alert-dismissable.text-center{ "ng-show": "flash.alert" }
+    = button_tag "&times;".html_safe, class: "close", "data-dismiss": "alert", "aria-hidden": "true"
+    %div= flash[:alert]

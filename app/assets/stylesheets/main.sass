@@ -1,0 +1,80 @@
+$main-bg-color: #0050a0 // Цвет фона
+
+/* ================================== Страницы входа на сайт ============================ */
+
+.auth
+  width: 260px
+  margin: 200px auto 0
+  border: 1px $table-border-color solid
+
+  .main-block
+    .header
+      text-align: center
+      padding: 5px 10px
+      border-bottom: 1px $table-border-color solid
+      background-color: #f8f8f8
+
+      h2
+        margin: 0 !important
+
+    .content
+      padding: 10px
+      background-color: white
+
+/* ================================== Основной контент ================================== */
+
+body
+  //background-color: #efefef
+  background-color: #f8f8f8
+
+.main-content
+  width: 1024px
+  margin: 0 auto
+  padding: 10px
+  box-shadow: 0 0 10px rgba(0,0,0,0.2)
+  height: 100%
+  background-color: white
+  border: 1px $table-border-color solid
+  //border-radius: $border-radius-base
+
+/*input[type="submit"] { @extend .btn }*/
+button
+  @extend .btn, .btn-default
+
+a.default-color
+  color: $btn-default-color !important
+
+// Для отображения flash
+.absolute
+  position: absolute
+  z-index: 9999
+  width: 100%
+
+/* ================================== Размер контента =================================== */
+
+.medium-content
+  width: 600px
+  margin: 0 auto
+
+.big-content
+  width: 1000px
+  margin: 0 auto
+
+/* ================================== Таблицы =========================================== */
+
+.table
+  @extend .table
+  margin: 10px 0 !important
+
+.table-hover
+  @extend .table-hover
+  cursor: pointer
+
+.row-margin-bot
+  margin-bottom: 15px
+
+/* ================================== Модальное окно ==================================== */
+
+.modal-body
+  table + h4
+    padding-top: 15px

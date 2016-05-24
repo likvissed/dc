@@ -1,5 +1,7 @@
 class Server < ActiveRecord::Base
 
+  resourcify
+
   has_many :real_server_details, dependent: :destroy
   has_many :server_parts, through: :real_server_details
 

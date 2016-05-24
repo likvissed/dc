@@ -1,5 +1,7 @@
 class ServerType < ActiveRecord::Base
 
+  resourcify
+
   has_many :servers, dependent: :restrict_with_error
   has_many :template_server_details, dependent: :destroy
   has_many :server_parts, through: :template_server_details

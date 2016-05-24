@@ -1,7 +1,7 @@
 = title "Типы комплектующих"
-.detail-types
+.medium-content
   = button_to "Добавить", new_detail_type_path, method: :get, class: "btn btn-primary"
-  %table.table.table-hover
+  %table.table.table-striped
     %th #
     %th.col-md-10 Имя
     %th
@@ -14,3 +14,4 @@
           = link_to icon("fa fa-pencil-square-o fa-1g"), "/detail_types/" + detail.name + "/edit", class: "default-color", title: "Редактировать"
         %td
           = link_to icon("fa fa-trash-o fa-1g"), detail_type_path(detail.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ detail.name }\"?" }, class: "text-danger", title: "Удалить"
+  = paginate @detail_types, window: 2

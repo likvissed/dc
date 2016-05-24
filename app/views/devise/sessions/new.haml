@@ -1,0 +1,16 @@
+.auth
+  .main-block
+    .header
+      %h2 Вход
+
+    .content
+      = simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|
+        .form-inputs
+          = f.input :login, label: "Логин", required: true, autofocus: true
+          = f.input :password, label: "Пароль", required: true
+          = f.input :remember_me, label: "Запомнить меня", as: :boolean if devise_mapping.rememberable?
+
+        .form-actions
+          = f.button :submit, "Войти"
+
+      = render "devise/shared/links"

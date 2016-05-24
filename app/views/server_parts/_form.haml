@@ -1,6 +1,6 @@
-.server-parts
+.big-content
   = simple_form_for [@server_part], url: url do |f|
-    = f.input :name, label: "Наименование"
+    = f.input :name, label: "Наименование", autofocus: true
     = f.input :part_num, label: "Номер"
     = f.association :detail_type, label: "Тип", prompt: "Выберите тип"
     = f.input :comment, label: "Комментарий"
