@@ -12,6 +12,8 @@ class ApplicationController < ActionController::Base
       format.json { render status: 403 }
     end
   end
+  #rescue_from Exception, with: :render_500
+
 
   # Проверка, была ли нажата кнопка "Отмена"
   def check_for_cancel(path)
@@ -24,6 +26,10 @@ class ApplicationController < ActionController::Base
 
   def render_403
     render file: "#{Rails.root}/public/403.html", status: 403, layout: false
+  end
+
+  def render_500
+    render file: "#{Rails.root}/public/500.html", status: 500, layout: false
   end
 
   private

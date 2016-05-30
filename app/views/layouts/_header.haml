@@ -37,11 +37,11 @@
                 %li
                   = link_to "Просмотр", servers_path
                 %li
+                  = link_to "Типы серверов", server_types_path
+                %li
                   = link_to "Комплектующие серверов", server_parts_path
                 %li
                   = link_to "Типы комплектующих", detail_types_path
-                %li
-                  = link_to "Типы серверов", server_types_path
                 %li
                   = link_to "Кластеры", "#"
           %li.divider-vertical
@@ -59,7 +59,6 @@
             %li.divider-vertical
             %li.dropdown
               = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
-                /%span.text-danger Администрирование
                 Администрирование
                 %b.caret
               %ul.dropdown-menu

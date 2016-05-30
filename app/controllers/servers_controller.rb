@@ -8,7 +8,7 @@ class ServersController < ApplicationController
 
   def index
     respond_to do |format|
-       format.html { render :index }
+      format.html { render :index }
       format.json do
         @servers = Server.select(:id, :name, :location)
         data = @servers.as_json.each do |s|

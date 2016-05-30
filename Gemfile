@@ -1,5 +1,9 @@
 source 'https://rubygems.org'
 
+# For console
+gem 'awesome_print'
+# Debug app
+# gem 'byebug'
 # Paginator
 gem 'kaminari'
 # Devise authentication
@@ -14,7 +18,7 @@ gem 'strip_attributes'
 # gem 'jquery-datatables-rails'
 # MySQL
 gem 'mysql2'
-# icons
+# Icons
 gem 'font-awesome-sass'
 # Twitter Bootstrap
 gem 'bootstrap-sass'
@@ -58,6 +62,7 @@ group :development, :test do
   gem 'byebug'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
+
 end
 
 group :development do
@@ -66,4 +71,11 @@ group :development do
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
+  # Rails panel
+  gem 'meta_request'
+  # View errors
+  gem 'better_errors'
+  # Quiet assets
+  gem 'quiet_assets'
+
 end
