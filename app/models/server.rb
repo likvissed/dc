@@ -2,7 +2,7 @@ class Server < ActiveRecord::Base
 
   resourcify
 
-  has_many :cluster_details
+  has_many :cluster_details, dependent: :restrict_with_error
   has_many :clusters, through: :cluster_details
 
   has_many :real_server_details, dependent: :destroy

@@ -73,7 +73,15 @@ group :development do
   gem 'better_errors'
   # Quiet assets
   gem 'quiet_assets'
+
+  # Capistrano
   gem 'capistrano'
+  gem 'capistrano-rails'
+  gem 'capistrano-bundler'
+  gem 'capistrano-rbenv'
+  gem 'capistrano-passenger'
+  #gem 'unicorn'
+
   # For console
   gem 'awesome_print'
   # Debug app

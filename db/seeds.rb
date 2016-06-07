@@ -1,12 +1,8 @@
-DetailType.destroy_all
-ServerPart.destroy_all
+#Role.create(name: 'admin')
+Role.create(name: 'manage_serv')
 
-DetailType.create( [
-  { name: "Диск" },
-  { name: "Память" },
-  { name: "Питание" },
-  { name: "Оптический линк" }
-] )
+user = User.create(username: 'admin', password: 'admin')
+user.add_role :admin
 
-#detail_type = DetailType.find_by(name: "Диск")
-#ServerPart.create()
+user = User.create(username: 'test', password: 'test')
+user.add_role :manage_serv
