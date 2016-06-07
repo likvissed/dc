@@ -1,6 +1,10 @@
 FactoryGirl.define do
   factory :user do
-    
-  end
+    sequence(:username) { |i| "test_user_#{i}"}
+    password "qwertyPass"
 
+    factory :admin_user do
+      after(:create) { |user| user.add_role :admin }
+    end
+  end
 end

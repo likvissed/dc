@@ -2,6 +2,9 @@ class Server < ActiveRecord::Base
 
   resourcify
 
+  has_many :cluster_details
+  has_many :clusters, through: :cluster_details
+
   has_many :real_server_details, dependent: :destroy
   has_many :server_parts, through: :real_server_details
 

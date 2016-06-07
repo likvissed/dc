@@ -7,7 +7,7 @@ ru:
     failure:
       already_authenticated: "Вы уже вошли в систему."
       inactive: "Ваша учётная запись ещё не активирована."
-      invalid: "Неверный %{authentication_keys} или пароль."
+      invalid: "Неверный логин или пароль." # %{authentication_keys}
       locked: "Ваша учётная запись заблокирована."
       last_attempt: "У Вас осталась еще одна попытка ввести пароль до блокировки."
       not_found_in_database: "Неверный %{authentication_keys} или пароль."

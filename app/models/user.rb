@@ -6,6 +6,8 @@ class User < ActiveRecord::Base
   # :confirmable, :lockable, :timeoutable, :omniauthable and :registerable
   devise :database_authenticatable, :trackable, authentication_keys: [:login]
 
+  strip_attributes allow_empty: true, collapse_spaces: true
+
   validates :username, uniqueness: { case_sensitive: false }, format: { with: /\w+/, message: "Разрешены только английские символы, цифры и знак '_'" }
   validates :password, confirmation: true
 

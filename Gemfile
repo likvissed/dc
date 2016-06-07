@@ -1,9 +1,5 @@
 source 'https://rubygems.org'
 
-# For console
-gem 'awesome_print'
-# Debug app
-# gem 'byebug'
 # Paginator
 gem 'kaminari'
 # Devise authentication
@@ -77,5 +73,10 @@ group :development do
   gem 'better_errors'
   # Quiet assets
   gem 'quiet_assets'
+  gem 'capistrano'
+  # For console
+  gem 'awesome_print'
+  # Debug app
+  # gem 'byebug'
 
 end

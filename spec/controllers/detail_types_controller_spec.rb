@@ -2,6 +2,9 @@ require 'rails_helper'
 
 RSpec.describe DetailTypesController, type: :controller do
 
+  let(:admin_user) { create(:admin_user) }
+  before { sign_in :user, admin_user }
+
   #describe "#index" do
   #  let(:detail_type) { 10.times{ create(:detail_type)} }
   #  subject { get :index }

@@ -1,0 +1,21 @@
+= title "Кластеры"
+.medium-content
+  = button_to "Добавить", new_cluster_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+  %table.table.table-striped
+    %tr
+      %th #
+      %th.col-md-10 Имя
+      %th
+      %th
+    - if @clusters.empty?
+      %tr
+        %td.text-center{ colspan: 2 } Данные отсутствуют
+    -else
+      - @clusters.each_with_index do |cluster, index|
+        %tr
+          %td= index.next
+          %td= cluster.name
+          %td
+            = link_to icon("fa fa-pencil-square-o fa-1g"), "/clusters/" + cluster.name + "/edit", class: "default-color", title: "Редактировать"
+          %td
+            = link_to icon("fa fa-trash-o fa-1g"), cluster_path(cluster.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ cluster.name }\"?" }, class: "text-danger", title: "Удалить"

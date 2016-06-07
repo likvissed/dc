@@ -1,6 +1,6 @@
 FactoryGirl.define do
-  factory :role do
-
+  factory :node_role do
+    
   end
 
 end

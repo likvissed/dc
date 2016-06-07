@@ -1,11 +1,12 @@
 = title "Типы комплектующих"
 .medium-content
-  = button_to "Добавить", new_detail_type_path, method: :get, class: "btn btn-primary"
+  = button_to "Добавить", new_detail_type_path, method: :get, class: "btn btn-primary", form_class: "text-center"
   %table.table.table-striped
-    %th #
-    %th.col-md-10 Имя
-    %th
-    %th
+    %tr
+      %th #
+      %th.col-md-10 Имя
+      %th
+      %th
     - @detail_types.each_with_index do |detail, index|
       %tr
         %td= index.next

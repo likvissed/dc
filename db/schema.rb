@@ -11,7 +11,15 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160517091106) do
+ActiveRecord::Schema.define(version: 20160606101205) do
+
+  create_table "cluster_details", force: :cascade do |t|
+    t.integer  "cluster_id",   limit: 4
+    t.integer  "server_id",    limit: 4
+    t.integer  "node_role_id", limit: 4
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "clusters", force: :cascade do |t|
     t.string   "name",       limit: 255
@@ -28,6 +36,12 @@ ActiveRecord::Schema.define(version: 20160517091106) do
   end
 
   add_index "detail_types", ["name"], name: "index_detail_types_on_name", using: :btree
+
+  create_table "node_roles", force: :cascade do |t|
+    t.string   "name",       limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
 
   create_table "real_server_details", force: :cascade do |t|
     t.integer  "server_id",      limit: 4
@@ -71,7 +85,6 @@ ActiveRecord::Schema.define(version: 20160517091106) do
   add_index "server_types", ["name"], name: "index_server_types_on_name", using: :btree
 
   create_table "servers", force: :cascade do |t|
-    t.integer  "cluster_id",     limit: 4
     t.integer  "server_type_id", limit: 4
     t.string   "inventory_num",  limit: 255
     t.string   "serial_num",     limit: 255
@@ -95,6 +108,7 @@ ActiveRecord::Schema.define(version: 20160517091106) do
   add_index "template_server_details", ["server_type_id"], name: "index_template_server_details_on_server_type_id", using: :btree
 
   create_table "users", force: :cascade do |t|
+    t.string   "username",            limit: 255
     t.string   "encrypted_password",  limit: 255, default: "", null: false
     t.datetime "remember_created_at"
     t.integer  "sign_in_count",       limit: 4,   default: 0,  null: false
@@ -104,7 +118,6 @@ ActiveRecord::Schema.define(version: 20160517091106) do
     t.string   "last_sign_in_ip",     limit: 255
     t.datetime "created_at",                                   null: false
     t.datetime "updated_at",                                   null: false
-    t.string   "username",            limit: 255
   end
 
   add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree

@@ -24,6 +24,9 @@ Rails.application.routes.draw do
 
     get   '/server_parts/:name/edit', to: 'server_parts#edit'
     patch '/server_parts/:name',      to: 'server_parts#update'
+
+    get   '/clusters/:name/edit',     to: 'clusters#edit'
+    patch '/clusters/:name',          to: 'clusters#update'
   end
 
   resources :users,         except: [:edit, :update]
@@ -31,7 +34,7 @@ Rails.application.routes.draw do
   resources :server_types,  except: [:edit, :update]
   resources :detail_types,  except: [:edit, :update]
   resources :server_parts,  except: [:edit, :update]
-  resources :clusters
+  resources :clusters,      except: [:edit, :update]
 
   get '*unmatched_route', to: 'application#render_404'
 
