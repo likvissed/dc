@@ -66,7 +66,12 @@ class ServersController < ApplicationController
         server_details  = @server.real_server_details
         @server_parts   = ServerPart.all
         @server_types   = ServerType.all
-        render json: { server: @server.as_json(include: :server_type), server_details: server_details.as_json(include: :server_part), server_parts: @server_parts, server_types: @server_types }
+        render json: {
+          server: @server.as_json(include: { server_type: { only: [:id, :name] } }),
+          server_details: server_details.as_json(include: {
+            server_part: { except: [:created_at, :updated_at] } }),
+          server_parts: @server_parts, server_types: @server_types
+        }
       end
     end
   end
@@ -94,7 +99,7 @@ class ServersController < ApplicationController
 
   # Разрешение изменения strong params
   def server_params
-    params.require(:server).permit(:cluster_id, :server_type_id, :name, :inventory_num, :serial_num, :location, real_server_details_attributes: [:id, :server_id, :server_part_id, :count])
+    params.require(:server).permit(:cluster_id, :server_type_id, :name, :inventory_num, :serial_num, :location, real_server_details_attributes: [:id, :server_id, :server_part_id, :count, :_destroy])
   end
 
   # Поиск данных о типе запчасти по name

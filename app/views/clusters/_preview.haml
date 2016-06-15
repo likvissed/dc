@@ -2,22 +2,15 @@
   .modal-dialog
     .modal-content
       .modal-header
-        - if can? :manage, ServerPart
+        - if can? :manage, Cluster
           = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData", title: "Редактировать"
         %h4.modal-title
       .modal-body
-        %h4 Описание
-        %table.table.table-striped
+        %h4 Состав
+        %table.table.table-striped{ "data-id": "details" }
           %tbody
-            %tr
-              %td.col-md-3 Тип
-              %td{ "data-id": "srvPartType" }
-            %tr
-              %td Номер
-              %td{ "data-id": "srvPartNum" }
-
-        %h4 Комментарий
-        %div{ "data-id": "srvPartComment" } Отсутствует
-
+            %tr.hidden
+              %td
+              %td.col-md-1
       .modal-footer
         = button_tag "Закрыть", class: "btn-primary", "data-id": "closeModal"

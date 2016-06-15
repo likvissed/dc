@@ -60,9 +60,9 @@ class ServerTypesController < ApplicationController
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        server_details  = @server_type.template_server_details
-        @server_parts    = ServerPart.all
-        render json: { server_details: server_details.as_json(include: :server_part) , server_parts: @server_parts }
+        server_details = @server_type.template_server_details
+        @server_parts  = ServerPart.all
+        render json: { server_details: server_details.as_json(include: :server_part), server_parts: @server_parts }
       end
     end
   end

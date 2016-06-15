@@ -8,14 +8,14 @@ class UsersController < ApplicationController
   before_action :select_all_roles,  only: [:new, :edit]
 
   def index
-    @users = User.all.page params[:page]
+    @users = User.select(:id, :username).page params[:page]
   end
 
   def show
   end
 
   def new
-    @user   = User.new
+    @user = User.new
   end
 
   def create
@@ -26,7 +26,7 @@ class UsersController < ApplicationController
       flash[:notice] = "Пользователь создан."
       redirect_to users_path
     else
-      @roles  = Role.all
+      @roles  = Role.select(:name)
       flash.now[:alert] = "Ошибка создания пользователя. #{ @user.errors.full_messages.join(", ") }"
       render action: :new
     end
@@ -45,9 +45,9 @@ class UsersController < ApplicationController
       flash[:notice] = "Данные изменены."
       redirect_to users_path
     else
-      @roles = Role.all
+      select_all_roles
       flash.now[:alert] = "Ошибка изменения данных. #{ @user.errors.full_messages.join(", ") }"
-      render action: :edit
+      render :edit
     end
   end
 

@@ -87,7 +87,7 @@ $(function () {
   });
 });
 
-// Показать информацию о сервере
+// Показать информацию о типе сервере
 function showServerType() {
   $('#servTypeTable > tbody > tr').not('a').off().on('click', function (event) {
     if (event.target.tagName == 'I' )
@@ -105,7 +105,7 @@ function showServerType() {
           .end().find('td:last-child').text(this.count);
       });
 
-      // Ссылка на изменение данных о сервере
+      // Ссылка на изменение данных о типе сервера
       modal.find('a[data-id="changeData"]').attr('href', '/server_types/' + data.name + '/edit');
 
       modal.modal('show');

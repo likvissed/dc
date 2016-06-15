@@ -2,8 +2,8 @@ class ClusterDetail < ActiveRecord::Base
 
   resourcify
 
-  belongs_to :clusters
-  belongs_to :servers
-  belongs_to :node_roles
+  belongs_to :cluster
+  belongs_to :server
+  belongs_to :node_role
 
 end
