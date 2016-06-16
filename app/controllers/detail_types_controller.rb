@@ -10,9 +10,6 @@ class DetailTypesController < ApplicationController
     @detail_types = DetailType.select(:name, :id).page params[:page]
   end
 
-  def show
-  end
-
   def new
     @detail_type = DetailType.new
   end
