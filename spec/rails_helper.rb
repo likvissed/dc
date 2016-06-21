@@ -1,11 +1,16 @@
 # This file is copied to spec/ when you run 'rails generate rspec:install'
 ENV['RAILS_ENV'] ||= 'test'
 require File.expand_path('../../config/environment', __FILE__)
+#Dir[Rails.root.join("spec/support/helpers/**/*.rb")].sort.each { |f| require f }
 # Prevent database truncation if the environment is production
 abort("The Rails environment is running in production mode!") if Rails.env.production?
 require 'spec_helper'
 require 'rspec/rails'
 require 'factory_girl_rails'
+require 'capybara/rails'
+require 'database_cleaner'
+
+include Warden::Test::Helpers
 # Add additional requires below this line. Rails is not loaded until this point!
 
 # Requires supporting ruby files with custom matchers and macros, etc, in
@@ -60,4 +65,28 @@ RSpec.configure do |config|
   # For Devise
   config.include Devise::TestHelpers, type: :controller
   config.include Devise::TestHelpers, type: :view
+
 end
+
+=begin
+  # Clear database
+  config.before(:suite) do
+    DatabaseCleaner.clean_with(:truncation)
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.strategy = :transaction
+  end
+
+  config.before(:each, :js => true) do
+    DatabaseCleaner.strategy = :truncation
+  end
+
+  config.before(:each) do
+    DatabaseCleaner.start
+  end
+
+  config.after(:each) do
+    DatabaseCleaner.clean
+  end
+=end

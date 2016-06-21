@@ -9,16 +9,5 @@
         %th Имя
         %th.col-md-2 Номер
         %th.col-md-1
-    /- @server_parts.each_with_index do |part, index|
-    /  %tr
-    /    %td= index.next
-    /    %td= part.detail_type.name
-    /    %td= part.name
-    /    %td= part.part_num
-    /    %td= part.comment
-    /    %td
-    /      = link_to icon("fa fa-pencil-square-o fa-1g"), "/server_parts/" + part.name + "/edit", class: "default-color", title: "Редактировать"
-    /    %td
-    /      = link_to icon("fa fa-trash-o fa-1g"), server_part_path(part.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ part.name }\"?" }, class: "text-danger", title: "Удалить"
 
 = render partial: "preview"

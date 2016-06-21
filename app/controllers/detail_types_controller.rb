@@ -7,7 +7,7 @@ class DetailTypesController < ApplicationController
   before_action :find_detail_type_by_id,    only: [:show, :destroy]
 
   def index
-    @detail_types = DetailType.select(:name, :id).page params[:page]
+    @detail_types = DetailType.select(:id, :name).page params[:page]
   end
 
   def new

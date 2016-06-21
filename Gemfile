@@ -58,7 +58,12 @@ group :development, :test do
   gem 'byebug'
   gem 'rspec-rails'
   gem 'factory_girl_rails'
+  gem 'capybara'
+  #gem 'capybara-webkit'
+end
 
+group :test do
+  gem 'database_cleaner'
 end
 
 group :development do

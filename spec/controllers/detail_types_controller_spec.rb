@@ -5,19 +5,18 @@ RSpec.describe DetailTypesController, type: :controller do
   let(:admin_user) { create(:admin_user) }
   before { sign_in :user, admin_user }
 
-  #describe "#index" do
-  #  let(:detail_type) { 10.times{ create(:detail_type)} }
-  #  subject { get :index }
+  describe "#check_for_cancel" do
+    subject { get :index, cancel: true }
 
-  #  it "contains necessary keys" do
-  #    expect(response.body).to eq(detail_type)
-  #  end
-  #end
+    it "redirects to cancel path" do
+      expect(subject).to redirect_to detail_types_path
+    end
+  end
 
   describe "#new" do
     subject { get :new }
 
-    it "render new page" do
+    it "renders new page" do
       expect(subject).to render_template(:new)
     end
   end
@@ -65,7 +64,7 @@ RSpec.describe DetailTypesController, type: :controller do
   end
 
   describe "#destroy" do
-    context "when detail_type was destroyed" do
+    context "when detail_type was(or not) destroyed" do
       let(:detail_type) { create(:detail_type) }
       subject { delete :destroy, id: detail_type.id }
 
