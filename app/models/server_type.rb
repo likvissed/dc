@@ -6,10 +6,12 @@ class ServerType < ActiveRecord::Base
   has_many :template_server_details, dependent: :destroy
   has_many :server_parts, through: :template_server_details
 
-  accepts_nested_attributes_for :template_server_details, allow_destroy: true, reject_if: proc { |attr| attr["server_part_id"].blank? }
+  accepts_nested_attributes_for :template_server_details, allow_destroy: true, reject_if: proc { |attr|
+    attr["server_part_id"].blank? }
 
   strip_attributes allow_empty: true, collapse_spaces: true
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
+  validates :template_server_details, presence: true
 
 end

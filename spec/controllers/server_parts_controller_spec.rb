@@ -18,6 +18,7 @@ RSpec.describe ServerPartsController, type: :controller do
 
     context "when sends html request" do
       subject { get :index }
+
       it "render index page" do
         expect(subject).to render_template :index
       end
@@ -26,9 +27,11 @@ RSpec.describe ServerPartsController, type: :controller do
     context "when sends json request" do
       let(:expected_server_parts) do
         server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
-        data = server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
+        server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
           s['DT_RowId'] = s['id']
-          s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete' rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
+          s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete'
+rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa
+fa-trash-o fa-1g'></a>"
           s.delete('id')
           s.delete('detail_type_id')
         end
@@ -42,7 +45,7 @@ RSpec.describe ServerPartsController, type: :controller do
     end
   end
 
-  describe "#show"do
+  describe "#show" do
     context "when sends json request" do
       let(:server_part) { create(:server_part) }
       let(:expected_server_part) do
@@ -64,6 +67,11 @@ RSpec.describe ServerPartsController, type: :controller do
   describe "#new" do
     subject { get :new }
 
+    it "must create a new variable" do
+      subject
+      expect(assigns(:server_part)).to be_a_new(ServerPart)
+    end
+
     it "renders new page" do
       expect(subject).to render_template(:new)
     end
@@ -71,8 +79,12 @@ RSpec.describe ServerPartsController, type: :controller do
 
   describe "#create" do
     context "when server_part was created" do
-      let(:server_part) { attributes_for(:server_part) }
+      let(:server_part) { build(:server_part).attributes }
       subject { post :create, server_part: server_part }
+
+      it "changes count of ServerPart" do
+        expect { subject }.to change { ServerPart.count }.by(1)
+      end
 
       it "redirects to index action" do
         expect(subject).to redirect_to action: :index
@@ -80,8 +92,12 @@ RSpec.describe ServerPartsController, type: :controller do
     end
 
     context "when detail_type was not created" do
-      let(:invalid_server_part) { attributes_for(:invalid_server_part) }
+      let(:invalid_server_part) { build(:invalid_server_part).attributes }
       subject { post :create, server_part: invalid_server_part }
+
+      it "must not change count of ServerPart" do
+        expect { subject }.to_not change { ServerPart.count }
+      end
 
       it "renders new page" do
         expect(subject).to render_template :new
@@ -89,11 +105,29 @@ RSpec.describe ServerPartsController, type: :controller do
     end
   end
 
+  describe "#edit" do
+    let(:current_server_part) { create(:server_part) }
+    subject { get :edit, name: current_server_part.name }
+    before { subject }
+
+    it "must create instance variable" do
+      expect(assigns(:server_part)).to be_kind_of(ServerPart)
+    end
+
+    it "check data in instance variable" do
+      expect(assigns(:server_part)).to eq current_server_part
+    end
+
+    it "render edit page" do
+      expect(subject).to render_template :edit
+    end
+  end
+
   describe "#update" do
     let(:server_part_old) { create(:server_part) }
 
     context "when server_part was updated" do
-      let(:server_part_new) { attributes_for(:server_part) }
+      let(:server_part_new) { build(:server_part).attributes }
       subject { put :update, name: server_part_old.name, server_part: server_part_new }
 
       it "redirects to index action" do
@@ -102,7 +136,7 @@ RSpec.describe ServerPartsController, type: :controller do
     end
 
     context "when server_part was not updated" do
-      let(:invalid_server_part) { attributes_for(:invalid_server_part) }
+      let(:invalid_server_part) { build(:invalid_server_part).attributes }
       subject { put :update, name: server_part_old.name, server_part: invalid_server_part }
 
       it "renders edit page" do
@@ -112,9 +146,13 @@ RSpec.describe ServerPartsController, type: :controller do
   end
 
   describe "#destroy" do
-    context "when server_part was(or not) destroyed" do
-      let(:server_part) { create(:server_part) }
+    context "when server_part was destroyed" do
+      let!(:server_part) { create(:server_part) }
       subject { delete :destroy, id: server_part.id }
+
+      it "changes count of ServerPart" do
+        expect { subject }.to change { ServerPart.count }.by(-1)
+      end
 
       it "redirects to index action" do
         expect(subject).to redirect_to action: :index

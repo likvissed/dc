@@ -70,6 +70,7 @@ set :keep_releases,   20
 #set :rails_env, 'production'
 set :deploy_via,      :remote_cache
 set :use_sudo,        false
+set :passenger_restart_with_touch, true
 #set :default_stage, 'staging'
 
 set :linked_files,    %w{config/database.yml}

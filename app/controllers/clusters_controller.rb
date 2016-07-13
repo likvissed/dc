@@ -12,7 +12,8 @@ class ClustersController < ApplicationController
         @clusters = Cluster.select(:id, :name)
         data = @clusters.as_json.each do |s|
           s['DT_RowId'] = s['id']
-          s['del']      = "<a href='/clusters/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
+          s['del']      = "<a href='/clusters/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
+title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
           s.delete('id')
         end
         render json: { data: data }
@@ -22,16 +23,17 @@ class ClustersController < ApplicationController
 
   def show
     respond_to do |format|
-      format.json { render json: @cluster.as_json(include: {
-        cluster_details: {
-          only: [],
-          include: {
-            server: { only: :name },
-            node_role: { only: :name } }
-          }
-#          include: { node_role: { only: :name } } }
-        },
-        except: [:id, :created_at, :updated_at] ) }
+      format.json { render json: @cluster.as_json(
+        include: {
+          cluster_details: {
+            only: [],
+            include: {
+              server: { only: :name },
+              node_role: { only: :name } }
+            }
+          },
+        except: [:id, :created_at, :updated_at]
+      ) }
     end
   end
 

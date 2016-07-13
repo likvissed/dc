@@ -13,7 +13,8 @@
               %h5
                 %abbr{ title: "required" } *
                 %b Тип сервера
-            = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.server_type", "ng-options": "type.name for type in types track by type.id", "ng-change": "changeType(server.server_type)", prompt: "Выберите тип сервера"
+            = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.server_type",
+            "ng-options": "type.name for type in types track by type.id", "ng-change": "changeType(server.server_type)", prompt: "Выберите тип сервера"
             %span.help-block= get_errors @server.errors[:server_type_id]
 
       %h5

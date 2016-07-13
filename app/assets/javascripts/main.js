@@ -21,7 +21,7 @@ app.controller("FlashMessageCtrl",['$attrs', '$timeout', function($attrs, $timeo
 /* ======================================================================================= */
 
 $(function () {
-  var modal = $('modal')
+  var modal = $('modal');
 
   // Настройки DataTable
   $.extend(true, $.fn.DataTable.defaults, {

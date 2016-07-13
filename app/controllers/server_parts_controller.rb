@@ -13,7 +13,9 @@ class ServerPartsController < ApplicationController
         @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
         data = @server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
             s['DT_RowId'] = s['id']
-            s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete' rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
+            s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete'
+rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa
+fa-trash-o fa-1g'></a>"
             s.delete('id')
             s.delete('detail_type_id')
         end

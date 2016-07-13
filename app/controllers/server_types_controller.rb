@@ -13,7 +13,9 @@ class ServerTypesController < ApplicationController
       format.json do
         data = @server_types.as_json.each do |s|
           s['DT_RowId'] = s['id']
-          s['del']      = "<a href='/server_types/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
+          s['del']      = "<a href='#{server_type_path(s['id'])}' class='text-danger' data-method='delete'
+rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa
+fa-trash-o fa-1g'></a>"
           s.delete('id')
         end
         render json: { data: data }
@@ -23,12 +25,14 @@ class ServerTypesController < ApplicationController
 
   def show
     respond_to do |format|
-      format.json { render json: @server_type.as_json(include: {
-        template_server_details: {
-          only: :count,
-          include: { server_part: { only: :name } } },
-        },
-        except: [:id, :created_at, :updated_at]) }
+      format.json { render json: @server_type.as_json(
+        include: {
+          template_server_details: {
+            only: :count,
+            include: { server_part: { only: :name } } },
+          },
+        except: [:id, :created_at, :updated_at])
+      }
     end
   end
 
@@ -39,7 +43,7 @@ class ServerTypesController < ApplicationController
         render :new
       end
       format.json do
-        @server_parts = ServerPart.all
+        @server_parts = ServerPart.select(:id, :name)
         render json: @server_parts
       end
     end
@@ -61,8 +65,14 @@ class ServerTypesController < ApplicationController
       format.html { render :edit }
       format.json do
         server_details = @server_type.template_server_details
-        @server_parts  = ServerPart.all
-        render json: { server_details: server_details.as_json(include: :server_part), server_parts: @server_parts }
+        @server_parts  = ServerPart.select(:id, :name)
+        render json: {
+          server_details: server_details.as_json(
+            include: { server_part: { only: [:id, :name] } },
+            except: [:created_at, :updated_at]
+          ),
+          server_parts: @server_parts
+        }
       end
     end
   end
@@ -90,7 +100,9 @@ class ServerTypesController < ApplicationController
 
   # Разрешение изменения strong params
   def server_type_params
-    params.require(:server_type).permit(:name, template_server_details_attributes: [:id, :server_type_id, :server_part_id, :count, :_destroy])
+    params.require(:server_type).permit(:name, template_server_details_attributes: [:id, :server_part_id, :count,
+                                                                                    :_destroy])
+    #:server_type_id,
   end
 
   # Поиск данных о типе запчасти по name

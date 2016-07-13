@@ -13,7 +13,8 @@ class ServersController < ApplicationController
         @servers = Server.select(:id, :name, :location)
         data = @servers.as_json.each do |s|
           s['DT_RowId'] = s['id']
-          s['del']      = "<a href='/servers/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
+          s['del']      = "<a href='/servers/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
+title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
           s.delete('id')
         end
         render json: { data: data }
@@ -42,7 +43,7 @@ class ServersController < ApplicationController
         render :new
       end
       format.json do
-        @server_types = ServerType.all
+        @server_types = ServerType.select(:id, :name)
         render json: @server_types
       end
     end
@@ -64,13 +65,19 @@ class ServersController < ApplicationController
       format.html { render :edit }
       format.json do
         server_details  = @server.real_server_details
-        @server_parts   = ServerPart.all
-        @server_types   = ServerType.all
+        @server_parts   = ServerPart.select(:id, :name)
+        @server_types   = ServerType.select(:id, :name)
         render json: {
-          server: @server.as_json(include: { server_type: { only: [:id, :name] } }),
-          server_details: server_details.as_json(include: {
-            server_part: { except: [:created_at, :updated_at] } }),
-          server_parts: @server_parts, server_types: @server_types
+          server: @server.as_json(
+            include: { server_type: { only: [:id, :name] } },
+            except: [:created_at, :updated_at]
+          ),
+          server_details: server_details.as_json(
+            include: { server_part: { except: [:created_at, :updated_at] } },
+            except: [:created_at, :updated_at]
+          ),
+          server_parts: @server_parts,
+          server_types: @server_types
         }
       end
     end
@@ -99,7 +106,8 @@ class ServersController < ApplicationController
 
   # Разрешение изменения strong params
   def server_params
-    params.require(:server).permit(:cluster_id, :server_type_id, :name, :inventory_num, :serial_num, :location, real_server_details_attributes: [:id, :server_id, :server_part_id, :count, :_destroy])
+    params.require(:server).permit(:cluster_id, :server_type_id, :name, :inventory_num, :serial_num, :location,
+                                   real_server_details_attributes: [:id, :server_id, :server_part_id, :count, :_destroy])
   end
 
   # Поиск данных о типе запчасти по name
