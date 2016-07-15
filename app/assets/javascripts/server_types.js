@@ -1,6 +1,7 @@
-app.directive('servTypeForm', function($http) {
+app.directive('servTypeForm', ['$http', function($http) {
   return function(scope, element, attrs){
     if (attrs.servTypeForm == 0) {
+      console.log("here1");
       $http.get('/server_types/new.json')
         .success(function(data, status, header, config) {
           scope.parts = data;
@@ -12,6 +13,7 @@ app.directive('servTypeForm', function($http) {
         });
     }
     else {
+      console.log("here2");
       scope.server_type = {
         name: $('#server_type_name').val()
       }
@@ -22,9 +24,9 @@ app.directive('servTypeForm', function($http) {
         });
     }
   }
-});
+}]);
 
-app.controller('ServEditTypeCtrl', function($scope, $http) {
+app.controller('ServEditTypeCtrl', ['$scope', '$http', function($scope, $http) {
   $scope.addServPart = function() {
     $scope.details.push({
       server_part_id: $scope.parts[0].id,
@@ -40,7 +42,7 @@ app.controller('ServEditTypeCtrl', function($scope, $http) {
     else
       $scope.details.splice($.inArray(detail, $scope.details), 1)
   }
-});
+}]);
 
 $(function () {
   var
@@ -73,6 +75,10 @@ $(function () {
       drawCallback: function () {
         showServerType();
       },
+      initComplete: function () {
+        // Изменить класс у формы поиска
+        $('.dataTables_filter input').removeClass('input-sm');
+      }
     });
 
   // Закрыть модальное окно

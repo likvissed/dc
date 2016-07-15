@@ -7,12 +7,17 @@
       %th.col-md-10 Имя
       %th
       %th
-    - @detail_types.each_with_index do |detail, index|
+    - if @detail_types.empty?
       %tr
-        %td= index.next
-        %td= detail.name
-        %td
-          = link_to icon("fa fa-pencil-square-o fa-1g"), "/detail_types/" + detail.name + "/edit", class: "default-color", title: "Редактировать"
-        %td
-          = link_to icon("fa fa-trash-o fa-1g"), detail_type_path(detail.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ detail.name }\"?" }, class: "text-danger", title: "Удалить"
+        %td.text-center{ colspan: 4 } Данные отсутствуют
+    - else
+      - @detail_types.each_with_index do |detail, index|
+        %tr
+          %td= index.next
+          %td= detail.name
+          %td
+            = link_to icon("fa fa-pencil-square-o fa-1g"), "/detail_types/" + detail.name + "/edit", class: "default-color", title: "Редактировать"
+          %td
+            = link_to icon("fa fa-trash-o fa-1g"), detail_type_path(detail.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ detail.name }\"?" }, class: "text-danger", title: "Удалить"
+
   = paginate @detail_types, window: 2

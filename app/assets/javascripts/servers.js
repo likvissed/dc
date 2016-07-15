@@ -4,7 +4,8 @@ app.directive('servForm', function($http) {
     if (attrs.servForm == 0) {
       $http.get('/servers/new.json')
         .success(function(data, status, header, config) {
-          scope.types = data;
+          scope.statuses  = data.server_statuses;
+          scope.types     = data.server_types;
         })
         .error(function(data, status, header, config) {})
     }
@@ -12,15 +13,17 @@ app.directive('servForm', function($http) {
     else {
       $http.get('/servers/' + attrs.servName + '/edit.json')
         .success(function(data, status, header, config) {
-          scope.server  = data.server;
-          scope.types   = data.server_types;
-          scope.details = data.server_details;
-          scope.parts   = data.server_parts;
+          scope.server    = data.server;
+          scope.statuses  = data.server_statuses;
+          scope.types     = data.server_types;
+          scope.details   = data.server_details;
+          scope.parts     = data.server_parts;
         });
     }
   };
 });
 
+// Редактирование комплектующих
 app.controller('ServEditCtrl', ['$scope', '$http', function($scope, $http) {
   $scope.changeType = function(type) {
     $http.get('/server_types/' + type.name + '/edit.json')
@@ -56,6 +59,18 @@ $(function() {
   var
     modal = $('#modal'),
     table = $('#servTable').DataTable({
+      ajax: {
+        url:    'servers.json',
+        async:  false,
+        type:   'get',
+        data: function (data) {
+          var val = $("#serverTypeFilter").find(":selected").val();
+          if (!val)
+            data.server_type_val = 0;
+          else
+            data.server_type_val = val;
+        }
+      },
       columns: [
         {
           data: 'index',
@@ -63,6 +78,9 @@ $(function() {
         },
         {
           data: 'name'
+        },
+        {
+          data: 'server_type.name'
         },
         {
           data: 'location'
@@ -74,17 +92,24 @@ $(function() {
           className:  'text-center'
         }
       ],
-      ajax: {
-        url:    'servers.json',
-        async:  false,
-        type:   'get'
-      },
       createdRow: function(row, data, dataIndex) {
         data.index = dataIndex + 1;
         $(row).find('td:first-child').text(data.index);
       },
       drawCallback: function () {
         showServer();
+      },
+      initComplete: function (settings, json) {
+        // Создать фильтр по типу сервера
+        var select = $('<select class="form-control" id="serverTypeFilter">').appendTo('#data-table-filter');
+
+        $('<option>').val('0').text('Все типы').appendTo(select);
+        $.each(json.server_types, function(index, value) {
+          $('<option>').val(value.id).text(value.name).appendTo(select);
+        });
+        
+        // Изменить класс у формы поиска
+        $('.dataTables_filter input').removeClass('input-sm');
       }
     });
 
@@ -98,19 +123,26 @@ $(function() {
     //Удалить созданные строки таблицы
     modal.find('table[data-id="details"] tr').not('tr.hidden').remove();
   });
+
+  // Фильтр таблицы
+  $('#serverTypeFilter').on('change', function () {
+    table.ajax.reload(null, false);
+  });
 });
 
 // Показать информацию о сервере
 function showServer() {
-  $('#servTable > tbody > tr').not('a').off().on('click', function (event) {
+  $('#servTable > tbody > tr').not('a').not().off().on('click', function (event) {
     if (event.target.tagName == 'I' )
       return true;
 
     $.get('servers/' + this.id + '.json', function(data) {
       var modal = $('#modal');
+      console.log(data);
 
       // Заполнение поля "Описание"
-      modal.find('.modal-header .modal-title').text(data.name)
+      modal.find('.modal-header .modal-title').text(data.name + ' (' + data.server_status.name + ')')
+        // .end().find('span[data-id="srvStatus"]').text('(' + data.server_status.name + ')')
         .end().find('td[data-id="srvLocation"]').text(data.location)
         .end().find('td[data-id="srvType"]').text(data.server_type.name)
         .end().find('td[data-id="srvSerial"]').text(data.serial_num)

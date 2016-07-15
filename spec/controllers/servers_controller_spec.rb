@@ -14,7 +14,8 @@ RSpec.describe ServersController, type: :controller do
   end
 
   describe "#index" do
-    let(:server) { create(:server) }
+    let!(:server_1) { create(:server) }
+    let!(:server_2) { create(:server) }
 
     context "when sends html request" do
       subject { get :index }
@@ -30,25 +31,47 @@ RSpec.describe ServersController, type: :controller do
     end
 
     context "when sends json request" do
-      let(:expected_server) do
-        server = Server.select(:id, :name, :location)
-        server.as_json.each do |s|
-          s['DT_RowId'] = s['id']
-          s['del']      = "<a href='/servers/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
+      context "when filter selected" do
+        let(:expected_servers) do
+          servers = Server.select(:id, :name, :server_type_id, :location).where("server_type_id = ?", server_1.server_type.id)
+          servers.as_json(include: { server_type: { only: :name } }).each do |s|
+            s['DT_RowId'] = s['id']
+            s['del']      = "<a href='/servers/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
 title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
-          s.delete('id')
+            s.delete('id')
+            s.delete('server_type_id')
+          end
+        end
+        subject { get :index, server_type_val: server_1.server_type.id, format: :json }
+
+        it "sends filtered servers data" do
+          parser = JSON.parse(subject.body)
+          expect(parser["data"]).to eq expected_servers.as_json
         end
       end
-      subject { get :index, format: :json }
-      before { subject }
 
-      it "must create instance variable" do
-        expect(assigns(:servers)).to be_kind_of(Server::ActiveRecord_Relation)
-      end
+      context "when filter not selected" do
+        let(:expected_servers) do
+          server = Server.select(:id, :name, :server_type_id, :location)
+          server.as_json(include: { server_type: { only: :name } }).each do |s|
+            s['DT_RowId'] = s['id']
+            s['del']      = "<a href='/servers/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
+title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
+            s.delete('id')
+            s.delete('server_type_id')
+          end
+        end
+        let(:expected_server_types) { ServerType.select(:id, :name) }
+        let(:parser) { JSON.parse(subject.body) }
+        subject { get :index, server_type_val: 0, format: :json }
 
-      it "sends server data" do
-        parser = JSON.parse(subject.body)
-        expect(parser["data"]).to eq expected_server.as_json
+        it "sends all servers data" do
+          expect(parser["data"]).to eq expected_servers.as_json
+        end
+
+        it "sends all servers_types data for create filter" do
+          expect(parser["server_types"]).to eq expected_server_types.as_json
+        end
       end
     end
   end
@@ -61,6 +84,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
         expect_server.as_json(
           include: {
             server_type: { only: :name },
+            server_status: { only: :name },
             cluster: { only: :name },
             real_server_details: {
               only: :count,
@@ -94,12 +118,15 @@ title='Удалить' data-confirm='Вы действительно хотит�
 
     context "when sends json request" do
       let!(:server_type) { create(:server_type) }
+      let!(:server_status) { create(:server_status) }
       let(:server_types) { ServerType.select(:id, :name) }
+      let(:server_statuses) { ServerStatus.select(:id, :name) }
+      let(:expected_data) { { server_types: server_types, server_statuses: server_statuses } }
       subject { get :new, format: :json }
 
       it "sends the all server_types" do
         parser = JSON.parse(subject.body)
-        expect(parser).to eq server_types.as_json
+        expect(parser).to eq expected_data.as_json
       end
     end
   end
@@ -109,7 +136,8 @@ title='Удалить' data-confirm='Вы действительно хотит�
       let(:server_part_1) { create(:server_part) }
       let(:server_part_2) { create(:server_part) }
       let(:server_type) { create(:server_type) }
-      let(:server) { attributes_for(:server, server_type_id: server_type.id, real_server_details_attributes: [
+      let(:server_status) { create(:server_status) }
+      let(:server) { attributes_for(:server, server_type_id: server_type.id, server_status_id: server_status.id, real_server_details_attributes: [
         { id: "", _destroy: "", server_part_id: server_part_1.id, count: 1 },
         { id: "", _destroy: "", server_part_id: server_part_2.id, count: 2 }
       ]) }
@@ -165,13 +193,18 @@ title='Удалить' data-confirm='Вы действительно хотит�
 
     context "when sends json request" do
       let!(:server_type) { create(:server_type) }
+      let!(:server_status) { create(:server_status) }
       let!(:server_part) { create(:server_part) }
       let(:server_types) { ServerType.select(:id, :name) }
       let(:server_parts) { ServerPart.select(:id, :name) }
+      let(:server_statuses) { ServerStatus.select(:id, :name) }
       let(:expected_server) do
         {
           server: current_server.as_json(
-            include: { server_type: { only: [:id, :name] } },
+            include: {
+              server_type: { only: [:id, :name] },
+              server_status: { only: [:id, :name] }
+            },
             except: [:created_at, :updated_at]
           ),
           server_details: current_server.real_server_details.as_json(
@@ -179,7 +212,8 @@ title='Удалить' data-confirm='Вы действительно хотит�
             except: [:created_at, :updated_at]
           ),
           server_parts: server_parts,
-          server_types: server_types
+          server_types: server_types,
+          server_statuses: server_statuses
         }
       end
       subject { get :edit, format: :json, name: current_server.name }

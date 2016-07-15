@@ -4,7 +4,7 @@ FactoryGirl.define do
     sequence(:name) { |i| "Type_#{i}" }
   end
 
-  factory :invalid_detail_type, parent: :detail_type do
+  factory :invalid_status_type, parent: :status_type do
     name ""
   end
 

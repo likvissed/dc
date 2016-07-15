@@ -10,14 +10,21 @@ class ServersController < ApplicationController
     respond_to do |format|
       format.html { render :index }
       format.json do
-        @servers = Server.select(:id, :name, :location)
-        data = @servers.as_json.each do |s|
+        if params[:server_type_val].to_i.zero?
+          @servers      = Server.select(:id, :name, :server_type_id, :location)
+          @server_types = ServerType.select(:id, :name)
+        else
+          @servers = Server.select(:id, :name, :server_type_id, :location).where("server_type_id = ?", params[:server_type_val])
+        end
+
+        data = @servers.as_json(include: { server_type: { only: :name } }).each do |s|
           s['DT_RowId'] = s['id']
           s['del']      = "<a href='/servers/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
 title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
           s.delete('id')
+          s.delete('server_type_id')
         end
-        render json: { data: data }
+        render json: { data: data, server_types: @server_types }
       end
     end
   end
@@ -26,6 +33,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
     respond_to do |format|
       format.json { render json: @server.as_json(include: {
           server_type: { only: :name },
+          server_status: { only: :name },
           cluster: { only: :name },
           real_server_details: {
             only: :count,
@@ -39,12 +47,18 @@ title='Удалить' data-confirm='Вы действительно хотит�
   def new
     respond_to do |format|
       format.html do
+        # if ServerType.exists?
         @server = Server.new
         render :new
+        # else
+        #   flash[:alert] = "Перед созданием сервера необходимо создать \"Типы серверов\""
+        #   redirect_to action: :index
+        # end
       end
       format.json do
-        @server_types = ServerType.select(:id, :name)
-        render json: @server_types
+        @server_types     = ServerType.select(:id, :name)
+        @server_statuses  = ServerStatus.select(:id, :name)
+        render json: { server_types: @server_types, server_statuses: @server_statuses }
       end
     end
   end
@@ -64,12 +78,16 @@ title='Удалить' data-confirm='Вы действительно хотит�
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        server_details  = @server.real_server_details
-        @server_parts   = ServerPart.select(:id, :name)
-        @server_types   = ServerType.select(:id, :name)
+        server_details    = @server.real_server_details
+        @server_parts     = ServerPart.select(:id, :name)
+        @server_types     = ServerType.select(:id, :name)
+        @server_statuses  = ServerStatus.select(:id, :name)
         render json: {
           server: @server.as_json(
-            include: { server_type: { only: [:id, :name] } },
+            include: {
+              server_type: { only: [:id, :name] },
+              server_status: { only: [:id, :name] }
+            },
             except: [:created_at, :updated_at]
           ),
           server_details: server_details.as_json(
@@ -77,7 +95,8 @@ title='Удалить' data-confirm='Вы действительно хотит�
             except: [:created_at, :updated_at]
           ),
           server_parts: @server_parts,
-          server_types: @server_types
+          server_types: @server_types,
+          server_statuses: @server_statuses
         }
       end
     end
@@ -106,7 +125,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
 
   # Разрешение изменения strong params
   def server_params
-    params.require(:server).permit(:cluster_id, :server_type_id, :name, :inventory_num, :serial_num, :location,
+    params.require(:server).permit(:cluster_id, :server_type_id, :server_status_id, :name, :inventory_num, :serial_num, :location,
                                    real_server_details_attributes: [:id, :server_id, :server_part_id, :count, :_destroy])
   end
 

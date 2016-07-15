@@ -3,6 +3,7 @@ FactoryGirl.define do
   factory :server do
     sequence(:name) { |i| "Server_#{i}" }
     server_type
+    server_status
     sequence(:inventory_num) { |i| "482754#{i}" }
     sequence(:serial_num) { |i| "a234_bhx8_sk234_#{i}" }
 

@@ -14,10 +14,16 @@ RSpec.describe ServerPartsController, type: :controller do
   end
 
   describe "#index" do
-    let(:server_part) { create(:server_part) }
+    let!(:server_part_1) { create(:server_part) }
+    let!(:server_part_2) { create(:server_part) }
 
     context "when sends html request" do
       subject { get :index }
+      before { subject }
+
+      it "must create instance variable" do
+        expect(assigns(:server_parts)).to be_kind_of(ServerPart::ActiveRecord_Relation)
+      end
 
       it "render index page" do
         expect(subject).to render_template :index
@@ -25,22 +31,49 @@ RSpec.describe ServerPartsController, type: :controller do
     end
 
     context "when sends json request" do
-      let(:expected_server_parts) do
-        server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
-        server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
-          s['DT_RowId'] = s['id']
-          s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete'
+      context "when filter selected" do
+        let(:expected_server_parts) do
+          server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id).where("detail_type_id = ?", server_part_1.detail_type.id)
+          server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
+            s['DT_RowId'] = s['id']
+            s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete'
 rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa
 fa-trash-o fa-1g'></a>"
-          s.delete('id')
-          s.delete('detail_type_id')
+            s.delete('id')
+            s.delete('detail_type_id')
+          end
+        end
+        subject { get :index, detail_type_val: server_part_1.detail_type.id, format: :json }
+
+        it "sends filtered server_parts data" do
+          parser = JSON.parse(subject.body)
+          expect(parser["data"]).to eq expected_server_parts.as_json
         end
       end
-      subject { get :index, format: :json }
 
-      it "sends server_parts data" do
-        parser = JSON.parse(subject.body)
-        expect(parser["data"]).to eq expected_server_parts.as_json
+      context "when filter not selected" do
+        let(:expected_server_parts) do
+          server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
+          server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
+            s['DT_RowId'] = s['id']
+            s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete'
+rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa
+fa-trash-o fa-1g'></a>"
+            s.delete('id')
+            s.delete('detail_type_id')
+          end
+        end
+        let(:expected_detail_types) { DetailType.select(:id, :name) }
+        let(:parser) { JSON.parse(subject.body) }
+        subject { get :index, detail_type_val: 0, format: :json }
+
+        it "sends all server_parts data" do
+          expect(parser["data"]).to eq expected_server_parts.as_json
+        end
+
+        it "sends all detail_types data for create filter" do
+          expect(parser["detail_types"]).to eq expected_detail_types.as_json
+        end
       end
     end
   end

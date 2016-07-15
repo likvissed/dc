@@ -2,16 +2,28 @@ $(function() {
   var
     modal = $('#modal'),
     table = $('#servPartTable').DataTable({
+      ajax: {
+        url:    'server_parts.json',
+        async:  false,
+        type:   'get',
+        data: function (data) {
+          var val = $("#detailTypeFilter").find(":selected").val();
+          if (!val)
+            data.detail_type_val = 0;
+          else
+            data.detail_type_val = val;
+        }
+      },
       columns: [
         {
           data: 'index',
           defaultContent: 0
         },
         {
-          data: 'detail_type.name'
+          data: 'name'
         },
         {
-          data: 'name'
+          data: 'detail_type.name'
         },
         {
           data: 'part_num'
@@ -23,18 +35,25 @@ $(function() {
           className:  'text-center'
         }
       ],
-      ajax: {
-        url:    'server_parts.json',
-        async:  false,
-        type:   'get'
-      },
-      createdRow: function(row, data, dataIndex) {
+      createdRow: function (row, data, dataIndex) {
         data.index = dataIndex + 1;
         $(row).find('td:first-child').text(data.index);
       },
       drawCallback: function () {
         showServerPart();
       },
+      initComplete: function (settings, json) {
+        // Создать фильтр по типу деталей
+        var select = $('<select class="form-control" id="detailTypeFilter">').appendTo('#data-table-filter');
+
+        $('<option>').val('0').text('Все типы').appendTo(select);
+        $.each(json.detail_types, function(index, value) {
+          $('<option>').val(value.id).text(value.name).appendTo(select);
+        });
+
+        // Изменить класс у формы поиска
+        $('.dataTables_filter input').removeClass('input-sm');
+      }
     });
 
   // Закрыть модальное окно
@@ -46,6 +65,11 @@ $(function() {
   modal.on('hidden.bs.modal', function () {
     //Удалить созданные строки таблицы
     modal.find('div[data-id="srvPartComment"]').text('Отсутствует');
+  });
+
+  // Фильтр таблицы
+  $('#detailTypeFilter').on('change', function () {
+    table.ajax.reload(null, false);
   });
 });
 

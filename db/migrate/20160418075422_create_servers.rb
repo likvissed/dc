@@ -6,6 +6,7 @@ class CreateServers < ActiveRecord::Migration
       t.string      :serial_num
       t.string      :name
       t.string      :location
+      t.references  :server_status
       t.timestamps null: false
     end
   end

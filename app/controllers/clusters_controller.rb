@@ -40,8 +40,13 @@ title='Удалить' data-confirm='Вы действительно хотит�
   def new
     respond_to do |format|
       format.html do
-        @cluster = Cluster.new
-        render :new
+        if Server.exists? && NodeRole.exists?
+          @cluster = Cluster.new
+          render :new
+        else
+          flash[:alert] = "Перед созданием кластера необходимо создать \"Серверы\" и \"Типы кластеров\""
+          redirect_to action: :index
+        end
       end
       format.json do
         @servers    = Server.select(:id, :name)
@@ -102,7 +107,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
 
   private
 
-    # Разрешение изменения strong params
+  # Разрешение изменения strong params
   def cluster_params
     params.require(:cluster).permit(:name, cluster_details_attributes: [:id, :cluster_id, :server_id, :node_role_id, :_destroy])
   end

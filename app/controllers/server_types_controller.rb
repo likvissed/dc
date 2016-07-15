@@ -39,8 +39,13 @@ fa-trash-o fa-1g'></a>"
   def new
     respond_to do |format|
       format.html do
-        @server_type = ServerType.new
-        render :new
+        if ServerPart.exists?
+          @server_type = ServerType.new
+          render :new
+        else
+          flash[:alert] = "Перед созданием типа сервера необходимо создать \"Комплектующие серверов\""
+          redirect_to action: :index
+        end
       end
       format.json do
         @server_parts = ServerPart.select(:id, :name)

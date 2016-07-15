@@ -25,7 +25,10 @@ $(function () {
 
   // Настройки DataTable
   $.extend(true, $.fn.DataTable.defaults, {
-    info: false,
+    // dom : 'ftrip',
+    dom: "<'row'<'#data-table-filter.col-sm-6'><'col-sm-6'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+    lengthChange: true,
+    info: true,
     stateSave: true,
     language: { //Надписи на кнопках и в таблице
       emptyTable: 'Данные отсутствуют',
@@ -40,7 +43,10 @@ $(function () {
       zeroRecords:        'Данные отсутсвуют',
       lengthMenu:         'Показано _MENU_ записей',
       processing:         'Выполнение...',
-      loadingRecords:     'Загрузка данных с сервера...'
+      loadingRecords:     'Загрузка данных с сервера...',
+      info:               'Записи с _START_ по _END_ из _TOTAL_',
+      infoFiltered:       '(выборка из _MAX_ записей)',
+      infoEmpty:          '0 записей'
     }
   });
 
