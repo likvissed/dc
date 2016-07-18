@@ -1,4 +1,4 @@
-app.directive('servForm', function($http) {
+app.directive('servForm', ['$http', function($http) {
   return function(scope, element, attrs){
     // Новый сервер
     if (attrs.servForm == 0) {
@@ -21,7 +21,7 @@ app.directive('servForm', function($http) {
         });
     }
   };
-});
+}]);
 
 // Редактирование комплектующих
 app.controller('ServEditCtrl', ['$scope', '$http', function($scope, $http) {
