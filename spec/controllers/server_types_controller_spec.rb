@@ -79,16 +79,26 @@ fa-trash-o fa-1g'></a>"
   end
 
   describe "#new" do
-    context "when sends html request" do
-      subject { get :new }
+    subject { get :new }
 
-      it "must create a new variable" do
-        subject
-        expect(assigns(:server_type)).to be_a_new(ServerType)
+    context "when sends html request" do
+      context "when ServerPart exists" do
+        let!(:server_part) { create(:server_part) }
+
+        it "must create a new variable" do
+          subject
+          expect(assigns(:server_type)).to be_a_new(ServerType)
+        end
+
+        it "renders new page" do
+          expect(subject).to render_template(:new)
+        end
       end
 
-      it "renders new page" do
-        expect(subject).to render_template(:new)
+      context "when ServerPart does not exist" do
+        it "redirects to index action" do
+          expect(subject).to redirect_to action: :index
+        end
       end
     end
 

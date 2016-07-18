@@ -85,7 +85,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
           include: {
             server_type: { only: :name },
             server_status: { only: :name },
-            cluster: { only: :name },
+            clusters: { only: :name },
             real_server_details: {
               only: :count,
               include: { server_part: { only: :name } } },
@@ -103,16 +103,26 @@ title='Удалить' data-confirm='Вы действительно хотит�
   end
 
   describe "#new" do
-    context "when sends html request" do
-      subject { get :new }
+    subject { get :new }
 
-      it "must create a new variable" do
-        subject
-        expect(assigns(:server)).to be_a_new(Server)
+    context "when sends html request" do
+      context "when Server exists" do
+        let!(:server_type) { create(:server_type) }
+
+        it "must create a new variable" do
+          subject
+          expect(assigns(:server)).to be_a_new(Server)
+        end
+
+        it "renders new page" do
+          expect(subject).to render_template(:new)
+        end
       end
 
-      it "renders new page" do
-        expect(subject).to render_template(:new)
+      context "when ServerType does not exist" do
+        it "redirects to index action" do
+          expect(subject).to redirect_to action: :index
+        end
       end
     end
 

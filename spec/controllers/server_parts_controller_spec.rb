@@ -31,7 +31,7 @@ RSpec.describe ServerPartsController, type: :controller do
     end
 
     context "when sends json request" do
-      context "when filter selected" do
+      context "when filter was selected" do
         let(:expected_server_parts) do
           server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id).where("detail_type_id = ?", server_part_1.detail_type.id)
           server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
@@ -51,7 +51,7 @@ fa-trash-o fa-1g'></a>"
         end
       end
 
-      context "when filter not selected" do
+      context "when filter was not selected" do
         let(:expected_server_parts) do
           server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
           server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
@@ -100,13 +100,23 @@ fa-trash-o fa-1g'></a>"
   describe "#new" do
     subject { get :new }
 
-    it "must create a new variable" do
-      subject
-      expect(assigns(:server_part)).to be_a_new(ServerPart)
+    context "when DetailType exists" do
+      let!(:detail_type) { create(:detail_type) }
+
+      it "must create a new variable" do
+        subject
+        expect(assigns(:server_part)).to be_a_new(ServerPart)
+      end
+
+      it "renders new page" do
+        expect(subject).to render_template(:new)
+      end
     end
 
-    it "renders new page" do
-      expect(subject).to render_template(:new)
+    context "when DetailType does not exist" do
+      it "redirects to index page" do
+        expect(subject).to redirect_to action: :index
+      end
     end
   end
 

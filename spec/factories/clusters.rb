@@ -8,9 +8,7 @@ FactoryGirl.define do
     end
 
     after(:build) do |cluster, evaluator|
-      evaluator.node_count.times do
-        cluster.cluster_details << build(:cluster_detail, cluster: cluster)
-      end
+      evaluator.node_count.times { cluster.cluster_details << build(:cluster_detail, cluster: cluster) }
     end
 
     after(:create) do |cluster|

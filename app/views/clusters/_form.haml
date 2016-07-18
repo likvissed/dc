@@ -1,6 +1,6 @@
 .medium-content
   %div{ "ng-controller": "ClusterCtrl" }
-    = simple_form_for @cluster, url: url, html: { "cluster-form": @cluster.id || 0, "cluster-name": @cluster.name } do |cluster|
+    = simple_form_for @cluster, url: url, html: { "cluster-form": @cluster.id || 0, "cluster-name": params[:name] } do |cluster|
       = cluster.input :name, label: "Наименование", required: true, autofocus: true, input_html: { "ng-model": "cluster.name" }
       %h5
         %b Состав кластера:

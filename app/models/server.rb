@@ -9,11 +9,9 @@ class Server < ActiveRecord::Base
   has_many :server_parts, through: :real_server_details
 
   belongs_to :server_type
-  belongs_to :cluster
   belongs_to :server_status
 
-  accepts_nested_attributes_for :real_server_details, allow_destroy: true, reject_if: proc { |attr|
-    attr["server_part_id"].blank? }
+  accepts_nested_attributes_for :real_server_details, allow_destroy: true, reject_if: proc { |attr| attr["server_part_id"].blank? }
 
   strip_attributes allow_empty: true, collapse_spaces: true
 

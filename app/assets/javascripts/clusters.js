@@ -1,4 +1,4 @@
-app.directive('clusterForm', function($http) {
+app.directive('clusterForm', ['$http', function($http) {
    return function(scope, element, attrs){
     if (attrs.clusterForm == 0) {
       $http.get('/clusters/new.json')
@@ -20,15 +20,14 @@ app.directive('clusterForm', function($http) {
       $http.get('/clusters/' + attrs.clusterName + '/edit.json')
         .success(function(data, status, headers, config) {
           scope.details       = data.cluster_details;
-          console.log(scope.details);
           scope.server_parts  = data.servers;
           scope.node_parts    = data.node_roles;
         });
     }
   }
-});
+}]);
 
-app.controller('ClusterCtrl', function($scope) {
+app.controller('ClusterCtrl', ['$scope', function($scope) {
   $scope.addClusterPart = function() {
     $scope.details.push({
       server_id:    $scope.server_parts[0].id,
@@ -45,7 +44,7 @@ app.controller('ClusterCtrl', function($scope) {
     else
       $scope.details.splice($.inArray(detail, $scope.details), 1)
   }
-});
+}]);
 
 /* ============================================================================================= */
 
@@ -96,18 +95,17 @@ $(function() {
 
 // Показать информацию о кластере
 function showCluster() {
-  $('#clusterTable > tbody > tr').not('a').off().on('click', function (event) {
-    if (event.target.tagName == 'I' )
+  $('#clusterTable > tbody > tr').off().on('click', function (event) {
+    if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
       return true;
 
     $.get('clusters/' + this.id + '.json', function(data) {
       var modal = $('#modal');
 
-      console.log(data);
       modal.find('.modal-header .modal-title').text(data.name);
 
       // Заполнение поля "Состав"
-      $.each(data.cluster_details, function (index) {
+      $.each(data.cluster_details, function () {
         modal.find('tr.hidden').clone().appendTo('table[data-id="details"]').removeClass('hidden')
           .find('td:first-child').text(this.server.name)
           .end().find('td:last-child').text(this.node_role.name);

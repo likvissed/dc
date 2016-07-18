@@ -8,8 +8,7 @@ FactoryGirl.define do
     end
 
     after(:build) do |server_type, evaluator|
-      server_type.template_server_details << build_list(:template_server_detail, evaluator.details_count, server_type:
-        server_type, server_part: create(:server_part), count: rand(1..10))
+      evaluator.details_count.times { server_type.template_server_details << build(:template_server_detail, server_type: server_type, count: rand(1..10)) }
     end
 
     after(:create) do |server_type|

@@ -1,7 +1,6 @@
 app.directive('servTypeForm', ['$http', function($http) {
   return function(scope, element, attrs){
     if (attrs.servTypeForm == 0) {
-      console.log("here1");
       $http.get('/server_types/new.json')
         .success(function(data, status, header, config) {
           scope.parts = data;
@@ -13,7 +12,6 @@ app.directive('servTypeForm', ['$http', function($http) {
         });
     }
     else {
-      console.log("here2");
       scope.server_type = {
         name: $('#server_type_name').val()
       }
@@ -95,12 +93,11 @@ $(function () {
 
 // Показать информацию о типе сервере
 function showServerType() {
-  $('#servTypeTable > tbody > tr').not('a').off().on('click', function (event) {
-    if (event.target.tagName == 'I' )
+  $('#servTypeTable > tbody > tr').off().on('click', function (event) {
+    if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
       return true;
 
     $.get('server_types/' + this.id + '.json', function(data) {
-      console.log(data);
       var modal = $('#modal');
 
       modal.find('.modal-header .modal-title').text(data.name)

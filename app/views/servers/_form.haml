@@ -1,6 +1,6 @@
 .medium-content
   %div{ "ng-controller": "ServEditCtrl" }
-    = simple_form_for @server, url: url, html: { "serv-form": @server.id || 0, "serv-name": @server.name } do |s|
+    = simple_form_for @server, url: url, html: { "serv-form": @server.id || 0, "serv-name": params[:name] } do |s|
       = s.input :name, label: "Имя сервера", autofocus: true
       = s.input :inventory_num, label: "Инвентарный номер"
       = s.input :serial_num, label: "Серийный номер"
@@ -30,7 +30,7 @@
 
       %h5
         %b Состав сервера
-      .row.row-margin-bot{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy" }
+      .row.row-margin-bot{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy", "data-id": "server-structure" }
         = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][id]", "{{ detail.id }}"
         = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][_destroy]", "{{ detail.destroy }}"
         .col-xs-8

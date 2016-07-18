@@ -3,11 +3,11 @@
     .modal-content
       .modal-header
         - if can? :manage, Server
-          = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData", title: "Редактировать"
+          = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData"
         %h4.modal-title
       .modal-body
         %h4 Описание
-        %table.table.table-striped
+        %table.table.table-striped{ "data-id": "description" }
           %tbody
             %tr
               %td.col-md-4 Расположение

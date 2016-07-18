@@ -80,16 +80,27 @@ title='Удалить' data-confirm='Вы действительно хотит�
   end
 
   describe "#new" do
-    context "when sends html request" do
-      subject { get :new }
+    subject { get :new }
 
-      it "must create a new variable" do
-        subject
-        expect(assigns(:cluster)).to be_a_new(Cluster)
+    context "when sends html request" do
+      context "when Server and NodeRole exists" do
+        let!(:server) { create(:server) }
+        let!(:node_role) { create(:node_role) }
+
+        it "must create a new variable" do
+          subject
+          expect(assigns(:cluster)).to be_a_new(Cluster)
+        end
+
+        it "renders new page" do
+          expect(subject).to render_template(:new)
+        end
       end
 
-      it "renders new page" do
-        expect(subject).to render_template(:new)
+      context "when Server and NodeRole does not exist" do
+        it "redirects to index action" do
+          expect(subject).to redirect_to action: :index
+        end
       end
     end
 

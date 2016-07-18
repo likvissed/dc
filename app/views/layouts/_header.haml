@@ -42,8 +42,14 @@
                   = link_to "Комплектующие серверов", server_parts_path
                 %li
                   = link_to "Типы комплектующих", detail_types_path
+          %li.divider-vertical
+            %li.dropdown
+              = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+                Кластеры
+                %b.caret
+              %ul.dropdown-menu
                 %li
-                  = link_to "Кластеры", clusters_path
+                  = link_to "Просмотр", clusters_path
                 %li
                   = link_to "Типы кластеров", node_roles_path
           %li.divider-vertical
@@ -57,8 +63,8 @@
                 %li
                   = link_to "Добавить", "#"
           %li.divider-vertical
-          %p.navbar-text= yield(:title)
         %ul.nav.navbar-nav.pull-right
+          %p.navbar-text= yield(:title)
           - if current_user.has_role? :admin
             %li.divider-vertical
             %li.dropdown

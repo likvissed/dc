@@ -34,7 +34,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
       format.json { render json: @server.as_json(include: {
           server_type: { only: :name },
           server_status: { only: :name },
-          cluster: { only: :name },
+          clusters: { only: :name },
           real_server_details: {
             only: :count,
             include: { server_part: { only: :name } } },
@@ -47,13 +47,13 @@ title='Удалить' data-confirm='Вы действительно хотит�
   def new
     respond_to do |format|
       format.html do
-        # if ServerType.exists?
-        @server = Server.new
-        render :new
-        # else
-        #   flash[:alert] = "Перед созданием сервера необходимо создать \"Типы серверов\""
-        #   redirect_to action: :index
-        # end
+        if ServerType.exists?
+          @server = Server.new
+          render :new
+        else
+          flash[:alert] = "Перед созданием сервера необходимо создать \"Типы серверов\""
+          redirect_to action: :index
+        end
       end
       format.json do
         @server_types     = ServerType.select(:id, :name)

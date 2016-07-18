@@ -132,24 +132,22 @@ $(function() {
 
 // Показать информацию о сервере
 function showServer() {
-  $('#servTable > tbody > tr').not('a').not().off().on('click', function (event) {
-    if (event.target.tagName == 'I' )
+  $('#servTable > tbody > tr').off().on('click', function (event) {
+    if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
       return true;
 
     $.get('servers/' + this.id + '.json', function(data) {
       var modal = $('#modal');
-      console.log(data);
 
       // Заполнение поля "Описание"
       modal.find('.modal-header .modal-title').text(data.name + ' (' + data.server_status.name + ')')
-        // .end().find('span[data-id="srvStatus"]').text('(' + data.server_status.name + ')')
         .end().find('td[data-id="srvLocation"]').text(data.location)
         .end().find('td[data-id="srvType"]').text(data.server_type.name)
         .end().find('td[data-id="srvSerial"]').text(data.serial_num)
         .end().find('td[data-id="srvInventory"]').text(data.inventory_num);
 
-      if (data.cluster)
-        modal.find("td[data-id='srvCluster']").text(data.cluster.name);
+      if (data.clusters.length != 0)
+        modal.find("td[data-id='srvCluster']").text(data.clusters[0].name);
       else
         modal.find("td[data-id='srvCluster']").text('');
 

@@ -2,6 +2,7 @@ FactoryGirl.define do
 
   factory :server do
     sequence(:name) { |i| "Server_#{i}" }
+    sequence(:location) { |i| "Location_#{i}" }
     server_type
     server_status
     sequence(:inventory_num) { |i| "482754#{i}" }
@@ -12,11 +13,7 @@ FactoryGirl.define do
     end
 
     after(:build) do |server, evaluator|
-      # server.real_server_details << build_list(:real_server_detail, 3, server:
-      #   server, server_part: create(:server_part), count: rand(1..10))
-      evaluator.details_count.times do
-        server.real_server_details << build(:real_server_detail, server: server)
-      end
+      evaluator.details_count.times { server.real_server_details << build(:real_server_detail, server: server) }
     end
 
     after(:create) do |server|
@@ -27,6 +24,13 @@ FactoryGirl.define do
 
   factory :invalid_server, parent: :server do
     name ""
+  end
+
+  factory :server_with_cluster, parent: :server do
+    after(:create) do |server|
+      cluster = create(:cluster)
+      cluster.cluster_details << create(:cluster_detail, server: server, node_role: create(:node_role))
+    end
   end
 
 end
