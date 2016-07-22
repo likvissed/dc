@@ -55,8 +55,8 @@ config/redis.yml
 /capybara-*.html
 /gems
 /rerun.txt
-/spec/requests
-/spec/routing
-/spec/views
+#/spec/requests
+#/spec/routing
+#/spec/views
 /specifications
 /cached_pages/*

@@ -35,6 +35,7 @@ app.controller('ServEditTypeCtrl', ['$scope', '$http', function($scope, $http) {
   }
 
   $scope.delServPart = function(detail) {
+    console.log($scope);
     if (detail.id)
       detail.destroy = 1;
     else

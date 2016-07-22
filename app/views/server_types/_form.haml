@@ -10,7 +10,7 @@
         .col-xs-8
           = select_tag "server_type[template_server_details_attributes][{{ $index }}][server_part_id]", nil, class: "form-control","ng-model": "detail.server_part", "ng-options": "part.name for part in parts track by part.id"
         .col-xs-2
-          = text_field_tag "server_type[template_server_details_attributes][{{ $index }}][count]", nil, class: "form-control count-width", "ng-model": "detail.count"
+          = text_field_tag "server_type[template_server_details_attributes][{{ $index }}][count]", nil, value: "{{ detail.count }}", class: "form-control count-width", "ng-model": "detail.count"
 
         = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addServPart()"
         = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delServPart(detail)"
