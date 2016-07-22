@@ -41,6 +41,8 @@ Rails.application.routes.draw do
   resources :clusters,      except: [:edit, :update]
   resources :node_roles,    except: [:edit, :update, :show]
 
+  resources :contacts
+
   get '*unmatched_route', to: 'application#render_404'
 
 end

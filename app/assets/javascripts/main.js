@@ -8,9 +8,15 @@ app.directive('stopClick', function() {
 });
 
 app.controller("FlashMessageCtrl",['$attrs', '$timeout', function($attrs, $timeout) {
-  controller        = this;
-  controller.notice = $attrs.notice;
-  controller.alert  = $attrs.alert;
+  controller = this;
+
+  if ($attrs.notice)
+    controller.notice = $attrs.notice;
+  if ($attrs.alert)
+    controller.alert  = $attrs.alert;
+
+  // controller.notice = $attrs.notice;
+  // controller.alert  = $attrs.alert;
 
   $timeout(function() {
     controller.notice = null;

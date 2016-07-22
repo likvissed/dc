@@ -1,0 +1,12 @@
+.medium-content
+  = simple_form_for @contact, url: url do |f|
+    = f.input :tn, label: "Табельный номер", autofocus: true
+    = f.input :manually, label: "Заполнить данные контакта вручную", as: :boolean, input_html: { "ng-model": "checked" }
+    %div{ "ng-show": "checked" }
+      = f.input :info, label: "Фамилия Имя Отчество"
+      = f.input :dept, label: "Отдел"
+      = f.input :work_num, label: "Рабочий номер"
+    = f.input :mobile_num, label: "Сотовый номер"
+
+    = f.button :submit, "Готово", class: "btn-success"
+    = button_tag "Отмена", type: "submit", name: "cancel", value: true
