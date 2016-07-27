@@ -4,11 +4,14 @@ Rails.application.routes.draw do
   devise_scope :user do
     root 'devise/sessions#new'
   end
-  devise_for :users#, controllers: { registrations: 'users/registrations' }
+  devise_for :users
 
   constraints name: /\w+/ do
-    get   '/users/:name/edit',  to: 'users#edit'
-    patch '/users/:name',       to: 'users#update'
+    get   '/users/:name/edit',        to: 'users#edit'
+    patch '/users/:name',             to: 'users#update'
+
+    get   '/contacts/:name/edit',     to: 'contacts#edit'
+    patch '/contacts/:name',          to: 'contacts#update'
   end
 
   constraints name: /[^\/]+/ do
@@ -31,6 +34,8 @@ Rails.application.routes.draw do
     get   '/node_roles/:name/edit',   to: 'node_roles#edit'
     patch '/node_roles/:name',        to: 'node_roles#update'
 
+    get   '/services/:name/edit',     to: 'services#edit'
+    patch '/services/:name',          to: 'services#update'
   end
 
   resources :users,         except: [:edit, :update]
@@ -41,7 +46,10 @@ Rails.application.routes.draw do
   resources :clusters,      except: [:edit, :update]
   resources :node_roles,    except: [:edit, :update, :show]
 
-  resources :contacts
+  resources :contacts,      except: [:edit, :update, :show]
+  resources :services,      except: [:edit, :update] do
+    get '/download/:file', to: 'services#download', on: :member # Скачивание файлов формуляров
+  end
 
   get '*unmatched_route', to: 'application#render_404'
 

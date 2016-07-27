@@ -1,11 +1,12 @@
 = title "Типы серверов"
 .medium-content
-  = button_to "Добавить", new_server_type_path, method: :get, class: "btn btn-primary", form_class: "text-center"
-  %table.table.table-hover.table-striped#servTypeTable
-    %thead
-      %tr
-        %th.col-md-1 #
-        %th Имя
-        %th.col-md-1
+  .content-body
+    = button_to "Добавить", new_server_type_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+    %table.table.table-hover.table-striped#servTypeTable
+      %thead
+        %tr
+          %th.col-md-1 #
+          %th Имя
+          %th.col-md-1
 
 = render partial: "preview"

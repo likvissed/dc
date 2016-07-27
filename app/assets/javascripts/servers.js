@@ -1,13 +1,15 @@
-app.directive('servForm', ['$http', function($http) {
-  return function(scope, element, attrs){
+app.directive('servForm', ['$http', function ($http) {
+  return function (scope, element, attrs) {
     // Новый сервер
     if (attrs.servForm == 0) {
       $http.get('/servers/new.json')
-        .success(function(data, status, header, config) {
+        .success(function (data, status, header, config) {
           scope.statuses  = data.server_statuses;
           scope.types     = data.server_types;
         })
-        .error(function(data, status, header, config) {})
+        .error(function (data, status, header, config) {
+
+        })
     }
     //Редактирование существующего сервера
     else {
@@ -24,28 +26,28 @@ app.directive('servForm', ['$http', function($http) {
 }]);
 
 // Редактирование комплектующих
-app.controller('ServEditCtrl', ['$scope', '$http', function($scope, $http) {
-  $scope.changeType = function(type) {
+app.controller('ServEditCtrl', ['$scope', '$http', function ($scope, $http) {
+  $scope.changeType = function (type) {
     $http.get('/server_types/' + type.name + '/edit.json')
       .success(function(data, status, header, config) {
         $scope.details = data.server_details;
-        $.each($scope.details, function() {
+        $.each($scope.details, function () {
           this.id = null; //Сбросить id для комплектующих шаблонного сервера
         });
         $scope.parts = data.server_parts;
       });
-  }
+  };
 
-  $scope.addServPart = function() {
+  $scope.addServPart = function () {
     $scope.details.push({
       server_part_id: $scope.parts[0].id,
       server_part: $scope.parts[0],
       count: 1,
       destroy: 0
     });
-  }
+  };
 
-  $scope.delServPart = function(detail) {
+  $scope.delServPart = function (detail) {
     if (detail.id)
       detail.destroy = 1;
     else
@@ -128,42 +130,41 @@ $(function() {
   $('#serverTypeFilter').on('change', function () {
     table.ajax.reload(null, false);
   });
-});
 
-// Показать информацию о сервере
-function showServer() {
-  $('#servTable > tbody > tr').off().on('click', function (event) {
-    if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
-      return true;
+  // Показать информацию о сервере
+  function showServer() {
+    $('#servTable > tbody > tr').off().on('click', function (event) {
+      if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
+        return true;
 
-    $.get('servers/' + this.id + '.json', function(data) {
-      var modal = $('#modal');
+      $.get('servers/' + this.id + '.json', function (data) {
+        //var modal = $('#modal');
 
-      // Заполнение поля "Описание"
-      modal.find('.modal-header .modal-title').text(data.name + ' (' + data.server_status.name + ')')
-        .end().find('td[data-id="srvLocation"]').text(data.location)
-        .end().find('td[data-id="srvType"]').text(data.server_type.name)
-        .end().find('td[data-id="srvSerial"]').text(data.serial_num)
-        .end().find('td[data-id="srvInventory"]').text(data.inventory_num);
+        // Заполнение поля "Описание"
+        modal.find('.modal-header .modal-title').text(data.name + ' (' + data.server_status.name + ')')
+          .end().find('td[data-id="srvLocation"]').text(data.location)
+          .end().find('td[data-id="srvType"]').text(data.server_type.name)
+          .end().find('td[data-id="srvSerial"]').text(data.serial_num)
+          .end().find('td[data-id="srvInventory"]').text(data.inventory_num);
 
-      if (data.clusters.length != 0)
-        modal.find("td[data-id='srvCluster']").text(data.clusters[0].name);
-      else
-        modal.find("td[data-id='srvCluster']").text('');
+        if (data.clusters.length != 0)
+          modal.find("td[data-id='srvCluster']").text(data.clusters[0].name);
+        else
+          modal.find("td[data-id='srvCluster']").text('');
 
-      // Заполнение поля "Состав"
-      $.each(data.real_server_details, function (index) {
-        modal.find('tr.hidden').clone().appendTo('table[data-id="details"]').removeClass('hidden')
-          .find('td:first-child').text(this.server_part.name)
-          .end().find('td:last-child').text(this.count);
+        // Заполнение поля "Состав"
+        $.each(data.real_server_details, function (index) {
+          modal.find('tr.hidden').clone().appendTo('table[data-id="details"]').removeClass('hidden')
+            .find('td:first-child').text(this.server_part.name)
+            .end().find('td:last-child').text(this.count);
+        });
+
+        // Ссылка на изменение данных о сервере
+        modal.find('a[data-id="changeData"]').attr('href', '/servers/' + data.name + '/edit');
+
+        modal.modal('show');
       });
-
-      // Ссылка на изменение данных о сервере
-      modal.find('a[data-id="changeData"]').attr('href', '/servers/' + data.name + '/edit');
-
-      modal.modal('show');
-    });
-  })
-}
-
+    })
+  }
+});
 

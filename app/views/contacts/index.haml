@@ -1,14 +1,15 @@
-= title "Просмотр серверов"
-.big-content
-  - if can? :manage, Server
-    = button_to "Добавить", new_contact_path, method: :get, class: "btn btn-primary", form_class: "text-center"
-  %table.table.table-striped#contactTable
-    %thead
-      %tr
-        %th.col-md-1 #
-        %th ФИО
-        %th.col-md-1 Отдел
-        %th.col-md-1 Раб. т.
-        %th.col-md-3 Моб. т.
-        %th.col-md-1
-        %th.col-md-1
+= title "Просмотр контактов"
+.default-content
+  .content-body
+    - if can? :manage, Contact
+      = button_to "Добавить", new_contact_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+    %table.table.table-striped#contactTable
+      %thead
+        %tr
+          %th.col-md-1 #
+          %th ФИО
+          %th.col-md-1 Отдел
+          %th.col-md-1 Раб. т.
+          %th.col-md-3 Моб. т.
+          %th.col-md-1
+          %th.col-md-1

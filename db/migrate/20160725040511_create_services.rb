@@ -1,9 +1,9 @@
 class CreateServices < ActiveRecord::Migration
   def change
     create_table :services do |t|
-      t.string  :id_form,            limit: 20                       # Номер формуляра
-      t.string  :dept,               index: true, limit: 10          # Отдел
-      t.string  :name,               index: true                     # Наименование сервиса
+      t.string  :number,              limit: 20                      # Номер формуляра
+      t.string  :dept,                index: true, limit: 10         # Отдел
+      t.string  :name,                index: true                    # Наименование сервиса
       t.text    :descr                                               # Описание
       t.integer :priority                                            # Приоритет функционирования (тип enum)
       t.integer :time_work                                           # Режим доступности (тип enum)
@@ -45,10 +45,10 @@ class CreateServices < ActiveRecord::Migration
       t.string  :uac_app_selinux                                     # UAC/AppArmor/SELinux
       t.string  :szi                                                 # Сертифицированные СЗИ НСД
       t.string  :internet                                            # Доступ в интернет
-      t.text    :tcp_ports                                             # Сетевые tcp порты, доступые из ЛС
-      t.text    :udp_ports                                             # Сетевые udp порты, доступые из ЛС
-      t.text    :inet_tcp                                              # Сетевые tcp порты, доступые из Интернет
-      t.text    :inet_udp                                              # Сетевые udp порты, доступые из Интернет
+      t.text    :tcp_ports                                           # Сетевые tcp порты, доступые из ЛС
+      t.text    :udp_ports                                           # Сетевые udp порты, доступые из ЛС
+      t.text    :inet_tcp                                            # Сетевые tcp порты, доступые из Интернет
+      t.text    :inet_udp                                            # Сетевые udp порты, доступые из Интернет
 
       t.string  :type_mon                                            # Метод мониторинга доступности сервиса
       t.string  :service_mon                                         # Мониторинг доступности сервиса

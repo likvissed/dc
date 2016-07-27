@@ -1,13 +1,14 @@
 = title "Комплектующие серверов"
-.big-content
-  = button_to "Добавить", new_server_part_path, method: :get, class: "btn btn-primary", form_class: "text-center"
-  %table.table.table-hover#servPartTable
-    %thead
-      %tr
-        %th.col-md-1 #
-        %th Имя
-        %th Тип
-        %th.col-md-2 Номер
-        %th.col-md-1
+.default-content
+  .content-body
+    = button_to "Добавить", new_server_part_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+    %table.table.table-hover#servPartTable
+      %thead
+        %tr
+          %th.col-md-1 #
+          %th Имя
+          %th Тип
+          %th.col-md-2 Номер
+          %th.col-md-1
 
 = render partial: "preview"

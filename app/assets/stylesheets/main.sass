@@ -1,8 +1,14 @@
 $main-header-bg-color: #0050a0 // Цвет фона шапки
 $main-bg-color: #f8f8f8
+$defatul-width: 1024px
+$medium-width: 600px
+$big-width: 1500px
 
 .hide
   display: none
+
+.bg-content
+  margin-bottom: $line-height-computed
 
 /* ================================== Страницы входа на сайт ============================ */
 
@@ -19,46 +25,29 @@ $main-bg-color: #f8f8f8
 .auth-content
   width: 300px
   margin: 200px auto 0
-  /*border: 1px $table-border-color solid
-
-  /*.main-block
-    /*.header
-      text-align: center
-      padding: 5px 10px
-      border-bottom: 1px $table-border-color solid
-      background-color: #f8f8f8
-
-      /*h2
-        margin: 0 !important
-
-    /*.content
-      padding: 10px
-      background-color: white
 
 /* ================================== Основной контент ================================== */
 
 body
-  //background-color: #efefef
   background-color: $main-bg-color
 
-.main-content
-  width: 1024px
-  margin: 0 auto
-  padding: 10px
-  box-shadow: 0 0 10px rgba(0,0,0,0.2)
+%template-content
   height: 100%
-  background-color: white
+  margin: 0 auto
+  box-shadow: 0 0 10px rgba(0,0,0,0.2)
   border: 1px $table-border-color solid
-  //border-radius: $border-radius-base
+  background-color: white
 
-/*input[type="submit"] { @extend .btn }*/
 button
   @extend .btn, .btn-default
+
+textarea
+  resize: none
 
 a.default-color
   color: $btn-default-color !important
 
-// Для отображения flash
+// Для отображения flash сообщений
 .absolute
   position: absolute
   z-index: 9999
@@ -67,12 +56,171 @@ a.default-color
 /* ================================== Размер контента =================================== */
 
 .medium-content
-  width: 600px
-  margin: 0 auto
+  @extend %template-content
+  width: $medium-width
+
+.default-content
+  @extend %template-content
+  width: $defatul-width - 24
 
 .big-content
-  width: 1000px
-  margin: 0 auto
+  @extend %template-content
+  width: $big-width
+
+/* ================================== Блоки контента ==================================== */
+
+/* ================================== Вспомогательная шапка ============================= */
+
+.content-header
+  $bgDefault      : #f9f9f9
+  $bgHighlight    : #dddddd
+  $colDefault     : #333333
+  $colHighlight   : #333333
+  $dropDown       : true
+
+  nav
+    @extend nav
+    margin-bottom: 0 !important
+
+  .divider-vertical
+    height: 50px
+    margin: 0 9px
+    border-left: 1px solid #f2f2f2
+    border-right: 1px solid #fff
+
+  .navbar-default
+    background-color: $bgDefault
+    border-color: $bgHighlight
+    width: (inherit - 2px)
+    border:
+      bottom: 1px solid $bgHighlight !important
+      top: 0 !important
+      left: 0 !important
+      right: 0 !important
+
+    .navbar-right
+      margin-right: 0 !important
+
+    .navbar-brand
+      color: $colDefault
+
+      &:hover, &:focus
+        color: $colHighlight
+
+    .navbar-text
+      color: $colDefault
+      margin:
+        //left: 0 !important
+        right: 0 !important
+
+    .navbar-nav
+      > li
+        > a
+          color: $colDefault
+
+          &:hover, &:focus
+            color: $colHighlight
+
+        @if $dropDown
+          > .dropdown-menu
+            background-color: $bgDefault
+
+            > li
+              > a
+                color: $colDefault
+
+                &:hover, &:focus
+                  color: $colHighlight
+                  background-color: $bgHighlight
+
+              > .divider
+                background-color: $bgHighlight
+
+      @if $dropDown
+        .open .dropdown-menu > .active
+          > a, > a:hover, > a:focus
+            color: $colHighlight
+            background-color: $bgHighlight
+
+      > .active
+        > a, > a:hover, > a:focus
+          color: $colHighlight
+          background-color: $bgHighlight
+
+      > .open
+        > a, > a:hover, > a:focus
+          color: $colHighlight
+          background-color: $bgHighlight
+
+    .navbar-toggle
+      border-color: $bgHighlight
+
+      &:hover, &:focus
+        background-color: $bgHighlight
+
+      .icon-bar
+        background-color: $colDefault
+
+    .navbar-collapse,
+    .navbar-form
+      border-color: $colDefault
+
+      .form-group
+        @extend .form-group
+        width: inherit !important
+
+        input
+          @extend input
+          width: inherit !important
+
+    .navbar-link
+      color: $colDefault
+
+      &:hover
+        color: $colHighlight
+
+  @media (max-width: 767px)
+    .navbar-default .navbar-nav .open .dropdown-menu
+      > li > a
+        color: $colDefault
+
+        &:hover, &:focus
+          color: $colHighlight
+
+      > .active
+        > a, > a:hover, > a:focus
+          color: $colHighlight
+          background-color: $bgHighlight
+
+  .dropdown
+    label
+      @extend a
+      margin-bottom: 0 !important
+      cursor: pointer
+      font-weight: normal
+
+      &:hover
+        background-color: $bgHighlight !important
+
+  /* ================================== Курсор для неактиных элементов ==================== */
+
+  .disabled
+    @extend .disabled
+
+    a
+      color: $gray-light !important
+
+      &:hover
+        background-color: $bgDefault !important
+
+.content-body
+  width: 100%
+  padding: 20px
+  display: inline-block
+
+.content-footer
+  text-align: center
+  padding: 0 10px 10px 10px
 
 /* ================================== Таблицы =========================================== */
 
@@ -102,3 +250,8 @@ a.default-color
 .modal-body
   table + h4
     padding-top: 15px
+
+/* ================================== Шрифт для иконок внутри таблиц ==================== */
+
+.font-internal
+  font-size: 16px !important

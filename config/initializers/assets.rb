@@ -12,11 +12,8 @@ Rails.application.config.assets.version = '1.0'
 Rails.application.config.assets.precompile += %w(
   clusters.js
   server_types.js
-  detail_types.js
   server_parts.js
   servers.js
-  users.js
-  node_roles.js
   contacts.js
   services.js
 )

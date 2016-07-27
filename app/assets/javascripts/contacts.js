@@ -1,3 +1,7 @@
+app.controller("contactCtrl", ["$scope", function($scope) {
+  $scope.manually = ($("#contact_manually").attr("data-manually") == 'true');
+}]);
+
 $(function() {
   var
     modal = $('#modal'),
@@ -5,7 +9,7 @@ $(function() {
       ajax: {
         url:    'contacts.json',
         async:  false,
-        type:   'get',
+        type:   'get'
         //data: function (data) {
           //var val = $("#serverTypeFilter").find(":selected").val();
           //if (!val)

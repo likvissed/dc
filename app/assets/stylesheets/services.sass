@@ -1,0 +1,232 @@
+$thead-color: #4c4c4c
+$table-with: 736px
+$row-height: 21px
+$table-port-width: 598px
+
+/* ================================== Шаблоны =========================================== */
+
+// Шаблон для стиля таблицы для сервисов
+%template-service-table
+  background-color: white
+  text-align: left
+
+  thead
+    th
+      border-bottom: 0 !important
+
+// Шаблон для стиля полей input, textarea, select созданных вручную (без хэлперов)
+%template-form-group
+  input, textarea, select
+    border: 0
+    background-color: transparent
+
+  input, select
+    width: 100%
+
+
+/* ================================== Блоки контента ============================================== */
+
+.service-left-part
+  width: $table-with
+  float: left
+
+.service-right-part
+  width: $big-width - $table-with - 60px
+  float: left
+  margin-left: 18px
+
+/* ================================== Таблицы создания/редактирования/просмотра сервиса =========== */
+
+//.panel-heading
+  @extend .panel-heading
+  display: inline
+
+// Таблица формуляра
+.table-edit-service
+  @extend %template-service-table
+
+  width: $table-with
+  margin: 0 auto !important
+
+  thead
+    color: white
+
+    tr
+      border: 1px solid $thead-color
+      background-color: $thead-color
+
+  tr
+    min-height: $row-height
+    height: $row-height
+
+    td, th
+      padding: 0 !important
+      padding-left: 3px !important
+
+    td:first-child, th:first-child
+      width: 336px
+
+    td + td
+      width: 390px
+
+  @extend %template-form-group
+
+  .form-group
+    margin-bottom: 0 !important
+
+    input, textarea, select
+      padding: 0 1px
+
+    input, select
+      height: $row-height - 1 !important
+
+// Таблица предпросмотра
+.preview-service-table
+  @extend .modal-dialog
+
+  width: 768px !important
+
+// Стили для внутренней таблицы (используется в пункте "Подключения к сети")
+.internal-table
+  width: 100%
+
+  tr.empty
+    height: 15px
+
+  .fa
+    cursor: pointer
+
+  .min-td
+    width: 20px !important
+    padding: 1px 2px 0 2px !important
+
+  .form-group
+    margin:
+      right: 15px
+      bottom: 0 !important
+
+// Стили для модального окна портов
+#portsModal
+  .form-group
+    @extend %template-form-group
+
+    margin-bottom: 0 !important
+
+  .modal-header
+    border-bottom: 0 !important
+
+  .modal-body
+    padding: 0 !important
+
+    select
+      border: 1px solid $table-border-color !important
+
+  // Стили для таблицы модального окна "Порты, доступные из ЛС и Интернет"
+  .table-ports
+    @extend %template-service-table
+
+    width: $table-port-width !important
+    margin: 0 !important
+    border:
+      top: 0
+      bottom: 0
+
+    thead
+      font-weight: normal !important
+
+      th
+        padding: 2px !important
+        font-weight: normal !important
+
+        label
+          font-weight: normal !important
+
+      &:first-child
+        label
+          font-size: 12px !important
+
+    tbody
+      td
+        padding: 0 !important
+
+      &:last-child
+        td
+          border-bottom: 0 !important
+
+    td
+      width: $table-port-width/2 !important
+
+    textarea
+      height: 100px
+
+/* ================================== Блок работы с файлами (скан, акт, инструкция) ===== */
+
+.add-service-file
+  width: 24px
+  height: 24px
+  top: 1px
+  left: -25px
+  opacity: 0
+  position: absolute
+
+/* ================================== Переключатель "Введен в эксплуатацию" ============= */
+
+.exploitation-block
+  width: 52px
+  height: 50px
+
+  & > label
+    margin-top: 12px
+    cursor: pointer
+
+  .exploitation-checkbox
+    vertical-align: top
+    margin: 0 3px 0 0
+    width: 17px
+    height: 17px
+
+    &:not(checked)
+      position: absolute
+      opacity: 0
+
+    &:not(checked) + label
+      position: relative /* будем позиционировать псевдочекбокс относительно label */
+      padding-left: 60px /* оставляем слева от label место под псевдочекбокс */
+
+    /* Оформление первой части чекбокса в выключенном состоянии (фон). */
+    &:not(checked) + label:before
+      content: ''
+      position: absolute
+      left: 0
+      width: 50px
+      height: 26px
+      border-radius: 13px
+      background: #CDD1DA
+      box-shadow: inset 0 2px 3px rgba(0, 0, 0, .2)
+
+    &:not(checked) + label:after
+      content: ''
+      position: absolute
+      top: 2px
+      left: 2px
+      width: 22px
+      height: 22px
+      border-radius: 10px
+      background: #FFF
+      box-shadow: 0 2px 5px rgba(0, 0, 0, .3)
+      transition: all .2s /* анимация, чтобы чекбокс переключался плавно */
+
+    /* Меняем фон чекбокса, когда он включен. */
+    &:checked + label:before
+      background: $brand-success
+
+    /* Сдвигаем переключатель чекбокса, когда он включен. */
+    &:checked + label:after
+      left: 26px
+
+// Поле для ввода номера формуляра
+.service-number
+  @extend .navbar-form
+  width: 100px
+  padding-left: 0
+  margin-right: $navbar-padding-horizontal

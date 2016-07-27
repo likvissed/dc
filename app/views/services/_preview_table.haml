@@ -1,0 +1,274 @@
+%table.table.table-striped.table-bordered.table-edit-service
+
+  -# =============================================== Основные данные ===============================================
+
+  %thead
+    %tr
+      %th{ colspan: 2 } Основные данные
+  %tbody
+    %tr
+      %td
+        %b Наименование сервиса
+      %td{ "data-name": "name" }
+    %tr
+      %td{ colspan: 2 }
+        %b Краткое описание сервиса
+    %tr
+      %td{ colspan: 2, "data-name": "descr" }
+    %tr
+      %td
+        %b Приоритет функционирования
+      %td{ "data-name": "priority" }
+    %tr
+      %td
+        %b Режим гарантированной доступности
+      %td{ "data-name": "time_work" }
+    %tr
+      %td
+        %b Максимальное время восстановления
+      %td{ "data-name": "max_time_rec" }
+    %tr
+      %td{ colspan: 2 }
+        %b Ответственные за исполнение сервиса
+    %tr
+      %td Основной ответственный
+      %td{ "data-name": "contact_1" }
+    %tr
+      %td Вторичный контакт
+      %td{ "data-name": "contact_2" }
+    %tr
+
+    -# =============================================== Характеристики среды исполнения =============================
+
+    %thead
+      %tr
+        %th{ colspan: 2 } Характеристики среды исполнения
+    %tbody
+      %tr
+        %td{ colspan: 2 }
+          %b Среда исполнения
+      %tr
+        %td{ colspan: 2, "data-name": "environment" }
+      %tr
+        %td
+          %b Операционная система
+        %td{ "data-name": "os" }
+      %tr
+        %td
+          %b Ключевой программный компонент
+        %td{ "data-name": "component_key" }
+      %tr
+        %td{ colspan: 2 }
+          %b Требования к вычислительным ресурсам
+      %tr
+        %td Количество ядер процессора
+        %td{ "data-name": "kernel_count" }
+      %tr
+        %td Тактовая частота процессора
+        %td{ "data-name": "frequency" }
+      %tr
+        %td Объем оперативной памяти
+        %td{ "data-name": "memory" }
+      %tr
+        %td Объем дискового пространства
+        %td{ "data-name": "disk_space" }
+      %tr
+        %td Скорость обмена с жестким диском
+        %td{ "data-name": "hdd_speed" }
+      %tr
+        %td Скорость сетевого соединения
+        %td{ "data-name": "network_speed" }
+      %tr
+        %td{ colspan: 2 }
+          %b Дополнительные требования к среде исполнения
+      %tr
+        %td{ colspan: 2, "data-name": "additional_require" }
+      %tr
+
+      -# =============================================== Резервное копирование и восстановление ====================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Резервное копирование и восстановление
+      %tbody
+        %tr
+          %td{ colspan: 2 }
+            %b Краткое описание процедуры резервного копирования
+        %tr
+          %td{ colspan: 2, "data-name": "backup_manual" }
+        %tr
+          %td{ colspan: 2 }
+            %b Краткое описание процедуры восстановления данных
+        %tr
+          %td{ colspan: 2, "data-name": "recovery_manual" }
+        %tr
+          %td{ colspan: 2 }
+            %b Параметры резервного копирования
+        %tr
+          %td Оценка объемов данных для копирования
+          %td{ "data-name": "value_backup_data" }
+        %tr
+          %td Срок хранения старейшей копии
+          %td{ "data-name": "storage_time" }
+        %tr
+          %td Хранилище резервных копий
+          %td{ "data-name": "store_copies" }
+        %tr
+          %td Оценка объема резервной копии
+          %td{ "data-name": "backup_volume" }
+        %tr
+          %td Окно резервного копирования
+          %td{ "data-name": "backup_window" }
+        %tr
+          %td Время восстановления данных
+          %td{ "data-name": "time_recovery" }
+        %tr
+
+      -# =============================================== Отказоустойчивость ========================================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Отказоустойчивость
+      %tbody
+        %tr
+          %td{ colspan: 2 }
+            %b Обеспечение надежности
+        %tr
+          %td Дублирование блоков питания
+          %td{ "data-name": "duplicate_ps" }
+        %tr
+          %td RAID-массив
+          %td{ "data-name": "raid" }
+        %tr
+          %td Агрегация сетевых портов
+          %td{ "data-name": "bonding" }
+        %tr
+          %td Другое
+          %td{ "data-name": "other" }
+        %tr
+          %td
+            %b Обеспечение отказоустойчивости
+          %td{ "data-name": "resiliency" }
+        %tr
+          %td
+            %b Время восстановления после отказа
+          %td{ "data-name": "time_after_failure" }
+        %tr
+          %td
+            %b Обеспечение катастрофоустойчивости
+          %td{ "data-name": "disaster_rec" }
+        %tr
+          %td
+            %b Время возобновления после катастрофы
+          %td{ "data-name": "time_after_disaster" }
+        %tr
+
+      -# =============================================== Подключение к сетям передачи и хранения данных ============
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Подключение к сетям передачи и хранения данных
+      %tbody
+        %tr
+          %td
+            %b Подключения к сети
+          %td{ "data-name": "network_name[0]" }
+        %tr
+          %td
+          %td{ "data-name": "network_name[1]" }
+        %tr.hide{ "data-name": "network_template", "data-position": "last" }
+          %td
+          %td
+        %tr
+          %td
+            %b Подключение к СХД
+          %td{ "data-name": "storage_name[0]" }
+        %tr
+          %td
+          %td{ "data-name": "storage_name[1]" }
+        %tr
+
+      -# =============================================== Защита информации и разграничение доступа =================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Защита информации и разграничение доступа
+      %tbody
+        %tr
+          %td{ colspan: 2 }
+            %b Меры обеспечения информационной безопасности
+        %tr
+          %td Антивирусные средства
+          %td{ "data-name": "antivirus" }
+        %tr
+          %td Межсетевое экранирование
+          %td{ "data-name": "firewall" }
+        %tr
+          %td UAC/AppArmor/SELinux
+          %td{ "data-name": "uac_app_selinux" }
+        %tr
+          %td Сертифицированные СЗИ НСД
+          %td{ "data-name": "szi" }
+        %tr
+          %td{ colspan: 2 }
+            %b Разграничение доступа
+        %tr
+          %td Доступ в интернет
+          %td{ "data-name": "internet" }
+        %tr
+          %td Сетевые порты, доступные из ЛС
+          %td
+        %tr
+          %td
+          %td
+        %tr
+          %td Сетевые порты, доступные из Интернет
+          %td
+        %tr
+          %td
+          %td
+        %tr
+
+      -# =============================================== Контрль функционирования сервиса ==========================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Контроль функционирования сервиса
+      %tbody
+        %tr
+          %td
+            %b Метод мониторинга доступности сервиса
+          %td{ "data-name": "type_mon" }
+        %tr
+          %td
+            %b Мониторинг доступности сервиса
+          %td{ "data-name": "service_mon" }
+        %tr
+          %td
+            %b Мониторинг работы аппаратных средств
+          %td{ "data-name": "hardware_mon" }
+        %tr
+          %td
+            %b Мониторинг безопасности
+          %td{ "data-name": "security_mon" }
+        %tr
+
+      -# =============================================== Дополнительные данные =====================================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Дополнительные данные
+      %tbody
+        %tr
+          %td{ colspan: 2, "data-name": "additional_data" }
+        %tr
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Комментарий
+      %tbody
+        %tr
+          %td{ colspan: 2, "data-name": "comment" }
+        %tr
+          %td Имя в системе мониторинга
+          %td{ "data-name": "name_monitoring" }

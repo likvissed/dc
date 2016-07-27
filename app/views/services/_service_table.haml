@@ -1,0 +1,294 @@
+%table.table.table-striped.table-bordered.table-edit-service
+
+  -# =============================================== Основные данные ===============================================
+
+  %thead
+    %tr
+      %th{ colspan: 2 } Основные данные
+  %tbody
+    %tr
+      %td
+        %b Наименование сервиса
+      %td= s.input :name, label: false, autofocus: true
+    %tr
+      %td{ colspan: 2 }
+        %b Краткое описание сервиса
+    %tr
+      %td{ colspan: 2 }= s.input :descr, label: false, as: :text, input_html: { rows: 3 }
+    %tr
+      %td
+        %b Приоритет функционирования
+      %td= s.input :priority, label: false, collection: Service.priorities.keys.to_a, as: :select, include_blank: false
+    %tr
+      %td
+        %b Режим гарантированной доступности
+      %td= s.input :time_work, label: false, collection: Service.time_works.keys.to_a, as: :select, include_blank: false
+    %tr
+      %td
+        %b Максимальное время восстановления
+      %td= s.input :max_time_rec, label: false
+    %tr
+      %td{ colspan: 2 }
+        %b Ответственные за исполнение сервиса
+    %tr
+      %td Основной ответственный
+      %td= s.association :contact_1, label_method: :info, value_method: :id, label: false, prompt: "Отсутствует"
+    %tr
+      %td Вторичный контакт
+      %td= s.association :contact_2, label_method: :info, value_method: :id, label: false, prompt: "Отсутствует"
+    %tr
+
+    -# =============================================== Характеристики среды исполнения =============================
+
+    %thead
+      %tr
+        %th{ colspan: 2 } Характеристики среды исполнения
+    %tbody
+      %tr
+        %td{ colspan: 2 }
+          %b Среда исполнения
+      %tr
+        %td{ colspan: 2 }= s.input :environment, label: false, as: :text, input_html: { rows: 1 }
+      %tr
+        %td
+          %b Операционная система
+        %td= s.input :os, label: false
+      %tr
+        %td
+          %b Ключевой программный компонент
+        %td= s.input :component_key, label: false
+      %tr
+        %td{ colspan: 2 }
+          %b Требования к вычислительным ресурсам
+      %tr
+        %td Количество ядер процессора
+        %td= s.input :kernel_count, label: false
+      %tr
+        %td Тактовая частота процессора
+        %td= s.input :frequency, label: false
+      %tr
+        %td Объем оперативной памяти
+        %td= s.input :memory, label: false
+      %tr
+        %td Объем дискового пространства
+        %td= s.input :disk_space, label: false
+      %tr
+        %td Скорость обмена с жестким диском
+        %td= s.input :hdd_speed, label: false
+      %tr
+        %td Скорость сетевого соединения
+        %td= s.input :network_speed, label: false
+      %tr
+        %td{ colspan: 2 }
+          %b Дополнительные требования к среде исполнения
+      %tr
+        %td{ colspan: 2 }= s.input :additional_require, label: false, as: :text, input_html: { rows: 2 }
+      %tr
+
+      -# =============================================== Резервное копирование и восстановление ====================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Резервное копирование и восстановление
+      %tbody
+        %tr
+          %td{ colspan: 2 }
+            %b Краткое описание процедуры резервного копирования
+        %tr
+          %td{ colspan: 2 }= s.input :backup_manual, label: false, as: :text, input_html: { rows: 2 }
+        %tr
+          %td{ colspan: 2 }
+            %b Краткое описание процедуры восстановления данных
+        %tr
+          %td{ colspan: 2 }= s.input :recovery_manual, label: false, as: :text, input_html: { rows: 2 }
+        %tr
+          %td{ colspan: 2 }
+            %b Параметры резервного копирования
+        %tr
+          %td Оценка объемов данных для копирования
+          %td= s.input :value_backup_data, label: false
+        %tr
+          %td Срок хранения старейшей копии
+          %td= s.input :storage_time, label: false
+        %tr
+          %td Хранилище резервных копий
+          %td= s.input :store_copies, label: false
+        %tr
+          %td Оценка объема резервной копии
+          %td= s.input :backup_volume, label: false
+        %tr
+          %td Окно резервного копирования
+          %td= s.input :backup_window, label: false
+        %tr
+          %td Время восстановления данных
+          %td= s.input :time_recovery, label: false
+        %tr
+
+      -# =============================================== Отказоустойчивость ========================================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Отказоустойчивость
+      %tbody
+        %tr
+          %td{ colspan: 2 }
+            %b Обеспечение надежности
+        %tr
+          %td Дублирование блоков питания
+          %td= s.input :duplicate_ps, label: false
+        %tr
+          %td RAID-массив
+          %td= s.input :raid, label: false
+        %tr
+          %td Агрегация сетевых портов
+          %td= s.input :bonding, label: false
+        %tr
+          %td Другое
+          %td= s.input :other, label: false
+        %tr
+          %td
+            %b Обеспечение отказоустойчивости
+          %td= s.input :resiliency, label: false
+        %tr
+          %td
+            %b Время восстановления после отказа
+          %td= s.input :time_after_failure, label: false
+        %tr
+          %td
+            %b Обеспечение катастрофоустойчивости
+          %td= s.input :disaster_rec, label: false
+        %tr
+          %td
+            %b Время возобновления после катастрофы
+          %td= s.input :time_after_disaster, label: false
+        %tr
+
+      -# =============================================== Подключение к сетям передачи и хранения данных ============
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Подключение к сетям передачи и хранения данных
+      %tbody
+        %tr{ "ng-repeat": "network in networks", "ng-hide": "network.hide" }
+          %td
+            %table.internal-table
+              %tr
+                %td
+                  %b {{ network.name }}
+                %td.min-td
+                  = icon("fa fa-plus-circle fa-lg font-internal", title: "Добавить подключение к сети", "ng-click": "addNetwork()")
+          %td
+            %table.internal-table
+              %tr
+                %td.form-group.string.optional.template_service_network
+                  = text_field_tag "template_service[network][{{ $index }}]", "{{ network.view }}" , "ng-focus": "showNetworkModal($event, $index)"
+
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][id]", "{{ network.id }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][_destroy]", "{{ network.destroy }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][segment]", "{{ network.value.segment }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][vlan]", "{{ network.value.vlan }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][dns_name]", "{{ network.value.dns_name }}"
+
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][id]", "{{ network.ports.id }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][_destroy]", "{{ network.ports.destroy }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][local_tcp_ports]", "{{ network.ports.local_tcp_ports }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][local_udp_ports]", "{{ network.ports.local_udp_ports }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][inet_tcp_ports]", "{{ network.ports.inet_tcp_ports }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][inet_udp_ports]", "{{ network.ports.inet_udp_ports }}"
+                %td.min-td
+                  = icon("fa fa-minus-circle fa-lg font-internal", title: "Удалить подключение к сети", "ng-click": "delNetwork(network)")
+
+        %tr{ "ng-repeat": "storage in storages" }
+          %td
+            %b {{ storage.name }}
+          %td.form-group.string.optional.template_service_network
+            = text_field_tag "service[storage_systems_attributes][{{ $index }}][name]", "{{ storage.value.name }}"
+            = hidden_field_tag "service[storage_systems_attributes][{{ $index }}][id]", "{{ storage.id }}"
+            = hidden_field_tag "service[storage_systems_attributes][{{ $index }}][_destroy]", "{{ storage.destroy }}"
+        %tr
+
+      -# =============================================== Защита информации и разграничение доступа =================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Защита информации и разграничение доступа
+      %tbody
+        %tr
+          %td{ colspan: 2 }
+            %b Меры обеспечения информационной безопасности
+        %tr
+          %td Антивирусные средства
+          %td= s.input :antivirus, label: false
+        %tr
+          %td Межсетевое экранирование
+          %td= s.input :firewall, label: false
+        %tr
+          %td UAC/AppArmor/SELinux
+          %td= s.input :uac_app_selinux, label: false
+        %tr
+          %td Сертифицированные СЗИ НСД
+          %td= s.input :szi, label: false
+        %tr
+          %td{ colspan: 2 }
+            %b Разграничение доступа
+        %tr
+          %td Доступ в интернет
+          %td= s.input :internet, label: false
+        %tr
+          %td Сетевые порты, доступные из ЛС
+          %td.form-group.string.optional.template_service_network
+            = text_field_tag "template_service[port][0]", "" , "ng-focus": "showPortsModal($event, $index)"
+        %tr
+          %td
+          %td
+        %tr
+          %td Сетевые порты, доступные из Интернет
+          %td
+        %tr
+          %td
+          %td
+        %tr
+
+      -# =============================================== Контроль функционирования сервиса =========================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Контроль функционирования сервиса
+      %tbody
+        %tr
+          %td
+            %b Метод мониторинга доступности сервиса
+          %td= s.input :type_mon, label: false
+        %tr
+          %td
+            %b Мониторинг доступности сервиса
+          %td= s.input :service_mon, label: false
+        %tr
+          %td
+            %b Мониторинг работы аппаратных средств
+          %td= s.input :hardware_mon, label: false
+        %tr
+          %td
+            %b Мониторинг безопасности
+          %td= s.input :security_mon, label: false
+        %tr
+
+      -# =============================================== Дополнительные данные =====================================
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Дополнительные данные
+      %tbody
+        %tr
+          %td{ colspan: 2 }= s.input :additional_data, label: false, as: :text, input_html: { rows: 3 }
+        %tr
+
+      %thead
+        %tr
+          %th{ colspan: 2 } Комментарий
+      %tbody
+        %tr
+          %td{ colspan: 2 }= s.input :comment, label: false, as: :text, input_html: { rows: 3 }
+        %tr
+          %td Имя в системе мониторинга
+          %td= s.input :name_monitoring, label: false

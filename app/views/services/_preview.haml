@@ -1,0 +1,11 @@
+.modal.fade#modal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+  .modal-dialog.preview-service-table
+    .modal-content
+      .modal-header
+        - if can? :manage, Service
+          = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData"
+        %h4.modal-title
+      .modal-body
+        = render partial: "preview_table"
+      .modal-footer
+        = button_tag "Закрыть", class: "btn-primary", "data-id": "closeModal"

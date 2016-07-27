@@ -1,0 +1,46 @@
+.modal.fade#portsModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+  .modal-dialog
+    .modal-content
+      .modal-header
+        %h4.modal-title.text-center= @service.name || "Имя не определено"
+      .modal-body
+        .form-group.string.optional
+          = select_tag "service[service_networks][service_ports][][name]", nil, class: "form-control", "ng-model": "selected_network",
+            "ng-options": "network as network.value.dns_name for network in networks | filter: networksFilter() track by network.value.dns_name", "ng-change": "changeNetwork()"
+
+        %table.table.table-bordered.table-ports
+          %thead
+            %tr
+              %th.text-center
+                %b Порты, доступные из ЛС
+                %br
+                = label_tag "service_service_ports__local_disabled", class: "boolean optional" do
+                  = check_box_tag "service[service_networks][][service_ports][local_disabled]", "1", true, class: "boolean optional"
+                  Отсутствуют
+              %th.text-center
+                %b Порты, доступные из Интернет
+                %br
+                = label_tag "service_service_ports__inet_disabled", class: "boolean optional" do
+                  = check_box_tag "service[service_networks][][service_ports][inet_disabled]", "1", true, class: "boolean optional"
+                  Отсутствуют
+            %tr
+              %th.text-center{ colspan: 2 } TCP
+          %tbody
+            %tr
+              %td.form-group.text.optional
+                = text_area_tag "template_ports[template_index][local_tcp_ports]", "template_ports[template_index][local_tcp_ports]", "ng-model": "template_ports[template_index].local_tcp_ports", class: "form-control text optional"
+              %td.form-group.string.optional
+                = text_area_tag "template_ports[template_index][inet_tcp_ports]", "template_ports[template_index][inet_tcp_ports]", "ng-model": "template_ports[template_index].inet_tcp_ports", class: "form-control text optional"
+          %thead
+            %tr
+              %th.text-center{ colspan: 2 } UDP
+          %tbody
+            %tr
+              %td.form-group.string.optional
+                = text_area_tag "template_ports[template_index][local_udp_ports]", "template_ports[template_index][local_udp_ports]", "ng-model": "template_ports[template_index].local_udp_ports", class: "form-control text optional"
+              %td.form-group.string.optional
+                = text_area_tag "template_ports[template_index][inet_udp_ports]", "template_ports[template_index][inet_udp_ports]", "ng-model": "template_ports[template_index].inet_udp_ports", class: "form-control text optional"
+
+      .modal-footer
+        = button_tag "Готово", class: "btn-primary", "ng-click": "readyPortsModal()"
+        = button_tag "Отмена", class: "btn-primary", "ng-click": "closePortsModal()"

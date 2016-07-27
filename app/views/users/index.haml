@@ -1,17 +1,18 @@
 = title "Пользователи"
 .medium-content
-  = button_to "Добавить", new_user_path, method: :get, class: "btn btn-primary", form_class: "text-center"
-  %table.table.table-striped
-    %th.col-md-1 #
-    %th Имя
-    %th.col-md-1
-    %th.col-md-1
-    - @users.each_with_index do |user, index|
-      %tr
-        %td= index.next
-        %td= user.username
-        %td
-          = link_to icon("fa fa-pencil-square-o fa-1g"), "/users/" + user.username + "/edit", class: "default-color", title: "Редактировать"
-        %td
-          = link_to icon("fa fa-trash-o fa-1g"), user_path(user.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ user.username }\"?" }, class: "text-danger", title: "Удалить"
-  = paginate @users, window: 2
+  .content-body
+    = button_to "Добавить", new_user_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+    %table.table.table-striped
+      %th.col-md-1 #
+      %th Имя
+      %th.col-md-1
+      %th.col-md-1
+      - @users.each_with_index do |user, index|
+        %tr
+          %td= index.next
+          %td= user.username
+          %td
+            = link_to icon("fa fa-pencil-square-o fa-1g"), "/users/" + user.username + "/edit", class: "default-color", title: "Редактировать"
+          %td
+            = link_to icon("fa fa-trash-o fa-1g"), user_path(user.id), method: :delete, data: { confirm: "Вы действительно хотите удалить \"#{ user.username }\"?" }, class: "text-danger", title: "Удалить"
+    = paginate @users, window: 2

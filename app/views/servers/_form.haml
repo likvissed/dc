@@ -1,45 +1,47 @@
 .medium-content
   %div{ "ng-controller": "ServEditCtrl" }
     = simple_form_for @server, url: url, html: { "serv-form": @server.id || 0, "serv-name": params[:name] } do |s|
-      = s.input :name, label: "Имя сервера", autofocus: true
-      = s.input :inventory_num, label: "Инвентарный номер"
-      = s.input :serial_num, label: "Серийный номер"
-      = s.input :location, label: "Расположение"
-      .row
-        .col-xs-12
-          - error_class = @server.errors[:server_status_id].empty? ? "" : "has-error"
-          %div{ class: error_class }
-            %label.control-label{ for: "server_server_type_id" }
-              %h5
-                %abbr{ title: "required" } *
-                %b Статус сервера
-            = select_tag "server[server_status_id]", nil, class: "form-control", "ng-model": "server.server_status",
-            "ng-options": "status.name for status in statuses track by status.id", prompt: "Выберите статус сервера"
-            %span.help-block= get_errors @server.errors[:server_status_id]
-      .row
-        .col-xs-12
-          - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
-          %div{ class: error_class }
-            %label.control-label{ for: "server_server_type_id" }
-              %h5
-                %abbr{ title: "required" } *
-                %b Тип сервера
-            = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.server_type",
-            "ng-options": "type.name for type in types track by type.id", "ng-change": "changeType(server.server_type)", prompt: "Выберите тип сервера"
-            %span.help-block= get_errors @server.errors[:server_type_id]
+      .content-body
+        = s.input :name, label: "Имя сервера", autofocus: true
+        = s.input :inventory_num, label: "Инвентарный номер"
+        = s.input :serial_num, label: "Серийный номер"
+        = s.input :location, label: "Расположение"
+        .row
+          .col-xs-12
+            - error_class = @server.errors[:server_status_id].empty? ? "" : "has-error"
+            %div{ class: error_class }
+              %label.control-label{ for: "server_server_type_id" }
+                %h5
+                  %abbr{ title: "required" } *
+                  %b Статус сервера
+              = select_tag "server[server_status_id]", nil, class: "form-control", "ng-model": "server.server_status",
+              "ng-options": "status.name for status in statuses track by status.id", prompt: "Выберите статус сервера"
+              %span.help-block= get_errors @server.errors[:server_status_id]
+        .row
+          .col-xs-12
+            - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
+            %div{ class: error_class }
+              %label.control-label{ for: "server_server_type_id" }
+                %h5
+                  %abbr{ title: "required" } *
+                  %b Тип сервера
+              = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.server_type",
+              "ng-options": "type.name for type in types track by type.id", "ng-change": "changeType(server.server_type)", prompt: "Выберите тип сервера"
+              %span.help-block= get_errors @server.errors[:server_type_id]
 
-      %h5
-        %b Состав сервера
-      .row.row-margin-bot{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy", "data-id": "server-structure" }
-        = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][id]", "{{ detail.id }}"
-        = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][_destroy]", "{{ detail.destroy }}"
-        .col-xs-8
-          = select_tag "server[real_server_details_attributes][{{ $index }}][server_part_id]", nil, class: "form-control", "ng-model": "detail.server_part", "ng-options": "part.name for part in parts track by part.id"
-        .col-xs-2
-          = text_field_tag "server[real_server_details_attributes][{{ $index }}][count]", nil, value: "{{ detail.count }}", class: "form-control count-width", "ng-model": "detail.count"
+        %h5
+          %b Состав сервера
+        .row.row-margin-bot{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy", "data-id": "server-structure" }
+          = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][id]", "{{ detail.id }}"
+          = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][_destroy]", "{{ detail.destroy }}"
+          .col-xs-8
+            = select_tag "server[real_server_details_attributes][{{ $index }}][server_part_id]", nil, class: "form-control", "ng-model": "detail.server_part", "ng-options": "part.name for part in parts track by part.id"
+          .col-xs-2
+            = text_field_tag "server[real_server_details_attributes][{{ $index }}][count]", "{{ detail.count }}", class: "form-control count-width", "ng-model": "detail.count"
 
-        = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addServPart()"
-        = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delServPart(detail)"
+          = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addServPart()"
+          = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delServPart(detail)"
 
-      = s.button :submit, "Готово", class: "btn-success"
-      = button_tag "Отмена", type: "submit", name: "cancel", value: true, class: "btn-default"
+      .content-footer
+        = s.button :submit, "Готово", class: "btn-success"
+        = button_tag "Отмена", type: "submit", name: "cancel", value: true
