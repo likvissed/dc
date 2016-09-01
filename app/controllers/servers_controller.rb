@@ -78,7 +78,6 @@ title='Удалить' data-confirm='Вы действительно хотит�
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        server_details    = @server.real_server_details
         @server_parts     = ServerPart.select(:id, :name)
         @server_types     = ServerType.select(:id, :name)
         @server_statuses  = ServerStatus.select(:id, :name)
@@ -90,7 +89,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
             },
             except: [:created_at, :updated_at]
           ),
-          server_details: server_details.as_json(
+          server_details: @server.real_server_details.as_json(
             include: { server_part: { except: [:created_at, :updated_at] } },
             except: [:created_at, :updated_at]
           ),
@@ -125,8 +124,15 @@ title='Удалить' data-confirm='Вы действительно хотит�
 
   # Разрешение изменения strong params
   def server_params
-    params.require(:server).permit(:cluster_id, :server_type_id, :server_status_id, :name, :inventory_num, :serial_num, :location,
-                                   real_server_details_attributes: [:id, :server_id, :server_part_id, :count, :_destroy])
+    params.require(:server).permit(
+      :cluster_id,
+      :server_type_id,
+      :server_status_id,
+      :name,
+      :inventory_num,
+      :serial_num,
+      :location,
+      real_server_details_attributes: [:id, :server_id, :server_part_id, :count, :_destroy])
   end
 
   # Поиск данных о типе запчасти по name

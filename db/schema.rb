@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160831052458) do
+ActiveRecord::Schema.define(version: 20160901085011) do
 
   create_table "cluster_details", force: :cascade do |t|
     t.integer  "cluster_id",   limit: 4

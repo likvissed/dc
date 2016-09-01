@@ -15,6 +15,7 @@ app.directive('servForm', ['$http', function ($http) {
     else {
       $http.get('/servers/' + attrs.servName + '/edit.json')
         .success(function(data, status, header, config) {
+          console.log(data);
           scope.server    = data.server;
           scope.statuses  = data.server_statuses;
           scope.types     = data.server_types;

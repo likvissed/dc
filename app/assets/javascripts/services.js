@@ -56,9 +56,14 @@ app.directive('serviceForm', ['$http', function ($http) {
     else {
       $http.get('/services/' + attrs.serviceName + '/edit.json')
         .success(function (data, status, header, config) {
-
           // Массив со списком существующих сервисов
           scope.services = data.services;
+
+          //Массив со списком родительских сервисов (от которых зависит текщий сервис)
+          scope.parents = data.parents;
+
+          // current_name необходим для исключения этого имени из списка родителей-сервисов
+          scope.current_name = data.current_name;
 
           // Заполнение массива файлов скана, акта, инструкций (если файл отсутствует => true)
           scope.missing_file = data.missing_file;
@@ -115,10 +120,45 @@ app.directive('serviceForm', ['$http', function ($http) {
 
 app.controller('ServiceEditCtrl', ['$scope', '$element', function ($scope, $element) {
 
+  // Добавить сервис-родитель
   $scope.addParent = function () {
-    $scope.selected_parent = $scope.services[0];
-    $scope.parents.push($scope.services[0]);
-    console.log($scope.parents);
+    // Провера на количество сервисов (нельзя создать зависимость, если количество сервисов = 1)
+    if ($scope.services.length == 1) {
+      alert("Для создания зависимостей необходимо добавить больше сервисов");
+      return false;
+    }
+
+    // Проход по циклу для проверки, какой сервис поставить первым в тэге select (нужно для того, что исключить случай, когда сервис-родитель = текущему сервису)
+    $.each($scope.services, function (index, value) {
+      if (value.name != $scope.current_name) {
+        $scope.parents.push({
+          parent_id: $scope.services[index].id,
+          parent_service: $scope.services[index],
+          destroy: 0
+        });
+        return false;
+      }
+    });
+  };
+
+  // Удалить сервис-родитель
+  $scope.delParent = function (parent) {
+    if (parent.id)
+      parent.destroy = 1;
+    else
+      $scope.parents.splice($.inArray(parent, $scope.parents), 1);
+  };
+
+  $scope.showParents = function () {
+    var show = 1;
+    $.each($scope.parents, function (index, value) {
+      if (!value.destroy) {
+        show = 0;
+        return false;
+      }
+    });
+
+    return show ? true: false
   };
 
   // Отключение ссылок на скачивание и удаление файлов
@@ -135,7 +175,6 @@ app.controller('ServiceEditCtrl', ['$scope', '$element', function ($scope, $elem
           $event.preventDefault();
       }
     }
-
 
     return false;
   };

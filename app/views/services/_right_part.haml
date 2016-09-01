@@ -23,22 +23,16 @@
         %td.min-td
           = icon("fa fa-plus-circle fa-lg", title: "Добавить зависимость", class: "test", "ng-click": "addParent()")
   .panel-body
-    %table.internal-table
-      %tr{ "ng-repeat": "parent in parents" }
-        %td
-          .form-group.string.optional.service_parents
-            = select_tag "service[parents_attributes][{{ $index }}][parent_id]", nil, class: "form-control", "ng-model": "selected_parent", "ng-options": "service.name for service in services track by service.id"
-            = hidden_field_tag "service[parents_attributes][{{ $index }}][id]", "{{ parent.id }}"
-            = hidden_field_tag "service[parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"
+    %div{ "ng-show": "showParents()" } Отсутствуют
 
-          -#= s.association :parents, label_method: :name, value_method: :id, label: false, include_blank: false, input_html: { multiple: false }
-        %td.min-td
-          = icon("fa fa-minus-circle fa-lg", title: "Удалить зависимость")
-      %tr.empty
-      -#%tr
-        %td
-          = s.association :parents, label_method: :name, value_method: :id, label: false, include_blank: false, input_html: { multiple: false }
-        %td.min-td
-          = icon("fa fa-minus-circle fa-lg", title: "Удалить зависимость")
-
-  -#= s.association :contact_1, label_method: :info, value_method: :id, label: false, prompt: "Отсутствует"
+    %table.internal-table{ "ng-show": "parents.length" }
+      %tbody{ "ng-repeat": "parent in parents", "ng-hide": "parent.destroy" }
+        %tr
+          %td
+            .form-group.string.optional.service_parents
+              = select_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", nil, class: "form-control", "ng-model": "parent.parent_service", "ng-options": "service.name for service in services | filter: { name: '!' + current_name } track by service.id"
+              = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][id]", "{{ parent.id }}"
+              = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"
+          %td.min-td
+            = icon("fa fa-minus-circle fa-lg", title: "Удалить зависимость", "ng-click": "delParent(parent)")
+        %tr.empty{ "ng-show": "!$last" }

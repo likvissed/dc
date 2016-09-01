@@ -82,9 +82,6 @@ class ServicesController < ApplicationController
   end
 
   def create
-    render text: params
-    return
-
     @service = Service.new(service_params)
     if @service.save
       flash[:notice] = "Данные добавлены."
@@ -118,7 +115,12 @@ class ServicesController < ApplicationController
             except: [:service_id, :created_at, :updated_at]
           ),
           storage_systems: @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
-          services: @services
+          services: @services,
+          current_name: @service.name, # Необходимо для исключения этого имени из списка родителей-сервисов
+          parents: @service.service_dep_parents.as_json(
+            include: { parent_service: { only: [:id, :name] } },
+            only: :id
+          )
         }
       end
     end
@@ -145,7 +147,7 @@ class ServicesController < ApplicationController
     if @service.destroy
       flash[:notice] = "Данные удалены"
     else
-      flash[:alert] = "Ошибка удаления данных. #{ @server.errors.full_messages.join(", ") }"
+      flash[:alert] = "Ошибка удаления данных. #{ @service.errors.full_messages.join(", ") }"
     end
     redirect_to action: :index
   end
@@ -239,7 +241,7 @@ class ServicesController < ApplicationController
         :_destroy,
         service_port_attributes: [:id, :service_network_id, :local_tcp_ports, :local_udp_ports, :inet_tcp_ports, :inet_udp_ports, :host_class, :tcp_ports_2, :udp_ports_2, :_destroy]],
       storage_systems_attributes: [:id, :service_id, :name, :_destroy],
-      parents_attributes: [:id, :child_id, :parent_id, :_destroy]
+      service_dep_parents_attributes: [:id, :parent_id, :child_id, :_destroy]
     )
   end
 

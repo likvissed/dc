@@ -1,5 +1,7 @@
 class ServiceNetwork < ActiveRecord::Base
 
+  resourcify
+
   has_one :service_port, dependent: :destroy
 
   belongs_to :service

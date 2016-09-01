@@ -6,10 +6,12 @@ class Service < ActiveRecord::Base
 
   has_many :service_networks, dependent: :destroy
   has_many :storage_systems, dependent: :destroy
-  has_many :service_dep_childs, foreign_key: :child_id, class_name: "ServiceDependency"
-  has_many :service_dep_parents, foreign_key: :parent_id, class_name: "ServiceDependency"
-  has_many :childs, through: :service_dep_childs
-  has_many :parents, through: :service_dep_parents
+
+  has_many :service_dep_parents, foreign_key: :child_id, class_name: "ServiceDependency", dependent: :destroy
+  has_many :parents, through: :service_dep_parents, source: :parent_service
+
+  has_many :service_dep_childs, foreign_key: :parent_id, class_name: "ServiceDependency", dependent: :restrict_with_error
+  has_many :childs, through: :service_dep_childs, source: :child_service
 
   belongs_to :contact_1, class_name: "Contact"
   belongs_to :contact_2, class_name: "Contact"
@@ -21,7 +23,7 @@ class Service < ActiveRecord::Base
 
   accepts_nested_attributes_for :service_networks, allow_destroy: true, reject_if: proc { |attr| attr["segment"].blank? || attr["vlan"].blank? || attr["dns_name"].blank? }
   accepts_nested_attributes_for :storage_systems, allow_destroy: true, reject_if: proc { |attr| attr["name"].blank? }
-  accepts_nested_attributes_for :parents, allow_destroy: true
+  accepts_nested_attributes_for :service_dep_parents, allow_destroy: true, reject_if: proc { |attr| attr["parent_id"].blank? }
 
   enum priority:  ["Критическая производственная задача", "Вторичная производственная задача", "Тестирование и отладка"]
   enum time_work: ["Круглосуточно (24/7)", "Рабочее время (8/5)", "По запросу"]
