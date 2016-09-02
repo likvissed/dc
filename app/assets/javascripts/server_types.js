@@ -47,6 +47,7 @@ $(function () {
   var
     modal = $('#modal'),
     table = $('#servTypeTable').DataTable({
+      dom: '<"row"<"#add_server_type_block.col-md-3"><"col-md-3"><"col-md-3"><"col-md-3"f>>',
       columns: [
         {
           data: 'index',
@@ -75,15 +76,13 @@ $(function () {
         showServerType();
       },
       initComplete: function () {
+        // Создать кнопку добавления нового типа сервера
+        $('#add_server_type_form').appendTo('#add_server_type_block');
+
         // Изменить класс у формы поиска
         $('.dataTables_filter input').removeClass('input-sm');
       }
     });
-
-  // Закрыть модальное окно
-  modal.find('button[data-id="closeModal"]').on('click', function () {
-    modal.modal('hide');
-  });
 
   // Событие после закрытия окна
   modal.on('hidden.bs.modal', function () {

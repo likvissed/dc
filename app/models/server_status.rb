@@ -4,7 +4,7 @@ class ServerStatus < ActiveRecord::Base
 
   paginates_per 20
 
-  has_many :server_types, dependent: :restrict_with_error
+  has_many :servers, dependent: :restrict_with_error
 
   strip_attributes allow_empty: true, collapse_spaces: true
 

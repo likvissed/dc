@@ -10,10 +10,14 @@ app.directive('stopClick', function() {
 app.controller("FlashMessageCtrl",['$attrs', '$timeout', function($attrs, $timeout) {
   controller = this;
 
-  if ($attrs.notice)
+  if ($attrs.notice) {
     controller.notice = $attrs.notice;
-  if ($attrs.alert)
-    controller.alert  = $attrs.alert;
+    console.log("Attr.notice");
+  }
+  if ($attrs.alert) {
+    controller.alert = $attrs.alert;
+    console.log("Attr.alert");
+  }
 
   // controller.notice = $attrs.notice;
   // controller.alert  = $attrs.alert;
@@ -32,7 +36,8 @@ $(function () {
   // Настройки DataTable
   $.extend(true, $.fn.DataTable.defaults, {
     // dom : 'ftrip',
-    dom: "<'row'<'#data-table-filter.col-sm-6'><'col-sm-6'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+    //dom: "<'row'<'#data-table-filter.col-sm-6'><'col-sm-6'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
+    dom: '<"row"<"col-sm-12"f>>',
     lengthChange: true,
     info: true,
     stateSave: true,
@@ -53,6 +58,10 @@ $(function () {
       info:               'Записи с _START_ по _END_ из _TOTAL_',
       infoFiltered:       '(выборка из _MAX_ записей)',
       infoEmpty:          '0 записей'
+    },
+    initComplete: function (settings, json) {
+      // Изменить класс у формы поиска
+      $('.dataTables_filter input').removeClass('input-sm');
     }
   });
 

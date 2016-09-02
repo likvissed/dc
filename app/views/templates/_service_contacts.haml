@@ -1,0 +1,11 @@
+%ul.nav.nav-tabs
+
+  - if current_page? :contacts
+    - active_contact = "active"
+  - elsif current_page? :department_heads
+    - active_head = "active"
+
+  %li{ class: active_contact }
+    = link_to "Исполнители", contacts_path
+  %li{ class: active_head }
+    = link_to "Руководители", department_heads_path

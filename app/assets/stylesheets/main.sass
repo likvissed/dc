@@ -61,7 +61,7 @@ a.default-color
 
 .default-content
   @extend %template-content
-  width: $defatul-width - 24
+  width: $defatul-width
 
 .big-content
   @extend %template-content
@@ -77,6 +77,9 @@ a.default-color
   $colDefault     : #333333
   $colHighlight   : #333333
   $dropDown       : true
+
+  .header-padding
+    padding: 10px
 
   nav
     @extend nav
@@ -255,3 +258,10 @@ a.default-color
 
 .font-internal
   font-size: 16px !important
+
+/* ================================== Стиль для компонентов таблицы DataTables ========== */
+
+.dataTables_wrapper
+  .form-control
+    width: 100% !important
+    margin-left: 0 !important

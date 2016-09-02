@@ -1,2 +1,2 @@
 = title "Редактирование контакта"
-= render partial: "form", locals: { url: contact_path(params[:name]) }
+= render partial: "form", locals: { url: "/contacts/#{params[:tn]}" }

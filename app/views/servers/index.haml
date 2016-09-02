@@ -2,7 +2,8 @@
 .default-content
   .content-body
     - if can? :manage, Server
-      = button_to "Добавить", new_server_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+      = button_to "Добавить", new_server_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_server_form" }
+
     %table.table.table-hover.table-striped#servTable
       %thead
         %tr

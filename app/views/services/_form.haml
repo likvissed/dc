@@ -2,7 +2,7 @@
   = simple_form_for @service, url: url, html: { "service-form": @service.id || 0, "service-name": params[:name] } do |s|
 
     .content-header
-      =render partial: "service_header", locals: { s: s }
+      = render partial: "service_header", locals: { s: s }
 
     .content-body
       -#= render partial: "files", locals: { s: s }
@@ -10,10 +10,6 @@
         = render partial: "service_table", locals: { s: s }
       .service-right-part
         = render partial: "right_part", locals: { s: s }
-
-    -#.content-footer
-      = s.button :submit, "Готово", class: "btn-success"
-      = button_tag "Отмена", type: "submit", name: "cancel", value: true
 
   = render partial: "network"
   = render partial: "ports"

@@ -1,0 +1,20 @@
+= title "Просмотр руководителей"
+.default-content
+  .content-header
+    .header-padding
+      = render partial: "templates/service_contacts"
+
+  .content-body
+    - if can? :manage, DepartmentHead
+      = button_to "Добавить", new_department_head_path, method: :get, class: "btn btn-primary btn-block", id: "addDepartmentHead", remote: true, form: { id: "add_dep_form" }
+
+    %table.table.table-striped#departmentHeadTable
+      %thead
+        %tr
+          %th.col-md-1 #
+          %th ФИО
+          %th.col-md-1 Отдел
+          %th.col-md-1
+          %th.col-md-1
+
+.modal.fade#departmentHeadModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }

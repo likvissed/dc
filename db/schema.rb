@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160901085011) do
+ActiveRecord::Schema.define(version: 20160908051010) do
 
   create_table "cluster_details", force: :cascade do |t|
     t.integer  "cluster_id",   limit: 4
@@ -30,17 +30,31 @@ ActiveRecord::Schema.define(version: 20160901085011) do
   add_index "clusters", ["name"], name: "index_clusters_on_name", using: :btree
 
   create_table "contacts", force: :cascade do |t|
-    t.integer  "tn",         limit: 4
-    t.string   "info",       limit: 255
-    t.string   "dept",       limit: 20
-    t.string   "work_num",   limit: 10
-    t.string   "mobile_num", limit: 20
-    t.boolean  "manually",               default: false
-    t.datetime "created_at",                             null: false
-    t.datetime "updated_at",                             null: false
+    t.integer  "tn",                 limit: 4
+    t.string   "info",               limit: 255
+    t.string   "dept",               limit: 20
+    t.integer  "department_head_id", limit: 4
+    t.string   "work_num",           limit: 10
+    t.string   "mobile_num",         limit: 20
+    t.boolean  "manually",                       default: false
+    t.datetime "created_at",                                     null: false
+    t.datetime "updated_at",                                     null: false
   end
 
+  add_index "contacts", ["department_head_id"], name: "index_contacts_on_department_head_id", using: :btree
   add_index "contacts", ["dept"], name: "index_contacts_on_dept", using: :btree
+  add_index "contacts", ["info"], name: "index_contacts_on_info", using: :btree
+
+  create_table "department_heads", force: :cascade do |t|
+    t.integer  "tn",         limit: 4
+    t.integer  "dept",       limit: 4
+    t.string   "info",       limit: 255
+    t.datetime "created_at",             null: false
+    t.datetime "updated_at",             null: false
+  end
+
+  add_index "department_heads", ["dept"], name: "index_department_heads_on_dept", using: :btree
+  add_index "department_heads", ["info"], name: "index_department_heads_on_info", using: :btree
 
   create_table "detail_types", force: :cascade do |t|
     t.string   "name",       limit: 255

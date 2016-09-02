@@ -2,10 +2,32 @@
   .modal-dialog.preview-service-table
     .modal-content
       .modal-header
+
         - if can? :manage, Service
-          = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData"
-        %h4.modal-title
+          .pull-right
+            .btn-group
+              = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do
+                Скачать
+                %span.caret
+              %ul.dropdown-menu
+                %li= link_to "Формуляр", "#", "data-link-type": "download", "data-name": "scan"
+                %li= link_to "Акт", "#", "data-link-type": "download", "data-name": "act"
+                %li= link_to "Инструкцию по откл.", "#", "data-link-type": "download", "data-name": "instr_off"
+                %li= link_to "Инструкцию по восст.", "#", "data-link-type": "download", "data-name": "instr_rec"
+
+            .btn-group
+              = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do
+                Сгенерировать
+                %span.caret
+              %ul.dropdown-menu
+                %li= link_to "Формуляр", "#", "data-name": "gen_formular"
+                %li= link_to "Акт", "#", "data-name": "gen_act"
+
+            = link_to icon("fa fa-cog fa-fw"), "#", class: "btn btn-default default-color", title: "Редактировать", "data-id": "changeData"
+
+        %h3.modal-title
+
       .modal-body
         = render partial: "preview_table"
       .modal-footer
-        = button_tag "Закрыть", class: "btn-primary", "data-id": "closeModal"
+        = button_tag "Закрыть", "data-dismiss": "modal"

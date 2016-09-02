@@ -14,7 +14,6 @@ class ApplicationController < ActionController::Base
   end
   #rescue_from Exception, with: :render_500
 
-
   # Проверка, была ли нажата кнопка "Отмена"
   def check_for_cancel(path)
     redirect_to path if params[:cancel]

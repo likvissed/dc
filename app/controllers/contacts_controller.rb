@@ -3,7 +3,7 @@ class ContactsController < ApplicationController
   load_and_authorize_resource
 
   before_action { |ctrl| ctrl.check_for_cancel contacts_path }
-  before_action :find_contact_by_info, only: [:edit, :update]
+  before_action :find_contact_by_tn, only: [:edit, :update, :destroy]
   before_action :get_user_iss_data, only: [:create, :update], unless: -> { params[:contact][:manually].to_i == 1 }
 
   def index
@@ -12,8 +12,8 @@ class ContactsController < ApplicationController
       format.json do
         data = Contact.all.as_json(except: [:created_at, :updated_at]).each do |s|
           s['DT_RowId'] = s['id']
-          s['edit']     = "<a href='/contacts/#{s['info']}/edit' class='default-color' rel='nofollow' title='Редактировать'\"#{s['name']}\"?'><i class='fa fa-pencil-square-o fa-1g'></a>"
-          s['del']      = "<a href='/contacts/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
+          s['edit']     = "<a href='/contacts/#{s['tn']}/edit' class='default-color' rel='nofollow' title='Редактировать'\"#{s['info']}\"?'><i class='fa fa-pencil-square-o fa-1g'></a>"
+          s['del']      = "<a href='/contacts/#{s['tn']}' class='text-danger' data-method='delete' rel='nofollow'
 title='Удалить' data-confirm='Вы действительно хотите удалить контакт \"#{s['info']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
           s.delete('id')
         end
@@ -51,7 +51,6 @@ title='Удалить' data-confirm='Вы действительно хотит�
   end
 
   def destroy
-    @contact = Contact.find(params[:id])
     if @contact.destroy
       flash[:notice] = "Контакт удален."
     else
@@ -87,8 +86,8 @@ title='Удалить' data-confirm='Вы действительно хотит�
     params.require(:contact).permit(:tn, :info, :dept, :work_num, :mobile_num, :manually)
   end
 
-  def find_contact_by_info
-    @contact = Contact.find_by(info: params[:name])
+  def find_contact_by_tn
+    @contact = Contact.find_by(tn: params[:tn])
   end
 
 end

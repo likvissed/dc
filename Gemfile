@@ -1,7 +1,4 @@
 source 'https://rubygems.org'
-
-# File upload
-# gem 'carrierwave'
 gem 'paperclip'
 # Paginator
 gem 'kaminari'

@@ -9,13 +9,9 @@ Rails.application.routes.draw do
   constraints name: /\w+/ do
     get   '/users/:name/edit',        to: 'users#edit'
     patch '/users/:name',             to: 'users#update'
-
-    get   '/contacts/:name/edit',     to: 'contacts#edit'
-    patch '/contacts/:name',          to: 'contacts#update'
   end
 
   constraints name: /[^\/]+/ do
-
     get   '/servers/:name/edit',      to: 'servers#edit'
     patch '/servers/:name',           to: 'servers#update'
 
@@ -38,7 +34,18 @@ Rails.application.routes.draw do
     patch '/services/:name',          to: 'services#update'
   end
 
+  constraints tn: /\d+/ do
+    get     '/contacts/:tn/edit',         to: 'contacts#edit'
+    patch   '/contacts/:tn',              to: 'contacts#update'
+    delete  '/contacts/:tn',              to: 'contacts#destroy'
+
+    get     '/department_heads/:tn/edit', to: 'department_heads#edit'
+    patch   '/department_heads/:tn',      to: 'department_heads#update'
+    delete  '/department_heads/:tn',      to: 'department_heads#destroy'
+  end
+
   resources :users,         except: [:edit, :update]
+
   resources :servers,       except: [:edit, :update]
   resources :server_types,  except: [:edit, :update]
   resources :detail_types,  except: [:edit, :update, :show]
@@ -46,9 +53,11 @@ Rails.application.routes.draw do
   resources :clusters,      except: [:edit, :update]
   resources :node_roles,    except: [:edit, :update, :show]
 
-  resources :contacts,      except: [:edit, :update, :show]
-  resources :services,      except: [:edit, :update] do
+  resources :contacts,          except: [:edit, :update, :show, :destroy]
+  resources :department_heads,  except: [:edit, :update, :show, :destroy]
+  resources :services,          except: [:edit, :update] do
     get '/download/:file', to: 'services#download', on: :member # Скачивание файлов формуляров
+    get '/generate/:type', to: 'services#generate', on: :member # Генерация формуляра/акта
   end
 
   get '*unmatched_route', to: 'application#render_404'

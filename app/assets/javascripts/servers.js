@@ -62,6 +62,7 @@ $(function() {
   var
     modal = $('#modal'),
     table = $('#servTable').DataTable({
+      dom: '<"row"<"#add_server_block.col-md-2"><"#filter_type_block.col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"f>>',
       ajax: {
         url:    'servers.json',
         async:  false,
@@ -104,22 +105,20 @@ $(function() {
       },
       initComplete: function (settings, json) {
         // Создать фильтр по типу сервера
-        var select = $('<select class="form-control" id="serverTypeFilter">').appendTo('#data-table-filter');
+        var select = $('<select class="form-control" id="serverTypeFilter">').appendTo('#filter_type_block');
 
         $('<option>').val('0').text('Все типы').appendTo(select);
         $.each(json.server_types, function(index, value) {
           $('<option>').val(value.id).text(value.name).appendTo(select);
         });
-        
+
+        // Создать кнопку добавления нового сервера
+        $('#add_server_form').appendTo('#add_server_block');
+
         // Изменить класс у формы поиска
         $('.dataTables_filter input').removeClass('input-sm');
       }
     });
-
-  // Закрыть модальное окно
-  modal.find('button[data-id="closeModal"]').on('click', function () {
-    modal.modal('hide');
-  });
 
   // Событие после закрытия окна
   modal.on('hidden.bs.modal', function () {

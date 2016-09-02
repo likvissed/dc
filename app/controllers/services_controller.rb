@@ -60,14 +60,27 @@ class ServicesController < ApplicationController
 
   def show
     respond_to do |format|
-      format.json { render json: @service.as_json(include: {
-          contact_1: { only: :info },
-          contact_2: { only: :info },
-          service_networks: { only: [:dns_name, :segment, :vlan] },
-          storage_systems: { only: :name }
-        },
-        except: [:id, :contact_1_id, :contact_2_id, :created_at, :updated_at])
-      }
+      # Массив с флагами отсутствия файлов скана/акта/инструкций
+      missing_file              = {}
+      missing_file[:scan]       = !@service.scan.exists?
+      missing_file[:act]        = !@service.act.exists?
+      missing_file[:instr_rec]  = !@service.instr_rec.exists?
+      missing_file[:instr_off]  = !@service.instr_off.exists?
+
+      format.json do
+        render json: {
+          service: @service.as_json(
+            include: {
+              contact_1: { only: :info },
+              contact_2: { only: :info },
+              service_networks: { only: [:dns_name, :segment, :vlan] },
+              storage_systems: { only: :name }
+            },
+            except: [:id, :contact_1_id, :contact_2_id, :created_at, :updated_at]),
+          missing_file: missing_file,
+          contacts: @service.get_contacts(:formular)
+        }
+      end
     end
   end
 
@@ -166,6 +179,11 @@ class ServicesController < ApplicationController
       else
         render_404
     end
+  end
+
+  def generate
+    @service = Service.find(params[:id])
+    send_data @service.generate_rtf(params[:type]), filename: "#{@service.name}.rtf", type: "application/rtf", disposition: "attachment"
   end
 
   private

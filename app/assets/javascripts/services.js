@@ -43,14 +43,15 @@ app.directive('serviceForm', ['$http', function ($http) {
       instr_rec:  true,
       instr_off:  true
     };
-    scope.parents = [];
-
+    scope.parents = []; // Массив с сервисами-родителями
+    scope.serviceForm = attrs.serviceForm; // Переменная, хранящее id сервиса (если существует) или 0 (если нет)
+    scope.current_name = null; // current_name необходим для исключения этого имени из списка родителей-сервисов
 
     //  Редактирование существующего сервиса
     if (attrs.serviceForm == 0) {
       $http.get('/services/new.json')
         .success(function (data, status, header, config) {
-          scope.services = data.services;
+          scope.services    = data.services;
         });
     }
     else {
@@ -123,10 +124,13 @@ app.controller('ServiceEditCtrl', ['$scope', '$element', function ($scope, $elem
   // Добавить сервис-родитель
   $scope.addParent = function () {
     // Провера на количество сервисов (нельзя создать зависимость, если количество сервисов = 1)
-    if ($scope.services.length == 1) {
-      alert("Для создания зависимостей необходимо добавить больше сервисов");
+    if ($scope.services.length == 1 && $scope.serviceForm != 0) { // Если формуляр единственный и он редактируется
+      alert('Для создания зависимостей необходимо добавить больше сервисов');
       return false;
     }
+    //else if ($scope.services.length == 1 && $scope.serviceForm == 0) {
+
+    //}
 
     // Проход по циклу для проверки, какой сервис поставить первым в тэге select (нужно для того, что исключить случай, когда сервис-родитель = текущему сервису)
     $.each($scope.services, function (index, value) {
@@ -149,6 +153,7 @@ app.controller('ServiceEditCtrl', ['$scope', '$element', function ($scope, $elem
       $scope.parents.splice($.inArray(parent, $scope.parents), 1);
   };
 
+  // Фильтр, определяющий, показывать ли надпись "Отсутствует" в поле родителей-сервисов
   $scope.showParents = function () {
     var show = 1;
     $.each($scope.parents, function (index, value) {
@@ -395,6 +400,8 @@ $(function() {
   var
     modal = $('#modal'),
     table = $('#serviceTable').DataTable({
+      //dom: '<"row"<"#add_service_block.col-sm-2"><"col-sm-10"f>>',
+      dom: '<"row"<"#add_service_block.col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"f>>',
       ajax: {
         url:    'services.json',
         async:  false,
@@ -476,19 +483,17 @@ $(function() {
         //  $('<option>').val(value.id).text(value.name).appendTo(select);
         //});
 
+        // Создать кнопку добавления нового сервиса
+        $('#add_service_form').appendTo('#add_service_block');
+
         // Изменить класс у формы поиска
-        //$('.dataTables_filter input').removeClass('input-sm');
+        $('.dataTables_filter input').removeClass('input-sm');
       }
     });
 
-  // Добавить событие 'click' для показа информации о формуляре
+  // Добавить событие для показа информации о формуляре
   table.rows().each(function () {
     this.nodes().to$().attr('ng-click', 'showServiceData()');
-  });
-
-  // Закрыть модальное окно
-  modal.find('button[data-id="closeModal"]').on('click', function () {
-    modal.modal('hide');
   });
 
   // Событие после закрытия окна
@@ -509,81 +514,79 @@ $(function() {
 
   function showServer() {
     $('#serviceTable > tbody > tr').off().on('click', function (event) {
+      self = this;
+
       if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
         return true;
 
-      $.get('services/' + this.id + '.json', function (data) {
+      $.get('services/' + self.id + '.json', function (data) {
+        var
+          service       = data.service,
+          missing_file  = data.missing_file,
+          contacts      = data.contacts;
+
         // Заполнение таблицы предпросмотра
-        modal.find('.modal-body').find('[data-name="name"]').text(data.name)
-          .end().find('[data-name="descr"]').text(data.descr)
-          .end().find('[data-name="priority"]').text(data.priority)
-          .end().find('[data-name="time_work"]').text(data.time_work)
-          .end().find('[data-name="max_time_rec"]').text(data.max_time_rec)
-          .end().find('[data-name="environment"]').text(data.environment)
-          .end().find('[data-name="os"]').text(data.os)
-          .end().find('[data-name="component_key"]').text(data.component_key)
-          .end().find('[data-name="kernel_count"]').text(data.kernel_count)
-          .end().find('[data-name="frequency"]').text(data.frequency)
-          .end().find('[data-name="memory"]').text(data.memory)
-          .end().find('[data-name="disk_space"]').text(data.disk_space)
-          .end().find('[data-name="hdd_speed"]').text(data.hdd_speed)
-          .end().find('[data-name="network_speed"]').text(data.network_speed)
-          .end().find('[data-name="additional_require"]').text(data.additional_require)
-          .end().find('[data-name="backup_manual"]').text(data.backup_manual)
-          .end().find('[data-name="recovery_manual"]').text(data.recovery_manual)
-          .end().find('[data-name="value_backup_data"]').text(data.value_backup_data)
-          .end().find('[data-name="storage_time"]').text(data.storage_time)
-          .end().find('[data-name="store_copies"]').text(data.store_copies)
-          .end().find('[data-name="backup_volume"]').text(data.backup_volume)
-          .end().find('[data-name="backup_window"]').text(data.backup_window)
-          .end().find('[data-name="time_recovery"]').text(data.time_recovery)
-          .end().find('[data-name="duplicate_ps"]').text(data.duplicate_ps)
-          .end().find('[data-name="raid"]').text(data.raid)
-          .end().find('[data-name="bonding"]').text(data.bonding)
-          .end().find('[data-name="other"]').text(data.other)
-          .end().find('[data-name="resiliency"]').text(data.resiliency)
-          .end().find('[data-name="time_after_failure"]').text(data.time_after_failure)
-          .end().find('[data-name="disaster_rec"]').text(data.disaster_rec)
-          .end().find('[data-name="time_after_disaster"]').text(data.time_after_disaster)
-          .end().find('[data-name="antivirus"]').text(data.antivirus)
-          .end().find('[data-name="firewall"]').text(data.firewall)
-          .end().find('[data-name="uac_app_selinux"]').text(data.uac_app_selinux)
-          .end().find('[data-name="szi"]').text(data.szi)
-          .end().find('[data-name="internet"]').text(data.internet)
-          .end().find('[data-name="type_mon"]').text(data.type_mon)
-          .end().find('[data-name="service_mon"]').text(data.service_mon)
-          .end().find('[data-name="hardware_mon"]').text(data.hardware_mon)
-          .end().find('[data-name="security_mon"]').text(data.security_mon)
-          .end().find('[data-name="additional_data"]').text(data.additional_data)
-          .end().find('[data-name="comment"]').text(data.comment)
-          .end().find('[data-name="name_monitoring"]').text(data.name_monitoring);
+        modal.find('.modal-body').find('[data-name="name"]').text(service.name)
+          .end().find('[data-name="descr"]').text(service.descr)
+          .end().find('[data-name="priority"]').text(service.priority)
+          .end().find('[data-name="time_work"]').text(service.time_work)
+          .end().find('[data-name="max_time_rec"]').text(service.max_time_rec)
+          .end().find('[data-name="contact_1"]').text(contacts.first)
+          .end().find('[data-name="contact_2"]').text(contacts.second)
+          .end().find('[data-name="environment"]').text(service.environment)
+          .end().find('[data-name="os"]').text(service.os)
+          .end().find('[data-name="component_key"]').text(service.component_key)
+          .end().find('[data-name="kernel_count"]').text(service.kernel_count)
+          .end().find('[data-name="frequency"]').text(service.frequency)
+          .end().find('[data-name="memory"]').text(service.memory)
+          .end().find('[data-name="disk_space"]').text(service.disk_space)
+          .end().find('[data-name="hdd_speed"]').text(service.hdd_speed)
+          .end().find('[data-name="network_speed"]').text(service.network_speed)
+          .end().find('[data-name="additional_require"]').text(service.additional_require)
+          .end().find('[data-name="backup_manual"]').text(service.backup_manual)
+          .end().find('[data-name="recovery_manual"]').text(service.recovery_manual)
+          .end().find('[data-name="value_backup_data"]').text(service.value_backup_data)
+          .end().find('[data-name="storage_time"]').text(service.storage_time)
+          .end().find('[data-name="store_copies"]').text(service.store_copies)
+          .end().find('[data-name="backup_volume"]').text(service.backup_volume)
+          .end().find('[data-name="backup_window"]').text(service.backup_window)
+          .end().find('[data-name="time_recovery"]').text(service.time_recovery)
+          .end().find('[data-name="duplicate_ps"]').text(service.duplicate_ps)
+          .end().find('[data-name="raid"]').text(service.raid)
+          .end().find('[data-name="bonding"]').text(service.bonding)
+          .end().find('[data-name="other"]').text(service.other)
+          .end().find('[data-name="resiliency"]').text(service.resiliency)
+          .end().find('[data-name="time_after_failure"]').text(service.time_after_failure)
+          .end().find('[data-name="disaster_rec"]').text(service.disaster_rec)
+          .end().find('[data-name="time_after_disaster"]').text(service.time_after_disaster)
+          .end().find('[data-name="antivirus"]').text(service.antivirus)
+          .end().find('[data-name="firewall"]').text(service.firewall)
+          .end().find('[data-name="uac_app_selinux"]').text(service.uac_app_selinux)
+          .end().find('[data-name="szi"]').text(service.szi)
+          .end().find('[data-name="internet"]').text(service.internet)
+          .end().find('[data-name="type_mon"]').text(service.type_mon)
+          .end().find('[data-name="service_mon"]').text(service.service_mon)
+          .end().find('[data-name="hardware_mon"]').text(service.hardware_mon)
+          .end().find('[data-name="security_mon"]').text(service.security_mon)
+          .end().find('[data-name="additional_data"]').text(service.additional_data)
+          .end().find('[data-name="comment"]').text(service.comment)
+          .end().find('[data-name="name_monitoring"]').text(service.name_monitoring);
 
         // Заполнение шапки
-        if (data.number)
-          modal.find('.modal-title').text('Формуляр № ***REMOVED***-Ф-' + data.number);
+        if (service.number)
+          modal.find('.modal-title').text('Формуляр № ***REMOVED***-Ф-' + service.number);
         else
           modal.find('.modal-title').text('Номер формуляра отсутствует');
 
         // Заполнение полей "Подключение к СХД"
-        if (data.storage_systems[0])
-          modal.find('[data-name="storage_name[0]"]').text(data.storage_systems[0].name);
+        if (service.storage_systems[0])
+          modal.find('[data-name="storage_name[0]"]').text(service.storage_systems[0].name);
 
-        if (data.storage_systems[1])
-          modal.find('[data-name="storage_name[1]"]').text(data.storage_systems[1].name);
-
-        // Заполнение полей контактов
-        if (data.contact_1)
-          modal.find('[data-name="contact_1"]').text(data.contact_1.info);
-        else {
-          if (data.contact_2)
-            modal.find('[data-name="contact_1"]').text(data.contact_1.info);
-        }
-
-        if (data.contact_2)
-          modal.find('[data-name="contact_2"]').text(data.contact_2.info);
+        if (service.storage_systems[1])
+          modal.find('[data-name="storage_name[1]"]').text(service.storage_systems[1].name);
 
         // Заполнение полей "Подключения к сети"
-        $.each(data.service_networks, function (index, value) {
+        $.each(service.service_networks, function (index, value) {
           var text = [value.segment, value.vlan, value.dns_name].join(', ');
 
           // Если строк > 2, то для каждой дополнительной строки копировать шаблон
@@ -596,11 +599,61 @@ $(function() {
             modal.find('td[data-name="network_name[' + index + ']"]').html(text);
         });
 
+        // Удаление/Установка ссылок на кнопки скачивания файлов
+        if (missing_file.scan)
+          disable_file_link('scan');
+        else
+          enable_file_link(self.id, 'scan');
+
+        if (missing_file.act)
+          disable_file_link('act');
+        else
+          enable_file_link(self.id, 'act');
+
+        if (missing_file.instr_off)
+          disable_file_link('instr_off');
+        else
+          enable_file_link(self.id, 'instr_off');
+
+        if (missing_file.instr_rec)
+          disable_file_link('instr_rec');
+        else
+          enable_file_link(self.id, 'instr_rec');
+
+        function disable_file_link(name) {
+          modal.find('[data-name="' + name + '"]').parent().addClass("disabled");
+        }
+
+        function enable_file_link(id, name) {
+          modal.find('[data-name="' + name + '"]').attr('href', '/services/' + id + '/download/' + name);
+        }
+
+        //Установка ссылок на кнопки генерации формуляра/акта
+        modal.find('[data-name="gen_formular"]').attr('href', '/services/' + self.id + '/generate/formular')
+          .end().find('[data-name="gen_act"]').attr('href', '/services/' + self.id + '/generate/act');
+
+        // Отключить переход по ссылке, если файл отсутствует
+        modal.find('[data-link-type="download"]').each(function () {
+          $(this).off().on('click', function (event) {
+            if ($(event.target).parent().hasClass('disabled'))
+              event.preventDefault();
+          });
+        });
+
         // Ссылка на изменение данных о сервере
-        modal.find('a[data-id="changeData"]').attr('href', '/services/' + data.name + '/edit');
+        modal.find('a[data-id="changeData"]').attr('href', '/services/' + service.name + '/edit');
 
         modal.modal('show');
       });
+
+      // Событие после закрытия окна
+      // Убрать все отключенные ссылки на скачивание файлов
+      modal.on('hidden.bs.modal', function () {
+        $(this).find('[data-link-type="download"]').each(function () {
+          $(this).parent().removeClass('disabled');
+        });
+      });
     });
   }
+
 });

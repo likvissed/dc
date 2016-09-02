@@ -1,15 +1,19 @@
 = title "Просмотр контактов"
 .default-content
+  .content-header
+    .header-padding
+      = render partial: "templates/service_contacts"
+
   .content-body
     - if can? :manage, Contact
-      = button_to "Добавить", new_contact_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+      = button_to "Добавить", new_contact_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_contact_form" }
     %table.table.table-striped#contactTable
       %thead
         %tr
           %th.col-md-1 #
           %th ФИО
           %th.col-md-1 Отдел
-          %th.col-md-1 Раб. т.
-          %th.col-md-3 Моб. т.
+          %th.col-md-1 Раб. тел.
+          %th.col-md-3 Мобильный тел.
           %th.col-md-1
           %th.col-md-1

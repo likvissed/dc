@@ -12,7 +12,7 @@ class Ability
       can :manage, :all
       cannot :manage, User
     else
-      can :read, Server
+      can :read, :all
     end
   end
 
