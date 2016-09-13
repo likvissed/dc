@@ -77,10 +77,10 @@ $(function () {
       },
       initComplete: function () {
         // Создать кнопку добавления нового типа сервера
-        $('#add_server_type_form').appendTo('#add_server_type_block');
+        AddButton('add_server_type');
 
         // Изменить класс у формы поиска
-        $('.dataTables_filter input').removeClass('input-sm');
+        ChangeSearchFilter();
       }
     });
 

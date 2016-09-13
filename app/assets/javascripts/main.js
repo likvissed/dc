@@ -1,4 +1,6 @@
-var app = angular.module('servers', []);
+var app = angular.module('DataCenter', []);
+
+
 app.directive('stopClick', function() {
   return function(scope, element, attrs) {
     element.click(function(event) {
@@ -10,17 +12,10 @@ app.directive('stopClick', function() {
 app.controller("FlashMessageCtrl",['$attrs', '$timeout', function($attrs, $timeout) {
   controller = this;
 
-  if ($attrs.notice) {
+  if ($attrs.notice)
     controller.notice = $attrs.notice;
-    console.log("Attr.notice");
-  }
-  if ($attrs.alert) {
+  if ($attrs.alert)
     controller.alert = $attrs.alert;
-    console.log("Attr.alert");
-  }
-
-  // controller.notice = $attrs.notice;
-  // controller.alert  = $attrs.alert;
 
   $timeout(function() {
     controller.notice = null;
@@ -71,4 +66,28 @@ $(function () {
     show:     false
   });
 
+  //$.fn.dataTable.Api.register('table().ChangeSearchFilter()', function () {
+  //  $('.dataTables_filter input').removeClass('input-sm');
+  //});
 });
+
+// Функция, удаляющая класс input-sm у формы поиска
+function ChangeSearchFilter() {
+  $('.dataTables_filter input').removeClass('input-sm');
+}
+
+// Функция, добавляющая кнопку "Добавить" в заголовок таблицы
+// Куда добавлять - #name_block
+// Что добавлять - #name_form
+// name - общий у обоих параметров
+function AddButton(name) {
+  $('#' + name + '_form').appendTo('#' + name + '_block');
+}
+
+// Закрыть модальное окно и перезагрузить таблицу в случае успешного создания руководителя
+// table - селектор (желательно id) таблицы, которую необходимо обновить
+$.fn.modal_success = function (table) {
+  this.modal('hide');
+
+  $(table).DataTable().ajax.reload(null, false);
+};

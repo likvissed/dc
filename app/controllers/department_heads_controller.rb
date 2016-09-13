@@ -34,7 +34,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
   end
 
   def create
-    @department_head = DepartmentHead.new(department_head_params)
+    @department_head = DepartmentHead.create(department_head_params)
     respond_to do |format|
       format.js{ render layout: false }
     end

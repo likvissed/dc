@@ -1,3 +1,24 @@
+-#.modal-dialog
+  .modal-content
+    = simple_form_for @contact, url: url, html: { "ng-controller": "contactCtrl" } do |s|
+      .modal-header
+        %h4.modal-title.text-center= @contact.info || "Новый руководитель"
+
+      .modal-body
+        = s.input :tn, label: "Табельный номер", autofocus: true
+        = s.input :manually, label: "Заполнить данные контакта вручную", as: :boolean, input_html: { "ng-model": "manually", "ng-checked": "manually == true", "data-manually": @contact.manually }
+
+        %div{ "ng-show": "manually == true" }
+          = s.input :info, label: "Фамилия Имя Отчество"
+          = s.input :dept, label: "Отдел"
+          = s.input :work_num, label: "Рабочий номер"
+
+        = s.input :mobile_num, label: "Сотовый номер"
+
+      .modal-footer
+        = s.button :submit, "Готово", class: "btn-success"
+        = button_tag "Отмена", type: "button", "data-dismiss": "modal"
+
 .medium-content
   = simple_form_for @contact, url: url, html: { "ng-controller": "contactCtrl" } do |f|
     .content-body

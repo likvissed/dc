@@ -113,10 +113,10 @@ $(function() {
         });
 
         // Создать кнопку добавления нового сервера
-        $('#add_server_form').appendTo('#add_server_block');
+        AddButton('add_server');
 
         // Изменить класс у формы поиска
-        $('.dataTables_filter input').removeClass('input-sm');
+        ChangeSearchFilter();
       }
     });
 

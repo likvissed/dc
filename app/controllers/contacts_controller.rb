@@ -24,6 +24,10 @@ title='Удалить' data-confirm='Вы действительно хотит�
 
   def new
     @contact = Contact.new
+    respond_to do |format|
+      format.html
+      format.js { render layout: false }
+    end
   end
 
   def create

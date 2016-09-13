@@ -1,5 +1,6 @@
 app.controller("contactCtrl", ["$scope", function($scope) {
   $scope.manually = ($("#contact_manually").attr("data-manually") == 'true');
+  console.log($scope.manually);
 }]);
 
 $(function() {
@@ -48,10 +49,10 @@ $(function() {
     },
     initComplete: function (settings, json) {
       // Создать кнопку добавления нового контакта
-      $('#add_contact_form').appendTo('#add_contact_block');
+      AddButton('add_contact');
 
       // Изменить класс у формы поиска
-      $('.dataTables_filter input').removeClass('input-sm');
+      ChangeSearchFilter();
     }
   });
 

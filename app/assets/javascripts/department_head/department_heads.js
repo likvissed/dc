@@ -1,5 +1,5 @@
 $(function () {
-  var table = $('#departmentHeadTable').DataTable({
+  $('#departmentHeadTable').DataTable({
     dom: '<"row"<"#add_dep_block.col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"f>>',
     ajax: {
       url:    'department_heads.json',
@@ -36,18 +36,10 @@ $(function () {
     },
     initComplete: function (settings, json) {
       // Создать кнопку добавления нового руководителя
-      $('#add_dep_form').appendTo('#add_dep_block');
+      AddButton('add_dep');
 
       // Изменить класс у формы поиска (не работает)
-      $('.dataTables_filter input').removeClass('input-sm');
+      ChangeSearchFilter();
     }
   });
-
-  // Закрыть модальное окно и перезагрузить таблицу в случае успешного создать руководителя
-  $.fn.modal_success = function () {
-    this.modal('hide');
-
-    table.ajax.reload(null, false);
-  };
-
 });
