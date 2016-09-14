@@ -1,7 +1,33 @@
-app.controller('ServiceEditCtrl', ['$scope', '$element', function ($scope, $element) {
+app.controller('ServiceEditCtrl', ['$scope', 'Service', 'Test', 'GetServiceData', function ($scope, Service, Test, GetServiceData) {
+
+  // Инициализация начальных данных
+  // id - id формуляра
+  // name - имя формуляра
+  $scope.init = function (id, name) {
+    GetServiceData.ajax(id, name).then(function (data) {
+      var service = new Test(id, name, data);
+
+      $scope.networks       = service.getNetworks();      // ПРОВЕРИЛ. НУЖНО. Массив с подключениями к сети
+      $scope.missing_file   = service.getMissingFiles();  // ПРОВЕРИЛ. НУЖНО. Массив с отстствующими флагами
+      $scope.parents        = service.getParents();       // ПРОВЕРИЛ. НУЖНО. Массив с сервисами-родителями
+      $scope.storages       = service.getStorages();      // ПРОВЕРИЛ. НУЖНО. Массив с подключениями к СХД
+      $scope.visible_count  = service.visible_count;  // Количество строк "Подключения к сети", видимых пользователем (должно быть минимум 2, так как в формуляре минимум две строки на этот пункт)
+      //$scope.serviceForm   = attrs.serviceForm;      // Переменная, хранящее id сервиса (если существует) или 0 (если нет)
+      $scope.current_name   = name ? name : null;         // ПРОВЕРИЛ. НУЖНО. current_name необходим для исключения этого имени из списка родителей-сервисов
+
+      $scope.services       = service.services; // ПРОВЕРИЛ. НУЖНО.
+      console.log($scope.services);
+
+    });
+  };
+
+  $scope.addParent = function () {
+    $scope.parents = service.addParent();
+    console.log($scope.parents);
+  };
 
   // Добавить сервис-родитель
-  $scope.addParent = function () {
+  /*$scope.addParent = function () {
     // Провера на количество сервисов (нельзя создать зависимость, если количество сервисов = 1)
     if ($scope.services.length == 1 && $scope.serviceForm != 0) { // Если формуляр единственный и он редактируется
       alert('Для создания зависимостей необходимо добавить больше сервисов');
@@ -20,7 +46,7 @@ app.controller('ServiceEditCtrl', ['$scope', '$element', function ($scope, $elem
       }
     });
   };
-
+*/
   // Удалить сервис-родитель
   $scope.delParent = function (parent) {
     if (parent.id)

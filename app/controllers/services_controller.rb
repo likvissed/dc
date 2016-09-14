@@ -129,7 +129,7 @@ class ServicesController < ApplicationController
           ),
           storage_systems: @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
           services: @services,
-          current_name: @service.name, # Необходимо для исключения этого имени из списка родителей-сервисов
+          # current_name: @service.name, # Необходимо для исключения этого имени из списка родителей-сервисов
           parents: @service.service_dep_parents.as_json(
             include: { parent_service: { only: [:id, :name] } },
             only: :id

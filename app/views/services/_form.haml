@@ -1,5 +1,6 @@
-.big-content{ "ng-controller": "ServiceEditCtrl" }
-  = simple_form_for @service, url: url, html: { "service-form": @service.id || 0, "service-name": params[:name] } do |s|
+.big-content{ "ng-controller": "ServiceEditCtrl", "ng-init": "init(#{@service.id || 0}, '#{params[:name]}')" }
+  = simple_form_for @service, url: url do |s|
+    -# , html: { "service-form": @service.id || 0, "service-name": params[:name] }
 
     .content-header
       = render partial: "service_header", locals: { s: s }
