@@ -1,4 +1,4 @@
-.modal.fade#portsModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+.modal.fade#portsModal{ "tabindex": "-1", "role": "document", "aria-hidden": true, "modal-show": "portModalVariable" }
   .modal-dialog
     .modal-content
       .modal-header
@@ -42,5 +42,5 @@
                 = text_area_tag "template_ports[template_index][inet_udp_ports]", "template_ports[template_index][inet_udp_ports]", "ng-model": "template_ports[template_index].inet_udp_ports", class: "form-control text optional"
 
       .modal-footer
-        = button_tag "Готово", class: "btn-primary", "ng-click": "readyPortsModal()"
-        = button_tag "Отмена", class: "btn-primary", "ng-click": "closePortsModal()"
+        = button_tag "Готово", class: "btn-success", "ng-click": "readyPortsModal()"
+        = button_tag "Отмена", class: "btn-default", "ng-click": "closePortsModal()"

@@ -24,11 +24,11 @@
               Добавить
             = s.input :scan, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false
           %li{ "ng-class": "{ disabled: missing_file.scan }" }
-            = link_to "/services/#{@service.id}/download/scan", "data-link-type": "download", "ng-click": "disabledLink(missing_file.scan, $event)" do
+            = link_to "/services/#{@service.id}/download/scan", "data-link-type": "download", "ng-click": "disableLink(missing_file.scan, $event)" do
               = icon("fa fa-download fa-fw")
               Скачать
           %li{ "ng-class": "{ disabled: missing_file.scan }" }
-            = link_to "#", "data-link-type": "destroy", "data-type": "формуляр", "ng-click": "disabledLink(missing_file.scan, $event)" do
+            = link_to "#", "data-link-type": "destroy", "data-type": "формуляр", "ng-click": "disableLink(missing_file.scan, $event)" do
               = icon("fa fa-trash fa-fw")
               Удалить
       %li.divider-vertical
@@ -44,11 +44,11 @@
               Добавить
             = s.input :act, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false
           %li{ "ng-class": "{ disabled: missing_file.act }" }
-            = link_to "/services/#{@service.id}/download/act", "data-link-type": "download", "ng-click": "disabledLink(missing_file.act, $event)" do
+            = link_to "/services/#{@service.id}/download/act", "data-link-type": "download", "ng-click": "disableLink(missing_file.act, $event)" do
               = icon("fa fa-download fa-fw")
               Скачать
           %li{ "ng-class": "{ disabled: missing_file.act }" }
-            = link_to "#", "data-link-type": "destroy", "data-type": "акт", "ng-click": "disabledLink(missing_file.act, $event)" do
+            = link_to "#", "data-link-type": "destroy", "data-type": "акт", "ng-click": "disableLink(missing_file.act, $event)" do
               = icon("fa fa-trash fa-fw")
               Удалить
       %li.divider-vertical
@@ -64,11 +64,11 @@
               Добавить
             = s.input :instr_rec, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false
           %li{ "ng-class": "{ disabled: missing_file.instr_rec }" }
-            = link_to "/services/#{@service.id}/download/instr_rec", "data-link-type": "download", "ng-click": "disabledLink(missing_file.instr_rec, $event)" do
+            = link_to "/services/#{@service.id}/download/instr_rec", "data-link-type": "download", "ng-click": "disableLink(missing_file.instr_rec, $event)" do
               = icon("fa fa-download fa-fw")
               Скачать
           %li{ "ng-class": "{ disabled: missing_file.instr_rec }" }
-            = link_to "#", "data-link-type": "destroy", "data-type": "инструкцию по восстановлению", "ng-click": "disabledLink(missing_file.instr_rec, $event)" do
+            = link_to "#", "data-link-type": "destroy", "data-type": "инструкцию по восстановлению", "ng-click": "disableLink(missing_file.instr_rec, $event)" do
               = icon("fa fa-trash fa-fw")
               Удалить
       %li.divider-vertical
@@ -84,11 +84,11 @@
               Добавить
             = s.input :instr_off, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false
           %li{ "ng-class": "{ disabled: missing_file.instr_off }" }
-            = link_to "/services/#{@service.id}/download/instr_off", "data-link-type": "download", "ng-click": "disabledLink(missing_file.instr_off, $event)"  do
+            = link_to "/services/#{@service.id}/download/instr_off", "data-link-type": "download", "ng-click": "disableLink(missing_file.instr_off, $event)"  do
               = icon("fa fa-download fa-fw")
               Скачать
           %li{ "ng-class": "{ disabled: missing_file.instr_off }" }
-            = link_to "#", "data-link-type": "destroy", "data-type": "инструкцию по отключению", "ng-click": "disabledLink(missing_file.instr_off, $event)" do
+            = link_to "#", "data-link-type": "destroy", "data-type": "инструкцию по отключению", "ng-click": "disableLink(missing_file.instr_off, $event)" do
               = icon("fa fa-trash fa-fw")
               Удалить
       %li.divider-vertical

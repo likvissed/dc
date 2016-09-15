@@ -30,7 +30,7 @@
         %tr
           %td
             .form-group.string.optional.service_parents
-              = select_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", nil, class: "form-control", "ng-model": "parent.parent_service", "ng-options": "service.name for service in services | filter: { name: '!' + current_name } track by service.id"
+              = select_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", nil, class: "form-control", "ng-model": "parent.parent_service", "ng-options": "service.name for service in services | filter:{ name: '!' + current_name }:true track by service.id"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][id]", "{{ parent.id }}"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"
           %td.min-td

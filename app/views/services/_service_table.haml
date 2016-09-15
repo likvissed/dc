@@ -181,7 +181,7 @@
             %table.internal-table
               %tr
                 %td.form-group.string.optional.template_service_network
-                  = text_field_tag "template_service[network][{{ $index }}]", "{{ network.view }}" , "ng-focus": "showNetworkModal($event, $index)"
+                  = text_field_tag "template_service[network][{{ $index }}]", "{{ network.view }}" , "ng-focus": "showNetworkModal($index)"
 
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][id]", "{{ network.id }}"
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][_destroy]", "{{ network.destroy }}"

@@ -1,4 +1,4 @@
-.modal.fade#networkModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+.modal.fade#networkModal{ "tabindex": "-1", "role": "document", "aria-hidden": true, "modal-show": "networkModalVariable" }
   .modal-dialog
     .modal-content
       .modal-header
@@ -14,5 +14,6 @@
           %label.string.optional.control-label{ for: "template_network_dns_name" } DNS имя
           = text_field_tag "template_network[dns_name]", nil, class: "form-control", "ng-model": "template_network.dns_name", "ng-value": "networks[0].dns_name"
       .modal-footer
-        = button_tag "Готово", class: "btn-primary", "ng-click": "readyNetworkModal()"
-        = button_tag "Отмена", class: "btn-primary", "ng-click": "closeNetworkModal()"
+        = button_tag "Готово", class: "btn-success", "ng-click": "readyNetworkModal()"
+        = button_tag "Отмена", class: "btn-default", "ng-click": "closeNetworkModal()"
+        -# "data-dismiss": "modal"

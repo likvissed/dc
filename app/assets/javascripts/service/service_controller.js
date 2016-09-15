@@ -1,93 +1,70 @@
-app.controller('ServiceEditCtrl', ['$scope', 'Service', 'Test', 'GetServiceData', function ($scope, Service, Test, GetServiceData) {
+app.controller('ServiceEditCtrl', ['$scope', 'Service', 'GetServiceData', function ($scope, Service, GetServiceData) {
 
+  // ================================================ Инициализация ====================================================
+
+  // Для директивы modalShow
+  $scope.networkModalVariable = false;  // Флаг, определяющий, скрывать модальное окно "Подключения к сети" или нет
+  $scope.portModalVariable    = false;     // Флаг, определяющий, скрывать модальное окно "Открытые порты" или нет
+
+  var service;
   // Инициализация начальных данных
   // id - id формуляра
   // name - имя формуляра
   $scope.init = function (id, name) {
-    GetServiceData.ajax(id, name).then(function (data) {
-      var service = new Test(id, name, data);
+    GetServiceData.ajax(id, name)
+      .then(function (data) {
+        service = new Service(id, name, data);
 
-      $scope.networks       = service.getNetworks();      // ПРОВЕРИЛ. НУЖНО. Массив с подключениями к сети
-      $scope.missing_file   = service.getMissingFiles();  // ПРОВЕРИЛ. НУЖНО. Массив с отстствующими флагами
-      $scope.parents        = service.getParents();       // ПРОВЕРИЛ. НУЖНО. Массив с сервисами-родителями
-      $scope.storages       = service.getStorages();      // ПРОВЕРИЛ. НУЖНО. Массив с подключениями к СХД
-      $scope.visible_count  = service.visible_count;  // Количество строк "Подключения к сети", видимых пользователем (должно быть минимум 2, так как в формуляре минимум две строки на этот пункт)
-      //$scope.serviceForm   = attrs.serviceForm;      // Переменная, хранящее id сервиса (если существует) или 0 (если нет)
-      $scope.current_name   = name ? name : null;         // ПРОВЕРИЛ. НУЖНО. current_name необходим для исключения этого имени из списка родителей-сервисов
+        $scope.networks       = service.getNetworks();      // ПРОВЕРИЛ. НУЖНО. Массив с подключениями к сети
+        $scope.missing_file   = service.getMissingFiles();  // ПРОВЕРИЛ. НУЖНО. Массив с отстствующими флагами
+        $scope.parents        = service.getParents();       // ПРОВЕРИЛ. НУЖНО. Массив с сервисами-родителями
+        $scope.storages       = service.getStorages();      // ПРОВЕРИЛ. НУЖНО. Массив с подключениями к СХД
+        $scope.visible_count  = service.visible_count;      // Количество строк "Подключения к сети", видимых пользователем (должно быть минимум 2, так как в формуляре минимум две строки на этот пункт)
+        //$scope.serviceForm   = attrs.serviceForm;         // Переменная, хранящее id сервиса (если существует) или 0 (если нет)
+        $scope.current_name   = name ? name : null;         // ПРОВЕРИЛ. НУЖНО. current_name необходим для исключения этого имени из списка родителей-сервисов
 
-      $scope.services       = service.services; // ПРОВЕРИЛ. НУЖНО.
-      console.log($scope.services);
-
-    });
+        $scope.services       = service.services; // ПРОВЕРИЛ. НУЖНО.
+        $scope.selected_network = service.set_first_network_element(); // Используется в качестве модели для первого элемента в модальном окне "Открытые порты"
+      })
+      .then(function () {
+        // Фильтр, определяющий, показывать ли надпись "Отсутствует" в поле родителей-сервисов
+        $scope.showParents = function () {
+          return service.showParents();
+        };
+      });
   };
-
-  $scope.addParent = function () {
-    $scope.parents = service.addParent();
-    console.log($scope.parents);
-  };
+  // ================================================ Сервисы-родители =================================================
 
   // Добавить сервис-родитель
-  /*$scope.addParent = function () {
-    // Провера на количество сервисов (нельзя создать зависимость, если количество сервисов = 1)
-    if ($scope.services.length == 1 && $scope.serviceForm != 0) { // Если формуляр единственный и он редактируется
-      alert('Для создания зависимостей необходимо добавить больше сервисов');
-      return false;
-    }
-
-    // Проход по циклу для проверки, какой сервис поставить первым в тэге select (нужно для того, что исключить случай, когда сервис-родитель = текущему сервису)
-    $.each($scope.services, function (index, value) {
-      if (value.name != $scope.current_name) {
-        $scope.parents.push({
-          parent_id: $scope.services[index].id,
-          parent_service: $scope.services[index],
-          destroy: 0
-        });
-        return false;
-      }
-    });
+  $scope.addParent = function () {
+    service.addParent();
+    console.log();
   };
-*/
+
   // Удалить сервис-родитель
   $scope.delParent = function (parent) {
-    if (parent.id)
-      parent.destroy = 1;
-    else
-      $scope.parents.splice($.inArray(parent, $scope.parents), 1);
+    service.delParent(parent);
   };
 
-  // Фильтр, определяющий, показывать ли надпись "Отсутствует" в поле родителей-сервисов
-  $scope.showParents = function () {
-    var show = 1;
-    $.each($scope.parents, function (index, value) {
-      if (!value.destroy) {
-        show = 0;
-        return false;
-      }
-    });
-
-    return show ? true: false
-  };
+  // ================================================ Ссылки на файлы ==================================================
 
   // Отключение ссылок на скачивание и удаление файлов
-  $scope.disabledLink = function (missing, $event) {
-    if (missing)
-      $event.preventDefault();
-    else {
-      var target = $event.target;
-
-      if (target.attributes['data-link-type'].value == 'destroy') {
-        var is_destroy = confirm('Вы действительно хотите удалить ' + target.attributes['data-type'].value);
-
-        if (!is_destroy)
-          $event.preventDefault();
-      }
-    }
-
-    return false;
+  $scope.disableLink = function (missing, $event) {
+    service.disableLink(missing, $event);
   };
 
-  $scope.showNetworkModal = function ($event, $index) {
-    var modal = $('#networkModal');
+  // ================================================ "Подключения к сети" =============================================
+
+  // Добавить строку 'Подключения к сети'
+  $scope.addNetwork = function () {
+    service.addNetwork();
+  };
+
+  $scope.showNetworkModal = function ($index) {
+    $scope.networkModalVariable = true;
+    $scope.template_networks    = service.getNetworkTemplate($index);
+
+    /*var modal = $('#networkModal');
 
     // Получаем индекс строки, данные о которой необходимо изменить
     $scope.index = $index;
@@ -112,17 +89,17 @@ app.controller('ServiceEditCtrl', ['$scope', 'Service', 'Test', 'GetServiceData'
     // Добавить автофокус на поле "Сегмент сети" после открытия модального окна "Подключения к сети"
     modal.on('shown.bs.modal', function () {
       $("#template_network_segment").focus();
-    })
+    })*/
   };
 
-  // Закрыть модальное окно по нажатии 'Отмена'
+  // Закрыть модальное окно по нажатии "Отмена"
   $scope.closeNetworkModal = function () {
-    $('#networkModal').modal('hide');
+    $scope.networkModalVariable = false;
   };
 
-  // Закрыть модальное окно по нажатии 'Готово'
+  // Закрыть модальное окно по нажатии "Готово"
   $scope.readyNetworkModal = function () {
-    $('#networkModal').modal('hide');
+    $scope.networkModalVariable = false;
 
     // Изменить данные элемента массива networks (если все строки были заполнены)
     if ($scope.template_network.segment != '' && $scope.template_network.vlan != '' && $scope.template_network.dns_name != '') {
@@ -139,30 +116,6 @@ app.controller('ServiceEditCtrl', ['$scope', 'Service', 'Test', 'GetServiceData'
         }
       }
     }
-
-    // Установить первый элемент для списка подключений к сети в модальном окне "Открытые порты"
-    $.each($scope.networks, function (index, value) {
-      if (value.value != null && value.view != '') {
-        $scope.selected_network = value;
-        return false;
-      }
-    });
-  };
-
-  // Добавить строку 'Подключения к сети'
-  $scope.addNetwork = function () {
-    var id = $scope.networks[$scope.networks.length - 1].local_id + 1;
-
-    $scope.networks.push({
-      local_id: id,
-      name:     '',
-      first:    false,
-      view:     null,
-      hide:     false,
-      value:    null,
-      ports:    null
-    });
-    $scope.visible_count ++;
 
     // Установить первый элемент для списка подключений к сети в модальном окне "Открытые порты"
     $.each($scope.networks, function (index, value) {
@@ -225,34 +178,35 @@ app.controller('ServiceEditCtrl', ['$scope', 'Service', 'Test', 'GetServiceData'
   };
 
   $scope.showPortsModal = function ($event, $index) {
-    var modal = $('#portsModal');
+    $scope.portModalVariable = true;
+    //var modal = $('#portsModal');
 
     // Проверка на существующие подключения к сети
-    var view_count = 0; // Счетчик количества подключений к сети (Если 0 - не открывать модальное окно)
-    $scope.template_index = 0; // Индекс выбранного подключения к сети в модальном окне "Открытые порты"
-    $scope.template_ports = []; // Массив открытых портов всех подключений к сети текущего формуляра
-
-    $.each($scope.networks, function (index, value) {
-      if (value.view != '') {
-        view_count ++;
-        $scope.template_ports.push({
-          network_id:       value.local_id,
-          local_tcp_ports:  value.ports.local_tcp_ports,
-          local_udp_ports:  value.ports.local_udp_ports,
-          inet_tcp_ports:   value.ports.inet_tcp_ports,
-          inet_udp_ports:   value.ports.inet_udp_ports
-        });
-      }
-    });
-
-    if (view_count == 0) {
-      $($event.target).blur();
-      alert("Необходимо создать \"Подключение к сети\"");
-
-      return true;
-    }
-
-    modal.modal('show');
+    //var view_count = 0; // Счетчик количества подключений к сети (Если 0 - не открывать модальное окно)
+    //$scope.template_index = 0; // Индекс выбранного подключения к сети в модальном окне "Открытые порты"
+    //$scope.template_ports = []; // Массив открытых портов всех подключений к сети текущего формуляра
+    //
+    //$.each($scope.networks, function (index, value) {
+    //  if (value.view != '') {
+    //    view_count ++;
+    //    $scope.template_ports.push({
+    //      network_id:       value.local_id,
+    //      local_tcp_ports:  value.ports.local_tcp_ports,
+    //      local_udp_ports:  value.ports.local_udp_ports,
+    //      inet_tcp_ports:   value.ports.inet_tcp_ports,
+    //      inet_udp_ports:   value.ports.inet_udp_ports
+    //    });
+    //  }
+    //});
+    //
+    //if (view_count == 0) {
+    //  $($event.target).blur();
+    //  alert("Необходимо создать \"Подключение к сети\"");
+    //
+    //  return true;
+    //}
+    //
+    //modal.modal('show');
   };
 
   $scope.readyPortsModal = function () {
