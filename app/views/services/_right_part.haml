@@ -1,38 +1,28 @@
 .panel.panel-default
   .panel-heading
-    %table.internal-table
-      %tr
-        %td
-          Хостинг сервиса
-        %td.min-td
-          = icon("fa fa-plus-circle fa-lg", title: "Добавить хостинг", class: "test")
+    Хостинг сервиса
   .panel-body
-    %table.internal-table
-      %tr
-        %td
-          Хостинг 1
-        %td.min-td
-          = icon("fa fa-minus-circle fa-lg", title: "Удалить хостинг")
+    = s.association :cluster, label: false, as: :select, input_html: { multiple: false }, include_blank: "Отсутствует", wrapper: false
 
-.panel.panel-default
+.panel.panel-default{"ng-controller": "DependenceCtrl as dependence"}
   .panel-heading
     %table.internal-table
       %tr
         %td
           Зависимости сервиса
         %td.min-td
-          = icon("fa fa-plus-circle fa-lg", title: "Добавить зависимость", "ng-click": "addParent()")
+          = icon("fa fa-plus-circle fa-lg", title: "Добавить зависимость", "ng-click": "dependence.addParent()")
   .panel-body
-    %div{ "ng-show": "showParents()" } Отсутствуют
+    %div.ng-hide{ "ng-show": "service.showParents()" } Отсутствуют
 
-    %table.internal-table{ "ng-show": "parents.length" }
-      %tbody{ "ng-repeat": "parent in parents", "ng-hide": "parent.destroy" }
+    %table.ng-hide.internal-table{ "ng-show": "service.parents.length" }
+      %tbody{ "ng-repeat": "parent in service.parents", "ng-hide": "parent.destroy" }
         %tr
           %td
-            .form-group.string.optional.service_parents
-              = select_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", nil, class: "form-control", "ng-model": "parent.parent_service", "ng-options": "service.name for service in services | filter:{ name: '!' + current_name }:true track by service.id"
+            .form-group.select.optional.service_parents
+              = select_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", nil, class: "form-control", "ng-model": "parent.parent_service", "ng-options": "service.name for service in service.services | filter:{ name: '!' + service.current_name }:true track by service.id"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][id]", "{{ parent.id }}"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"
           %td.min-td
-            = icon("fa fa-minus-circle fa-lg", title: "Удалить зависимость", "ng-click": "delParent(parent)")
+            = icon("fa fa-minus-circle fa-lg", title: "Удалить зависимость", "ng-click": "dependence.delParent(parent)")
         %tr.empty{ "ng-show": "!$last" }

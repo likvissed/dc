@@ -5,6 +5,8 @@ class TemplateServerDetail < ActiveRecord::Base
   belongs_to :server_type
   belongs_to :server_part
 
+  # Empty attributes will not be converted to nil
+  # Sequential spaces in attributes will be collapsed to one space
   strip_attributes allow_empty: true, collapse_spaces: true
 
   validates :count, presence: true, numericality: { greater_than: 0 }

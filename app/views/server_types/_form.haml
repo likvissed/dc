@@ -13,8 +13,8 @@
           .col-xs-2
             = text_field_tag "server_type[template_server_details_attributes][{{ $index }}][count]", nil, value: "{{ detail.count }}", class: "form-control count-width", "ng-model": "detail.count"
 
-          = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addServPart()"
-          = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delServPart(detail)"
+          = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", type: "button", "ng-click": "addServPart()"
+          = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", type: "button", "ng-click": "delServPart(detail)"
 
       .content-footer
         = type.button :submit, "Готово", class: "btn-success"

@@ -14,10 +14,17 @@ Rails.application.config.assets.precompile += %w(
   server_types.js
   server_parts.js
   servers.js
-  contacts.js
+
+  contact/contacts_controller.js
+  contact/contacts_factory.js
+  contact/contacts.js
+
+  main/main_controller.js
+  main/main_directive.js
+  main/main_service.js
+  main/main.js
 
   service/service_controller.js
-  service/service_directive.js
   service/service_factory.js
   service/services.js
 

@@ -53,11 +53,19 @@ Rails.application.routes.draw do
   resources :clusters,      except: [:edit, :update]
   resources :node_roles,    except: [:edit, :update, :show]
 
-  resources :contacts,          except: [:edit, :update, :show, :destroy]
-  resources :department_heads,  except: [:edit, :update, :show, :destroy]
+  resources :contacts,          except: [:edit, :update, :show, :destroy] do
+    get 'link_to_new_record', to: 'contacts#link_to_new_record', on: :collection
+  end
+  resources :department_heads,  except: [:edit, :update, :show, :destroy] do
+    get 'link_to_new_record', to: 'department_heads#link_to_new_record', on: :collection
+  end
   resources :services,          except: [:edit, :update] do
-    get '/download/:file', to: 'services#download', on: :member # Скачивание файлов формуляров
-    get '/generate/:type', to: 'services#generate', on: :member # Генерация формуляра/акта
+    member do
+      get     '/download/:file',  to: 'services#download_file'  # Скачивание файлов формуляров
+      get     '/generate/:type',  to: 'services#generate_file'  # Генерация формуляра/акта
+      delete  '/destroy/:file',   to: 'services#destroy_file'   # Удаление файлов формуляра
+    end
+
   end
 
   get '*unmatched_route', to: 'application#render_404'

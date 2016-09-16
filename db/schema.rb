@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160908051010) do
+ActiveRecord::Schema.define(version: 20160926070913) do
 
   create_table "cluster_details", force: :cascade do |t|
     t.integer  "cluster_id",   limit: 4
@@ -32,7 +32,7 @@ ActiveRecord::Schema.define(version: 20160908051010) do
   create_table "contacts", force: :cascade do |t|
     t.integer  "tn",                 limit: 4
     t.string   "info",               limit: 255
-    t.string   "dept",               limit: 20
+    t.integer  "dept",               limit: 4
     t.integer  "department_head_id", limit: 4
     t.string   "work_num",           limit: 10
     t.string   "mobile_num",         limit: 20
@@ -139,6 +139,16 @@ ActiveRecord::Schema.define(version: 20160908051010) do
 
   add_index "service_dependencies", ["child_id"], name: "index_service_dependencies_on_child_id", using: :btree
   add_index "service_dependencies", ["parent_id"], name: "index_service_dependencies_on_parent_id", using: :btree
+
+  create_table "service_hostings", force: :cascade do |t|
+    t.integer  "service_id", limit: 4
+    t.integer  "cluster_id", limit: 4
+    t.datetime "created_at",           null: false
+    t.datetime "updated_at",           null: false
+  end
+
+  add_index "service_hostings", ["cluster_id"], name: "index_service_hostings_on_cluster_id", using: :btree
+  add_index "service_hostings", ["service_id"], name: "index_service_hostings_on_service_id", using: :btree
 
   create_table "service_networks", force: :cascade do |t|
     t.integer  "service_id", limit: 4

@@ -1,5 +1,5 @@
 = title "Просмотр руководителей"
-.default-content
+-#.default-content
   .content-header
     .header-padding
       = render partial: "templates/service_contacts"
@@ -17,4 +17,31 @@
           %th.col-md-1
           %th.col-md-1
 
-.modal.fade#departmentHeadModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+-#.modal.fade#departmentHeadModal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+
+.default-content{ "ng-controller": "DepartmentHeadCtrl as depHeadPage" }
+  .content-header
+    .header-padding
+      = render partial: "templates/service_contacts"
+
+  .content-body
+    %datatable-wrapper
+      %table.table.table-striped{ datatable: "ng", "dt-options": "depHeadPage.dtOptions" }
+        %thead
+          %tr
+            %th.col-md-1 #
+            %th.col-md-8 ФИО
+            %th.col-md-1 Отдел
+            %th.col-md-1
+            %th.col-md-1
+        %tbody
+          %tr{ "ng-repeat": "head in depHeadPage.heads" }
+            %td{ "ng-bind": "$index + 1" }
+            %td{ "ng-bind": "head.info" }
+            %td{ "ng-bind": "head.dept" }
+            %td.text-center
+              = link_to icon("fa fa-pencil-square-o fa-fw"), "#", class: "default-color", "disable-link": true, "ng-click": "depHeadPage.showHeadModal(head.tn)"
+            %td.text-center
+              = link_to icon("fa fa-trash-o fa-fw"), "#", class: "text-danger", "disable-link": true, "ng-click": "depHeadPage.destroyHead(head.tn)"
+
+  = render partial: "modal_form"

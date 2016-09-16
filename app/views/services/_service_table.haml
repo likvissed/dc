@@ -32,10 +32,10 @@
         %b Ответственные за исполнение сервиса
     %tr
       %td Основной ответственный
-      %td= s.association :contact_1, label_method: :info, value_method: :id, label: false, prompt: "Отсутствует"
+      %td= s.association :contact_1, label_method: :info, value_method: :id, label: false, include_blank: "Отсутствует"
     %tr
       %td Вторичный контакт
-      %td= s.association :contact_2, label_method: :info, value_method: :id, label: false, prompt: "Отсутствует"
+      %td= s.association :contact_2, label_method: :info, value_method: :id, label: false, include_blank: "Отсутствует"
     %tr
 
     -# =============================================== Характеристики среды исполнения =============================
@@ -169,19 +169,19 @@
         %tr
           %th{ colspan: 2 } Подключение к сетям передачи и хранения данных
       %tbody
-        %tr{ "ng-repeat": "network in networks", "ng-hide": "network.hide" }
+        %tr{ "ng-repeat": "network in service.network.values", "ng-hide": "network.hide" }
           %td
             %table.internal-table
               %tr
                 %td
-                  %b {{ network.name }}
+                  %b{ "ng-bind": "network.name" }
                 %td.min-td
-                  = icon("fa fa-plus-circle fa-lg font-internal", title: "Добавить подключение к сети", "ng-click": "addNetwork()")
+                  = icon("fa fa-plus-circle fa-lg font-internal", title: "Добавить подключение к сети", "ng-click": "service.addNetwork()")
           %td
             %table.internal-table
               %tr
                 %td.form-group.string.optional.template_service_network
-                  = text_field_tag "template_service[network][{{ $index }}]", "{{ network.view }}" , "ng-focus": "showNetworkModal($index)"
+                  = text_field_tag "template_service[network][{{ $index }}]", "", "ng-value": "network.view", "ng-focus": "service.showNetworkModal($index)"
 
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][id]", "{{ network.id }}"
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][_destroy]", "{{ network.destroy }}"
@@ -196,13 +196,13 @@
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][inet_tcp_ports]", "{{ network.ports.inet_tcp_ports }}"
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][inet_udp_ports]", "{{ network.ports.inet_udp_ports }}"
                 %td.min-td
-                  = icon("fa fa-minus-circle fa-lg font-internal", title: "Удалить подключение к сети", "ng-click": "delNetwork(network)")
+                  = icon("fa fa-minus-circle fa-lg font-internal", title: "Удалить подключение к сети", "ng-click": "service.delNetwork(network)")
 
-        %tr{ "ng-repeat": "storage in storages" }
+        %tr{ "ng-repeat": "storage in service.storages" }
           %td
-            %b {{ storage.name }}
+            %b{ "ng-bind": "storage.name" }
           %td.form-group.string.optional.template_service_network
-            = text_field_tag "service[storage_systems_attributes][{{ $index }}][name]", "{{ storage.value.name }}"
+            = text_field_tag "service[storage_systems_attributes][{{ $index }}][name]", "", "ng-value": "storage.value.name"
             = hidden_field_tag "service[storage_systems_attributes][{{ $index }}][id]", "{{ storage.id }}"
             = hidden_field_tag "service[storage_systems_attributes][{{ $index }}][_destroy]", "{{ storage.destroy }}"
         %tr
@@ -237,7 +237,7 @@
         %tr
           %td Сетевые порты, доступные из ЛС
           %td.form-group.string.optional.template_service_network
-            = text_field_tag "template_service[port][0]", "" , "ng-focus": "showPortsModal($event, $index)"
+            = text_field_tag "template_service[port][0]", "" , "ng-focus": "service.showPortsModal($event)"
         %tr
           %td
           %td

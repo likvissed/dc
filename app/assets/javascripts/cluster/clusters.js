@@ -52,6 +52,7 @@ $(function() {
   var
     modal = $('#modal'),
     table = $('#clusterTable').DataTable({
+      dom: '<"row"<"#add_cluster_block.col-md-3"><"col-md-3"><"col-md-3"><"col-md-3"f>>',
       columns: [
         {
           data: 'index',
@@ -78,6 +79,13 @@ $(function() {
       },
       drawCallback: function () {
         showCluster();
+      },
+      initComplete: function (settings, json) {
+        // Создать кнопку добавления нового сервиса
+        AddButton('add_cluster');
+
+        // Изменить класс у формы поиска
+        ChangeSearchFilter();
       }
     });
 

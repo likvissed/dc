@@ -1,10 +1,12 @@
-app.controller("contactCtrl", ["$scope", function($scope) {
-  $scope.manually = ($("#contact_manually").attr("data-manually") == 'true');
-  console.log($scope.manually);
-}]);
+//app.controller("contactCtrl", ["$scope", function($scope) {
+//  $scope.manually = ($("#contact_manually").attr("data-manually") == 'true');
+//  console.log($scope.manually);
+//}]);
 
 $(function() {
-  $('#contactTable').DataTable({
+  'use strict';
+
+  /*$('#contactTable').DataTable({
     dom: '<"row"<"#add_contact_block.col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"f>>',
     ajax: {
       url:    'contacts.json',
@@ -55,5 +57,6 @@ $(function() {
       ChangeSearchFilter();
     }
   });
+  */
 
 });

@@ -5,15 +5,15 @@
 
 //= require lib/dataTables/dataTables.bootstrap.min
 
-//= require lib/angularjs/angular.min.js
+//= require lib/angularjs/angular.min
+//= require lib/angularjs/angular-resource.min
 // require lib/angularjs/angular-route.min.js
 //= require lib/dataTables/angular-datatables
 
 //= require bootstrap
 // require dataTables/angular-datatables.bootstrap.min
 
-//= require main
-
+//= require_tree ./main
 //= require_tree ./server_part
 //= require_tree ./server_type
 //= require_tree ./server

@@ -1,7 +1,7 @@
 = title "Кластеры"
 .medium-content
   .content-body
-    = button_to "Добавить", new_cluster_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+    = button_to "Добавить", new_cluster_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_cluster_form" }
     %table.table.table-hover.table-striped#clusterTable
       %thead
         %tr

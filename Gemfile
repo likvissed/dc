@@ -1,5 +1,6 @@
 source 'https://rubygems.org'
 gem 'paperclip'
+gem 'paperclip-i18n'
 # Paginator
 gem 'kaminari'
 # Devise authentication

@@ -1,0 +1,51 @@
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "modal-show": "contactPage.contactModal" }
+  .modal-dialog
+    .modal-content
+
+      %form{ role: "form", "name": "contactPage.form", "data-method": "contactPage.config.method" }
+        .modal-header
+          %h4.modal-title.text-center{ "ng-bind": "contactPage.config.title" }
+
+        .modal-body
+
+          .form-group.required{ "ng-class": "contactPage.errorClass('contact[tn]')" }
+            = label_tag :contact_tn , class: "control-label" do
+              %abbr{ title: "required" } *
+              %b Табельный номер
+            = text_field_tag "contact[tn]", "", class: "form-control", "ng-model": "contactPage.value.tn"
+            %span.help-block{ "ng-show": "contactPage.form['contact[tn]'].$invalid", "ng-bind": "contactPage.errorMessage('contact[tn]')" }
+
+          .checkbox
+            = label_tag :contact_manually do
+              = check_box_tag "contact[manually]", true, false, "ng-model": "contactPage.value.manually", "ng-checked": "contactPage.value.manually"
+              Заполнить данные контакта вручную
+
+          %div{ "ng-show": "contactPage.value.manually" }
+
+            .form-group.required{ "ng-class": "contactPage.errorClass('contact[info]')" }
+              = label_tag :contact_info , class: "control-label" do
+                %abbr{ title: "required" } *
+                %b Фамилия Имя Отчество
+              = text_field_tag "contact[info]", "", class: "form-control", "ng-model": "contactPage.value.info"
+              %span.help-block{ "ng-show": "contactPage.form['contact[info]'].$invalid", "ng-bind": "contactPage.errorMessage('contact[info]')" }
+
+            .form-group{ "ng-class": "contactPage.errorClass('contact[dept]')" }
+              = label_tag :contact_dept , class: "control-label" do
+                %abbr{ title: "required" } *
+                %b Отдел
+              = text_field_tag "contact[dept]", "", class: "form-control", "ng-model": "contactPage.value.dept"
+              %span.help-block{ "ng-show": "contactPage.form['contact[dept]'].$invalid", "ng-bind": "contactPage.errorMessage('contact[dept]')" }
+
+            .form-group
+              = label_tag :contact_work_num , class: "control-label" do
+                %b Рабочий номер
+              = text_field_tag "contact[work_num]", "", class: "form-control", "ng-model": "contactPage.value.work_num"
+
+          .form-group
+            = label_tag :contact_mobile_num , class: "control-label" do
+              %b Сотовый номер
+            = text_field_tag "contact[mobile_num]", "", class: "form-control", "ng-model": "contactPage.value.mobile_num"
+
+        .modal-footer
+          = button_tag "Готово", type: "button", class: "btn btn-success", "ng-click": "contactPage.readyContactModal()"
+          = button_tag "Отмена", type: "button", "ng-click": "contactPage.closeContactModal()"

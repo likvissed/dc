@@ -1,4 +1,4 @@
-.big-content{ "ng-controller": "ServiceEditCtrl", "ng-init": "init(#{@service.id || 0}, '#{params[:name]}')" }
+.big-content{ "ng-controller": "ServiceEditCtrl as service", "ng-init": "service.init(#{@service.id || 0}, '#{params[:name]}')" }
   = simple_form_for @service, url: url do |s|
 
     .content-header

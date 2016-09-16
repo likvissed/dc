@@ -1,8 +1,8 @@
 .medium-content
   %div{ "ng-controller": "ClusterCtrl" }
-    = simple_form_for @cluster, url: url, html: { "cluster-form": @cluster.id || 0, "cluster-name": params[:name] } do |cluster|
+    = simple_form_for @cluster, url: url, html: { "cluster-form": @cluster.id || 0, "cluster-name": params[:name] } do |s|
       .content-body
-        = cluster.input :name, label: "Наименование", required: true, autofocus: true, input_html: { "ng-model": "cluster.name" }
+        = s.input :name, label: "Наименование", required: true, autofocus: true, input_html: { "ng-model": "cluster.name" }
         %h5
           %b Состав кластера:
         .row.row-margin-bot{ "ng-repeat": "detail in details", "ng-hide": "detail.destroy" }
@@ -13,9 +13,9 @@
           .col-xs-3
             = select_tag "cluster[cluster_details_attributes][{{ $index }}][node_role_id]", nil, class: "form-control", "ng-model": "detail.node_role", "ng-options": "part.name for part in node_parts track by part.id"
 
-          = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addClusterPart()"
-          = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delClusterPart(detail)"
+          = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", type: "button", "ng-click": "addClusterPart()"
+          = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", type: "button", "ng-click": "delClusterPart(detail)"
 
       .content-footer
-        = cluster.button :submit, "Готово", class: "btn-success"
+        = s.button :submit, "Готово", class: "btn-success"
         = button_tag "Отмена", type: "submit", name: "cancel", value: true, class: "btn-default"

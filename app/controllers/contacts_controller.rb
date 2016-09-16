@@ -4,87 +4,68 @@ class ContactsController < ApplicationController
 
   before_action { |ctrl| ctrl.check_for_cancel contacts_path }
   before_action :find_contact_by_tn, only: [:edit, :update, :destroy]
-  before_action :get_user_iss_data, only: [:create, :update], unless: -> { params[:contact][:manually].to_i == 1 }
 
   def index
     respond_to do |format|
       format.html { render :index }
-      format.json do
-        data = Contact.all.as_json(except: [:created_at, :updated_at]).each do |s|
-          s['DT_RowId'] = s['id']
-          s['edit']     = "<a href='/contacts/#{s['tn']}/edit' class='default-color' rel='nofollow' title='Редактировать'\"#{s['info']}\"?'><i class='fa fa-pencil-square-o fa-1g'></a>"
-          s['del']      = "<a href='/contacts/#{s['tn']}' class='text-danger' data-method='delete' rel='nofollow'
-title='Удалить' data-confirm='Вы действительно хотите удалить контакт \"#{s['info']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
-          s.delete('id')
-        end
-        render json: { data: data }
-      end
-    end
-  end
-
-  def new
-    @contact = Contact.new
-    respond_to do |format|
-      format.html
-      format.js { render layout: false }
+      format.json { render json: Contact.all.as_json(except: [:id, :manually, :department_head_id, :created_at, :updated_at]) }
     end
   end
 
   def create
     @contact = Contact.new(contact_params)
     if @contact.save
-      flash[:notice] = "Контакт добавлен."
-      redirect_to action: :index
+      respond_to do |format|
+        format.json { render json: { contact: @contact.as_json(except: [:id, :department_head_id, :created_at, :updated_at]), full_message: "Контакт добавлен" }, status: :created }
+      end
     else
-      flash.now[:alert] = "Ошибка добавления. #{ @contact.errors.full_messages.join(", ") }"
-      render :new
+      respond_to do |format|
+        format.json { render json: { object: @contact.errors, full_message: "Ошибка. #{ @contact.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+      end
     end
   end
 
   def edit
+    respond_to do |format|
+      format.json { render json: @contact }
+    end
   end
 
   def update
     if @contact.update_attributes(contact_params)
-      flash[:notice] = "Контакт изменен."
-      redirect_to action: :index
+      respond_to do |format|
+        format.json { render json: { contact: @contact.as_json(except: [:id, :department_head_id, :created_at, :updated_at]), full_message: "Данные изменены" }, status: :ok }
+      end
     else
-      flash.now[:alert] = "Ошибка. #{ @contact.errors.full_messages.join(", ") }"
-      render :edit
+      respond_to do |format|
+        format.json { render json: { object: @contact.errors, full_message: "Ошибка. #{ @contact.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+      end
     end
   end
 
   def destroy
     if @contact.destroy
-      flash[:notice] = "Контакт удален."
+      respond_to do |format|
+        format.json { render json: { full_message: "Контакт удален" }, status: :ok }
+      end
     else
-      flash[:alert] = "Ошибка удаления. #{ @contact.errors.full_messages.join(", ") }"
+      puts @contact.errors.full_messages.join(", ")
+      respond_to do |format|
+        format.json { render json: { full_message: "Ошибка. #{ @contact.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+      end
     end
-    redirect_to action: :index
+  end
+
+  # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
+  # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
+  def link_to_new_record
+    link = create_link_to_new_record Contact, "ng-click='contactPage.showContactModal()"
+    respond_to do |format|
+      format.json { render json: link }
+    end
   end
 
   private
-
-  # Получение данных из базы Netadmin
-  def get_user_iss_data
-    @user = UserIss.find_by(tn: params[:contact][:tn])
-    if @user.nil?
-      @contact.errors.add(:tn, "Введите корректный табельный номер")
-      flash[:alert] = "Ошибка. Введите корректный табельный номер"
-
-      render case params[:action]
-               when "create"
-                 :new
-               when "update"
-                 :edit
-             end
-      return
-    end
-
-    params[:contact][:info]       = @user.fio
-    params[:contact][:dept]       = @user.dept
-    params[:contact][:work_num]   = @user.tel
-  end
 
   def contact_params
     params.require(:contact).permit(:tn, :info, :dept, :work_num, :mobile_num, :manually)

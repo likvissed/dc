@@ -1,41 +1,26 @@
-var app = angular.module('DataCenter', []);
+var app = angular
+  .module('DataCenter', [
+    'ngResource',
+    'datatables'
+  ]);
 
-
-app.directive('stopClick', function() {
-  return function(scope, element, attrs) {
-    element.click(function(event) {
-      event.preventDefault();
-    })
-  }
-});
-
-app.controller("FlashMessageCtrl",['$attrs', '$timeout', function($attrs, $timeout) {
-  controller = this;
-
-  if ($attrs.notice)
-    controller.notice = $attrs.notice;
-  if ($attrs.alert)
-    controller.alert = $attrs.alert;
-
-  $timeout(function() {
-    controller.notice = null;
-  }, 2000);
-
+app.config(['$resourceProvider', function($resourceProvider) {
+  // Don't strip trailing slashes from calculated URLs
+  $resourceProvider.defaults.stripTrailingSlashes = false;
 }]);
 
-/* ======================================================================================= */
+$(function() {
+  'use strict';
 
-$(function () {
   var modal = $('modal');
 
   // Настройки DataTable
   $.extend(true, $.fn.DataTable.defaults, {
-    // dom : 'ftrip',
     //dom: "<'row'<'#data-table-filter.col-sm-6'><'col-sm-6'f>>" + "<'row'<'col-sm-12'tr>>" + "<'row'<'col-sm-5'i><'col-sm-7'p>>",
-    dom: '<"row"<"col-sm-12"f>>',
+    dom: '<"row"<"col-sm-12"f>>t<"row"<"col-sm-12"p>>',
     lengthChange: true,
-    info: true,
-    stateSave: true,
+    info:         true,
+    stateSave:    true,
     language: { //Надписи на кнопках и в таблице
       emptyTable: 'Данные отсутствуют',
       paginate: { //Нумерация страниц
@@ -56,7 +41,7 @@ $(function () {
     },
     initComplete: function (settings, json) {
       // Изменить класс у формы поиска
-      $('.dataTables_filter input').removeClass('input-sm');
+      //$('.dataTables_filter input').removeClass('input-sm');
     }
   });
 
@@ -69,7 +54,16 @@ $(function () {
   //$.fn.dataTable.Api.register('table().ChangeSearchFilter()', function () {
   //  $('.dataTables_filter input').removeClass('input-sm');
   //});
+
+  // Закрыть модальное окно и перезагрузить таблицу в случае успешного создания руководителя
+  // table - селектор (желательно id) таблицы, которую необходимо обновить
+  //$.fn.modal_success = function (table) {
+  //  this.modal('hide');
+
+    //$(table).DataTable().ajax.reload(null, false);
+  //};
 });
+
 
 // Функция, удаляющая класс input-sm у формы поиска
 function ChangeSearchFilter() {
@@ -83,11 +77,3 @@ function ChangeSearchFilter() {
 function AddButton(name) {
   $('#' + name + '_form').appendTo('#' + name + '_block');
 }
-
-// Закрыть модальное окно и перезагрузить таблицу в случае успешного создания руководителя
-// table - селектор (желательно id) таблицы, которую необходимо обновить
-$.fn.modal_success = function (table) {
-  this.modal('hide');
-
-  $(table).DataTable().ajax.reload(null, false);
-};

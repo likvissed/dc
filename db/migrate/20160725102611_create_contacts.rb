@@ -3,7 +3,7 @@ class CreateContacts < ActiveRecord::Migration
     create_table :contacts do |t|
       t.integer     :tn
       t.string      :info,        index: true
-      t.string      :dept,        limit: 20, index: true
+      t.integer     :dept,        index: true
       t.references  :department_head
       t.string      :work_num,    limit: 10
       t.string      :mobile_num,  limit: 20

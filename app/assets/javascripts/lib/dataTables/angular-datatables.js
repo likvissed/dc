@@ -926,7 +926,7 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
                 if (_newParentScope) {
                     _newParentScope.$destroy();
                 }
-                _oTable.ngDestroy();
+                //_oTable.ngDestroy();
                 // Re-compile because we lost the angular binding to the existing data
                 _$elem.html(_staticHTML);
                 _newParentScope = _parentScope.$new();

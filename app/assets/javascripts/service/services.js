@@ -1,8 +1,10 @@
 $(function() {
+  'use strict';
+
   var
     modal = $('#modal'),
     table = $('#serviceTable').DataTable({
-      dom: '<"row"<"#add_service_block.col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"f>>',
+      dom: '<"row"<"#add_service_block.col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"f>>t<"row"<"col-sm-12"p>>',
       ajax: {
         url:    'services.json',
         async:  false,
@@ -115,7 +117,7 @@ $(function() {
 
   function showServer() {
     $('#serviceTable > tbody > tr').off().on('click', function (event) {
-      self = this;
+      var self = this;
 
       if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
         return true;

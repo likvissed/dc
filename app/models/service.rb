@@ -13,11 +13,18 @@ class Service < ActiveRecord::Base
   has_many :service_dep_childs, foreign_key: :parent_id, class_name: 'ServiceDependency', dependent: :restrict_with_error
   has_many :childs, through: :service_dep_childs, source: :child_service
 
+  has_many :service_hostings
+  has_many :cluster, through: :service_hostings
+
   belongs_to :contact_1, class_name: 'Contact'
   belongs_to :contact_2, class_name: 'Contact'
 
-  validates :name, presence: true, uniqueness: true
+  validates :name,
+            presence: { message: "Наименование сервиса не может быть пустым" },
+            uniqueness: { message: "Сервис с заданым именем уже существует" }
 
+  # Empty attributes will not be converted to nil
+  # Sequential spaces in attributes will be collapsed to one space
   strip_attributes allow_empty: true, collapse_spaces: true
 
   accepts_nested_attributes_for :service_networks, allow_destroy: true, reject_if: proc { |attr| attr['segment'].blank? || attr['vlan'].blank? || attr['dns_name'].blank? }
@@ -32,44 +39,57 @@ class Service < ActiveRecord::Base
   has_attached_file :instr_rec
   has_attached_file :instr_off
 
-  validates_attachment_content_type :scan, content_type: [
-    'application/pdf',
-    'image/jpg',
-    'image/jpeg',
-    'image/png'
-    # 'application/force-download',
-    # 'application/x-file-download'
-  ]
-  validates_attachment_content_type :act, content_type: [
-    'application/pdf',
-    'application/msword',
-    'image/jpg',
-    'image/jpeg',
-    'image/png',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    # 'application/force-download',
-    # 'application/x-file-download'
-  ]
-  validates_attachment_content_type :instr_rec, content_type: [
-    'application/pdf',
-    'application/msword',
-    'image/jpg',
-    'image/jpeg',
-    'image/png',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    # 'application/force-download',
-    # 'application/x-file-download'
-  ]
-  validates_attachment_content_type :instr_off, content_type: [
-    'application/pdf',
-    'application/msword',
-    'image/jpg',
-    'image/jpeg',
-    'image/png',
-    'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
-    # 'application/force-download',
-    # 'application/x-file-download'
-  ]
+  validates_attachment_content_type :scan,
+                                    content_type: [
+                                      'application/pdf',
+                                      'image/jpg',
+                                      'image/jpeg',
+                                      'image/png'
+                                      # 'application/force-download',
+                                      # 'application/x-file-download'
+                                    ],
+                                    message: "Скан формуляра имеет неверный тип данных"
+
+  validates_attachment_content_type :act,
+                                    content_type: [
+                                      'application/pdf',
+                                      'application/msword',
+                                      'image/jpg',
+                                      'image/jpeg',
+                                      'image/png',
+                                      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                                      # 'application/force-download',
+                                      # 'application/x-file-download'
+                                    ],
+                                    message: "Скан акта имеет неверный тип данных"
+
+  validates_attachment_content_type :instr_rec,
+                                    content_type: [
+                                      'application/pdf',
+                                      'application/msword',
+                                      'image/jpg',
+                                      'image/jpeg',
+                                      'image/png',
+                                      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                                      # 'application/force-download',
+                                      # 'application/x-file-download'
+                                    ],
+                                    message: "Инструкция по посстановлению имеет неверный тип данных"
+
+  validates_attachment_content_type :instr_off,
+                                    content_type: [
+                                      'application/pdf',
+                                      'application/msword',
+                                      'image/jpg',
+                                      'image/jpeg',
+                                      'image/png',
+                                      'application/vnd.openxmlformats-officedocument.wordprocessingml.document'
+                                      # 'application/force-download',
+                                      # 'application/x-file-download'
+                                    ],
+                                    message: "Инструкция по отключению имеет неверный тип данных"
+
+  # errors.delete(:scan)
 
   # Получить всех ответственных
   # type - передается функции get_contact (:formular - для формуляра, :act - для акта)

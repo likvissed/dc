@@ -3,18 +3,21 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :authenticate_user!
+  after_action :set_csrf_cookie_for_ng
 
+  # Обрабтка случаев, когда у пользователя нет доступа на выполнение запрашиваемых действий
   rescue_from CanCan::AccessDenied do |exception|
     respond_to do |format|
       format.html do
         render_403
       end
-      format.json { render status: 403 }
+      format.json { render json: { full_message: "Доступ запрещен" }, status: :forbidden }
     end
   end
   #rescue_from Exception, with: :render_500
 
-  # Проверка, была ли нажата кнопка "Отмена"
+  # Проверка, была ли нажата кнопка "Отмена".
+  # Если да - редирект на указанный в переменной path путь
   def check_for_cancel(path)
     redirect_to path if params[:cancel]
   end
@@ -29,6 +32,31 @@ class ApplicationController < ActionController::Base
 
   def render_500
     render file: "#{Rails.root}/public/500.html", status: 500, layout: false
+  end
+
+  # Создать html-строку с содержимым, зависящим от прав доступа пользователя
+  # Запрос на данный метод генерирует директива addRecord, которая рендерит полученную строку.
+  #
+  # object - модель
+  # params - строка, содержащая дополнительные аттрибуты, необходиые для html тега
+  def create_link_to_new_record(object, params)
+    if can? :manage, object
+      "<button class='btn-sm btn btn-primary btn-block' #{params}'>Добавить</button>"
+    else
+      ""
+    end
+  end
+
+  # XSRF for angularjs
+  def set_csrf_cookie_for_ng
+    cookies['XSRF-TOKEN'] = form_authenticity_token if protect_against_forgery?
+  end
+
+  protected
+
+  # XSRF for angularjs
+  def verified_request?
+    super || valid_authenticity_token?(session, request.headers['X-XSRF-TOKEN'])
   end
 
   private

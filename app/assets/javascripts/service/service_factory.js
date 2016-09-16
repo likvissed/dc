@@ -1,36 +1,80 @@
-app.factory('Service', function ($http, $q) {
-  return function (id, name, data) {
+(function() {
+  'use strict';
+
+  app
+    .factory('GetServiceData', ['$http', '$q', GetServiceData])
+    .service('Service', ['$http', 'Flash', Service]);
+
+  // Фабрика для выполнения GET запроса на сервер для получения всей информации о сервисе
+  // id - id сервиса
+  // name - имя сервиса
+  function GetServiceData($http, $q) {
+    return {
+      ajax: function (id, name) {
+        var deferred = $q.defer(); // создаем экземпляр должника
+
+        if (id == 0)
+          $http.get('/services/new.json')
+            .success(function (data, status, header, config) {
+              deferred.resolve(data);
+            });
+        else
+          $http.get('/services/' + name + '/edit.json')
+            .success(function (data, status, header, config) {
+              deferred.resolve(data);
+            });
+
+        return deferred.promise;
+      }
+    };
+  }
+
+  function Service($http, Flash) {
     var self = this;
 
-    // =============================================== Приватные методы ================================================
-
+    // Переменные, используемые только внутри фабрики
     var
-      _visible_network_count  = 2,    // Количество строк "Подключения к сети", видимых пользователем (должно быть минимум 2, так как в формуляре минимум две строки на этот пункт)
-      _visible_storage_count  = 2,    // Количество строк "Подключения к СХД", видимых пользователем
-      _service_old_data       = data, // Данные, полученные с сервера
-      _service_new_data   = {         // Массив новых данных, которые впоследствии уйдут на сервер
-        networks:           [],         // Массив подключений к сети
-        parents:            [],         // Массив сервисов-родителей
-        storages:           [],         // Массив подключений к СХД
-        missing_file:       {},         // Объект, содержащий флаги, которые показывают отсутствующие файлы
-        network_template:   {}          // Объект, содержащий строки модального окна "Подключения к сети"
+      visible_network_count = 2,    // Количество строк "Подключения к сети", видимых пользователем (должно быть минимум 2, так как в формуляре минимум две строки на этот пункт)
+      visible_storage_count = 2,    // Количество строк "Подключения к СХД", видимых пользователем
+      current_id,
+      current_name,
+      template_ports        = [];
+
+    // Переменные, которые возвращаются контроллеру
+    var
+      service = {                 // Основные данные сервера
+        old_data: null,           // Данные, полученные с сервера
+        network: {
+          selected: null,         // Используется в качестве модели для первого элемента в модальном окне "Открытые порты"
+          values:   []            // Массив подключений к сети
+        },
+        parents:  [],             // Массив сервисов-родителей
+        storages: []              // Массив подключений к СХД
       },
-      _parent_arr             = [];
+      additional = {              // Дополнительные данные, необходимые для работы страницы
+        flags:            {
+          networkModal: false,    // Флаг, определяющий, скрывать модальное окно "Подключения к сети" или нет
+          portModal:    false     // Флаг, определяющий, скрывать модальное окно "Открытые порты" или нет
+        },
+        missing_file:    {}       // Объект, содержащий флаги, которые показывают отсутствующие файлы
+      };
+
+// =============================================== Приватные методы ====================================================
 
     // Получить данные о сервисе
-    function _get_old_service_data(name) {
-      if (name === undefined)
-        return _service_old_data;
+    function _getOldServiceData(name) {
+      if (name)
+        return service.old_data[name] ? service.old_data[name] : null;
 
-      return _service_old_data[name] ? _service_old_data[name] : null
+      return service.old_data;
     }
+
+// =============================================== Работа с подключениями к сети =======================================
 
     // Создает строку, которую видит пользователь в поле "Подключение к сети"
-    function _setNetworkString(segment, vlan, dns_name) {
-      return [segment, vlan, dns_name].join(", ");
+    function _setNetworkString(data) {
+      return [data.segment, data.vlan, data.dns_name].join(', ');
     }
-
-    // =============================================== Методы, вызываемые при инициализации ============================
 
     // Функция, заполняющая данными переменные параметры пункта "Подключения к сети"
     function _checkFirstNetwork(index) {
@@ -38,30 +82,23 @@ app.factory('Service', function ($http, $q) {
         name  = '',
         first = false;
 
-      if (index == 0) { // Если первый элемент
+      if (index == 0) {
         name  = 'Подключение к сети';
         first = true;
       }
 
-      return { name: name, is_first: first};
+      return {name: name, is_first: first};
     }
 
     // Установить начальное значение для подключений к сети
-    function _defaultNetworkParams() {
+    function _defaultNetworkParams(index) {
       return {
         destroy:  0,
         id:       null,
         view:     null,
         hide:     false,
         value:    null,
-        ports:    {
-          id: null,
-          inet_tcp_ports: '',
-          inet_udp_ports: '',
-          local_id:       0,
-          local_tcp_ports: '',
-          local_udp_ports: ''
-        }
+        ports:    _defaultPorts(index)
       }
     }
 
@@ -81,44 +118,95 @@ app.factory('Service', function ($http, $q) {
     }
 
     // Функция, создающая массив подключений к сети
-    // newNet - флаг (true/false), определяющий, создавать пустые объекты для нового сервиса или добавить существующие данные для редактируемого сервиса
-    // data - объект, содержащий данные существующих подключений к сети
-    function _generateNetworkArr(newNet, data) {
+    // networks - объект, содержащий данные существующих подключений к сети
+    function _generateNetworkArr(networks) {
       var
         obj,
-        params = _defaultNetworkParams();
+        params;
 
       // Заполнение минимально необходимого количества строк подключений к сети
-      for (var index = 0; index < _visible_network_count; index ++) {
-        obj = _checkFirstNetwork(index);
-        _service_new_data.networks.push(_singleNetwork(index, params.id, params.destroy, obj.name, obj.is_first, params.view, params.hide, params.value, params.ports));
+      for (var index = 0; index < visible_network_count; index++) {
+        obj     = _checkFirstNetwork(index);
+        params  = _defaultNetworkParams(index);
+        service.network.values.push(_singleNetwork(index, params.id, params.destroy, obj.name, obj.is_first, params.view, params.hide, params.value, params.ports));
       }
 
       // Для существующих подключений к сети
-      if (!newNet)
-        $.each(data, function (index, value) {
+      if (networks) {
+        if (networks.length > 2)
+          visible_network_count = networks.length;
+
+        $.each(networks, function (index, value) {
           var
-            obj             = _checkFirstNetwork(index),
-            id              = value.id,
-            view            = _setNetworkString(value.segment, value.vlan, value.dns_name),
-            ports           = value.service_port;
+            obj   = _checkFirstNetwork(index),
+            id    = value.id,
+            view  = _setNetworkString(_singleNetworkTemplate(value.segment, value.vlan, value.dns_name)),
+            ports;
 
-          ports.local_id  = index;
-          _service_new_data.networks[index] = _singleNetwork(index, id, params.destroy, obj.name, obj.is_first, view, params.hide, params.value, params.ports);
+          if (value.service_port) {
+            ports = value.service_port;
+            delete value.service_port;
+          }
+          else
+            ports = _defaultPorts(index);
+
+          // Удалить id из внутреннего массива
+          delete value.id;
+
+          ports.local_id = index;
+          ports.destroy = 0;
+
+          service.network.values[index] = _singleNetwork(index, id, params.destroy, obj.name, obj.is_first, view, params.hide, value, ports);
         });
-
-      return _service_new_data.networks;
+      }
     }
 
-    function _singleNetworkTemplate (segment, vlan, dns_name) {
-    //  СЮДА НУЖНО ПЕРЕДАТЬ ИНДЕКС МАССИВА NETWORKS
+    //Установить первый элемент для списка подключений к сети в модальном окне "Открытые порты"
+    function _setFirstNetworkElement() {
+      $.each(service.network.values, function (index, network) {
+        if (network.value != null && network.view != '') {
+          service.network.selected = network;
+
+          return false;
+        }
+      });
     }
 
-    function _setNetworkTemplate (data) {
-      //if (data === undefined)
-      //  _singleNetworkTemplate(segment, vlan, dns_name)
-      
+    // Элемента массива подключений к сети
+    function _singleNetworkTemplate(segment, vlan, dns_name) {
+      return {
+        segment:  segment,
+        vlan:     vlan,
+        dns_name: dns_name
+      }
     }
+
+    // Проверка корректности данных подключений к сети
+    function _checkTemplateNetworkPassed(data) {
+      return data.segment != '' && data.vlan != '' && data.dns_name != '';
+    }
+
+// =============================================== Работа с открытыми портами ==========================================
+
+    //Установить начальное значение открытых портов
+    function _defaultPorts(index) {
+      return {
+        id:               null,
+        destroy:          0,
+        inet_tcp_ports:   '',
+        inet_udp_ports:   '',
+        local_id:         index,
+        local_tcp_ports:  '',
+        local_udp_ports:  ''
+      }
+    }
+
+    // Проверка корректности данных открытых портов
+    function _checkTemplatePortPassed(data) {
+      return data.local_tcp_ports != '' && data.local_udp_ports != '' && data.inet_tcp_ports != '' && data.inet_udp_ports != '';
+    }
+
+// =============================================== Работа с подключениями к СХД ========================================
 
     // Элемент массива подключений к СХД
     function _singleStorage(id, destroy, name, value) {
@@ -132,200 +220,251 @@ app.factory('Service', function ($http, $q) {
 
     // Функция, заполняющая данными переменные параметры пункта "Подключения к СХД"
     function _checkFirstStorage(index) {
-      var name  = '';
+      var name = '';
 
       if (index == 0) // Если первый элемент
-        name  = 'Подключение к СХД';
+        name = 'Подключение к СХД';
 
       return name;
     }
 
     // Функция, создающая массив подключений е СХД
-    function _generateStorageArr(newStorage, data) {
+    function _generateStorageArr(storages) {
       var
-        //storage = [],   // Возврвщаемый массив
         id      = null, // id в БД
         destroy = 0,    // Флаг удаления записи (0 - не удалять из БД, 1 - удалять)
         name,           // Имя в первом столбце таблицы ("Подключение с СХД" или пустая строк)
         value   = null; // Значение, указываемое в поле "Подключение к СХД"
 
-      for (var index = 0; index < _visible_storage_count; index ++) {
+      for (var index = 0; index < visible_storage_count; index++) {
         name = _checkFirstStorage(index);
-        _service_new_data.storages.push(_singleStorage(id, destroy, name, value));
+        service.storages.push(_singleStorage(id, destroy, name, value));
       }
 
       // Для существующеих подключений к СХД
-      if (!newStorage)
-        $.each(data, function (index, value) {
+      if (storages)
+        $.each(storages, function (index, value) {
           id    = value.id;
           name  = _checkFirstStorage(index);
 
-          _service_new_data.storages[index] = _singleStorage(id, destroy, name, value);
+          service.storages[index] = _singleStorage(id, destroy, name, value);
         });
-
-      return _service_new_data.storages;
     }
 
+// =============================================== Работа с файлами ====================================================
+
     // Элемент объекта флагов отсутствующих файлов
-    function _singleMissingFile(scan, act, instr_rec, instr_off) {
-      return {
-        scan:       scan,
-        act:        act,
-        instr_rec:  instr_rec,
-        instr_off:  instr_off
-      }
+    function _setMissingFileData(scan, act, instr_rec, instr_off) {
+      additional.missing_file.scan      = scan;
+      additional.missing_file.act       = act;
+      additional.missing_file.instr_rec = instr_rec;
+      additional.missing_file.instr_off = instr_off;
     }
 
     // Функция, создающая массив флагов, определяющих наличие файла, акта, инструкции по восст. и инструкции по откл.
-    function _generateMissingFileArr(newMissingFile, data) {
-      if (newMissingFile)
-        _service_new_data.missing_file = _singleMissingFile(true, true, true, true);
+    function _setMissingFile(data) {
+      if (data)
+        _setMissingFileData(data.scan, data.act, data.instr_rec, data.instr_off);
       else
-        _service_new_data.missing_file = _singleMissingFile(data.scan, data.act, data.instr_rec, data.instr_off);
-
-      return _service_new_data.missing_file;
+        _setMissingFileData(true, true, true, true);
     }
+
+// =============================================== Работа с сервисам-родителями ========================================
 
     // Функция, создающая массив зависимостей формуляра
-    function _generateParentArr(newParent, data) {
-      if (!newParent)
-        $.each(data, function (index, value) {
-          //_parent_arr.push(value);
-          //_new_service_arr_data('parents', 'new', )
-          _service_new_data.parents.push(value);
+    function _generateParentArr(parents) {
+      if (parents)
+        $.each(parents, function (index, parent) {
+          service.parents.push(parent);
         });
-
-      return _service_new_data.parents;
     }
-
-    // =============================================== Методы для работы контроллера ===================================
 
     function _addParent() {
       // Проход по циклу для проверки, какой сервис поставить первым в тэге select (нужно для того, что исключить случай, когда сервис-родитель = текущему сервису)
-      $.each(self.services, function (index, value) {
-        if (value.name != self.name) {
+      $.each(service.old_data.services, function (index, value) {
+        if (value.name != current_name) {
           var data = {
-            parent_id: value.id,
+            parent_id:      value.id,
             parent_service: value,
-            destroy: 0
+            destroy:        0
           };
-          _service_new_data.parents.push(data);
+          service.parents.push(data);
 
           return false;
         }
       });
     }
 
-    // =============================================== Публичные методы ================================================
+// =============================================== Публичные методы ====================================================
 
-    self.id       = id;       // Id формуляра
-    self.name     = name;   // Имя формуляра
-    self.services = _get_old_service_data('services'); // Массив со списком существующих сервисов
-    //self.parents = [];
-    self.visible_count = _visible_network_count;
+// =============================================== Методы, вызываемые при инициализации ================================
 
-    // =============================================== Методы, вызываемые при инициализации ============================
+    // Функция инициализации фабрики (вызывать только один раз)
+    self.init = function (id, name, data) {
+      current_id       = id;    // Id формуляра
+      current_name     = name;  // Имя формуляра
+      service.old_data = data;  //Данные, полученные с сервера
+
+      //Для нового сервиса
+      if (current_id == 0) {
+        _setMissingFile();
+        _generateNetworkArr();
+        _generateStorageArr();
+      }
+      //Для существующего сервиса
+      else {
+        _setMissingFile(_getOldServiceData('missing_file'));
+        _generateNetworkArr(_getOldServiceData('service_networks'));
+        _generateStorageArr(_getOldServiceData('storage_systems'));
+        _generateParentArr(_getOldServiceData('parents'));
+      }
+
+      _setFirstNetworkElement();
+    };
+
+    // Получить данные об установленных флагах
+    self.getFlags = function (name) {
+      if (name)
+        return additional.flags[name];
+
+      return additional.flags;
+    };
 
     // Получить данные о подключениях к сети
     self.getNetworks = function () {
-      if (self.id == 0)
-        return _generateNetworkArr(true);
-
-      return _generateNetworkArr(false, _get_old_service_data('service_networks'));
+      return service.network;
     };
 
     // Получить данные о подключениях к СХД
     self.getStorages = function () {
-      if (self.id == 0)
-        return _generateStorageArr(true);
-
-      return _generateStorageArr(false, _get_old_service_data('storage_systems'));
+      return service.storages;
     };
 
     // Получить данные о загруженых файлах
     self.getMissingFiles = function () {
-      if (self.id == 0)
-        return _generateMissingFileArr(true);
-
-      return _generateMissingFileArr(false, _get_old_service_data('missing_file'));
+      return additional.missing_file;
     };
 
+    // Получить данные о родителях-сервисах
     self.getParents = function () {
-      if (self.id == 0)
-        return _generateParentArr(true);
-
-      return _generateParentArr(false, _get_old_service_data('parents'));
+      return service.parents;
     };
 
-    //Установить первый элемент для списка подключений к сети в модальном окне "Открытые порты"
-    self.set_first_network_element = function () {
-      var selected_network = null;
-
-      $.each(_service_new_data.networks, function (index, value) {
-        if (value.value != null && value.view != '') {
-          selected_network = value;
-
-          return false;
-        }
-      });
-
-      return selected_network;
+    // Получить список существующих сервисов
+    self.getServices = function () {
+      return service.old_data.services;
     };
 
-    // =============================================== Методы для работы контроллера ===================================
+// =============================================== Методы для работы контроллера =======================================
+
+// =============================================== Работа с подключениями к сети =======================================
 
     // Добавить подключение к сети
     self.addNetwork = function () {
       var
-        index   = _service_new_data.networks[_service_new_data.networks.length - 1].local_id + 1,
+        index   = service.network.values[service.network.values.length - 1].local_id + 1,
         obj     = _checkFirstNetwork(index),
-        params  = _defaultNetworkParams();
+        params  = _defaultNetworkParams(index),
         data    = _singleNetwork(index, params.id, params.destroy, obj.name, obj.is_first, params.view, params.hide, params.value, params.ports);
 
-      _service_new_data.networks.push(data);
-      //$scope.visible_count ++;
+      service.network.values.push(data);
+      _setFirstNetworkElement();
+      visible_network_count++;
     };
 
-    // Получить объект "Подключения к сети" для модального окна
+    // Получить объект "Подключения к сети" для модального окна. Если отсутствует, сначала создать пустой объект
     self.getNetworkTemplate = function (index) {
-      if (_service_new_data.networks[index].value == null)
-        _setNetworkTemplate();
-      else
-        // ОСТАНОВИЛСЯ ЗДЕСЬ. ОСТАВИТЬ ДЕФОЛТНЫЙ NULL
-        _setNetworkTemplate(_service_new_data.networks[index].value);
+      if (service.network.values[index].value == null)
+        service.network.values[index].value = _singleNetworkTemplate('', '', '');
 
-      // Получаем индекс строки, данные о которой необходимо изменить
-      //$scope.index = $index;
-
-      // Если в строке не было данных, создать пустой шаблон для заполнения полей окна "Подключения к сети"
-      //if ($scope.networks[$index].value == null)
-      //  $scope.template_network = {
-      //    segment:  '',
-      //    vlan:     '',
-      //    dns_name: ''
-      //  };
-      // Если данные уже были, заполнить ими строки
-      //else
-      //  $scope.template_network = {
-      //    segment:  $scope.networks[$index].value.segment,
-      //    vlan:     $scope.networks[$index].value.vlan,
-      //    dns_name: $scope.networks[$index].value.dns_name
-      //  };
-      //
-      //modal.modal('show');
-
-      // Добавить автофокус на поле "Сегмент сети" после открытия модального окна "Подключения к сети"
-      //modal.on('shown.bs.modal', function () {
-      //  $("#template_network_segment").focus();
-      //})*/
+      return service.network.values[index].value;
     };
+
+    // Записать новые данные о подключении к сети
+    self.setNetwork = function (index, data) {
+      if (_checkTemplateNetworkPassed(data)) {
+        service.network.values[index].value = data;
+        service.network.values[index].view  = _setNetworkString(data);
+
+        if (!service.network.values[index].ports)
+          service.network.values[index].ports = _defaultPorts(index);
+      }
+      else
+        service.network.values[index].value = null;
+
+      _setFirstNetworkElement();
+    };
+
+    // Удалить подключение к сети
+    self.delNetwork = function (network) {
+      var index = $.inArray(network, service.network.values); // Индекс удаляемого элемента
+
+      // Если количество строк больше двух, то строку можно удалять, иначе необходимо просто стирать данные
+      if (visible_network_count > 2) {
+        if (network.first) { // если удаляется первый элемент, то добавить к седующему надпись "Подключение к сети"
+          var obj = _checkFirstNetwork(0);
+          service.network.values[index + 1].name  = obj.name;
+          service.network.values[index + 1].first = obj.is_first;
+        }
+        if (network.id) {  // Если элемент уже в базе, то установить флаг на удаление
+          service.network.values[index].destroy = 1;
+          service.network.values[index].hide    = true;
+          service.network.values[index].first   = false;
+          service.network.values[index].value   = null;
+        }
+        else
+          service.network.values.splice(index, 1); // Если элемента в базе нет (элемент был только что создан), то удалить элемент из массива
+
+        visible_network_count--;
+      }
+      else {
+        if (network.id)
+          service.network.values[index].destroy = 1;
+
+        service.network.values[index].view  = '';
+        service.network.values[index].value = null;
+      }
+
+      _setFirstNetworkElement();
+    };
+
+// =============================================== Работа с открытыми портами ==========================================
+
+    // Получить список с открытыми портами
+    self.getCurrentPorts = function () {
+      template_ports = [];
+      $.each(service.network.values, function (index, network) {
+        if (network.value)
+          template_ports.push(network.ports);
+      });
+
+      return template_ports;
+    };
+
+    self.setPorts = function (new_ports) {
+      //Сохраняем значения массива template_ports в массив подключений к сети (который отправится на сервер)
+      $.each(new_ports, function (i, port) {
+        $.each(service.network.values, function (j, network) {
+          if (port.local_id == network.local_id) {
+            if (_checkTemplatePortPassed(port))
+              network.ports = port;
+            else
+              network.ports.destroy = 1;
+
+            return false;
+          }
+        });
+      });
+    };
+
+// =============================================== Работа с сервисам-родителями ========================================
 
     // Добавить сервис-родитель
     self.addParent = function () {
       // Провера на количество сервисов (нельзя создать зависимость, если количество сервисов = 1)
-      if (self.services.length == 1 && self.id != 0) { // Если формуляр единственный и он редактируется
+      if (service.old_data.services.length == 1 && current_id != 0) { // Если формуляр единственный и он редактируется
         alert('Для создания зависимостей необходимо добавить больше сервисов');
-        return _parent_arr;
+        return false;
       }
 
       _addParent();
@@ -334,79 +473,72 @@ app.factory('Service', function ($http, $q) {
     // Показать запись "Отсутствуют", если родителей нет
     self.showParents = function () {
       var show = 1;
-      $.each(_service_new_data.parents, function (index, value) {
-        if (!value.destroy) {
+      $.each(service.parents, function (index, parent) {
+        if (!parent.destroy) {
           show = 0;
           return false;
         }
       });
 
-      return show ? true: false
+      return show ? true : false
     };
 
     // Удалить сервис-родитель
     self.delParent = function (parent) {
-      var index = $.inArray(parent, _service_new_data.parents);
+      var index = $.inArray(parent, service.parents);
 
       if (parent.id) // Для уже существующих родителей
-        _service_new_data.parents[index].destroy = 1;
+        service.parents[index].destroy = 1;
       else // Для только что созданных родителей
-        _service_new_data.parents.splice(index, 1);
+        service.parents.splice(index, 1);
     };
 
-    // Отключить ссылку, если файл отсутствует
-    self.disableLink = function (missing, event) {
-      if (missing)
-        event.preventDefault();
-      else {
-        var target = event.target;
+// =============================================== Работа с файлами ====================================================
 
-        if (target.attributes['data-link-type'].value == 'destroy') {
-          var is_destroy = confirm('Вы действительно хотите удалить ' + target.attributes['data-type'].value);
+    self.removeFile = function (event) {
+      var
+        target = event.target,
+        confirm_str = 'Вы действительно хотите удалить ';
 
-          if (!is_destroy)
-            event.preventDefault();
-        }
+      switch (target.attributes['data-type'].value) {
+        case 'scan':
+          confirm_str += 'скан?';
+          break;
+        case 'act':
+          confirm_str += 'акт? ';
+          break;
+        case 'instr_rec':
+          confirm_str += 'инструкцию по восстановлению? ';
+          break;
+        case 'instr_off':
+          confirm_str += 'инструкцию по отключению? ';
+          break;
+        default:
+          confirm_str += 'файл?';
       }
+
+      if (!confirm(confirm_str))
+        return false;
+
+      $http.delete(target.attributes.href.value + '.json').success(function (data, status) {
+        if (status == 200) {
+          Flash.notice(data.message);
+          _setMissingFile(data.missing_file);
+        }
+        else
+          Flash.alert(data.message);
+      });
     };
 
-    //self.networkModal = function (flag) {
-    //  if (flag === undefined)
-    //
-    //}
+// =============================================== Работа с флагами ====================================================
 
-    //self.network =
+    // Установить значение флага
+    self.setFlag = function (name, value) {
+      additional.flags[name] = value;
 
-    // =============================================== Основной поток фабрики ==========================================
-
-    // Запрос на сервер для получения всей необходимой информации о текущем сервисе (в случае редактирования), а так же
-    // всех остальных сервисов
-    //_initialRequest(self.id, self.name);
-    //console.log(_get_old_service_data());
+      // Для модального окна "Открытые порты" каждый раз, когда окно закрывается, устанавливать первый элемент списка подключений к сети выбранным в select.
+      if (name == 'portModal' && !value)
+        _setFirstNetworkElement();
+    };
   }
-});
-
-// Фабрика для выполнения GET запроса на сервер для получения всей информации о сервисе
-// id - id сервиса
-// name - имя сервиса
-app.factory('GetServiceData', function ($http, $q) {
-  return {
-    ajax: function (id, name) {
-      var deferred = $q.defer(); // создаем экземпляр должника
-
-      if (id == 0)
-        $http.get('/services/new.json')
-          .success(function (data, status, header, config) {
-            deferred.resolve(data);
-          });
-      else
-        $http.get('/services/' + name + '/edit.json')
-          .success(function (data, status, header, config) {
-            deferred.resolve(data);
-            //self.current_name  = data.current_name; // current_name необходим для исключения этого имени из списка родителей-сервисов
-          });
-
-      return deferred.promise;
-    }
-  }
-});
+})();

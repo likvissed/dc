@@ -10,7 +10,8 @@
           .col-xs-12
             - error_class = @server.errors[:server_status_id].empty? ? "" : "has-error"
             %div{ class: error_class }
-              %label.control-label{ for: "server_server_type_id" }
+              -#%label.control-label{ for: "server_server_status_id" }
+              = label_tag :server_server_status_id , class: "control-label" do
                 %h5
                   %abbr{ title: "required" } *
                   %b Статус сервера
@@ -21,7 +22,8 @@
           .col-xs-12
             - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
             %div{ class: error_class }
-              %label.control-label{ for: "server_server_type_id" }
+              -#%label.control-label{ for: "server_server_type_id" }
+              = label_tag :server_server_type_id , class: "control-label" do
                 %h5
                   %abbr{ title: "required" } *
                   %b Тип сервера
@@ -39,8 +41,8 @@
           .col-xs-2
             = text_field_tag "server[real_server_details_attributes][{{ $index }}][count]", "{{ detail.count }}", class: "form-control count-width", "ng-model": "detail.count"
 
-          = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", "stop-click": true, "ng-click": "addServPart()"
-          = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", "stop-click": true, "ng-click": "delServPart(detail)"
+          = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", type: "button", "ng-click": "addServPart()"
+          = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", type: "button", "ng-click": "delServPart(detail)"
 
       .content-footer
         = s.button :submit, "Готово", class: "btn-success"

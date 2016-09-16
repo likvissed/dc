@@ -1,4 +1,6 @@
 ru:
+#  errors:
+#    format: "%{message}"
   views:
     pagination:
       first: "&laquo; Перв."

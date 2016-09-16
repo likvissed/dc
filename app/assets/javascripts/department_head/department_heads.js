@@ -1,5 +1,5 @@
 $(function () {
-  $('#departmentHeadTable').DataTable({
+/*  $('#departmentHeadTable').DataTable({
     dom: '<"row"<"#add_dep_block.col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"><"col-md-2"f>>',
     ajax: {
       url:    'department_heads.json',
@@ -42,4 +42,5 @@ $(function () {
       ChangeSearchFilter();
     }
   });
+  */
 });

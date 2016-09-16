@@ -4,7 +4,7 @@ class ServicesController < ApplicationController
 
   before_action { |ctrl| ctrl.check_for_cancel services_path }
   before_action :find_service_by_name,  only: [:edit, :update]
-  before_action :find_service_by_id,    only: [:show, :destroy]
+  before_action :find_service_by_id,    only: [:show, :destroy, :download_file, :generate_file, :destroy_file]
   before_action :get_dept,              only: [:create, :update]
 
   def index
@@ -61,11 +61,7 @@ class ServicesController < ApplicationController
   def show
     respond_to do |format|
       # Массив с флагами отсутствия файлов скана/акта/инструкций
-      missing_file              = {}
-      missing_file[:scan]       = !@service.scan.exists?
-      missing_file[:act]        = !@service.act.exists?
-      missing_file[:instr_rec]  = !@service.instr_rec.exists?
-      missing_file[:instr_off]  = !@service.instr_off.exists?
+      missing_file = get_missing_files
 
       format.json do
         render json: {
@@ -100,7 +96,12 @@ class ServicesController < ApplicationController
       flash[:notice] = "Данные добавлены."
       redirect_to action: :index
     else
-      flash.now[:alert] = "Ошибка добавления данных. #{ @service.errors.full_messages.join(", ") }"
+      @service.errors.delete(:scan)
+      @service.errors.delete(:act)
+      @service.errors.delete(:instr_rec)
+      @service.errors.delete(:instr_off)
+
+      flash.now[:alert] = @service.errors.full_messages.join(". ")
       render :new
     end
   end
@@ -151,7 +152,12 @@ class ServicesController < ApplicationController
       flash[:notice] = "Данные изменены"
       redirect_to action: :index
     else
-      flash.now[:alert] = "Ошибка изменения данных. #{ @service.errors.full_messages.join(", ") }"
+      @service.errors.delete(:scan)
+      @service.errors.delete(:act)
+      @service.errors.delete(:instr_rec)
+      @service.errors.delete(:instr_off)
+
+      flash.now[:alert] = @service.errors.full_messages.join(". ")
       render :edit
     end
   end
@@ -160,30 +166,59 @@ class ServicesController < ApplicationController
     if @service.destroy
       flash[:notice] = "Данные удалены"
     else
-      flash[:alert] = "Ошибка удаления данных. #{ @service.errors.full_messages.join(", ") }"
+      flash[:alert] = "Ошибка удаления данных. #{ @service.errors.full_messages.join(". ") }"
     end
     redirect_to action: :index
   end
 
-  def download
-    @service = Service.find(params[:id])
+  def download_file
     case params[:file]
-      when "scan"
+      when 'scan'
         send_file @service.scan.path, filename: @service.scan_file_name, type: @service.scan_content_type, disposition: 'attachment'
-      when "act"
+      when 'act'
         send_file @service.act.path, filename: @service.act_file_name, type: @service.act_content_type, disposition: 'attachment'
-      when "instr_rec"
+      when 'instr_rec'
         send_file @service.instr_rec.path, filename: @service.instr_rec_file_name, type: @service.instr_rec_content_type, disposition: 'attachment'
-      when "instr_off"
+      when 'instr_off'
         send_file @service.instr_off.path, filename: @service.instr_off_file_name, type: @service.instr_off_content_type, disposition: 'attachment'
       else
         render_404
     end
   end
 
-  def generate
-    @service = Service.find(params[:id])
+  def generate_file
     send_data @service.generate_rtf(params[:type]), filename: "#{@service.name}.rtf", type: "application/rtf", disposition: "attachment"
+  end
+
+  def destroy_file
+
+    status  = :ok
+    message = "Файл удален."
+
+    case params[:file]
+      when 'scan'
+        @service.scan.clear
+      when 'act'
+        @service.act.clear
+      when 'instr_rec'
+        @service.instr_rec.clear
+      when 'instr_off'
+        @service.instr_off.clear
+      else
+        status  = :not_found
+        message = "Файл не найден."
+    end
+
+    unless status != :not_fount && @service.save
+      status  = :unprocessable_entity
+      message = "Ошибка. #{ @service.errors.full_messages.join(", ") }"
+    end
+
+    respond_to do |format|
+      format.json do
+        render json: { status: status, message: message, missing_file: get_missing_files(true) }
+      end
+    end
   end
 
   private
@@ -250,6 +285,7 @@ class ServicesController < ApplicationController
       :exploitation,
       :comment,
       :name_monitoring,
+      :cluster_ids,
       service_networks_attributes: [
         :id,
         :service_id,
@@ -296,6 +332,18 @@ class ServicesController < ApplicationController
       else
         "Не определен"
     end
+  end
+
+  def get_missing_files(reload = false)
+    @service.reload if reload
+
+    missing_file              = {}
+    missing_file[:scan]       = !@service.scan.exists?
+    missing_file[:act]        = !@service.act.exists?
+    missing_file[:instr_rec]  = !@service.instr_rec.exists?
+    missing_file[:instr_off]  = !@service.instr_off.exists?
+
+    missing_file
   end
 
 end
