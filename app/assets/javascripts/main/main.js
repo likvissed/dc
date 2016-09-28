@@ -1,13 +1,17 @@
 var app = angular
   .module('DataCenter', [
     'ngResource',
-    'datatables'
+    'datatables',
+    'ui.bootstrap'
   ]);
 
-app.config(['$resourceProvider', function($resourceProvider) {
-  // Don't strip trailing slashes from calculated URLs
-  $resourceProvider.defaults.stripTrailingSlashes = false;
-}]);
+(function () {
+  app
+    .config(['$resourceProvider', function($resourceProvider) {
+      // Don't strip trailing slashes from calculated URLs
+      $resourceProvider.defaults.stripTrailingSlashes = false;
+    }]);
+})();
 
 $(function() {
   'use strict';

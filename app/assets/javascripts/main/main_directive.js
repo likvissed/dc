@@ -1,9 +1,13 @@
 (function() {
   app
     .directive('disableLink', disableLink)
-    .directive('modalShow', ['$parse', modalShow])
-    .directive('datatableWrapper', ['$timeout', '$compile', datatableWrapper])
-    .directive('newRecord', ['$templateRequest', '$compile', '$parse', newRecord]);
+    .directive('modalShow', modalShow)
+    .directive('datatableWrapper', datatableWrapper)
+    .directive('newRecord', newRecord);
+
+  modalShow.$inject         = ['$parse'];
+  datatableWrapper.$inject  = ['$timeout', '$compile'];
+  newRecord.$inject         = ['$templateRequest', '$compile', '$parse'];
 
   // Отключить переход по ссылке
   function disableLink() {
@@ -69,28 +73,37 @@
     };
 
     function link(scope, element, attrs) {
-      $timeout(function () {
-        $compile(element.find('.new-record'))(scope);
-      }, 150, false);
+      function compileElements() {
+        $timeout(function () {
+          $compile(element.find('.service-filter'))(scope);
+          $compile(element.find('.new-record'))(scope);
+        }, 0, false);
+      }
+
+      compileElements();
+
+      scope.$watch(
+        function (scope) {
+          if (scope.servicePage)
+            return scope.servicePage.selectedOption
+        },
+        function () {
+          compileElements();
+        },
+        true
+      )
     }
   }
 
   // Для таблицы DataTable добавить кнопку "Добавить", если у пользователя есть доступ
   // Необходимо добавить в атрибут id имя контроллера, на который отправится запрос
-  function newRecord($templateRequest, $compile, $parse) {
+  function newRecord() {
     return {
       restrict: 'C',
       //template: '<button class="btn-sm btn btn-primary btn-block" ng-click="contactPage.showContactModal()">Добавить</button>'
       templateUrl: function (element, attrs) {
         return '/' + attrs.id + '/link_to_new_record.json';
       }
-      //link: function (scope, element, attrs) {
-      //  $templateRequest('/' + attrs.id + '/link_to_new_record.json').then(function (html) {
-      //    var template = angular.element(html);
-      //    element.append(template);
-      //    $compile(template)(scope);
-      //  });
-      //}
     }
   }
 })();

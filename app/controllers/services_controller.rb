@@ -11,7 +11,7 @@ class ServicesController < ApplicationController
     respond_to do |format|
       format.html { render :index }
       format.json do
-        @service = Service.select(
+        values = [
           :id,
           :number,
           :dept,
@@ -20,7 +20,34 @@ class ServicesController < ApplicationController
           :time_work,
           :contact_1_id,
           :contact_2_id
-        )
+        ]
+
+        @service = case params[:filter]
+                     when 'crit'
+                       Service.select(values).where(priority: "Критическая производственная задача")
+                     when '712'
+                       Service.select(values).where(dept: 712)
+                     when '713'
+                       Service.select(values).where(dept: 713)
+                     when '***REMOVED***'
+                       Service.select(values).where(dept: ***REMOVED***)
+                     when '***REMOVED***'
+                       Service.select(values).where(dept: ***REMOVED***)
+                     when '200'
+                       Service.select(values).where("dept LIKE ('2%')")
+                     when 'notUivt'
+                       Service.select(values).where("dept <> 712 and dept <> 713 and dept <> ***REMOVED*** and dept <> ***REMOVED***")
+                     when 'virt***REMOVED***'
+                       Service.select(values).where("environment LIKE ('%кластер производственной виртуализации VMware')")
+                     when 'virt***REMOVED***'
+                       Service.select(values).where("environment LIKE ('%система виртуализации о.***REMOVED***%')")
+                     when 'virtNetLAN'
+                       Service.select(values).where("environment LIKE ('%система производственной виртуализации ЛВС сетевой службы%')")
+                     when 'virtNetDMZ'
+                       Service.select(values).where("environment LIKE ('%система производственной виртуализации ДМЗ сетевой службы%')")
+                     else
+                       Service.select(values)
+        end
 
         data = @service.as_json(
           include: {
@@ -28,7 +55,6 @@ class ServicesController < ApplicationController
             contact_2: { only: :info }
           },
           except: [:created_at, :updated_at]).each do |s|
-            s['DT_RowId']   = s['id']
             s['priority']   = "#"
             s['time_work']  = short_time_work(s['time_work'])
 
@@ -49,11 +75,8 @@ class ServicesController < ApplicationController
             s['act']        = ""
             s['instr_rec']  = ""
             s['instr_off']  = ""
-            s['del']        = "<a href='/services/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
-  title='Удалить' data-confirm='Вы действительно хотите удалить формуляр \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
-            s.delete('id')
           end
-        render json: { data: data }
+        render json: data
       end
     end
   end
@@ -64,17 +87,17 @@ class ServicesController < ApplicationController
       missing_file = get_missing_files
 
       format.json do
+        service = @service.as_json(except: [:id, :contact_1_id, :contact_2_id, :created_at, :updated_at])
+
+        # Установить номер формуляра
+        service['number'] = @service.get_service_number
+
         render json: {
-          service: @service.as_json(
-            include: {
-              contact_1: { only: :info },
-              contact_2: { only: :info },
-              service_networks: { only: [:dns_name, :segment, :vlan] },
-              storage_systems: { only: :name }
-            },
-            except: [:id, :contact_1_id, :contact_2_id, :created_at, :updated_at]),
+          service:      service,
+          networks:     @service.get_service_networks,
+          storages:     @service.get_service_storages,
           missing_file: missing_file,
-          contacts: @service.get_contacts(:formular)
+          contacts:     @service.get_contacts(:formular)
         }
       end
     end
@@ -164,13 +187,17 @@ class ServicesController < ApplicationController
 
   def destroy
     if @service.destroy
-      flash[:notice] = "Данные удалены"
+      respond_to do |format|
+        format.json { render json: { full_message: "Формуляр удален" }, status: :ok }
+      end
     else
-      flash[:alert] = "Ошибка удаления данных. #{ @service.errors.full_messages.join(". ") }"
+      respond_to do |format|
+        format.json { render json: { full_message: "Ошибка. #{ @service.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+      end
     end
-    redirect_to action: :index
   end
 
+  # Скачать файл (формуляр/акт/инструкцию по отключению/инструкцию по восстановлению)
   def download_file
     case params[:file]
       when 'scan'
@@ -186,10 +213,12 @@ class ServicesController < ApplicationController
     end
   end
 
+  # Создать файл (формуляр/акт)
   def generate_file
     send_data @service.generate_rtf(params[:type]), filename: "#{@service.name}.rtf", type: "application/rtf", disposition: "attachment"
   end
 
+  # Удалить файл (формуляр/акт/инструкцию по отключению/инструкцию по восстановлению)
   def destroy_file
 
     status  = :ok
@@ -218,6 +247,15 @@ class ServicesController < ApplicationController
       format.json do
         render json: { status: status, message: message, missing_file: get_missing_files(true) }
       end
+    end
+  end
+
+  # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
+  # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
+  def link_to_new_record
+    link = create_link_to_new_record :page, Service, "/services/new"
+    respond_to do |format|
+      format.json { render json: link }
     end
   end
 

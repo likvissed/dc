@@ -1,14 +1,7 @@
-= title "Комплектующие серверов"
-.default-content
+= title "Комплектующие"
+.default-content{ "ng-controller": "ServerPartIndexCtrl as serverPartPage" }
   .content-body
-    = button_to "Добавить", new_server_part_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_server_part_form" }
-    %table.table.table-hover#servPartTable
-      %thead
-        %tr
-          %th.col-md-1 #
-          %th Имя
-          %th Тип
-          %th.col-md-2 Номер
-          %th.col-md-1
+    %datatable-wrapper
+      %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPartPage.dtOptions", "dt-columns": "serverPartPage.dtColumns", "dt-instance": "serverPartPage.dtInstance" }
 
-= render partial: "preview"
+  = render partial: "preview"

@@ -8,7 +8,7 @@ class DepartmentHeadsController < ApplicationController
   def index
     respond_to do |format|
       format.html
-      format.json { render json: DepartmentHead.all.as_json(except: [:id, :created_at, :updated_at]) }
+      format.json { render json: DepartmentHead.select(:tn, :dept, :info) }
     end
   end
 
@@ -61,7 +61,7 @@ class DepartmentHeadsController < ApplicationController
   # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
   # Запрос отсылается из JS файла при инициализации таблицы "Руководители"
   def link_to_new_record
-    link = create_link_to_new_record DepartmentHead, "ng-click='depHeadPage.showHeadModal()"
+    link = create_link_to_new_record :modal, DepartmentHead, "ng-click='depHeadPage.showHeadModal()"
     respond_to do |format|
       format.json { render json: link }
     end

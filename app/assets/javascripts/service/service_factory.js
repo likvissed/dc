@@ -2,32 +2,9 @@
   'use strict';
 
   app
-    .factory('GetServiceData', ['$http', '$q', GetServiceData])
-    .service('Service', ['$http', 'Flash', Service]);
+    .service('Service', Service);
 
-  // Фабрика для выполнения GET запроса на сервер для получения всей информации о сервисе
-  // id - id сервиса
-  // name - имя сервиса
-  function GetServiceData($http, $q) {
-    return {
-      ajax: function (id, name) {
-        var deferred = $q.defer(); // создаем экземпляр должника
-
-        if (id == 0)
-          $http.get('/services/new.json')
-            .success(function (data, status, header, config) {
-              deferred.resolve(data);
-            });
-        else
-          $http.get('/services/' + name + '/edit.json')
-            .success(function (data, status, header, config) {
-              deferred.resolve(data);
-            });
-
-        return deferred.promise;
-      }
-    };
-  }
+  Service.$inject = ['$http', 'Flash'];
 
   function Service($http, Flash) {
     var self = this;

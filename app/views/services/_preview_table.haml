@@ -9,33 +9,33 @@
     %tr
       %td
         %b Наименование сервиса
-      %td{ "data-name": "name" }
+      %td{ "ng-bind": "preview.service.name" }
     %tr
       %td{ colspan: 2 }
         %b Краткое описание сервиса
     %tr
-      %td{ colspan: 2, "data-name": "descr" }
+      %td{ colspan: 2, "ng-bind": "preview.service.descr" }
     %tr
       %td
         %b Приоритет функционирования
-      %td{ "data-name": "priority" }
+      %td{ "ng-bind": "preview.service.priority" }
     %tr
       %td
         %b Режим гарантированной доступности
-      %td{ "data-name": "time_work" }
+      %td{ "ng-bind": "preview.service.time_work" }
     %tr
       %td
         %b Максимальное время восстановления
-      %td{ "data-name": "max_time_rec" }
+      %td{ "ng-bind": "preview.service.max_time_rec" }
     %tr
       %td{ colspan: 2 }
         %b Ответственные за исполнение сервиса
     %tr
       %td Основной ответственный
-      %td{ "data-name": "contact_1" }
+      %td{ "ng-bind": "preview.contacts.first" }
     %tr
       %td Вторичный контакт
-      %td{ "data-name": "contact_2" }
+      %td{ "ng-bind": "preview.contacts.second" }
     %tr
 
     -# =============================================== Характеристики среды исполнения =============================
@@ -48,41 +48,41 @@
         %td{ colspan: 2 }
           %b Среда исполнения
       %tr
-        %td{ colspan: 2, "data-name": "environment" }
+        %td{ colspan: 2, "ng-bind": "preview.service.environment" }
       %tr
         %td
           %b Операционная система
-        %td{ "data-name": "os" }
+        %td{ "ng-bind": "preview.service.os" }
       %tr
         %td
           %b Ключевой программный компонент
-        %td{ "data-name": "component_key" }
+        %td{ "ng-bind": "preview.service.component_key" }
       %tr
         %td{ colspan: 2 }
           %b Требования к вычислительным ресурсам
       %tr
         %td Количество ядер процессора
-        %td{ "data-name": "kernel_count" }
+        %td{ "ng-bind": "preview.service.kernel_count" }
       %tr
         %td Тактовая частота процессора
-        %td{ "data-name": "frequency" }
+        %td{ "ng-bind": "preview.service.frequency" }
       %tr
         %td Объем оперативной памяти
-        %td{ "data-name": "memory" }
+        %td{ "ng-bind": "preview.service.memory" }
       %tr
         %td Объем дискового пространства
-        %td{ "data-name": "disk_space" }
+        %td{ "ng-bind": "preview.service.disk_space" }
       %tr
         %td Скорость обмена с жестким диском
-        %td{ "data-name": "hdd_speed" }
+        %td{ "ng-bind": "preview.service.hdd_speed" }
       %tr
         %td Скорость сетевого соединения
-        %td{ "data-name": "network_speed" }
+        %td{ "ng-bind": "preview.service.network_speed" }
       %tr
         %td{ colspan: 2 }
           %b Дополнительные требования к среде исполнения
       %tr
-        %td{ colspan: 2, "data-name": "additional_require" }
+        %td{ colspan: 2, "ng-bind": "preview.service.additional_require" }
       %tr
 
       -# =============================================== Резервное копирование и восстановление ====================
@@ -95,33 +95,33 @@
           %td{ colspan: 2 }
             %b Краткое описание процедуры резервного копирования
         %tr
-          %td{ colspan: 2, "data-name": "backup_manual" }
+          %td{ colspan: 2, "ng-bind": "preview.service.backup_manual" }
         %tr
           %td{ colspan: 2 }
             %b Краткое описание процедуры восстановления данных
         %tr
-          %td{ colspan: 2, "data-name": "recovery_manual" }
+          %td{ colspan: 2, "ng-bind": "preview.service.recovery_manual" }
         %tr
           %td{ colspan: 2 }
             %b Параметры резервного копирования
         %tr
           %td Оценка объемов данных для копирования
-          %td{ "data-name": "value_backup_data" }
+          %td{ "ng-bind": "preview.service.value_backup_data" }
         %tr
           %td Срок хранения старейшей копии
-          %td{ "data-name": "storage_time" }
+          %td{ "ng-bind": "preview.service.storage_time" }
         %tr
           %td Хранилище резервных копий
-          %td{ "data-name": "store_copies" }
+          %td{ "ng-bind": "preview.service.store_copies" }
         %tr
           %td Оценка объема резервной копии
-          %td{ "data-name": "backup_volume" }
+          %td{ "ng-bind": "preview.service.backup_volume" }
         %tr
           %td Окно резервного копирования
-          %td{ "data-name": "backup_window" }
+          %td{ "ng-bind": "preview.service.backup_window" }
         %tr
           %td Время восстановления данных
-          %td{ "data-name": "time_recovery" }
+          %td{ "ng-bind": "preview.service.time_recovery" }
         %tr
 
       -# =============================================== Отказоустойчивость ========================================
@@ -135,32 +135,32 @@
             %b Обеспечение надежности
         %tr
           %td Дублирование блоков питания
-          %td{ "data-name": "duplicate_ps" }
+          %td{ "ng-bind": "preview.service.duplicate_ps" }
         %tr
           %td RAID-массив
-          %td{ "data-name": "raid" }
+          %td{ "ng-bind": "preview.service.raid" }
         %tr
           %td Агрегация сетевых портов
-          %td{ "data-name": "bonding" }
+          %td{ "ng-bind": "preview.service.bonding" }
         %tr
           %td Другое
-          %td{ "data-name": "other" }
+          %td{ "ng-bind": "preview.service.other" }
         %tr
           %td
             %b Обеспечение отказоустойчивости
-          %td{ "data-name": "resiliency" }
+          %td{ "ng-bind": "preview.service.resiliency" }
         %tr
           %td
             %b Время восстановления после отказа
-          %td{ "data-name": "time_after_failure" }
+          %td{ "ng-bind": "preview.service.time_after_failure" }
         %tr
           %td
             %b Обеспечение катастрофоустойчивости
-          %td{ "data-name": "disaster_rec" }
+          %td{ "ng-bind": "preview.service.disaster_rec" }
         %tr
           %td
             %b Время возобновления после катастрофы
-          %td{ "data-name": "time_after_disaster" }
+          %td{ "ng-bind": "preview.service.time_after_disaster" }
         %tr
 
       -# =============================================== Подключение к сетям передачи и хранения данных ============
@@ -169,23 +169,14 @@
         %tr
           %th{ colspan: 2 } Подключение к сетям передачи и хранения данных
       %tbody
-        %tr
+        %tr{ "ng-repeat": "network in preview.networks" }
           %td
-            %b Подключения к сети
-          %td{ "data-name": "network_name[0]" }
-        %tr
+            %b{ "ng-bind": "network.name" }
+          %td{ "ng-bind": "network.value" }
+        %tr{ "ng-repeat": "storage in preview.storages" }
           %td
-          %td{ "data-name": "network_name[1]" }
-        %tr.hide{ "data-name": "network_template", "data-position": "last" }
-          %td
-          %td
-        %tr
-          %td
-            %b Подключение к СХД
-          %td{ "data-name": "storage_name[0]" }
-        %tr
-          %td
-          %td{ "data-name": "storage_name[1]" }
+            %b{ "ng-bind": "storage.name" }
+          %td{ "ng-bind": "storage.value" }
         %tr
 
       -# =============================================== Защита информации и разграничение доступа =================
@@ -199,22 +190,22 @@
             %b Меры обеспечения информационной безопасности
         %tr
           %td Антивирусные средства
-          %td{ "data-name": "antivirus" }
+          %td{ "ng-bind": "preview.service.antivirus" }
         %tr
           %td Межсетевое экранирование
-          %td{ "data-name": "firewall" }
+          %td{ "ng-bind": "preview.service.firewall" }
         %tr
           %td UAC/AppArmor/SELinux
-          %td{ "data-name": "uac_app_selinux" }
+          %td{ "ng-bind": "preview.service.uac_app_selinux" }
         %tr
           %td Сертифицированные СЗИ НСД
-          %td{ "data-name": "szi" }
+          %td{ "ng-bind": "preview.service.szi" }
         %tr
           %td{ colspan: 2 }
             %b Разграничение доступа
         %tr
           %td Доступ в интернет
-          %td{ "data-name": "internet" }
+          %td{ "ng-bind": "preview.service.internet" }
         %tr
           %td Сетевые порты, доступные из ЛС
           %td
@@ -238,19 +229,19 @@
         %tr
           %td
             %b Метод мониторинга доступности сервиса
-          %td{ "data-name": "type_mon" }
+          %td{"ng-bind": "preview.service.type_mon" }
         %tr
           %td
             %b Мониторинг доступности сервиса
-          %td{ "data-name": "service_mon" }
+          %td{ "ng-bind": "preview.service.service_mon" }
         %tr
           %td
             %b Мониторинг работы аппаратных средств
-          %td{ "data-name": "hardware_mon" }
+          %td{ "ng-bind": "preview.service.hardware_mon" }
         %tr
           %td
             %b Мониторинг безопасности
-          %td{ "data-name": "security_mon" }
+          %td{ "ng-bind": "preview.service.security_mon" }
         %tr
 
       -# =============================================== Дополнительные данные =====================================
@@ -260,7 +251,7 @@
           %th{ colspan: 2 } Дополнительные данные
       %tbody
         %tr
-          %td{ colspan: 2, "data-name": "additional_data" }
+          %td{ colspan: 2, "ng-bind": "preview.service.additional_data" }
         %tr
 
       %thead
@@ -268,7 +259,7 @@
           %th{ colspan: 2 } Комментарий
       %tbody
         %tr
-          %td{ colspan: 2, "data-name": "comment" }
+          %td{ colspan: 2, "ng-bind": "preview.service.comment" }
         %tr
           %td Имя в системе мониторинга
-          %td{ "data-name": "name_monitoring" }
+          %td{ "ng-bind": "preview.service.name_monitoring" }

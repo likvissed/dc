@@ -17,15 +17,17 @@ class ServerPartsController < ApplicationController
           @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id).where("detail_type_id = ?", params[:detail_type_val])
         end
 
-        data = @server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
-          s['DT_RowId'] = s['id']
-          s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete'
-rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa
-fa-trash-o fa-1g'></a>"
-          s.delete('id')
-          s.delete('detail_type_id')
-        end
-        render json: { data: data, detail_types: @detail_types }
+        # data = @server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
+        #   s['DT_RowId'] = s['id']
+        #   s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete'
+# rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa
+# fa-trash-o fa-1g'></a>"
+#           s.delete('id')
+#           s.delete('detail_type_id')
+#         end
+#         render json: { data: data, detail_types: @detail_types }
+
+        render json: @server_parts.as_json(include: { detail_type: { only: :name } })
       end
     end
   end
@@ -74,11 +76,23 @@ fa-trash-o fa-1g'></a>"
 
   def destroy
     if @server_part.destroy
-      flash[:notice] = "Данные удалены"
+      respond_to do |format|
+        format.json { render json: { full_message: "Данные удалены" }, status: :ok }
+      end
     else
-      flash[:alert] = "Ошибка удаления данных. #{ @server_part.errors.full_messages.join(", ") }"
+      respond_to do |format|
+        format.json { render json: { full_message: "Ошибка. #{ @server_part.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+      end
     end
-    redirect_to action: :index
+  end
+
+  # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
+  # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
+  def link_to_new_record
+    link = create_link_to_new_record :page, ServerPart, "/server_parts/new"
+    respond_to do |format|
+      format.json { render json: link }
+    end
   end
 
   private

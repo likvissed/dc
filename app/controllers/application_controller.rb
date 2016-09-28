@@ -37,11 +37,19 @@ class ApplicationController < ActionController::Base
   # Создать html-строку с содержимым, зависящим от прав доступа пользователя
   # Запрос на данный метод генерирует директива addRecord, которая рендерит полученную строку.
   #
-  # object - модель
-  # params - строка, содержащая дополнительные аттрибуты, необходиые для html тега
-  def create_link_to_new_record(object, params)
+  # type    - тип контента, на который будет ссылаться ссылка
+  #   (modal - модальное окно текущей страницы, page - новая страница)
+  # object  - модель
+  # params  - строка, содержащая атрибуты, необходиые для html тега (для разных типо разные атрибуты)
+  def create_link_to_new_record(type, object, params)
     if can? :manage, object
-      "<button class='btn-sm btn btn-primary btn-block' #{params}'>Добавить</button>"
+      if type == :modal
+        "<button class='btn btn-primary btn-block' #{params}'>Добавить</button>"
+      elsif type == :page
+        "<form class='button_to' method='get' action='#{params}'>
+          <input class='btn btn-primary btn-block' type='submit' value='Добавить'>
+        </form>"
+      end
     else
       ""
     end

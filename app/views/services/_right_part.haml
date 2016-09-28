@@ -11,7 +11,7 @@
         %td
           Зависимости сервиса
         %td.min-td
-          = icon("fa fa-plus-circle fa-lg", title: "Добавить зависимость", "ng-click": "dependence.addParent()")
+          = icon("fa fa-plus-circle fa-lg", "tooltip-placement": "top", "uib-tooltip": "Добавить зависимость", "ng-click": "dependence.addParent()")
   .panel-body
     %div.ng-hide{ "ng-show": "service.showParents()" } Отсутствуют
 
@@ -24,5 +24,5 @@
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][id]", "{{ parent.id }}"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"
           %td.min-td
-            = icon("fa fa-minus-circle fa-lg", title: "Удалить зависимость", "ng-click": "dependence.delParent(parent)")
+            = icon("fa fa-minus-circle fa-lg", "tooltip-placement": "top", "uib-tooltip": "Удалить зависимость", "ng-click": "dependence.delParent(parent)")
         %tr.empty{ "ng-show": "!$last" }

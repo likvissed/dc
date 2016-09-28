@@ -1,8 +1,7 @@
-.modal.fade#modal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "modal-show": "servicePage.previewModal" }
   .modal-dialog.preview-service-table
-    .modal-content
+    .modal-content{ "ng-controller": "ServicePreviewCtrl as preview" }
       .modal-header
-
         - if can? :manage, Service
           .pull-right
             .btn-group
@@ -10,22 +9,26 @@
                 Скачать
                 %span.caret
               %ul.dropdown-menu
-                %li= link_to "Формуляр", "#", "data-link-type": "download", "data-name": "scan"
-                %li= link_to "Акт", "#", "data-link-type": "download", "data-name": "act"
-                %li= link_to "Инструкцию по откл.", "#", "data-link-type": "download", "data-name": "instr_off"
-                %li= link_to "Инструкцию по восст.", "#", "data-link-type": "download", "data-name": "instr_rec"
+                %li{ "ng-class": "{ disabled: preview.missing_file.scan }", "disable-link": "preview.missing_file.scan" }
+                  = link_to "Формуляр", "", "ng-href": "/services/{{servicePage.id}}/download/scan"
+                %li{ "ng-class": "{ disabled: preview.missing_file.act }", "disable-link": "preview.missing_file.act" }
+                  = link_to "Акт", "", "ng-href": "/services/{{servicePage.id}}/download/act"
+                %li{ "ng-class": "{ disabled: preview.missing_file.instr_off }", "disable-link": "preview.missing_file.instr_off" }
+                  = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{servicePage.id}}/download/instr_off"
+                %li{ "ng-class": "{ disabled: preview.missing_file.instr_rec }", "disable-link": "preview.missing_file.instr_rec" }
+                  = link_to "Инструкцию по восст.", "", "ng-href": "/services/{{servicePage.id}}/download/instr_rec"
 
             .btn-group
               = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do
-                Сгенерировать
+                Создать
                 %span.caret
               %ul.dropdown-menu
-                %li= link_to "Формуляр", "#", "data-name": "gen_formular"
-                %li= link_to "Акт", "#", "data-name": "gen_act"
+                %li= link_to "Формуляр", "#", "ng-href": "/services/{{servicePage.id}}/generate/formular"
+                %li= link_to "Акт", "#", "ng-href": "/services/{{servicePage.id}}/generate/act"
 
-            = link_to icon("fa fa-cog fa-fw"), "#", class: "btn btn-default default-color", title: "Редактировать", "data-id": "changeData"
+            = link_to icon("fa fa-cog fa-fw"), "", class: "btn btn-default default-color", "ng-href": "/services/{{ preview.service.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать сервис"
 
-        %h3.modal-title
+        %h3.modal-title{ "ng-bind": "preview.service.number" }
 
       .modal-body
         = render partial: "preview_table"

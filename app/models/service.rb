@@ -1,7 +1,5 @@
 class Service < ActiveRecord::Base
 
-  before_save :check_exploitation
-
   resourcify
 
   has_many :service_networks, dependent: :destroy
@@ -92,38 +90,123 @@ class Service < ActiveRecord::Base
   # errors.delete(:scan)
 
   # Получить всех ответственных
-  # type - передается функции get_contact (:formular - для формуляра, :act - для акта)
+  # type - передается функции get_contact (:formular - для таблицы формуляра в виде строки, :obj - в виде объектов)
   def get_contacts(type)
-    contacts          = {}
-    contacts[:first]  = get_contact(:first, type)
-    contacts[:second] = get_contact(:second, type)
+    contacts = {}
+
+    if type == :formular
+      contacts[:first] = get_contact :first, :formular
+      contacts[:second] = get_contact :second, :formular
+    else
+      contacts[:first]  = self.contact_1
+      contacts[:second] = self.contact_2
+    end
 
     contacts
   end
 
   # Сгенерировать формуляр/акт
+  #
+  # type - тип файла (formulat - формуляр, act - акт)
   def generate_rtf(type)
-
-    file = if type == "formular"
-      data = { data: self.as_json, contacts: get_contacts(:formular) }
-      IO.popen("php #{Rails.root}/lib/generateFormular.php '#{data}'")
+    # Начальник отдела ответственного за сервис (пустая строка, если не определен в базе)
+    head = if self.contact_1.department_head.nil?
+             ''
            else
-      data = { data: self, contacts: get_contacts(:act) }.to_json
-      IO.popen("php #{Rails.root}/lib/generateAct.php '#{data}'")
+             short_name self.contact_1.department_head.info, :act
            end
+
+    if type == 'formular'
+      data = {
+        data: self,
+        contact_strings: get_contacts(:formular),
+        contact_objects: get_contacts(:obj),
+        networks: self.service_networks,
+        storages: self.storage_systems,
+        head: head
+      }.to_json
+
+      file = IO.popen("php #{Rails.root}/lib/generateFormular.php '#{data}'")
+    elsif type == 'act'
+      data = {
+        data: self,
+        contact_objects: get_contacts(:obj),
+        head: head
+      }.to_json
+
+      file = IO.popen("php #{Rails.root}/lib/generateAct.php '#{data}'")
+    else
+      return
+    end
+
     file.read
+  end
+
+
+  # Возвращает массив строк с подключениями к сети
+  # Если количество подключений к сети < 2, добавить пустые строки
+  def get_service_networks
+    networks = []
+
+    if self.service_networks.length < 2
+      2.times do |i|
+        networks[i] = get_network_string(self.service_networks[i])
+      end
+    else
+      self.service_networks.length.times do |i|
+        networks[i] = get_network_string(self.service_networks[i])
+      end
+    end
+
+    networks
+  end
+
+  # Возвращает массив строк с подключениями к СХД
+  # Если количество подключений к сети < 2, добавить пустые строки
+  def get_service_storages
+    storages = []
+
+    if self.storage_systems.length < 2
+      2.times do |i|
+        storages[i] = get_storage_string(self.storage_systems[i])
+      end
+    else
+      self.storage_systems.length.times do |i|
+        storages[i] = get_storage_string(self.storage_systems[i])
+      end
+    end
+
+    storages
+  end
+
+  def get_service_number
+    if self.number.empty?
+      "Номер формуляра отсутствует"
+    else
+      "Формуляр № ***REMOVED***-Ф-#{self.number}"
+    end
   end
 
   private
 
-  # Установить false, если флаг эксплуатации не установлен
-  def check_exploitation
-    self.exploitation = 'false' if exploitation.nil?
+  # Возвращает ФИО взависимости от того, какой type указан
+  #
+  # footer - "И. О. Фамилия"
+  # остальное - "Фамилия И. О."
+  def short_name(fio, type)
+    fio_arr = fio.split(' ')
+    if type == :act
+      "#{fio_arr[1][0]}. #{fio_arr[2][0]}. #{fio_arr[0]}"
+    elsif type == :formular
+      "#{fio_arr[0]} #{fio_arr[1][0]}. #{fio_arr[2][0]}."
+    end
   end
 
-  # Получить информацию об ответственном за сервис в определенном виде
+  # Получить информацию об ответственном за сервис в виде:
+  # Денисов Д. Д., отд. ХХХ, р.т. ХХ-ХХ, с.т. Х-ХХХ-ХХХ-ХХ-ХХ
+  #
   # contact - порядок ответственного (:first, :second)
-  # type - Необходимый вид возвращаемого значения ():formular - для формуляра, :act - для акта)ы
+  # type - Необходимый вид возвращаемого значения (:formular - для формуляра, :act - для акта)
   def get_contact(contact, type)
     row = ""
 
@@ -131,38 +214,28 @@ class Service < ActiveRecord::Base
       return "Отсутствует" if self.contact_1.nil?
 
       # Получаем ФИО
-      info_arr    = self.contact_1.info.split(' ')
-      fio = if type == :formular
-        "#{info_arr[0]} #{info_arr[1][0]}. #{info_arr[2][0]}."
-            else
-        "#{info_arr[1][0]}. #{info_arr[2][0]}. #{info_arr[0]}"
-            end
+      fio           = short_name self.contact_1.info, type
       # Получаем отдел
-      dept        = self.contact_1.dept
+      dept          = self.contact_1.dept
       # Получаем рабочий номер
-      work_num    = self.contact_1.work_num
+      work_num      = self.contact_1.work_num
       # Получаем сотовый номер
-      mobile_num  = self.contact_1.mobile_num
+      mobile_num    = self.contact_1.mobile_num
       # Тип ответственного (основной/замещающий)
-      contact_type = " (основной)"
+      contact_type  = " (основной)"
     else
       return "Отсутствует" if self.contact_2.nil?
 
       # Получаем ФИО
-      info_arr    = self.contact_2.info.split(' ')
-      fio = if type == :formular
-              "#{info_arr[0]} #{info_arr[1][0]}. #{info_arr[2][0]}."
-            else
-              "#{info_arr[1][0]}. #{info_arr[2][0]}. #{info_arr[0]}"
-            end
+      fio           = short_name self.contact_2.info, type
       # Получаем отдел
-      dept        = self.contact_2.dept
+      dept          = self.contact_2.dept
       # Получаем рабочий номер
-      work_num    = self.contact_2.work_num
+      work_num      = self.contact_2.work_num
       # Получаем сотовый номер
-      mobile_num  = self.contact_2.mobile_num
+      mobile_num    = self.contact_2.mobile_num
       # Тип ответственного (основной/замещающий)
-      contact_type = " (замещающий)"
+      contact_type  = " (замещающий)"
     end
 
     row += "#{fio}" if fio
@@ -176,6 +249,24 @@ class Service < ActiveRecord::Base
     end
 
     row
+  end
+
+  # Возвращает либо пустую строку (если подключение к сети отсутсвутет), либо строку вида
+  # "segment, vlan, dns_name"
+  def get_network_string(network)
+    if network.nil?
+      ''
+    else
+      "#{network['segment']}, #{network['vlan']}, #{network['dns_name']}"
+    end
+  end
+
+  def get_storage_string(storage)
+    if storage.nil?
+      ''
+    else
+      storage.name
+    end
   end
 
 end

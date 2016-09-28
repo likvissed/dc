@@ -9,9 +9,3 @@ user.add_role :admin
 
 user = User.create(username: 'test', password: 'test')
 user.add_role :manage_serv
-
-ServerStatus.create([
-  { name: "В работе" },
-  { name: "Тест" },
-  { name: "Простой" },
-])

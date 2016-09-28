@@ -4,9 +4,9 @@ class CreateServers < ActiveRecord::Migration
       t.references  :server_type
       t.string      :inventory_num
       t.string      :serial_num
-      t.string      :name
+      t.string      :name,          index: true
       t.string      :location
-      t.references  :server_status
+      t.integer     :status,        index: true
       t.timestamps null: false
     end
   end

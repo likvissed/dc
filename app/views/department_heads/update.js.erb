@@ -1,5 +1,0 @@
-<% if @department_head.errors.any? %>
-  $('#departmentHeadModal').html('<%= j render partial: "form", locals: { url: "/department_heads/#{params[:tn]}" } %>');
-<% else %>
-  $('#departmentHeadModal').modal_success();
-<% end %>

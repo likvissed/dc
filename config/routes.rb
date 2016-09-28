@@ -31,6 +31,7 @@ Rails.application.routes.draw do
     patch '/node_roles/:name',        to: 'node_roles#update'
 
     get   '/services/:name/edit',     to: 'services#edit'
+    # get   '/services/:name',          to: 'services#show'
     patch '/services/:name',          to: 'services#update'
   end
 
@@ -46,10 +47,14 @@ Rails.application.routes.draw do
 
   resources :users,         except: [:edit, :update]
 
-  resources :servers,       except: [:edit, :update]
+  resources :servers,       except: [:edit, :update] do
+    get 'link_to_new_record', to: 'servers#link_to_new_record', on: :collection
+  end
   resources :server_types,  except: [:edit, :update]
   resources :detail_types,  except: [:edit, :update, :show]
-  resources :server_parts,  except: [:edit, :update]
+  resources :server_parts,  except: [:edit, :update] do
+    get 'link_to_new_record', to: 'server_parts#link_to_new_record', on: :collection
+  end
   resources :clusters,      except: [:edit, :update]
   resources :node_roles,    except: [:edit, :update, :show]
 
@@ -64,6 +69,10 @@ Rails.application.routes.draw do
       get     '/download/:file',  to: 'services#download_file'  # Скачивание файлов формуляров
       get     '/generate/:type',  to: 'services#generate_file'  # Генерация формуляра/акта
       delete  '/destroy/:file',   to: 'services#destroy_file'   # Удаление файлов формуляра
+    end
+
+    collection do
+      get 'link_to_new_record', to: 'services#link_to_new_record'   # Отрендерить ссылку на новую запись, если у пользователя есть права (через json)
     end
 
   end

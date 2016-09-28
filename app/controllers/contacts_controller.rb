@@ -8,7 +8,7 @@ class ContactsController < ApplicationController
   def index
     respond_to do |format|
       format.html { render :index }
-      format.json { render json: Contact.all.as_json(except: [:id, :manually, :department_head_id, :created_at, :updated_at]) }
+      format.json { render json: Contact.select(:tn, :info, :dept, :work_num, :mobile_num) }
     end
   end
 
@@ -49,7 +49,6 @@ class ContactsController < ApplicationController
         format.json { render json: { full_message: "Контакт удален" }, status: :ok }
       end
     else
-      puts @contact.errors.full_messages.join(", ")
       respond_to do |format|
         format.json { render json: { full_message: "Ошибка. #{ @contact.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
       end
@@ -59,7 +58,7 @@ class ContactsController < ApplicationController
   # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
   # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
   def link_to_new_record
-    link = create_link_to_new_record Contact, "ng-click='contactPage.showContactModal()"
+    link = create_link_to_new_record :modal, Contact, "ng-click='contactPage.showContactModal()"
     respond_to do |format|
       format.json { render json: link }
     end

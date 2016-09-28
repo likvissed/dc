@@ -2,25 +2,52 @@
   'use strict';
 
   app
-    .controller('ContactCtrl', ['$http', 'DTOptionsBuilder', 'Server', 'Flash', '$timeout', ContactCtrl]);
+    .controller('ContactCtrl', ContactCtrl);
 
-  function ContactCtrl($http, DTOptionsBuilder, Server, Flash, $timeout) {
+  ContactCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+
+  function ContactCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
-    self.dtOptions = DTOptionsBuilder.newOptions()
+    // Подключаем основные параметры таблицы
+    $controller('DefaultDataTableCtrl', {});
+
+    self.dtInstance   = {};
+    self.dtOptions    = DTOptionsBuilder
+      .newOptions()
+      .withOption('ajax', '/contacts.json')
+      .withOption('createdRow', createdRow)
       .withDOM(
-      '<"row"' +
-        '<"col-sm-2"' +
-          '<"#contacts.new-record">>' +
-        '<"col-sm-8">' +
-        '<"col-sm-2"f>>' +
-      't<"row"' +
-        '<"col-sm-12"p>>'
-    );
+        '<"row"' +
+          '<"col-sm-2"' +
+            '<"#contacts.new-record">>' +
+          '<"col-sm-8">' +
+          '<"col-sm-2"f>>' +
+        't<"row"' +
+          '<"col-sm-12"p>>'
+      );
+
+    self.dtColumns    = [
+      DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
+      DTColumnBuilder.newColumn('info').withTitle('ФИО').withOption('className', 'col-sm-5'),
+      DTColumnBuilder.newColumn('dept').withTitle('Отдел').withOption('className', 'col-sm-1 text-center'),
+      DTColumnBuilder.newColumn('work_num').withTitle('Раб. тел.').withOption('className', 'col-sm-2 text-center'),
+      DTColumnBuilder.newColumn('mobile_num').withTitle('Мобильный тел.').withOption('className', 'col-sm-3 text-center'),
+      DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center').renderWith(editRecord),
+      DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center').renderWith(delRecord)
+    ];
+    self.contacts     = {};     // Объекты контактов (id => data)
+    self.contactModal = false;  // Флаг состояния модального окна (false - скрыто, true - открыто)
+    self.config       = {
+      title:  '',               // Шапка модального окна
+      method: ''                // Метод отправки запрос (POST, PATCH)
+    };
+    self.value        = angular.copy(value_template);
 
     var
+      reloadPaging    = false,  // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
       errors          = null,   // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
       tn              = null,   // Табельный номер редактируемого контакта
       value_template  = {       // Шаблон данных (вызывается при создании нового контакта)
@@ -32,15 +59,18 @@
         mobile_num: ''
       };
 
-    self.contactModal = false;  // Флаг состояния модального окна (false - скрыто, true - открыто)
-    self.config       = {
-      title:  '',               // Шапка модального окна
-      method: ''                // Метод отправки запрос (POST, PATCH)
-    };
-    self.value        = angular.copy(value_template);
-    self.contacts     = Server['Contact'].query(); // Получаем данные обо всех контактах
-
 // =============================================== Приватные функции ===================================================
+
+    // Показать номер строки
+    function renderIndex(data, type, full, meta) {
+      self.contacts[data.tn] = data; // Сохранить данные контакта (нужны для вывода пользователю информации об удаляемом элементе)
+      return meta.row + 1;
+    }
+
+    // Компиляция строк
+    function createdRow (row, data, dataIndex) {
+      $compile(angular.element(row))($scope);
+    }
 
     // array - объект, содержащий ошибки
     // flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
@@ -90,16 +120,14 @@
       Flash.alert(response.data.full_message);
     }
 
-    // Получить индекс контакта в массиве
-    function getContactIndex(num) {
-      var contact_index = 0;
+    // Отрендерить ссылку на изменение контакта
+    function editRecord(data, type, full, meta) {
+      return '<a href="" class="default-color" disable-link=true ng-click="contactPage.showContactModal(' + data.tn + ')" tooltip-placement="right" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g"></a>';
+    }
 
-      $.each(self.contacts, function (index, contact) {
-        if (num == contact.tn)
-          contact_index = index;
-      });
-
-      return contact_index;
+    // Отрендерить ссылку на удаление контакта
+    function delRecord(data, type, full, meta) {
+      return '<a href="" class="text-danger" disable-link=true ng-click="contactPage.destroyContact(' + data.tn + ')" tooltip-placement="right" uib-tooltip="Удалить контакт"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
 // =============================================== Публичные функции ===================================================
@@ -157,31 +185,28 @@
 
       if (self.config.method == 'POST') {
         // Сохранить данные на сервере
-        Server['Contact'].save({contact: self.value},
-          // SUCCESS
+        Server.Contact.save({contact: self.value},
+          // Success
           function (response) {
             successResponse(response);
 
-            self.contacts.push(response.contact);
+            self.dtInstance.reloadData(null, reloadPaging);
           },
-          // ERROR
+          // Error
           function (response) {
             errorResponse(response);
           }
         );
       }
       else {
-        // Запоминаем индекс изменяемого контакта
-        var contact_index = getContactIndex(tn);
-
-        Server['contact'].update({tn: tn}, self.value,
-          // SUCCESS
+        Server.Contact.update({tn: tn}, self.value,
+          // Success
           function (response) {
             successResponse(response);
 
-            self.contacts[contact_index] = response.contact
+            self.dtInstance.reloadData(null, reloadPaging);
           },
-          // ERROR
+          // Error
           function (response) {
             errorResponse(response);
           }
@@ -191,15 +216,19 @@
 
     // Удалить контакт
     self.destroyContact = function (num) {
-      // Запоминаем индекс удаляемого контакта
-      var contact_index = getContactIndex(num);
+      var  confirm_str = "Вы действительно хотите удалить контакт \"" + self.contacts[num].info + "\"?";
 
-      Server['Contact'].delete({tn: num},
+      if (!confirm(confirm_str))
+        return false;
+
+      Server.Contact.delete({tn: num},
+      // Success
       function (response) {
         Flash.notice(response.full_message);
 
-        self.contacts.splice(contact_index, 1);
+        self.dtInstance.reloadData(null, reloadPaging);
       },
+      // Error
       function (response) {
         Flash.alert(response.data.full_message);
       });

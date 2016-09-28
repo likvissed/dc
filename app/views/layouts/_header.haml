@@ -30,23 +30,23 @@
               %b.caret
             %ul.dropdown-menu
               %li
-                = link_to "Просмотр", servers_path
+                = link_to "Просмотр", clusters_path
               %li
-                = link_to "Типы серверов", server_types_path
-              %li
-                = link_to "Комплектующие серверов", server_parts_path
-              %li
-                = link_to "Типы комплектующих", detail_types_path
+                = link_to "Типы серверов", node_roles_path
           %li.dropdown
             = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
-              Кластеры
+              Оборудование
               %b.caret
             %ul.dropdown-menu
               %li
-                = link_to "Просмотр", clusters_path
+                = link_to "Просмотр", servers_path
               %li
-                = link_to "Типы кластеров", node_roles_path
-          %li.dropdown
+                = link_to "Типы оборудования", server_types_path
+              %li
+                = link_to "Комплектующие", server_parts_path
+              %li
+                = link_to "Типы комплектующих", detail_types_path
+          -#%li.dropdown
             = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
               Зип
               %b.caret

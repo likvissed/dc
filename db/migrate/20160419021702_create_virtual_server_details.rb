@@ -1,6 +1,6 @@
 class CreateVirtualServerDetails < ActiveRecord::Migration
   def change
-    create_table :virtual_server_details do |t|
+    create_table :template_server_details do |t|
       t.references  :server_type, index: true
       t.references  :server_part, index: true
       t.integer     :count

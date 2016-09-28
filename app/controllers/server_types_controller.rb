@@ -70,13 +70,12 @@ fa-trash-o fa-1g'></a>"
       format.html { render :edit }
       format.json do
         server_details = @server_type.template_server_details
-        @server_parts  = ServerPart.select(:id, :name)
         render json: {
           server_details: server_details.as_json(
             include: { server_part: { only: [:id, :name] } },
             except: [:created_at, :updated_at]
           ),
-          server_parts: @server_parts
+          server_parts: ServerPart.select(:id, :name)
         }
       end
     end

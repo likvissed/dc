@@ -1,7 +1,8 @@
-= title "Типы кластеров"
+= title "Типы серверов"
 .medium-content
   .content-body
-    = button_to "Добавить", new_node_role_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+    - if can? :manage, NodeRole
+      = button_to "Добавить", new_node_role_path, method: :get, class: "btn btn-primary", form_class: "text-center"
     %table.table.table-striped
       %tr
         %th #

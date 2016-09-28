@@ -1,7 +1,8 @@
 = title "Типы комплектующих"
 .medium-content
   .content-body
-    = button_to "Добавить", new_detail_type_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+    - if can? :manage, DetailType
+      = button_to "Добавить", new_detail_type_path, method: :get, class: "btn btn-primary", form_class: "text-center"
     %table.table.table-striped
       %tr
         %th #

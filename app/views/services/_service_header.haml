@@ -3,8 +3,9 @@
     %ul.nav.navbar-nav.navbar-left
       %li.divider-vertical
       %li.exploitation-block
-        = check_box_tag "service[exploitation]", true, @service.exploitation, class: "exploitation-checkbox"
-        = label_tag "service_exploitation", "", title: "Переключатель введения в эксплуатацию"
+        = hidden_field_tag "service[exploitation]", "false"
+        = check_box_tag "service[exploitation]", "true", @service.exploitation, "id": "service_exploitation_id", class: "exploitation-checkbox"
+        = label_tag "service_exploitation_id", "", "tooltip-placement": "right", "uib-tooltip": "Маркер введения в эксплуатацию"
       %li.divider-vertical
 
       %li

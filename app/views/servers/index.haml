@@ -1,16 +1,7 @@
-= title "Просмотр серверов"
-.default-content
+= title "Просмотр оборудования"
+.default-content{ "ng-controller": "ServerIndexCtrl as serverPage" }
   .content-body
-    - if can? :manage, Server
-      = button_to "Добавить", new_server_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_server_form" }
+    %datatable-wrapper
+      %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPage.dtOptions", "dt-columns": "serverPage.dtColumns", "dt-instance": "serverPage.dtInstance" }
 
-    %table.table.table-hover.table-striped#servTable
-      %thead
-        %tr
-          %th.col-md-1 #
-          %th Имя
-          %th Тип
-          %th.col-md-3 Расположение
-          %th.col-md-1
-
-= render partial: "preview"
+  = render partial: "preview"

@@ -13,7 +13,6 @@ Rails.application.config.assets.precompile += %w(
   clusters.js
   server_types.js
   server_parts.js
-  servers.js
 
   contact/contacts_controller.js
   contact/contacts_factory.js

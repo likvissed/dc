@@ -1,6 +1,7 @@
 class DepartmentHead < ActiveRecord::Base
 
   after_validation :get_user_iss_data, on: [:create, :update], if: :necessary_condition
+  after_validation :check_dept, on: :create
   after_create :set_department_head, if: :necessary_condition
 
   resourcify
@@ -18,12 +19,13 @@ class DepartmentHead < ActiveRecord::Base
     !self.errors.any?
   end
 
+  # Проверить, существует ли уже начальник отдела в базе до того, перед тем как создать нового руководителя
   def check_dept
     @department_heads = DepartmentHead.all
-    self.errors.add(:base, "Номер отдела не может пройти проверку (неверный тип данных). Обратитесь к администртору") unless self.dept.to_s =~ /\d+/
     self.errors.add(:base, "Руководитель отдела \"#{self.dept}\" уже существует. Удалите существующего руководителя и повторите действия, либо отредактируйте запись, связанную с существующим руководителем") if @department_heads.where(dept: self.dept).any?
   end
 
+  # Получить данные о руководителе из базы Netadmin
   def get_user_iss_data
     @user = UserIss.find_by(tn: self.tn)
     if @user.nil?
@@ -34,7 +36,8 @@ class DepartmentHead < ActiveRecord::Base
     self.info = @user.fio
     self.dept = @user.dept
 
-    check_dept
+    # check_dept
+    self.errors.add(:base, "Номер отдела не может пройти проверку (неверный тип данных). Обратитесь к администртору") unless self.dept.to_s =~ /\d+/
   end
 
   # Создание внешнего ключа на руководителя для всех существующих контактов

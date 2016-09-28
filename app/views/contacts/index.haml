@@ -6,26 +6,6 @@
 
   .content-body
     %datatable-wrapper
-      %table.table.table-striped{ datatable: "ng", "dt-options": "contactPage.dtOptions" }
-        %thead
-          %tr
-            %th #
-            %th.col-md-5 ФИО
-            %th.col-md-1 Отдел
-            %th.col-md-2 Раб. тел.
-            %th.col-md-3 Мобильный тел.
-            %th
-            %th
-        %tbody
-          %tr{ "ng-repeat": "contact in contactPage.contacts" }
-            %td{ "ng-bind": "$index + 1" }
-            %td{ "ng-bind": "contact.info" }
-            %td{ "ng-bind": "contact.dept" }
-            %td{ "ng-bind": "contact.work_num" }
-            %td{ "ng-bind": "contact.mobile_num" }
-            %td.text-center
-              = link_to icon("fa fa-pencil-square-o fa-fw"), "#", class: "default-color", "disable-link": true, "ng-click": "contactPage.showContactModal(contact.tn)"
-            %td.text-center
-              = link_to icon("fa fa-trash-o fa-fw"), "#", class: "text-danger", "disable-link": true, "ng-click": "contactPage.destroyContact(contact.tn)"
+      %table.center-header.table.table-striped{ datatable: "", "dt-options": "contactPage.dtOptions", "dt-columns": "contactPage.dtColumns", "dt-instance": "contactPage.dtInstance" }
 
   = render partial: "modal_form"

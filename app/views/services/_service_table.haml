@@ -176,7 +176,7 @@
                 %td
                   %b{ "ng-bind": "network.name" }
                 %td.min-td
-                  = icon("fa fa-plus-circle fa-lg font-internal", title: "Добавить подключение к сети", "ng-click": "service.addNetwork()")
+                  = icon("fa fa-plus-circle fa-lg font-internal", "ng-click": "service.addNetwork()", "tooltip-placement": "right", "uib-tooltip": "Добавить подключение к сети")
           %td
             %table.internal-table
               %tr
@@ -196,7 +196,7 @@
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][inet_tcp_ports]", "{{ network.ports.inet_tcp_ports }}"
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][inet_udp_ports]", "{{ network.ports.inet_udp_ports }}"
                 %td.min-td
-                  = icon("fa fa-minus-circle fa-lg font-internal", title: "Удалить подключение к сети", "ng-click": "service.delNetwork(network)")
+                  = icon("fa fa-minus-circle fa-lg font-internal", "ng-click": "service.delNetwork(network)", "tooltip-placement": "right", "uib-tooltip": "Удалить подключение к сети")
 
         %tr{ "ng-repeat": "storage in service.storages" }
           %td

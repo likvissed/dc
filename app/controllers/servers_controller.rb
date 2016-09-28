@@ -11,20 +11,14 @@ class ServersController < ApplicationController
       format.html { render :index }
       format.json do
         if params[:server_type_val].to_i.zero?
-          @servers      = Server.select(:id, :name, :server_type_id, :location)
+          @servers      = Server.select(:id, :name, :server_type_id, :status, :location)
           @server_types = ServerType.select(:id, :name)
         else
-          @servers = Server.select(:id, :name, :server_type_id, :location).where("server_type_id = ?", params[:server_type_val])
+          @servers = Server.select(:id, :name, :server_type_id, :status, :location).where("server_type_id = ?", params[:server_type_val])
         end
 
-        data = @servers.as_json(include: { server_type: { only: :name } }).each do |s|
-          s['DT_RowId'] = s['id']
-          s['del']      = "<a href='/servers/#{s['id']}' class='text-danger' data-method='delete' rel='nofollow'
-title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa fa-trash-o fa-1g'></a>"
-          s.delete('id')
-          s.delete('server_type_id')
-        end
-        render json: { data: data, server_types: @server_types }
+        render json: @servers.as_json(include: { server_type: { only: :name } }, except: :server_type_id)
+        # render json: { data: data, server_types: @server_types }
       end
     end
   end
@@ -33,7 +27,6 @@ title='Удалить' data-confirm='Вы действительно хотит�
     respond_to do |format|
       format.json { render json: @server.as_json(include: {
           server_type: { only: :name },
-          server_status: { only: :name },
           clusters: { only: :name },
           real_server_details: {
             only: :count,
@@ -55,11 +48,7 @@ title='Удалить' data-confirm='Вы действительно хотит�
           redirect_to action: :index
         end
       end
-      format.json do
-        @server_types     = ServerType.select(:id, :name)
-        @server_statuses  = ServerStatus.select(:id, :name)
-        render json: { server_types: @server_types, server_statuses: @server_statuses }
-      end
+      format.json { render json: { types: ServerType.select(:id, :name) } }
     end
   end
 
@@ -78,24 +67,19 @@ title='Удалить' data-confirm='Вы действительно хотит�
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        @server_parts     = ServerPart.select(:id, :name)
-        @server_types     = ServerType.select(:id, :name)
-        @server_statuses  = ServerStatus.select(:id, :name)
         render json: {
           server: @server.as_json(
+            only: [],
             include: {
               server_type: { only: [:id, :name] },
-              server_status: { only: [:id, :name] }
-            },
-            except: [:created_at, :updated_at]
+              real_server_details: {
+                only: [:id, :server_part_id, :count],
+                include: { server_part: { except: [:created_at, :updated_at] } },
+              }
+            }
           ),
-          server_details: @server.real_server_details.as_json(
-            include: { server_part: { except: [:created_at, :updated_at] } },
-            except: [:created_at, :updated_at]
-          ),
-          server_parts: @server_parts,
-          server_types: @server_types,
-          server_statuses: @server_statuses
+          parts: ServerPart.select(:id, :name),
+          types: ServerType.select(:id, :name),
         }
       end
     end
@@ -113,11 +97,23 @@ title='Удалить' data-confirm='Вы действительно хотит�
 
   def destroy
     if @server.destroy
-      flash[:notice] = "Данные удалены"
+      respond_to do |format|
+        format.json { render json: { full_message: "Данные удалены" }, status: :ok }
+      end
     else
-      flash[:alert] = "Ошибка удаления данных. #{ @server.errors.full_messages.join(", ") }"
+      respond_to do |format|
+        format.json { render json: { full_message: "Ошибка. #{ @server.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+      end
     end
-    redirect_to action: :index
+  end
+
+  # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
+  # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
+  def link_to_new_record
+    link = create_link_to_new_record :page, Server, "/servers/new"
+    respond_to do |format|
+      format.json { render json: link }
+    end
   end
 
   private
@@ -127,8 +123,8 @@ title='Удалить' data-confirm='Вы действительно хотит�
     params.require(:server).permit(
       :cluster_id,
       :server_type_id,
-      :server_status_id,
       :name,
+      :status,
       :inventory_num,
       :serial_num,
       :location,

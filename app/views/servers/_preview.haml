@@ -1,34 +1,46 @@
-.modal.fade#modal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "modal-show": "serverPage.previewModal" }
   .modal-dialog
-    .modal-content
+    .modal-content{ "ng-controller": "ServerPreviewCtrl as preview" }
       .modal-header
-        - if can? :manage, Server
-          = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData"
-        %h4.modal-title
+        .pull-right
+          -#.btn-group
+            = button_tag class: "dropdown-toggle", "data-toggle": "dropdown", "tooltip-placement": "left", "uib-tooltip": "Cервисы, запущенные на текущем сервере" do
+              = icon("fa fa-file-o fa-fw")
+              Сервисы
+              %span.caret
+            %ul.dropdown-menu
+              %li
+                = link_to "Сервис 1", "", "ng-click": ""
+              %li
+                = link_to "Сервис 2", "", "ng-click": ""
+          -#= link_to icon("fa fa-file-o fa-fw"), "", class: "btn btn-default default-color", "tooltip-placement": "left", "uib-tooltip": "Cервисы, запущенные на текущем сервере"
+          - if can? :manage, Server
+            = link_to icon("fa fa-cog fa-fw"), "", class: "default-color", "ng-href": "/servers/{{ preview.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать сервер"
+        %h4.modal-title{ "ng-bind": "preview.name + ' (' + preview.status + ')'" }
       .modal-body
         %h4 Описание
-        %table.table.table-striped{ "data-id": "description" }
+        %table.table.table-striped
           %tbody
             %tr
               %td.col-md-4 Расположение
-              %td{ "data-id": "srvLocation" }
+              %td{ "ng-bind": "preview.location" }
             %tr
               %td Тип сервера
-              %td{ "data-id": "srvType" }
+              %td{ "ng-bind": "preview.type" }
             %tr
               %td Кластер
-              %td{ "data-id": "srvCluster" }
+              %td{ "ng-bind": "preview.cluster" }
+            %tr
+              %td Инвентарный номер
+              %td{ "ng-bind": "preview.inventory_num" }
             %tr
               %td Серийный номер
-              %td{ "data-id": "srvSerial" }
-            %tr
-              %td Инветнартный номер
-              %td{ "data-id": "srvInventory" }
+              %td{ "ng-bind": "preview.serial_num" }
         %h4 Состав
         %table.table.table-striped{ "data-id": "details" }
           %tbody
-            %tr.hidden
-              %td
-              %td.col-md-1
+            %tr{ "ng-repeat": "detail in preview.details" }
+              %td{ "ng-bind": "detail.name" }
+              %td.col-md-1{ "ng-bind": "detail.count" }
       .modal-footer
         = button_tag "Закрыть", "data-dismiss": "modal"

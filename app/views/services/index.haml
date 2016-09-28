@@ -1,22 +1,7 @@
 = title "Просмотр сервисов"
-.default-content
+.big-content{ "ng-controller": "ServiceIndexCtrl as servicePage" }
   .content-body
-    - if can? :manage, Service
-      = button_to "Добавить", new_service_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_service_form" }
-    %table.table.table-hover.table-striped#serviceTable
-      %thead
-        %tr
-          %th #
-          %th
-          %th Номер
-          %th Имя
-          %th Режим
-          %th Отдел
-          %th Ответственные
-          %th Формуляр
-          %th Акт ввода
-          %th Инстр. восст.
-          %th Инстр. выкл.
-          %th
+    %datatable-wrapper
+      %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "servicePage.dtOptions", "dt-columns": "servicePage.dtColumns", "dt-instance": "servicePage.dtInstance" }
 
-= render partial: "preview"
+  = render partial: "preview"
