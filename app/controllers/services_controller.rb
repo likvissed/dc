@@ -146,10 +146,10 @@ class ServicesController < ApplicationController
           service_networks: @service.service_networks.as_json(
             include: {
               service_port: {
-                except: [:service_network_id, :ip, :host_class, :tcp_ports_2, :udp_ports_2, :created_at, :updated_at]
-              }
+                except: [:service_network_id, :host_class, :tcp_ports_2, :udp_ports_2, :created_at, :updated_at]
+              },
             },
-            except: [:service_id, :created_at, :updated_at]
+            except: [:ip, :service_id, :created_at, :updated_at]
           ),
           storage_systems: @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
           services: @services,

@@ -74,8 +74,9 @@ class ApplicationController < ActionController::Base
     new_user_session_path
   end
 
+  # Куда перенаправлять после авторизации
   def after_sign_in_path_for(resource_or_scope)
-    servers_path
+    services_path
   end
 
   # Определяем, какой layout выводить: для входа в систему или основной

@@ -2,7 +2,6 @@ class CreateServicePorts < ActiveRecord::Migration
   def change
     create_table :service_ports do |t|
       t.references  :service_network
-      t.string      :ip, limit: 15
       t.text        :local_tcp_ports
       t.text        :local_udp_ports
       t.text        :inet_tcp_ports

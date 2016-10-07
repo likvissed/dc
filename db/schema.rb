@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161004095031) do
+ActiveRecord::Schema.define(version: 20161006054331) do
 
   create_table "cluster_details", force: :cascade do |t|
     t.integer  "cluster_id",   limit: 4
@@ -149,13 +149,13 @@ ActiveRecord::Schema.define(version: 20161004095031) do
     t.string   "segment",    limit: 50
     t.string   "vlan",       limit: 20
     t.string   "dns_name",   limit: 255
+    t.string   "ip",         limit: 15
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
 
   create_table "service_ports", force: :cascade do |t|
     t.integer  "service_network_id", limit: 4
-    t.string   "ip",                 limit: 15
     t.text     "local_tcp_ports",    limit: 65535
     t.text     "local_udp_ports",    limit: 65535
     t.text     "inet_tcp_ports",     limit: 65535

@@ -5,12 +5,16 @@
     .controller('ServiceIndexCtrl', ServiceIndexCtrl)
     .controller('ServicePreviewCtrl', ServicePreviewCtrl)
     .controller('ServiceEditCtrl', ServiceEditCtrl)
+    .controller('ServiceEditNetworkCtrl', ServiceEditNetworkCtrl)
+    .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)
     .controller('DependenceCtrl', DependenceCtrl);
 
-  ServiceIndexCtrl.$inject    = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  ServicePreviewCtrl.$inject  = ['$scope'];
-  ServiceEditCtrl.$inject     = ['Service', 'GetDataFromServer'];
-  DependenceCtrl.$inject      = ['Service'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServicePreviewCtrl.$inject      = ['$scope'];
+  ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
+  ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
+  ServiceEditPortCtrl.$inject     = ['$scope', 'Service'];
+  DependenceCtrl.$inject          = ['Service'];
 
 // ================================================ Главная страница сервисов ==========================================
 
@@ -232,7 +236,7 @@
 
 // ================================================ Редактирование сервиса =============================================
 
-  function ServiceEditCtrl(Service, GetDataFromServer) {
+  function ServiceEditCtrl($scope, Service, GetDataFromServer) {
     var self = this;
 
 // ================================================ Инициализация ======================================================
@@ -248,7 +252,7 @@
         .then(function (data) {
           Service.init(id, name, data);
 
-          self.network          = Service.getNetworks();      // Массив с подключениями к сети
+          self.network          = Service.getNetworks();      // Объект, вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
           self.missing_file     = Service.getMissingFiles();  // Массив с отстствующими флагами
           self.parents          = Service.getParents();       // Массив с сервисами-родителями
           self.storages         = Service.getStorages();      // Массив с подключениями к СХД
@@ -267,30 +271,17 @@
 
     // Открыть модальное окно "Подключение к сети"
     self.showNetworkModal = function ($index) {
-      Service.setFlag('networkModal', true);
+      var obj = {
+        index: $index, // Запоминаем индекс строки, данные о которой необходимо изменить
+        network: Service.getNetworkTemplate($index)
+      };
 
-      // Запоминаем индекс строки, данные о которой необходимо изменить
-      self.template_network = {
-        index: $index,
-        value: Service.getNetworkTemplate($index)
-      }
+      $scope.$broadcast('serviceNetworkData', obj);
     };
 
     // Добавить строку "Подключения к сети"
     self.addNetwork = function () {
       Service.addNetwork();
-    };
-
-    // Закрыть модальное окно по нажатии "Отмена"
-    self.closeNetworkModal = function () {
-      Service.setFlag('networkModal', false);
-      Service.setNetwork(self.template_network.index, self.template_network.value); // Записали новые данные
-    };
-
-    // Закрыть модальное окно по нажатии "Готово"
-    self.readyNetworkModal = function () {
-      Service.setFlag('networkModal', false);
-      Service.setNetwork(self.template_network.index, self.template_network.value); // Записали новые данные
     };
 
     // Удалить строку "Подключения к сети"
@@ -299,25 +290,92 @@
     };
 
 
-// ================================================ Открытые порты =====================================================
+// ================================================ "Открытые порты" ===================================================
 
     // Открыть модальное окно "Открытые порты"
     self.showPortsModal = function ($event) {
+      var obj = {
+        network:  self.network,
+        event:    $event,
+        ports:    Service.getCurrentPorts()
+      };
 
-      self.template_index = 0;
-      self.template_value = Service.getCurrentPorts();
+      $scope.$broadcast('servicePortsData', obj);
+    };
 
-      //self.template_ports = {
-      //  index:      0, // Индекс выбранного подключения к сети в модальном окне "Открытые порты"
-      //  value:      Service.getCurrentPorts() // Массив открытых портов всех подключений к сети текущего формуляра
-      //};
+// ================================================ Работа с файлами ===================================================
 
-      if (self.template_value.length != 0)
+    // Удалить файл
+    self.removeFile = function ($event) {
+      if (!self.missing_file[$event.target.attributes['data-type'].value])
+        Service.removeFile($event);
+    };
+  }
+
+// ================================================ Модальное окно "Подключение к сети" ================================
+
+  function ServiceEditNetworkCtrl($scope, Service) {
+    var self = this;
+
+    var standart = null; // Переменная, содержащая объект "подключение к сети" до внесения в него изменений
+    $scope.$on('serviceNetworkData', function (event, data) {
+      self.index  = data.index;
+      self.value  = data.network;
+      standart    = angular.copy(self.value);
+
+      Service.setFlag('networkModal', true);
+    });
+
+    // Закрыть модальное окно по нажатии "Отмена"
+    self.closeNetworkModal = function () {
+      Service.setFlag('networkModal', false);
+
+      // Проверка, были ли изначально данные пустые. Если да, значит объект network был создан непосредственно
+      // перед открытием окна. Чтобы пустой объект не появился в поле select (модальное окно "Открытые порты"),
+      // необходимо записать null в объект network
+      if (standart.segment == '' && standart.vlan == '' && standart.dns_name == '')
+        Service.setNetwork(self.index, null); // Записали null
+      else
+        Service.setNetwork(self.index, standart); // Записали изначальные данные
+    };
+
+    // Закрыть модальное окно по нажатии "Готово"
+    self.readyNetworkModal = function () {
+      Service.setFlag('networkModal', false);
+      Service.setNetwork(self.index, self.value); // Записали новые данные
+    };
+  }
+
+// ================================================ Модальное окно "Открытые порты" ====================================
+
+  function ServiceEditPortCtrl($scope, Service) {
+    var self = this;
+
+    // Инициализация
+    $scope.$on('servicePortsData', function (event, data) {
+      if (data.ports.length != 0) {
+        self.template_index = 0;
+        self.template_value = angular.copy(data.ports);
+        self.network        = data.network;
+
         Service.setFlag('portModal', true);
+      }
       else {
-        $($event.target).blur();
+        $(data.event.target).blur();
         alert("Необходимо создать \"Подключение к сети\"");
       }
+    });
+
+    // Событие после выбора "Подключения к сети" в модальном окне "Открытые порты"
+    self.changeNetwork = function () {
+      // Получаем новый индекс массива портов (используется в паршиале _ports в качестве индекса массива template_ports)
+      $.each(self.template_value, function (index, value) {
+        if (value.local_id == self.network.selected.local_id) {
+          self.template_index = index;
+
+          return false;
+        }
+      });
     };
 
     self.readyPortsModal = function () {
@@ -337,26 +395,6 @@
         return network.value != null;
       }
     };
-
-    // Событие после выбора "Подключения к сети" в модальном окне "Открытые порты"
-    self.changeNetwork = function () {
-      // Получаем новый индекс массива портов (используется в паршиале _ports в качестве индекса массива template_ports)
-      $.each(self.template_value, function (index, value) {
-        if (value.local_id == self.network.selected.local_id) {
-          self.template_index = index;
-
-          return false;
-        }
-      });
-    };
-
-// ================================================ Работа с файлами ===================================================
-
-    // Удалить файл
-    self.removeFile = function ($event) {
-      if (!self.missing_file[$event.target.attributes['data-type'].value])
-        Service.removeFile($event);
-    };
   }
 
 // ================================================ Сервисы-родители ===================================================
@@ -374,5 +412,3 @@
     };
   }
 })();
-
-

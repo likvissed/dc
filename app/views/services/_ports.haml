@@ -1,12 +1,12 @@
 .modal.fade#portsModal{ "tabindex": "-1", "role": "document", "aria-hidden": true, "modal-show": "service.flags.portModal" }
   .modal-dialog
-    .modal-content
+    .modal-content{ "ng-controller": "ServiceEditPortCtrl as portsModal" }
       .modal-header
         %h4.modal-title.text-center= @service.name || "Имя не определено"
       .modal-body
         .form-group.string.optional
-          = select_tag "service[service_networks][service_ports][][name]", nil, class: "form-control", "ng-model": "service.network.selected",
-            "ng-options": "network as network.value.dns_name for network in service.network.values | filter: service.networksFilter() track by network.value.dns_name", "ng-change": "service.changeNetwork()"
+          = select_tag "service[service_networks][service_ports][][name]", nil, class: "form-control", "ng-model": "portsModal.network.selected",
+            "ng-options": "network as network.value.dns_name for network in portsModal.network.values | filter: portsModal.networksFilter() track by network.value.dns_name", "ng-change": "portsModal.changeNetwork()"
 
         %table.center-header.table.table-bordered.table-ports
           %thead
@@ -28,10 +28,10 @@
           %tbody
             %tr
               %td.form-group.text.optional
-                = text_area_tag "template_ports[service.template_index][local_tcp_ports]", "template_ports[service.template_index][local_tcp_ports]", "ng-model": "service.template_value[service.template_index].local_tcp_ports", class: "form-control text optional"
+                = text_area_tag "template_ports[portsModal.template_index][local_tcp_ports]", "template_ports[portsModal.template_index][local_tcp_ports]", "ng-model": "portsModal.template_value[portsModal.template_index].local_tcp_ports", class: "form-control text optional"
 
               %td.form-group.string.optional
-                = text_area_tag "template_ports[service.template_index][inet_tcp_ports]", "template_ports[service.template_index][inet_tcp_ports]", "ng-model": "service.template_value[service.template_index].inet_tcp_ports", class: "form-control text optional"
+                = text_area_tag "template_ports[portsModal.template_index][inet_tcp_ports]", "template_ports[portsModal.template_index][inet_tcp_ports]", "ng-model": "portsModal.template_value[portsModal.template_index].inet_tcp_ports", class: "form-control text optional"
 
           %thead
             %tr
@@ -39,10 +39,10 @@
           %tbody
             %tr
               %td.form-group.string.optional
-                = text_area_tag "template_ports[service.template_index][local_udp_ports]", "template_ports[service.template_index][local_udp_ports]", "ng-model": "service.template_value[service.template_index].local_udp_ports", class: "form-control text optional"
+                = text_area_tag "template_ports[portsModal.template_index][local_udp_ports]", "template_ports[portsModal.template_index][local_udp_ports]", "ng-model": "portsModal.template_value[portsModal.template_index].local_udp_ports", class: "form-control text optional"
               %td.form-group.string.optional
-                = text_area_tag "template_ports[service.template_index][inet_udp_ports]", "template_ports[service.template_index][inet_udp_ports]", "ng-model": "service.template_value[service.template_index].inet_udp_ports", class: "form-control text optional"
+                = text_area_tag "template_ports[portsModal.template_index][inet_udp_ports]", "template_ports[portsModal.template_index][inet_udp_ports]", "ng-model": "portsModal.template_value[portsModal.template_index].inet_udp_ports", class: "form-control text optional"
 
       .modal-footer
-        = button_tag "Готово", class: "btn-success", "ng-click": "service.readyPortsModal()"
-        = button_tag "Отмена", class: "btn-default", "ng-click": "service.closePortsModal()"
+        = button_tag "Готово", class: "btn-success", "ng-click": "portsModal.readyPortsModal()"
+        = button_tag "Отмена", class: "btn-default", "ng-click": "portsModal.closePortsModal()"

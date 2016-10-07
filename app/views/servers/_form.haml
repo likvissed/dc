@@ -3,20 +3,20 @@
     = simple_form_for @server, url: url do |s|
       -#, html: { "serv-form": @server.id || 0, "serv-name": params[:name] }
       .content-body
-        = s.input :name, label: "Имя сервера", autofocus: true
+        = s.input :name, label: "Наименование", autofocus: true
         = s.input :inventory_num, label: "Инвентарный номер"
         = s.input :serial_num, label: "Серийный номер"
         = s.input :location, label: "Расположение"
         .row
           .col-xs-12
-            = s.input :status, label: "Статус сервера", collection: Server.statuses.keys.to_a, as: :select, prompt: "Выберите статус сервера"
+            = s.input :status, label: "Статус", collection: Server.statuses.keys.to_a, as: :select, prompt: "Выберите статус"
         .row
           .col-xs-12
             - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
             %div{ class: error_class }
               = label_tag :server_server_type_id , class: "control-label" do
                 %abbr{ title: "required" } *
-                %b Тип сервера
+                %b Тип Оборудования
               = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.value.server_type",
               "ng-options": "type.name for type in server.types track by type.id", "ng-change": "server.changeType()", prompt: "Выберите тип сервера"
               %span.help-block= get_errors @server.errors[:server_type_id]

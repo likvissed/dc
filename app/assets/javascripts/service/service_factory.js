@@ -160,7 +160,7 @@
 
     // Проверка корректности данных подключений к сети
     function _checkTemplateNetworkPassed(data) {
-      return data.segment != '' && data.vlan != '' && data.dns_name != '';
+      return data != null && (data.segment != '' && data.vlan != '' && data.dns_name != '');
     }
 
 // =============================================== Работа с открытыми портами ==========================================
@@ -180,7 +180,8 @@
 
     // Проверка корректности данных открытых портов
     function _checkTemplatePortPassed(data) {
-      return data.local_tcp_ports != '' && data.local_udp_ports != '' && data.inet_tcp_ports != '' && data.inet_udp_ports != '';
+      //return data.local_tcp_ports != '' && data.local_udp_ports != '' && data.inet_tcp_ports != '' && data.inet_udp_ports != '';
+      return data.local_tcp_ports != '' || data.local_udp_ports != '' || data.inet_tcp_ports != '' || data.inet_udp_ports != '';
     }
 
 // =============================================== Работа с подключениями к СХД ========================================
