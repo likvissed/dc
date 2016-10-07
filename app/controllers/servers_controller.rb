@@ -44,7 +44,7 @@ class ServersController < ApplicationController
           @server = Server.new
           render :new
         else
-          flash[:alert] = "Перед созданием сервера необходимо создать \"Типы серверов\""
+          flash[:alert] = "Перед созданием оборудования необходимо создать \"Типы оборудования\""
           redirect_to action: :index
         end
       end

@@ -43,7 +43,7 @@ fa-trash-o fa-1g'></a>"
           @server_type = ServerType.new
           render :new
         else
-          flash[:alert] = "Перед созданием типа сервера необходимо создать \"Комплектующие серверов\""
+          flash[:alert] = "Перед созданием типа оборудования необходимо создать \"Комплектующие\""
           redirect_to action: :index
         end
       end
