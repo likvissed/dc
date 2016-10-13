@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161006054331) do
+ActiveRecord::Schema.define(version: 20160922022059) do
 
   create_table "cluster_details", force: :cascade do |t|
     t.integer  "cluster_id",   limit: 4
@@ -41,7 +41,6 @@ ActiveRecord::Schema.define(version: 20161006054331) do
     t.datetime "updated_at",                                     null: false
   end
 
-  add_index "contacts", ["department_head_id"], name: "index_contacts_on_department_head_id", using: :btree
   add_index "contacts", ["dept"], name: "index_contacts_on_dept", using: :btree
   add_index "contacts", ["info"], name: "index_contacts_on_info", using: :btree
 
@@ -123,6 +122,7 @@ ActiveRecord::Schema.define(version: 20161006054331) do
   end
 
   add_index "servers", ["name"], name: "index_servers_on_name", using: :btree
+  add_index "servers", ["status"], name: "index_servers_on_status", using: :btree
 
   create_table "service_dependencies", force: :cascade do |t|
     t.integer  "child_id",   limit: 4
@@ -153,6 +153,8 @@ ActiveRecord::Schema.define(version: 20161006054331) do
     t.datetime "created_at",             null: false
     t.datetime "updated_at",             null: false
   end
+
+  add_index "service_networks", ["ip"], name: "index_service_networks_on_ip", using: :btree
 
   create_table "service_ports", force: :cascade do |t|
     t.integer  "service_network_id", limit: 4
@@ -264,7 +266,7 @@ ActiveRecord::Schema.define(version: 20161006054331) do
   add_index "template_server_details", ["server_type_id"], name: "index_template_server_details_on_server_type_id", using: :btree
 
   create_table "users", force: :cascade do |t|
-    t.string   "username",            limit: 255
+    t.string   "username",            limit: 255,              null: false
     t.string   "encrypted_password",  limit: 255, default: "", null: false
     t.datetime "remember_created_at"
     t.integer  "sign_in_count",       limit: 4,   default: 0,  null: false
@@ -276,7 +278,7 @@ ActiveRecord::Schema.define(version: 20161006054331) do
     t.datetime "updated_at",                                   null: false
   end
 
-  add_index "users", ["username"], name: "index_users_on_username", unique: true, using: :btree
+  add_index "users", ["username"], name: "index_users_on_username", using: :btree
 
   create_table "users_roles", id: false, force: :cascade do |t|
     t.integer "user_id", limit: 4
