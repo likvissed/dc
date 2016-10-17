@@ -95,9 +95,9 @@
           '<"col-sm-2 col-md-2 col-lg-1"' +
             '<"#services.new-record">>' +
           '<"col-sm-5 col-md-5 col-lg-7">' +
-          '<"col-sm-3 col-sm-3 col-lg-2"' +
+          '<"col-sm-3 col-md-3 col-lg-2"' +
             '<"service-filter">>' +
-          '<"col-sm-2 col-sm-2 col-lg-2"f>>' +
+          '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
           '<"col-md-12"p>>'
       );
