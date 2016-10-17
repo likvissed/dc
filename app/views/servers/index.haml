@@ -1,7 +1,11 @@
 = title "Просмотр оборудования"
-.default-content{ "ng-controller": "ServerIndexCtrl as serverPage" }
-  .content-body
-    %datatable-wrapper
-      %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPage.dtOptions", "dt-columns": "serverPage.dtColumns", "dt-instance": "serverPage.dtInstance" }
+
+.container{ "ng-controller": "ServerIndexCtrl as serverPage" }
+  .row
+    .col-md-8.col-md-offset-2
+      .well
+        .content-body
+          %datatable-wrapper
+            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPage.dtOptions", "dt-columns": "serverPage.dtColumns", "dt-instance": "serverPage.dtInstance", width: "100%" }
 
   = render partial: "preview"
