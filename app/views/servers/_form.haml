@@ -1,39 +1,41 @@
-.medium-content
-  %div{ "ng-controller": "ServerEditCtrl as server", "ng-init": "server.init(#{@server.id || 0}, '#{params[:name]}')" }
-    = simple_form_for @server, url: url do |s|
-      -#, html: { "serv-form": @server.id || 0, "serv-name": params[:name] }
-      .content-body
-        = s.input :name, label: "Наименование", autofocus: true
-        = s.input :inventory_num, label: "Инвентарный номер"
-        = s.input :serial_num, label: "Серийный номер"
-        = s.input :location, label: "Расположение"
-        .row
-          .col-xs-12
-            = s.input :status, label: "Статус", collection: Server.statuses.keys.to_a, as: :select, prompt: "Выберите статус"
-        .row
-          .col-xs-12
-            - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
-            %div{ class: error_class }
-              = label_tag :server_server_type_id , class: "control-label" do
-                %abbr{ title: "required" } *
-                %b Тип Оборудования
-              = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.value.server_type",
-              "ng-options": "type.name for type in server.types track by type.id", "ng-change": "server.changeType()", prompt: "Выберите тип сервера"
-              %span.help-block= get_errors @server.errors[:server_type_id]
+.container
+  .row
+    .col-md-6.col-md-offset-3
+      .well
+        %div{ "ng-controller": "ServerEditCtrl as server", "ng-init": "server.init(#{@server.id || 0}, '#{params[:name]}')" }
+          = simple_form_for @server, url: url do |s|
+            .content-body
+              = s.input :name, label: "Наименование", autofocus: true
+              = s.input :inventory_num, label: "Инвентарный номер"
+              = s.input :serial_num, label: "Серийный номер"
+              = s.input :location, label: "Расположение"
+              .row
+                .col-md-12
+                  = s.input :status, label: "Статус", collection: Server.statuses.keys.to_a, as: :select, prompt: "Выберите статус"
+              .row
+                .col-md-12
+                  - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
+                  %div{ class: error_class }
+                    = label_tag :server_server_type_id , class: "control-label" do
+                      %abbr{ title: "required" } *
+                      %b Тип Оборудования
+                    = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.value.server_type",
+                    "ng-options": "type.name for type in server.types track by type.id", "ng-change": "server.changeType()", prompt: "Выберите тип сервера"
+                    %span.help-block= get_errors @server.errors[:server_type_id]
 
-        %h5{ "ng-show": "server.value" }
-          %b Состав сервера
-        .row.row-margin-bot{ "ng-repeat": "detail in server.value.real_server_details", "ng-hide": "detail.destroy" }
-          = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][id]", "{{ detail.id }}"
-          = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][_destroy]", "{{ detail.destroy }}"
-          .col-xs-8
-            = select_tag "server[real_server_details_attributes][{{ $index }}][server_part_id]", nil, class: "form-control", "ng-model": "detail.server_part", "ng-options": "part.name for part in server.parts track by part.id"
-          .col-xs-2
-            = text_field_tag "server[real_server_details_attributes][{{ $index }}][count]", "{{ detail.count }}", class: "form-control count-width", "ng-model": "detail.count"
+              %h5{ "ng-show": "server.value" }
+                %b Состав сервера
+              .row.row-margin-bot{ "ng-repeat": "detail in server.value.real_server_details", "ng-hide": "detail.destroy" }
+                = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][id]", "{{ detail.id }}"
+                = hidden_field_tag "server[real_server_details_attributes][{{ $index }}][_destroy]", "{{ detail.destroy }}"
+                .col-sm-6.col-md-7.col-lg-8
+                  = select_tag "server[real_server_details_attributes][{{ $index }}][server_part_id]", nil, class: "form-control", "ng-model": "detail.server_part", "ng-options": "part.name for part in server.parts track by part.id"
+                .col-sm-2.col-md-2.col-lg-2
+                  = text_field_tag "server[real_server_details_attributes][{{ $index }}][count]", "{{ detail.count }}", class: "form-control count-width", "ng-model": "detail.count"
+                .col-sm-4.col-md-3.col-lg-2
+                  = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", type: "button", "ng-click": "server.addServPart()"
+                  = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", type: "button", "ng-click": "server.delServPart(detail)"
 
-          = button_tag icon("fa fa-plus fa-1g"), class: "btn-primary", type: "button", "ng-click": "server.addServPart()"
-          = button_tag icon("fa fa-minus fa-1g"), class: "btn-danger", type: "button", "ng-click": "server.delServPart(detail)"
-
-      .content-footer
-        = s.button :submit, "Готово", class: "btn-success"
-        = button_tag "Отмена", type: "submit", name: "cancel", value: true
+            .content-footer
+              = s.button :submit, "Готово", class: "btn-success"
+              = button_tag "Отмена", type: "submit", name: "cancel", value: true

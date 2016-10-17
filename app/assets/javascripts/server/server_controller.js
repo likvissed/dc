@@ -31,10 +31,10 @@
       .withOption('rowCallback', rowCallback)
       .withDOM(
         '<"row"' +
-          '<"col-sm-2 col-md-3 col-lg-2"' +
+          '<"col-sm-2 col-md-2 col-lg-2"' +
             '<"#servers.new-record">>' +
-          '<"col-sm-8 col-md-6 col-lg-8">' +
-          '<"col-sm-2 col-md-3 col-lg-2"f>>' +
+          '<"col-sm-8 col-md-8 col-lg-8">' +
+          '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
           '<"col-md-12"p>>'
       );
