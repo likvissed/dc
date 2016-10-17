@@ -21,12 +21,12 @@
       .withOption('createdRow', createdRow)
       .withDOM(
         '<"row"' +
-          '<"col-sm-2"' +
+          '<"col-sm-2 col-md-3 col-lg-2"' +
             '<"#department_heads.new-record">>' +
-          '<"col-sm-8">' +
-          '<"col-sm-2"f>>' +
+          '<"col-sm-8 col-md-6 col-lg-8">' +
+          '<"col-sm-2 col-md-3 col-lg-2"f>>' +
         't<"row"' +
-          '<"col-sm-12"p>>'
+          '<"col-md-12"p>>'
       );
 
     self.dtColumns = [
