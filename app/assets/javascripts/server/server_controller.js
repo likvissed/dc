@@ -31,12 +31,12 @@
       .withOption('rowCallback', rowCallback)
       .withDOM(
         '<"row"' +
-          '<"col-sm-2"' +
+          '<"col-sm-2 col-md-2 col-lg-2"' +
             '<"#servers.new-record">>' +
-          '<"col-sm-8">' +
-          '<"col-sm-2"f>>' +
+          '<"col-sm-8 col-md-8 col-lg-8">' +
+          '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
-          '<"col-sm-12"p>>'
+          '<"col-md-12"p>>'
       );
     self.servers    = {}; // Объекты серверов (id => data)
     self.dtColumns  = [

@@ -1,5 +1,8 @@
-$main-header-bg-color: #0050a0 // Цвет фона шапки
-$main-bg-color: #f8f8f8
+//$main-header-bg-color: #0050a0 // Цвет фона шапки
+//$main-bg-color: #f8f8f8
+$corp-color: #0050a0
+$main-bg-color: white
+$min-width: 970px
 $defatul-width: 1024px
 $medium-width: 600px
 $big-width: 1500px
@@ -75,17 +78,19 @@ a.default-color
 /* ================================== Вспомогательная шапка ============================= */
 
 .content-header
-  $bgDefault      : #f9f9f9
-  $bgHighlight    : #dddddd
+  $bgDefault      : #f8f8f8
+  $bgHighlight    : #e7e7e7
   $colDefault     : #333333
-  $colHighlight   : #333333
+  $colHighlight   : #0050a0
   $dropDown       : true
+  $borderRadius   : 4px
 
   .header-padding
     padding: 10px
 
-  nav
-    @extend nav
+  .navbar
+    border-top-left-radius: $borderRadius !important
+    border-top-right-radius: $borderRadius !important
     margin-bottom: 0 !important
 
   .divider-vertical
@@ -132,6 +137,12 @@ a.default-color
             background-color: $bgDefault
 
             > li
+              > label
+                cursor: pointer
+
+                &:hover, &:focus
+                  color: $colHighlight
+
               > a
                 color: $colDefault
 
@@ -169,7 +180,7 @@ a.default-color
 
     .navbar-collapse,
     .navbar-form
-      border-color: $colDefault
+      border-color: $bgHighlight
 
       .form-group
         @extend .form-group
@@ -178,6 +189,9 @@ a.default-color
         input
           @extend input
           width: inherit !important
+
+    .navbar-collapse
+    //padding: 0 !important
 
     .navbar-link
       color: $colDefault

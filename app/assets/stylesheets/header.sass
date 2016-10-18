@@ -1,6 +1,51 @@
-.header-content
+.navbar
+  border-radius: 0 !important
+
+[role="navigation-top"]
+  $text-color: white
+
+  margin-bottom: 0
+  //background-color: #0050a0
+  color: $text-color
+
+  .navbar-header
+    .navbar-toggle
+      margin:
+        top: 13px
+        bottom: 13px
+
+  .navbar-text
+    margin: 20px 0 !important
+    color: $text-color
+
+    a
+      color: $text-color
+      text-decoration: underline
+
+      &:hover
+        color: darken($text-color, 15%)
+
+[role="navigation-main"]
+  $dropDown: true
+
+  .navbar-nav
+    > li
+      > a
+
+        &:hover, &:focus
+          color: $corp-color
+
+      @if $dropDown
+        > .dropdown-menu
+          > li
+            > a
+              &:hover, &:focus
+                color: $corp-color
+                background-color: transparent
+
+//header-content
   height: 60px
-  background-color: $main-header-bg-color
+  background-color: $corp-color
 
   .header-top
     width: 1024px
@@ -11,42 +56,42 @@
     background: -o-linear-gradient(left , rgba(0, 80, 160, 0) 0, rgba(40, 120, 200, 1) 50%, rgba(0, 80, 160, 0) 100%) repeat scroll 0% 0% transparent
     background: -ms-linear-gradient(left , rgba(0, 80, 160, 0) 0, rgba(40, 120, 200, 1) 50%, rgba(0, 80, 160, 0) 100%) repeat scroll 0% 0% transparent
 
-    .logo
-      position: absolute
-      top: 0
-      width: 60px
-      height: 60px
+  .logo
+    position: absolute
+    top: 0
+    width: 60px
+    height: 60px
 
-    .user-menu
-      width: inherit
+  .user-menu
+    width: inherit
 
-      ul
-        float: right
-        display: block
-        margin-top: 18px
-        list-style: none
-        color: white
+    ul
+      float: right
+      display: block
+      margin-top: 18px
+      list-style: none
+      color: white
 
-        li
-          float: left
-          padding: 0 5px
+      li
+        float: left
+        padding: 0 5px
 
-        li + li
-          border-left: 1px solid white
+      li + li
+        border-left: 1px solid white
 
-        $link-color: white
-        a
-          color: $link-color
-          &:hover
-            color: darken($link-color, 15%)
+      $link-color: white
+      a
+        color: $link-color
+        &:hover
+          color: darken($link-color, 15%)
 
-$bgDefault      : #0050a0
-$bgHighlight    : #ffffff
-$colDefault     : #ecf0f1
-$colHighlight   : #786f6f
-$dropDown       : true
+//$bgDefault      : #0050a0
+//$bgHighlight    : #ffffff
+//$colDefault     : #ecf0f1
+//$colHighlight   : #786f6f
+//$dropDown       : true
 
-.navbar-default
+//.navbar-default
   background-color: $bgDefault
   border:
     color: $bgDefault
@@ -117,7 +162,7 @@ $dropDown       : true
     &:hover
       color: $colHighlight
 
-@media (max-width: 767px)
+/*@media (max-width: 767px)
   .navbar-default .navbar-nav .open .dropdown-menu
     > li > a
       color: $colDefault

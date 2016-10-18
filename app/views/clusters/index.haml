@@ -1,12 +1,16 @@
 = title "Серверы"
-.medium-content
-  .content-body
-    = button_to "Добавить", new_cluster_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_cluster_form" }
-    %table.table.table-hover.table-striped#clusterTable
-      %thead
-        %tr
-          %th #
-          %th.col-md-10 Имя
-          %th
+
+.container
+  .row
+    .col-md-10.col-md-offset-1.col-lg-6.col-lg-offset-3
+      .well
+        .content-body
+          = button_to "Добавить", new_cluster_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_cluster_form" }
+          %table.table.table-hover.table-striped#clusterTable{ width: "100%" }
+            %thead
+              %tr
+                %th #
+                %th.col-md-10 Имя
+                %th
 
 = render partial: "preview"

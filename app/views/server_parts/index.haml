@@ -1,7 +1,11 @@
 = title "Комплектующие"
-.default-content{ "ng-controller": "ServerPartIndexCtrl as serverPartPage" }
-  .content-body
-    %datatable-wrapper
-      %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPartPage.dtOptions", "dt-columns": "serverPartPage.dtColumns", "dt-instance": "serverPartPage.dtInstance" }
+
+.container{ "ng-controller": "ServerPartIndexCtrl as serverPartPage" }
+  .row
+    .col-md-12.col-lg-8.col-lg-offset-2
+      .well
+        .content-body
+          %datatable-wrapper
+            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPartPage.dtOptions", "dt-columns": "serverPartPage.dtColumns", "dt-instance": "serverPartPage.dtInstance", width: "100%" }
 
   = render partial: "preview"
