@@ -1,12 +1,14 @@
-.medium-content
-  = simple_form_for [@server_part], url: url do |f|
-    .content-body
-      = f.input :name, label: "Наименование", autofocus: true
-      = f.input :part_num, label: "Номер"
-      = f.association :detail_type, label: "Тип", prompt: "Выберите тип"
-      = f.input :comment, label: "Комментарий"
+.container
+  .row
+    .col-md-4.col-md-offset-4
+      .well
+        = simple_form_for [@server_part], url: url do |f|
+          .content-body
+            = f.input :name, label: "Наименование", autofocus: true
+            = f.input :part_num, label: "Номер"
+            = f.association :detail_type, label: "Тип", prompt: "Выберите тип"
+            = f.input :comment, label: "Комментарий"
 
-    .content-footer
-      = f.button :submit, "Готово", class: "btn-success"
-      = button_tag "Отмена", type: "submit", name: "cancel", value: true
-
+          .content-footer
+            = f.button :submit, "Готово", class: "btn-success"
+            = button_tag "Отмена", type: "submit", name: "cancel", value: true
