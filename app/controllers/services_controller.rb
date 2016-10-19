@@ -87,7 +87,7 @@ class ServicesController < ApplicationController
       missing_file = get_missing_files
 
       format.json do
-        service = @service.as_json(except: [:id, :contact_1_id, :contact_2_id, :created_at, :updated_at])
+        service = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
 
         # Установить номер формуляра
         service['number'] = @service.get_service_number
