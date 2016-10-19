@@ -24,9 +24,12 @@ module ServerApp
     # Do not swallow errors in after_commit/after_rollback callbacks.
     config.active_record.raise_in_transactional_callbacks = true
 
+    # Web console settings
+    config.web_console.whitelisted_ips = '10.1.8.26'
+
     config.generators do |g|
       g.template_engine     :haml
-      g.test_framework      :rspec, fixtures: true, views: false # Дефолтовый тестовый фреймворк
+      g.test_framework      :rspec, fixtures: true, views: false # Дефолтный тестовый фреймворк
       g.fixture_replacement :factory_girl, dir: "spec/factories"
     end
   end
