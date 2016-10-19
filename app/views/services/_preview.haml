@@ -10,21 +10,21 @@
                 %span.caret
               %ul.dropdown-menu
                 %li{ "ng-class": "{ disabled: preview.missing_file.scan }", "disable-link": "preview.missing_file.scan" }
-                  = link_to "Формуляр", "", "ng-href": "/services/{{servicePage.id}}/download/scan"
+                  = link_to "Формуляр", "", "ng-href": "/services/{{preview.service.id}}/download/scan"
                 %li{ "ng-class": "{ disabled: preview.missing_file.act }", "disable-link": "preview.missing_file.act" }
-                  = link_to "Акт", "", "ng-href": "/services/{{servicePage.id}}/download/act"
+                  = link_to "Акт", "", "ng-href": "/services/{{ preview.service.id }}/download/act"
                 %li{ "ng-class": "{ disabled: preview.missing_file.instr_off }", "disable-link": "preview.missing_file.instr_off" }
-                  = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{servicePage.id}}/download/instr_off"
+                  = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_off"
                 %li{ "ng-class": "{ disabled: preview.missing_file.instr_rec }", "disable-link": "preview.missing_file.instr_rec" }
-                  = link_to "Инструкцию по восст.", "", "ng-href": "/services/{{servicePage.id}}/download/instr_rec"
+                  = link_to "Инструкцию по восст.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_rec"
 
             .btn-group
               = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do
                 Создать
                 %span.caret
               %ul.dropdown-menu
-                %li= link_to "Формуляр", "#", "ng-href": "/services/{{servicePage.id}}/generate/formular"
-                %li= link_to "Акт", "#", "ng-href": "/services/{{servicePage.id}}/generate/act"
+                %li= link_to "Формуляр", "#", "ng-href": "/services/{{ preview.service.id }}/generate/formular"
+                %li= link_to "Акт", "#", "ng-href": "/services/{{ preview.service.id }}/generate/act"
 
             = link_to icon("fa fa-cog fa-fw"), "", class: "btn btn-default default-color", "ng-href": "/services/{{ preview.service.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать сервис"
 
