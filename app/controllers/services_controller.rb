@@ -95,6 +95,7 @@ class ServicesController < ApplicationController
         render json: {
           service:      service,
           networks:     @service.get_service_networks,
+          ports:        @service.get_ports,
           storages:     @service.get_service_storages,
           missing_file: missing_file,
           contacts:     @service.get_contacts(:formular)

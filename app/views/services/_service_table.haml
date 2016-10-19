@@ -236,17 +236,16 @@
           %td= s.input :internet, label: false
         %tr
           %td Сетевые порты, доступные из ЛС
-          %td.form-group.string.optional.template_service_network
-            = text_field_tag "template_service[port][0]", "" , "ng-focus": "service.showPortsModal($event)"
+          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.local" }
         %tr
           %td
-          %td
+          %td{ "ng-click": "service.showPortsModal($event)" }
         %tr
           %td Сетевые порты, доступные из Интернет
-          %td
+          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.inet" }
         %tr
           %td
-          %td
+          %td{ "ng-click": "service.showPortsModal($event)" }
         %tr
 
       -# =============================================== Контроль функционирования сервиса =========================

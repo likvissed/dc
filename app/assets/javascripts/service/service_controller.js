@@ -203,6 +203,7 @@
       self.service      = angular.copy(data.service);       // Данные сервиса
       self.missing_file = angular.copy(data.missing_file);  // Флаги, определяющие, имеются ли загруженные файлы
       self.contacts     = angular.copy(data.contacts);      // Ответственные
+      self.ports        = angular.copy(data.ports);         // Список открытых портов
       self.networks     = [];                               // Подключения к сети
       self.storages     = [];                               // Подключения к СХД
 
@@ -252,7 +253,8 @@
         .then(function (data) {
           Service.init(id, name, data);
 
-          self.network          = Service.getNetworks();      // Объект, вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
+          self.network          = Service.getNetworks();      // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
+          self.ports            = Service.getPorts();         // Объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя +ы Список портов, доступных из Интернет }
           self.missing_file     = Service.getMissingFiles();  // Массив с отстствующими флагами
           self.parents          = Service.getParents();       // Массив с сервисами-родителями
           self.storages         = Service.getStorages();      // Массив с подключениями к СХД
@@ -361,7 +363,6 @@
         Service.setFlag('portModal', true);
       }
       else {
-        $(data.event.target).blur();
         alert("Необходимо создать \"Подключение к сети\"");
       }
     });
@@ -378,6 +379,7 @@
       });
     };
 
+    // Закрыть модальное окно по кнопке "Готово"
     self.readyPortsModal = function () {
       Service.setFlag('portModal', false);
 
@@ -385,6 +387,7 @@
       Service.setPorts(self.template_value);
     };
 
+    // Закрыть модальное окно по кнопке "Отмена"
     self.closePortsModal = function () {
       Service.setFlag('portModal', false);
     };
