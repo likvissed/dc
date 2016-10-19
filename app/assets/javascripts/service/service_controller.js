@@ -104,7 +104,7 @@
 
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('priority').withTitle('').notSortable(),
+      DTColumnBuilder.newColumn('priority').withTitle('Приоритет').notSortable(),
       DTColumnBuilder.newColumn('number').withTitle('Номер').withOption('className', 'col-sm-1'),
       DTColumnBuilder.newColumn('name').withTitle('Имя').withOption('className', 'col-sm-4'),
       DTColumnBuilder.newColumn('time_work').withTitle('Режим').withOption('className', 'col-sm-1 text-center'),
@@ -127,8 +127,26 @@
       return meta.row + 1;
     }
 
+    //function severityClass(data, type, full, meta) {
+    //  console.log(meta);
+    //  return data;
+    //}
+
     // Компиляция строк
     function createdRow(row, data, dataIndex) {
+      console.log(data);
+      angular.element(row).find('td:nth-child(2)').addClass(function(index) {
+        switch (data.priority) {
+          case 'Критичный':
+            return 'danger';
+          case 'Вторичный':
+            return 'warning';
+          case 'Тестовый':
+            return 'success';
+          default:
+            return 'default';
+        }
+      });
       $compile(angular.element(row))($scope);
     }
 

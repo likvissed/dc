@@ -87,8 +87,6 @@ class Service < ActiveRecord::Base
                                     ],
                                     message: "Инструкция по отключению имеет неверный тип данных"
 
-  # errors.delete(:scan)
-
   # Получить всех ответственных
   # type - передается функции get_contact (:formular - для таблицы формуляра в виде строки, :obj - в виде объектов)
   def get_contacts(type)
@@ -183,7 +181,7 @@ class Service < ActiveRecord::Base
     if self.number.empty?
       "Номер формуляра отсутствует"
     else
-      "Формуляр № УИВТ-Ф-#{self.number}"
+      "Формуляр № ***REMOVED***-Ф-#{self.number}"
     end
   end
 

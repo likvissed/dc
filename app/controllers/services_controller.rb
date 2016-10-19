@@ -55,7 +55,7 @@ class ServicesController < ApplicationController
             contact_2: { only: :info }
           },
           except: [:created_at, :updated_at]).each do |s|
-            s['priority']   = "#"
+            s['priority']   = get_priority_abbr(s['priority'])
             s['time_work']  = short_time_work(s['time_work'])
 
             if !s.include?('contact_1') && !s.include?('contact_2')   # Если нет контактов
@@ -370,6 +370,20 @@ class ServicesController < ApplicationController
         "По запросу"
       else
         "Не определен"
+    end
+  end
+
+
+  def get_priority_abbr(value)
+    case value
+      when "Критическая производственная задача"
+        "Критичный"
+      when "Вторичная производственная задача"
+        "Вторичный"
+      when "Тестирование и отладка"
+        "Тестовый"
+      else
+        "Нет"
     end
   end
 
