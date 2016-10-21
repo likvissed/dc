@@ -90,7 +90,9 @@ class ServicesController < ApplicationController
         service = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
 
         # Установить номер формуляра
-        service['number'] = @service.get_service_number
+        service['number']   = @service.get_service_number
+        # Установить дедлайн для приоритета "Тестирование и отладка"
+        service['deadline'] = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 
         render json: {
           service:      service,
@@ -109,12 +111,15 @@ class ServicesController < ApplicationController
       format.html { @service = Service.new }
       format.json do
         get_services
-        render json: { services: @services }
+        render json: { services: @services, priorities: Service.priorities.keys }
       end
     end
   end
 
   def create
+    # Заменить названия месяцев для корректной работы ActiveRecord
+    params[:service][:deadline] = regexp_date(params[:service][:deadline])
+
     @service = Service.new(service_params)
     if @service.save
       flash[:notice] = "Данные добавлены."
@@ -154,7 +159,9 @@ class ServicesController < ApplicationController
           ),
           storage_systems: @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
           services: @services,
-          # current_name: @service.name, # Необходимо для исключения этого имени из списка родителей-сервисов
+          priorities: Service.priorities.keys,
+          priority: @service.priority,
+          deadline: @service.deadline,
           parents: @service.service_dep_parents.as_json(
             include: { parent_service: { only: [:id, :name] } },
             only: :id
@@ -171,6 +178,9 @@ class ServicesController < ApplicationController
         attr[1][:_destroy] = 1
       end
     end
+
+    # Заменить названия месяцев для корректной работы ActiveRecord
+    params[:service][:deadline] = regexp_date(params[:service][:deadline])
 
     if @service.update_attributes(service_params)
       flash[:notice] = "Данные изменены"
@@ -262,6 +272,7 @@ class ServicesController < ApplicationController
 
   private
 
+  # Разрешенные параметры
   def service_params
     params.require(:service).permit(
       :number,
@@ -271,6 +282,7 @@ class ServicesController < ApplicationController
       :name,
       :descr,
       :priority,
+      :deadline,
       :time_work,
       :max_time_rec,
       :contact_1_id,
@@ -338,18 +350,22 @@ class ServicesController < ApplicationController
     )
   end
 
+  # Получить список всех сервисов
   def get_services
     @services = Service.select(:id, :name)
   end
 
+  # Найти сервис по полю name
   def find_service_by_name
     @service = Service.find_by(name: params[:name])
   end
 
+  # Найти сервис по полю id
   def find_service_by_id
     @service = Service.find(params[:id])
   end
 
+  # Получить отдел (по ответственным), с которым связан сервис
   def get_dept
     if (!params[:service][:contact_1_id].empty?)
       @contact = Contact.find(params[:service][:contact_1_id])
@@ -360,33 +376,35 @@ class ServicesController < ApplicationController
     end
   end
 
+  # Получить аббревиатуру для поля "Режим гарантированной доступности"
   def short_time_work(time_work)
     case time_work
-      when "Круглосуточно (24/7)"
+      when Service.time_works.keys[0] # "Круглосуточно (24/7)"
         "24/7"
-      when "Рабочее время (8/5)"
+      when Service.time_works.keys[1] # "Рабочее время (8/5)"
         "8/5"
-      when "По запросу"
+      when Service.time_works.keys[2] # "По запросу"
         "По запросу"
       else
         "Не определен"
     end
   end
 
-
+  # Получить аббревиатуру для поля "Приоритет функционирования"
   def get_priority_abbr(value)
     case value
-      when "Критическая производственная задача"
+      when Service.priorities.keys[0] # "Критическая производственная задача"
         "Критичный"
-      when "Вторичная производственная задача"
+      when Service.priorities.keys[1] # "Вторичная производственная задача"
         "Вторичный"
-      when "Тестирование и отладка"
+      when Service.priorities.keys[2] # "Тестирование и отладка"
         "Тестовый"
       else
         "Нет"
     end
   end
 
+  # Получить объект, содержащий флаги, которые показывают отсутствующие файлы
   def get_missing_files(reload = false)
     @service.reload if reload
 
@@ -397,6 +415,26 @@ class ServicesController < ApplicationController
     missing_file[:instr_off]  = !@service.instr_off.exists?
 
     missing_file
+  end
+
+  # Заменить названия месяцев для корректной работы ActiveRecord
+  def regexp_date(date)
+    unless date.nil?
+      date.gsub!(/января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря/,
+                          'января'    => 'Jan',
+                          'февраля'   => 'Feb',
+                          'марта'     => 'Mar',
+                          'апреля'    => 'Apr',
+                          'мая'       => 'May',
+                          'июня'      => 'Jun',
+                          'июля'      => 'Jul',
+                          'августа'   => 'Aug',
+                          'сентября'  => 'Sep',
+                          'октября'   => 'Oct',
+                          'ноября'    => 'Nov',
+                          'декабря'   => 'Dec')
+      date.to_date
+    end
   end
 
 end

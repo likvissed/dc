@@ -10,7 +10,8 @@
 //= require lib/angularjs/angular-animate
 //= require lib/dataTables/angular-datatables
 
-//= require lib/ui-bootstrap-tpls-2.1.4.min
+//= require lib/ui-bootstrap-tpls-2.2.0
+//= require lib/angular-locale_ru
 
 //= require bootstrap
 // require dataTables/angular-datatables.bootstrap

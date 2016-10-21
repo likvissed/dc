@@ -2,6 +2,8 @@ class Service < ActiveRecord::Base
 
   resourcify
 
+  before_save :set_deadline
+
   has_many :service_networks, dependent: :destroy
   has_many :storage_systems, dependent: :destroy
 
@@ -327,6 +329,11 @@ class Service < ActiveRecord::Base
     else
       data.gsub!(/(\d+\/udp),{0,1} {0,1}$/, '\1')
     end
+  end
+
+  # Установить в поле test_date значение nil, если приоритет не равен "Тестирование и отладка"
+  def set_deadline
+    self.deadline = nil unless self.priority == "Тестирование и отладка"
   end
 
 end

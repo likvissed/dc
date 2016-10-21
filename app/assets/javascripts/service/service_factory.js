@@ -25,6 +25,11 @@
     var
       service = {                 // Основные данные сервера
         old_data: null,           // Данные, полученные с сервера
+        priority: {
+          selected:   null,       // Используется в качестве модели для первого элемента в поле select "Приоритет функционирования"
+          values:     [],         // Массив приоритетов функционирования
+          deadline:  new Date()   // Срок тестирования
+        },
         network: {
           selected: null,         // Используется в качестве модели для первого элемента в модальном окне "Открытые порты"
           values:   []            // Массив подключений к сети
@@ -319,6 +324,22 @@
       });
     }
 
+// =============================================== Работа с приоритетом функционирования ===============================
+
+    function _generatePriority(priority, deadline) {
+      service.priority.values = _getOldServiceData('priorities'); // Список всех возможных приоритетов функционирования
+
+      if (priority) {
+        service.priority.selected = priority;
+
+        // Если время ранее не было установлено (сервис не был в категории "Тестирование и отладка")
+        if (deadline != null)
+          service.priority.deadline = new Date(deadline);
+      }
+      else
+        service.priority.selected = service.priority.values[0];
+    }
+
 // =============================================== Публичные методы ====================================================
 
 // =============================================== Методы, вызываемые при инициализации ================================
@@ -331,12 +352,14 @@
 
       //Для нового сервиса
       if (current_id == 0) {
+        _generatePriority();
         _setMissingFile();
         _generateNetworkArr();
         _generateStorageArr();
       }
       //Для существующего сервиса
       else {
+        _generatePriority(_getOldServiceData('priority'), _getOldServiceData('deadline'));
         _setMissingFile(_getOldServiceData('missing_file'));
         _generateNetworkArr(_getOldServiceData('service_networks'));
         _generateStorageArr(_getOldServiceData('storage_systems'));
@@ -352,6 +375,11 @@
         return additional.flags[name];
 
       return additional.flags;
+    };
+
+    // Получить данные о приоритете фуонкционирования
+    self.getPriorities = function () {
+      return service.priority;
     };
 
     // Получить данные о подключениях к сети

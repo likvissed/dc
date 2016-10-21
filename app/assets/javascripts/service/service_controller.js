@@ -127,14 +127,8 @@
       return meta.row + 1;
     }
 
-    //function severityClass(data, type, full, meta) {
-    //  console.log(meta);
-    //  return data;
-    //}
-
     // Компиляция строк
     function createdRow(row, data, dataIndex) {
-      console.log(data);
       angular.element(row).find('td:nth-child(2)').addClass(function(index) {
         switch (data.priority) {
           case 'Критичный':
@@ -271,6 +265,7 @@
         .then(function (data) {
           Service.init(id, name, data);
 
+          self.priority         = Service.getPriorities();    // Объект вида { selected: Выбранный объект в поле select "Приоритет функционирования", values: Массив всех видов приоритетов }
           self.network          = Service.getNetworks();      // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
           self.ports            = Service.getPorts();         // Объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя +ы Список портов, доступных из Интернет }
           self.missing_file     = Service.getMissingFiles();  // Массив с отстствующими флагами
@@ -285,6 +280,26 @@
             return Service.showParents();
           };
         });
+    };
+
+// ================================================ "Срок тестирования"  ===============================================
+
+
+    self.deadline = {
+      openDatePicker: false, // Переменная определяющая начальное состояние календаря (false - скрыть, true - показать)
+      format: 'dd-MMMM-yyyy' // Формат времени, который видит пользователь
+    };
+
+    // Показать календарь
+    self.openDatePicker = function() {
+      self.deadline.openDatePicker = true;
+    };
+
+    self.dateOptions = {
+      //formatDayTitle: 'MMM yyyy',
+      minDate: new Date(),
+      showWeeks: false,
+      locale: 'ru'
     };
 
 // ================================================ "Подключения к сети" ===============================================

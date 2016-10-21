@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20160922022059) do
+ActiveRecord::Schema.define(version: 201610210***REMOVED***14) do
 
   create_table "cluster_details", force: :cascade do |t|
     t.integer  "cluster_id",   limit: 4
@@ -171,10 +171,11 @@ ActiveRecord::Schema.define(version: 20160922022059) do
 
   create_table "services", force: :cascade do |t|
     t.string   "number",                 limit: 20
-    t.string   "dept",                   limit: 10
+    t.integer  "dept",                   limit: 4
     t.string   "name",                   limit: 255
     t.text     "descr",                  limit: 65535
     t.integer  "priority",               limit: 4
+    t.date     "deadline"
     t.integer  "time_work",              limit: 4
     t.string   "max_time_rec",           limit: 255
     t.integer  "contact_1_id",           limit: 4
