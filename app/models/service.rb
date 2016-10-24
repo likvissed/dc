@@ -22,6 +22,7 @@ class Service < ActiveRecord::Base
   validates :name,
             presence: { message: "Наименование сервиса не может быть пустым" },
             uniqueness: { message: "Сервис с заданым именем уже существует" }
+  validates :number, uniqueness: true
 
   # Empty attributes will not be converted to nil
   # Sequential spaces in attributes will be collapsed to one space
@@ -88,6 +89,28 @@ class Service < ActiveRecord::Base
                                       # 'application/x-file-download'
                                     ],
                                     message: "Инструкция по отключению имеет неверный тип данных"
+
+  # Поулчает текущий последний номер формуляра и возвращает следующий за ним номер.
+  def self.get_next_service_number
+    last = 000
+
+    select(:number).each do |s|
+      unless s[:number].empty?
+        tmp_last = s[:number].slice(/\d{3}-\d{2}-(\d{3})/, 1)
+        last = tmp_last.to_i if tmp_last.to_i > last
+      end
+    end
+
+    if last.to_i.next < 10
+      last = "00#{last.to_i.next}"
+    elsif last.to_i.next < 100
+      last = "0#{last.to_i.next}"
+    else
+      last = last.to_i.next
+    end
+
+    last
+  end
 
   # Получить всех ответственных
   # type - передается функции get_contact (:formular - для таблицы формуляра в виде строки, :obj - в виде объектов)
@@ -179,11 +202,12 @@ class Service < ActiveRecord::Base
     storages
   end
 
+  # Возвращает номер формуляра, если он существует.
   def get_service_number
     if self.number.empty?
       "Номер формуляра отсутствует"
     else
-      "Формуляр № ***REMOVED***-Ф-#{self.number}"
+      "Формуляр № УИВТ-Ф-#{self.number}"
     end
   end
 

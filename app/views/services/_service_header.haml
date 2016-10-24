@@ -19,7 +19,7 @@
           -#.navbar-form{ role: "service-number" }
         %li.service-number
           .navbar-text № ***REMOVED***-Ф-
-          = s.input :number, label: false, placeholder: "XXX-#{DateTime.now.strftime('%y')}-N"
+          = s.input :number, label: false, placeholder: "xxx-#{DateTime.now.strftime('%y')}-#{Service.get_next_service_number}"
         -#%li.divider-vertical
 
         %li.dropdown
