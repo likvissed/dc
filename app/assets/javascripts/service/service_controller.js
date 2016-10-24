@@ -309,10 +309,9 @@
 
 // ================================================ "Срок тестирования"  ===============================================
 
-
     self.deadline = {
       openDatePicker: false, // Переменная определяющая начальное состояние календаря (false - скрыть, true - показать)
-      format: 'dd-MMMM-yyyy' // Формат времени, который видит пользователь
+      format:         'dd-MMMM-yyyy' // Формат времени, который видит пользователь
     };
 
     // Показать календарь
@@ -320,11 +319,12 @@
       self.deadline.openDatePicker = true;
     };
 
+    // Дополнительные параметры
     self.dateOptions = {
       //formatDayTitle: 'MMM yyyy',
-      minDate: new Date(),
-      showWeeks: false,
-      locale: 'ru'
+      minDate:    new Date(),
+      showWeeks:  false,
+      locale:     'ru'
     };
 
 // ================================================ "Подключения к сети" ===============================================
@@ -332,8 +332,8 @@
     // Открыть модальное окно "Подключение к сети"
     self.showNetworkModal = function ($index) {
       var obj = {
-        index: $index, // Запоминаем индекс строки, данные о которой необходимо изменить
-        network: Service.getNetworkTemplate($index)
+        index:    $index, // Запоминаем индекс строки, данные о которой необходимо изменить
+        network:  Service.getNetworkTemplate($index)
       };
 
       $scope.$broadcast('serviceNetworkData', obj);
@@ -379,9 +379,9 @@
 
     var standart = null; // Переменная, содержащая объект "подключение к сети" до внесения в него изменений
     $scope.$on('serviceNetworkData', function (event, data) {
-      self.index  = data.index;
-      self.value  = data.network;
-      standart    = angular.copy(self.value);
+      self.index  = data.index;               // Индекс в массиве
+      self.value  = data.network;             // Объект, содержащий значения полей
+      standart    = angular.copy(self.value); // Данные на момент открытия модального окна
 
       Service.setFlag('networkModal', true);
     });
@@ -401,8 +401,13 @@
 
     // Закрыть модальное окно по нажатии "Готово"
     self.readyNetworkModal = function () {
+      // Для новых данных
+      if (standart.segment == '' && standart.vlan == '' && standart.dns_name == '')
+        Service.setNetwork(self.index, self.value, 'new'); // Записали новые данные
+      else
+        Service.setNetwork(self.index, self.value); // Записали новые данные
+
       Service.setFlag('networkModal', false);
-      Service.setNetwork(self.index, self.value); // Записали новые данные
     };
   }
 

@@ -492,13 +492,32 @@
     };
 
     // Записать новые данные о подключении к сети
-    self.setNetwork = function (index, data) {
+    // index  - индекс массива
+    // data   - данные в поле value
+    // newRec - новая запись
+    self.setNetwork = function (index, data, newRec) {
       if (_checkTemplateNetworkPassed(data)) {
         service.network.values[index].value = data;
         service.network.values[index].view  = _setNetworkString(data);
 
+        // Для случая, когда:
+        // 1. Подключение к сети создано в одной из первых двух строк таблицы (эти строки всегда видны)
+        // 2. Подключение к сети было только что удалено (в скрытое поле установлен параметр _destroy = 1)
+        // 3. На его месте создается другое подключение к сети
+        // Необходимо установить парамет _destroy = 1, чтобы на стороне сервера подключение создалось. Если парамтр не
+        // изменить, то старое подключение удалится, новое не создастся.
+        // Необходимо сбросить значения полей открытых портов
+        if (newRec) {
+          service.network.values[index].destroy = 0;
+          service.network.values[index].ports   = _defaultPorts(index);
+        }
+
+        // В случае, если порты не определены, установить значения по умолчанию
+        // Для случая, когда создается новая завись
         if (!service.network.values[index].ports)
           service.network.values[index].ports = _defaultPorts(index);
+        else
+          self.getPorts();
       }
       else
         service.network.values[index].value = null;
@@ -560,11 +579,10 @@
       $.each(new_ports, function (i, port) {
         $.each(service.network.values, function (j, network) {
           if (port.local_id == network.local_id) {
-            if (_checkTemplatePortPassed(port))
-              network.ports = _filterPorts(port);
-            else
+            if (!_checkTemplatePortPassed(port))
               network.ports.destroy = 1;
 
+            network.ports = _filterPorts(port);
             return false;
           }
         });
@@ -622,13 +640,13 @@
           confirm_str += 'скан?';
           break;
         case 'act':
-          confirm_str += 'акт? ';
+          confirm_str += 'акт?';
           break;
         case 'instr_rec':
-          confirm_str += 'инструкцию по восстановлению? ';
+          confirm_str += 'инструкцию по восстановлению?';
           break;
         case 'instr_off':
-          confirm_str += 'инструкцию по отключению? ';
+          confirm_str += 'инструкцию по отключению?';
           break;
         default:
           confirm_str += 'файл?';
