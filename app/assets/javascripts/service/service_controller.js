@@ -143,7 +143,7 @@
           hoverPriority = flag.priority;
           break;
         default:
-          hoverText = 'Приоритет не определен';
+          hoverPriority = 'Приоритет не определен';
           break;
       }
 
