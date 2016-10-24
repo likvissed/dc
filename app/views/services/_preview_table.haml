@@ -19,7 +19,7 @@
       %td
         %b Приоритет функционирования
       %td{ "ng-bind": "preview.service.priority" }
-    %tr{ "ng-show": "preview.service.deadline" }
+    %tr{ "ng-show": "preview.service.deadline", "ng-class": "{ danger: preview.deadline }" }
       %td Срок тестирования
       %td{ "ng-bind": "preview.service.deadline" }
     %tr

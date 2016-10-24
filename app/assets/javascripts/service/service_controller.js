@@ -104,12 +104,12 @@
 
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('priority').withTitle('Приоритет').notSortable(),
-      DTColumnBuilder.newColumn('number').withTitle('Номер').withOption('className', 'col-sm-1'),
-      DTColumnBuilder.newColumn('name').withTitle('Имя').withOption('className', 'col-sm-4'),
-      DTColumnBuilder.newColumn('time_work').withTitle('Режим').withOption('className', 'col-sm-1 text-center'),
-      DTColumnBuilder.newColumn('dept').withTitle('Отдел').withOption('className', 'col-sm-1 text-center'),
-      DTColumnBuilder.newColumn('contacts').withTitle('Ответственные').withOption('className', 'col-sm-2'),
+      DTColumnBuilder.newColumn('flags').withTitle('Флаги').withOption('className', 'text-center').notSortable().renderWith(priority),
+      DTColumnBuilder.newColumn('number').withTitle('Номер').withOption('className', 'col-md-1'),
+      DTColumnBuilder.newColumn('name').withTitle('Имя').withOption('className', 'col-md-4'),
+      DTColumnBuilder.newColumn('time_work').withTitle('Режим').withOption('className', 'col-md-1 text-center'),
+      DTColumnBuilder.newColumn('dept').withTitle('Отдел').withOption('className', 'col-md-1 text-center'),
+      DTColumnBuilder.newColumn('contacts').withTitle('Ответственные').withOption('className', 'col-md-2'),
       DTColumnBuilder.newColumn('scan').withTitle('Формуляр').notSortable(),
       DTColumnBuilder.newColumn('act').withTitle('Акт ввода').notSortable(),
       DTColumnBuilder.newColumn('instr_rec').withTitle('Инстр. восст.').notSortable(),
@@ -121,6 +121,42 @@
 
 // =============================================== Приватные функции ===================================================
 
+    // Установить флаги для сервиса
+    function priority(flag) {
+      var
+        priorityCLass,  // Класс, определяющий цвет иконки-круга
+        hoverPriority,  // Текст, всплывающий при наведении на иконку "круг" (приоритет сервиса)
+        hoverDeadline,  // Текст, всплывающий при наведении на иконку "внимание"
+        str;            // Возвращаемая строка
+
+      switch (flag.priority) {
+        case 'Критическая производственная задача':
+          priorityCLass = 'text-danger';
+          hoverPriority = flag.priority;
+          break;
+        case 'Вторичная производственная задача':
+          priorityCLass = 'text-warning';
+          hoverPriority = flag.priority;
+          break;
+        case 'Тестирование и отладка':
+          priorityCLass = 'text-success';
+          hoverPriority = flag.priority;
+          break;
+        default:
+          hoverText = 'Приоритет не определен';
+          break;
+      }
+
+      str = '<i class="fa fa-circle ' + priorityCLass + '" tooltip-placement="top", uib-tooltip="' + hoverPriority + '">';
+
+      if (flag.deadline) {
+        hoverDeadline = 'Срок тестирования сервиса прошел';
+        str += '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top", uib-tooltip="' + hoverDeadline + '"></i>';
+      }
+
+      return str;
+    }
+
     // Показать номер строки
     function renderIndex(data, type, full, meta) {
       self.services[data.id] = data; // Сохранить данные сервиса (нужны для вывода пользователю информации об удаляемом элементе)
@@ -129,18 +165,6 @@
 
     // Компиляция строк
     function createdRow(row, data, dataIndex) {
-      angular.element(row).find('td:nth-child(2)').addClass(function(index) {
-        switch (data.priority) {
-          case 'Критичный':
-            return 'danger';
-          case 'Вторичный':
-            return 'warning';
-          case 'Тестовый':
-            return 'success';
-          default:
-            return 'default';
-        }
-      });
       $compile(angular.element(row))($scope);
     }
 
@@ -172,7 +196,7 @@
 
     // Отрендерить ссылку на удаление сервиса
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
 // =============================================== Публичные функции ===================================================
@@ -213,6 +237,7 @@
 
     $scope.$on('serviceData', function (event, data) {
       self.service      = angular.copy(data.service);       // Данные сервиса
+      self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса
       self.missing_file = angular.copy(data.missing_file);  // Флаги, определяющие, имеются ли загруженные файлы
       self.contacts     = angular.copy(data.contacts);      // Ответственные
       self.ports        = angular.copy(data.ports);         // Список открытых портов
@@ -240,9 +265,9 @@
         };
 
         if (index == 0)
-          self.storages[index].name   = 'Подключение к СХД';
+          self.storages[index].name = 'Подключение к СХД';
 
-        self.storages[index].value  = value;
+        self.storages[index].value = value;
       });
     });
   }

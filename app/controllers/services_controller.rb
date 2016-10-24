@@ -17,6 +17,7 @@ class ServicesController < ApplicationController
           :dept,
           :name,
           :priority,
+          :deadline,
           :time_work,
           :contact_1_id,
           :contact_2_id
@@ -49,32 +50,45 @@ class ServicesController < ApplicationController
                        Service.select(values)
         end
 
+        now = Time.now.to_date
         data = @service.as_json(
           include: {
             contact_1: { only: :info },
             contact_2: { only: :info }
           },
           except: [:created_at, :updated_at]).each do |s|
-            s['priority']   = get_priority_abbr(s['priority'])
+            # Привести "Режим функционирования" к сокращенному формату
             s['time_work']  = short_time_work(s['time_work'])
 
+            # Флаги
+            s['flags'] = {}
+            # Приоритет функционирования сервиса
+            s['flags']['priority'] = s['priority']
+            # Для тестовых затач проверить дату дедлайна (true - если now > deadline)
+            s['flags']['deadline'] = if s['deadline'].nil?
+                                       false
+                                     else
+                                       now > s['deadline']
+                                     end
+
+            # Передать только фамилию у ответственных
             if !s.include?('contact_1') && !s.include?('contact_2')   # Если нет контактов
               s['contacts'] = nil
             elsif !s.include?('contact_1') && s.include?('contact_2') # Если есть только контакт 2
-              s['contacts'] = s['contact_2']['info'].split(" ")[0]
+              s['contacts'] = s['contact_2']['info'].split(' ')[0]
             elsif !s.include?('contact_2')                            # Если есть только контакт 1
-              s['contacts'] = s['contact_1']['info'].split(" ")[0]
+              s['contacts'] = s['contact_1']['info'].split(' ')[0]
             else                                                      # Если оба контакта
-              s['contacts'] = s['contact_1']['info'].split(" ")[0] + ", " + s['contact_2']['info'].split(" ")[0]
+              s['contacts'] = s['contact_1']['info'].split(' ')[0] + ', ' + s['contact_2']['info'].split(' ')[0]
             end
 
             s.delete('contact_1_id')
             s.delete('contact_2_id')
 
-            s['scan']       = ""
-            s['act']        = ""
-            s['instr_rec']  = ""
-            s['instr_off']  = ""
+            s['scan']       = ''
+            s['act']        = ''
+            s['instr_rec']  = ''
+            s['instr_off']  = ''
           end
         render json: data
       end
@@ -90,12 +104,19 @@ class ServicesController < ApplicationController
         service = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
 
         # Установить номер формуляра
-        service['number']   = @service.get_service_number
+        service['number'] = @service.get_service_number
+        # Проверить, прошел ли дедлайн для тестового сервиса
+        deadline = if service['deadline'].nil?
+                     false
+                   else
+                     Time.now.to_date > service['deadline']
+                   end
         # Установить дедлайн для приоритета "Тестирование и отладка"
         service['deadline'] = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 
         render json: {
           service:      service,
+          deadline:     deadline,
           networks:     @service.get_service_networks,
           ports:        @service.get_ports,
           storages:     @service.get_service_storages,
@@ -389,7 +410,7 @@ class ServicesController < ApplicationController
         "Не определен"
     end
   end
-
+=begin
   # Получить аббревиатуру для поля "Приоритет функционирования"
   def get_priority_abbr(value)
     case value
@@ -403,7 +424,7 @@ class ServicesController < ApplicationController
         "Нет"
     end
   end
-
+=end
   # Получить объект, содержащий флаги, которые показывают отсутствующие файлы
   def get_missing_files(reload = false)
     @service.reload if reload
@@ -434,6 +455,15 @@ class ServicesController < ApplicationController
                           'ноября'    => 'Nov',
                           'декабря'   => 'Dec')
       date.to_date
+    end
+  end
+
+  # Проверить, прошел ли срок дедайна для тестового сервиса
+  def check_deadline(deadline)
+    if deadline.nil?
+      false
+    else
+      Time.now.to_date > deadline
     end
   end
 
