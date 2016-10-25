@@ -20,35 +20,40 @@ class ServicesController < ApplicationController
           :deadline,
           :time_work,
           :contact_1_id,
-          :contact_2_id
+          :contact_2_id,
+          :exploitation
         ]
 
-        @service = case params[:filter]
-                     when 'crit'
-                       Service.select(values).where(priority: "Критическая производственная задача")
-                     when '712'
-                       Service.select(values).where(dept: 712)
-                     when '713'
-                       Service.select(values).where(dept: 713)
-                     when '***REMOVED***'
-                       Service.select(values).where(dept: ***REMOVED***)
-                     when '***REMOVED***'
-                       Service.select(values).where(dept: ***REMOVED***)
-                     when '200'
-                       Service.select(values).where("dept LIKE ('2%')")
-                     when 'notUivt'
-                       Service.select(values).where("dept <> 712 and dept <> 713 and dept <> ***REMOVED*** and dept <> ***REMOVED***")
-                     when 'virt***REMOVED***'
-                       Service.select(values).where("environment LIKE ('%кластер производственной виртуализации VMware')")
-                     when 'virt***REMOVED***'
-                       Service.select(values).where("environment LIKE ('%система виртуализации о.***REMOVED***%')")
-                     when 'virtNetLAN'
-                       Service.select(values).where("environment LIKE ('%система производственной виртуализации ЛВС сетевой службы%')")
-                     when 'virtNetDMZ'
-                       Service.select(values).where("environment LIKE ('%система производственной виртуализации ДМЗ сетевой службы%')")
-                     else
-                       Service.select(values)
+        exploitation = params[:exploitation] == 'true'
+
+        filter = case params[:filter]
+                   when 'crit'
+                     "priority = 'Критическая производственная задача'"
+                   when '712'
+                     "dept = 712"
+                   when '713'
+                     "dept = 713"
+                   when '***REMOVED***'
+                     "dept = ***REMOVED***"
+                   when '***REMOVED***'
+                     "dept = ***REMOVED***"
+                   when '200'
+                     "dept LIKE ('2%')"
+                   when 'notUivt'
+                     "dept <> 712 and dept <> 713 and dept <> ***REMOVED*** and dept <> ***REMOVED***"
+                   when 'virt***REMOVED***'
+                     "environment LIKE ('%кластер производственной виртуализации VMware')"
+                   when 'virt***REMOVED***'
+                     "environment LIKE ('%система виртуализации о.***REMOVED***%')"
+                   when 'virtNetLAN'
+                     "environment LIKE ('%система производственной виртуализации ЛВС сетевой службы%')"
+                   when 'virtNetDMZ'
+                     "environment LIKE ('%система производственной виртуализации ДМЗ сетевой службы%')"
+                   else
+                     ""
         end
+
+        @service = Service.select(values).where(exploitation: exploitation).where(filter)
 
         now = Time.now.to_date
         data = @service.as_json(
@@ -70,6 +75,7 @@ class ServicesController < ApplicationController
                                    else
                                      now > s['deadline']
                                    end
+            s[:flags][:exploitation] = s['exploitation']
 
             # Передать только фамилию у ответственных
             if !s.include?('contact_1') && !s.include?('contact_2')   # Если нет контактов

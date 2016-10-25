@@ -77,6 +77,7 @@
       }
     ];
     self.selectedOption = self.options[0];
+    self.exploitation   = true;
     self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.services       = {};     // Объекты сервисов (id => data)
     self.dtInstance     = {};
@@ -84,7 +85,10 @@
       .newOptions()
       .withOption('ajax', {
         url:  '/services.json',
-        data: { filter: self.selectedOption.value }
+        data: {
+          filter:       self.selectedOption.value,
+          exploitation: self.exploitation
+        }
       })
       .withOption('createdRow', createdRow)
       .withOption('rowCallback', rowCallback)
@@ -92,12 +96,15 @@
         '<"row"' +
           '<"col-sm-2 col-md-2 col-lg-1"' +
             '<"#services.new-record">>' +
-          '<"col-sm-5 col-md-5 col-lg-7">' +
+          '<"col-sm-3 col-md-3 col-lg-6">' +
+          '<"col-sm-2 col-md-2 col-lg-1"' +
+            '<"service-exploitation">>' +
           '<"col-sm-3 col-md-3 col-lg-2"' +
             '<"service-filter">>' +
           '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
-          '<"col-md-12"p>>'
+          '<"col-md-6"i>' +
+          '<"col-md-6"p>>'
       );
 
     self.dtColumns  = [
@@ -203,14 +210,28 @@
       return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
+    function newQuery() {
+      self.dtInstance.changeData({
+        url:  '/services.json',
+        data: {
+          filter:       self.selectedOption.value,
+          exploitation: self.exploitation
+        }
+      });
+    }
+
 // =============================================== Публичные функции ===================================================
 
     // Выполнить запрос на сервер с учетом фильтра
     self.changeFilter = function () {
-      self.dtInstance.changeData({
-        url:  '/services.json',
-        data: { filter: self.selectedOption.value }
-      });
+      newQuery();
+    };
+
+    // Выполнить запрос на сервер с учетом необходимости показать/скрыть сервисы, которые не введены в эксплуатацию
+    self.showProjects = function () {
+      self.exploitation = self.exploitation ? false : true;
+
+      newQuery();
     };
 
     // Удалить сервис
