@@ -31,7 +31,6 @@ Rails.application.routes.draw do
     patch '/node_roles/:name',        to: 'node_roles#update'
 
     get   '/services/:name/edit',     to: 'services#edit'
-    # get   '/services/:name',          to: 'services#show'
     patch '/services/:name',          to: 'services#update'
   end
 

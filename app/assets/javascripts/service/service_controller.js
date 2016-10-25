@@ -23,8 +23,6 @@
 
 // =============================================== Инициализация =======================================================
 
-    //$location.absUrl().split('?')[1];
-
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
@@ -119,6 +117,12 @@
 
     var reloadPaging = false;
 
+// =============================================== Сразу же включить режим предпросмотра ===============================
+
+    var params = $location.absUrl().match(/services\?id=(\d+)/);
+    if (params)
+      showServiceData(params[1]);
+
 // =============================================== Приватные функции ===================================================
 
     // Установить флаги для сервиса
@@ -174,13 +178,13 @@
         if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
           return true;
 
-        $scope.$apply(showServiceData(data));
+        $scope.$apply(showServiceData(data.id));
       });
     }
 
     // Показать данные сервера
-    function showServiceData(row_data) {
-      Server.Service.get({id: row_data.id},
+    function showServiceData(id) {
+      Server.Service.get({id: id},
         // Success
         function (response) {
           // Отправить данные контроллеру ServicePreviewCtrl
@@ -190,7 +194,7 @@
         },
         // Error
         function (response) {
-          Flash.alert();
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
         });
     }
 

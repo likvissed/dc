@@ -144,7 +144,7 @@ class ServicesController < ApplicationController
     @service = Service.new(service_params)
     if @service.save
       flash[:notice] = "Данные добавлены."
-      redirect_to action: :index
+      redirect_to action: :index, id: @service.id
     else
       @service.errors.delete(:scan)
       @service.errors.delete(:act)
@@ -205,7 +205,7 @@ class ServicesController < ApplicationController
 
     if @service.update_attributes(service_params)
       flash[:notice] = "Данные изменены"
-      redirect_to action: :index
+      redirect_to action: :index, id: @service.id
     else
       @service.errors.delete(:scan)
       @service.errors.delete(:act)
