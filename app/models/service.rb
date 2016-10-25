@@ -22,7 +22,7 @@ class Service < ActiveRecord::Base
   validates :name,
             presence: { message: "Наименование сервиса не может быть пустым" },
             uniqueness: { message: "Сервис с заданым именем уже существует" }
-  validates :number, uniqueness: true
+  validates :number, uniqueness: true, allow_blank: true
 
   # Empty attributes will not be converted to nil
   # Sequential spaces in attributes will be collapsed to one space
@@ -207,7 +207,7 @@ class Service < ActiveRecord::Base
     if self.number.empty?
       "Номер формуляра отсутствует"
     else
-      "Формуляр № УИВТ-Ф-#{self.number}"
+      "Формуляр № ***REMOVED***-Ф-#{self.number}"
     end
   end
 
