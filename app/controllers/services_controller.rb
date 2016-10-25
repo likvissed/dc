@@ -21,7 +21,11 @@ class ServicesController < ApplicationController
           :time_work,
           :contact_1_id,
           :contact_2_id,
-          :exploitation
+          :exploitation,
+          :scan_file_name,
+          :act_file_name,
+          :instr_rec_file_name,
+          :instr_off_file_name
         ]
 
         exploitation = params[:exploitation] == 'true'
@@ -88,13 +92,34 @@ class ServicesController < ApplicationController
               s[:contacts] = s['contact_1']['info'].split(' ')[0] + ', ' + s['contact_2']['info'].split(' ')[0]
             end
 
+            s[:missing_file] = get_missing_files(s)
+            s[:scan]      = if s[:missing_file][:scan]
+                              '<i class="fa fa-times"></i>'
+                            else
+                              '<i class="fa fa-check"></i>'
+                            end
+
+            s[:act]       = if s[:missing_file][:act]
+                              '<i class="fa fa-times"></i>'
+                            else
+                              '<i class="fa fa-check"></i>'
+                            end
+
+            s[:instr_rec] = if s[:missing_file][:instr_rec]
+                              '<i class="fa fa-times"></i>'
+                            else
+                              '<i class="fa fa-check"></i>'
+                            end
+
+            s[:instr_off] = if s[:missing_file][:instr_off]
+                              '<i class="fa fa-times"></i>'
+                            else
+                              '<i class="fa fa-check"></i>'
+                            end
+
             s.delete('contact_1_id')
             s.delete('contact_2_id')
-
-            s[:scan]      = ''
-            s[:act]       = ''
-            s[:instr_rec] = ''
-            s[:instr_off] = ''
+            s.delete('missing_file')
           end
         render json: data
       end
@@ -104,7 +129,7 @@ class ServicesController < ApplicationController
   def show
     respond_to do |format|
       # Массив с флагами отсутствия файлов скана/акта/инструкций
-      missing_file = get_missing_files
+      missing_file = get_missing_files(@service)
 
       format.json do
         service = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
@@ -283,7 +308,7 @@ class ServicesController < ApplicationController
 
     respond_to do |format|
       format.json do
-        render json: { status: status, message: message, missing_file: get_missing_files(true) }
+        render json: { status: status, message: message, missing_file: get_missing_files(@service, true) }
       end
     end
   end
@@ -416,30 +441,25 @@ class ServicesController < ApplicationController
         "Не определен"
     end
   end
-=begin
-  # Получить аббревиатуру для поля "Приоритет функционирования"
-  def get_priority_abbr(value)
-    case value
-      when Service.priorities.keys[0] # "Критическая производственная задача"
-        "Критичный"
-      when Service.priorities.keys[1] # "Вторичная производственная задача"
-        "Вторичный"
-      when Service.priorities.keys[2] # "Тестирование и отладка"
-        "Тестовый"
-      else
-        "Нет"
-    end
-  end
-=end
-  # Получить объект, содержащий флаги, которые показывают отсутствующие файлы
-  def get_missing_files(reload = false)
-    @service.reload if reload
 
-    missing_file              = {}
-    missing_file[:scan]       = !@service.scan.exists?
-    missing_file[:act]        = !@service.act.exists?
-    missing_file[:instr_rec]  = !@service.instr_rec.exists?
-    missing_file[:instr_off]  = !@service.instr_off.exists?
+  # Получить объект, содержащий флаги, которые показывают отсутствующие файлы
+  def get_missing_files(service, reload = false)
+    missing_file = {}
+
+    # Если передали экземпляр класса
+    if service.class == 'Service'
+      service.reload if reload
+
+      missing_file[:scan]       = !service.scan.exists?
+      missing_file[:act]        = !service.act.exists?
+      missing_file[:instr_rec]  = !service.instr_rec.exists?
+      missing_file[:instr_off]  = !service.instr_off.exists?
+    else
+      missing_file[:scan]       = !service['scan_file_name'].present?
+      missing_file[:act]        = !service['act_file_name'].present?
+      missing_file[:instr_rec]  = !service['instr_rec_file_name'].present?
+      missing_file[:instr_off]  = !service['instr_off_file_name'].present?
+    end
 
     missing_file
   end

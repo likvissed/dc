@@ -13,10 +13,10 @@
                   = link_to "Формуляр", "", "ng-href": "/services/{{preview.service.id}}/download/scan"
                 %li{ "ng-class": "{ disabled: preview.missing_file.act }", "disable-link": "preview.missing_file.act" }
                   = link_to "Акт", "", "ng-href": "/services/{{ preview.service.id }}/download/act"
-                %li{ "ng-class": "{ disabled: preview.missing_file.instr_off }", "disable-link": "preview.missing_file.instr_off" }
-                  = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_off"
                 %li{ "ng-class": "{ disabled: preview.missing_file.instr_rec }", "disable-link": "preview.missing_file.instr_rec" }
                   = link_to "Инструкцию по восст.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_rec"
+                %li{ "ng-class": "{ disabled: preview.missing_file.instr_off }", "disable-link": "preview.missing_file.instr_off" }
+                  = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_off"
 
             .btn-group
               = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do

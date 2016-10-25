@@ -115,10 +115,10 @@
       DTColumnBuilder.newColumn('time_work').withTitle('Режим').withOption('className', 'col-md-1 text-center'),
       DTColumnBuilder.newColumn('dept').withTitle('Отдел').withOption('className', 'col-md-1 text-center'),
       DTColumnBuilder.newColumn('contacts').withTitle('Ответственные').withOption('className', 'col-md-2'),
-      DTColumnBuilder.newColumn('scan').withTitle('Формуляр').notSortable(),
-      DTColumnBuilder.newColumn('act').withTitle('Акт ввода').notSortable(),
-      DTColumnBuilder.newColumn('instr_rec').withTitle('Инстр. восст.').notSortable(),
-      DTColumnBuilder.newColumn('instr_off').withTitle('Инстр. выкл.').notSortable(),
+      DTColumnBuilder.newColumn('scan').withTitle('Формуляр').withOption('className', 'text-center').notSortable(),
+      DTColumnBuilder.newColumn('act').withTitle('Акт').withOption('className', 'text-center').notSortable(),
+      DTColumnBuilder.newColumn('instr_rec').withTitle('Инстр. восст.').withOption('className', 'text-center').notSortable(),
+      DTColumnBuilder.newColumn('instr_off').withTitle('Инстр. выкл.').withOption('className', 'text-center').notSortable(),
       DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
 
