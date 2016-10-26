@@ -28,8 +28,6 @@ class ServicesController < ApplicationController
           :instr_off_file_name
         ]
 
-        exploitation = params[:exploitation] == 'true'
-
         filter = case params[:filter]
                    when 'crit'
                      "priority = 'Критическая производственная задача'"
@@ -57,7 +55,8 @@ class ServicesController < ApplicationController
                      ""
         end
 
-        @service = Service.select(values).where(exploitation: exploitation).where(filter)
+        @service = Service.select(values).where(filter)
+        @service = @service.where(exploitation: true) if params[:exploitation] == 'true'
 
         now = Time.now.to_date
         data = @service.as_json(
