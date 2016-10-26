@@ -109,7 +109,7 @@
 
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('flags').withTitle('Флаги').withOption('className', 'text-center').notSortable().renderWith(priority),
+      DTColumnBuilder.newColumn('flags').withTitle('Флаг').withOption('className', 'text-center').notSortable().renderWith(priority),
       DTColumnBuilder.newColumn('number').withTitle('Номер').withOption('className', 'col-md-1'),
       DTColumnBuilder.newColumn('name').withTitle('Имя').withOption('className', 'col-md-4'),
       DTColumnBuilder.newColumn('time_work').withTitle('Режим').withOption('className', 'col-md-1 text-center'),
@@ -134,36 +134,28 @@
 
     // Установить флаги для сервиса
     function priority(flag) {
-      var
-        priorityCLass,  // Класс, определяющий цвет иконки-круга
-        hoverPriority,  // Текст, всплывающий при наведении на иконку "круг" (приоритет сервиса)
-        hoverDeadline,  // Текст, всплывающий при наведении на иконку "внимание"
-        str;            // Возвращаемая строка
+      var str; // Возвращаемая строка
 
-      switch (flag.priority) {
-        case 'Критическая производственная задача':
-          priorityCLass = 'text-danger';
-          hoverPriority = flag.priority;
-          break;
-        case 'Вторичная производственная задача':
-          priorityCLass = 'text-warning';
-          hoverPriority = flag.priority;
-          break;
-        case 'Тестирование и отладка':
-          priorityCLass = 'text-success';
-          hoverPriority = flag.priority;
-          break;
-        default:
-          hoverPriority = 'Приоритет не определен';
-          break;
-      }
+      if (flag.exploitation)
+        switch (flag.priority) {
+          case 'Критическая производственная задача':
+            str = '<i class="fa fa-star" tooltip-placement="top" uib-tooltip="Критическая производственная задача"></i>';
+            break;
+          case 'Вторичная производственная задача':
+            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная задача"></i>';
+            break;
+          case 'Тестирование и отладка':
+            str = '<i class="fa fa-star-o" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
+            break;
+          default:
+            str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не определен"></i>';
+            break;
+        }
+      else
+        str = '<i class="fa fa-cogs" tooltip-placement="top" uib-tooltip="Сервис не в эксплуатации"></i>';
 
-      str = '<i class="fa fa-circle ' + priorityCLass + '" tooltip-placement="top", uib-tooltip="' + hoverPriority + '">';
-
-      if (flag.deadline) {
-        hoverDeadline = 'Срок тестирования сервиса прошел';
-        str += '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top", uib-tooltip="' + hoverDeadline + '"></i>';
-      }
+      if (flag.deadline)
+        str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования сервиса прошел"></i>';
 
       return str;
     }
