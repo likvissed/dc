@@ -2,9 +2,13 @@
   'use strict';
 
   app
-    .service('Service', Service);
+    .service('Service', Service)
+    .service('ServiceCookies', ServiceCookies);
 
-  Service.$inject = ['$http', 'Flash'];
+  Service.$inject         = ['$http', 'Flash'];
+  ServiceCookies.$inject  = ['$cookies'];
+
+// =============================================== Создание/редактирование сервиса =====================================
 
   function Service($http, Flash) {
     var self = this;
@@ -675,5 +679,35 @@
       if (name == 'portModal' && !value)
         _setFirstNetworkElement();
     };
+  }
+
+// =============================================== Cookies =============================================================
+
+  function ServiceCookies($cookies) {
+    var self = this;
+
+    var service = {
+      showOnlyExploitationServices: true
+    };
+
+    // Получить cookies
+    self.get = function (key) {
+      if (angular.isUndefined(key))
+        return $cookies.getObject('service');
+
+      return angular.isUndefined($cookies.getObject('service')) ? 'Куки отсутсвуют' : $cookies.getObject('service')[key];
+    };
+
+    // Установить cookies
+    self.set = function (key, value) {
+      service[key] = value;
+
+      $cookies.putObject('service', service);
+    };
+
+// =============================================== Инициализация =======================================================
+
+    if (angular.isUndefined($cookies.getObject('service')))
+      $cookies.putObject('service', service);
   }
 })();

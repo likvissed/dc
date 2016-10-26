@@ -8,6 +8,7 @@
 //= require lib/angularjs/angular
 //= require lib/angularjs/angular-resource
 //= require lib/angularjs/angular-animate
+//= require lib/angularjs/angular-cookies
 //= require lib/dataTables/angular-datatables
 
 //= require lib/ui-bootstrap-tpls-2.2.0

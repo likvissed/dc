@@ -17,7 +17,7 @@
   function serviceExploitation() {
     return {
       restrict: 'C',
-      template: '<div class="btn-group btn-group-justified" data-toggle="buttons" ng-click="servicePage.showProjects()"><label class="btn btn-default" ng-class="{ active: !servicePage.exploitation }"><input type="checkbox" ng-model="servicePage.exploitation">Показать с проектами</label></div>'
+      template: '<div class="btn-group btn-group-justified" data-toggle="buttons" ng-click="servicePage.showProjects()"><label class="btn btn-default" ng-class="{ active: servicePage.exploitation == \'false\' }"><input type="checkbox" ng-model="servicePage.exploitation">Показать с проектами</label></div>'
     }
   }
 })();

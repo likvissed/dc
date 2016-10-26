@@ -9,7 +9,7 @@
     .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)
     .controller('DependenceCtrl', DependenceCtrl);
 
-  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies'];
   ServicePreviewCtrl.$inject      = ['$scope'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
@@ -18,7 +18,7 @@
 
 // ================================================ Главная страница сервисов ==========================================
 
-  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -77,7 +77,7 @@
       }
     ];
     self.selectedOption = self.options[0];
-    self.exploitation   = true;
+    self.exploitation   = ServiceCookies.get('showOnlyExploitationServices'); // Установить флаг, скрывающий сервисы, которые не введены в эксплуатацию
     self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.services       = {};     // Объекты сервисов (id => data)
     self.dtInstance     = {};
@@ -221,7 +221,8 @@
 
     // Выполнить запрос на сервер с учетом необходимости показать/скрыть сервисы, которые не введены в эксплуатацию
     self.showProjects = function () {
-      self.exploitation = self.exploitation ? false : true;
+      self.exploitation = self.exploitation == 'true' ? 'false' : 'true';
+      ServiceCookies.set('showOnlyExploitationServices', self.exploitation);
 
       newQuery();
     };
