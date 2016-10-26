@@ -92,6 +92,7 @@ class ServicesController < ApplicationController
             end
 
             s[:missing_file] = get_missing_files(s)
+            # Иконки наличия/отсутствия файлов скана/акта/инструкций
             s[:scan]      = if s[:missing_file][:scan]
                               '<i class="fa fa-times"></i>'
                             else

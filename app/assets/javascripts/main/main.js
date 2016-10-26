@@ -2,6 +2,7 @@ var app = angular
   .module('DataCenter', [
     'ngResource',
     'ngCookies',
+    'ngSanitize',
     'datatables',
     'ui.bootstrap'
   ]);

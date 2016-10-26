@@ -96,8 +96,8 @@
         '<"row"' +
           '<"col-sm-2 col-md-2 col-lg-1"' +
             '<"#services.new-record">>' +
-          '<"col-sm-3 col-md-3 col-lg-5">' +
-          '<"col-sm-2 col-md-2 col-lg-2"' +
+          '<"col-sm-2 col-md-2 col-lg-5">' +
+          '<"col-sm-3 col-md-3 col-lg-2"' +
             '<"service-exploitation">>' +
           '<"col-sm-3 col-md-3 col-lg-2"' +
             '<"service-filter">>' +
@@ -131,34 +131,6 @@
       showServiceData(params[1]);
 
 // =============================================== Приватные функции ===================================================
-
-    // Установить флаги для сервиса
-    function priority(flag) {
-      var str; // Возвращаемая строка
-
-      if (flag.exploitation)
-        switch (flag.priority) {
-          case 'Критическая производственная задача':
-            str = '<i class="fa fa-star" tooltip-placement="top" uib-tooltip="Критическая производственная задача"></i>';
-            break;
-          case 'Вторичная производственная задача':
-            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная задача"></i>';
-            break;
-          case 'Тестирование и отладка':
-            str = '<i class="fa fa-star-o" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
-            break;
-          default:
-            str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не определен"></i>';
-            break;
-        }
-      else
-        str = '<i class="fa fa-cogs" tooltip-placement="top" uib-tooltip="Сервис не в эксплуатации"></i>';
-
-      if (flag.deadline)
-        str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования сервиса прошел"></i>';
-
-      return str;
-    }
 
     // Показать номер строки
     function renderIndex(data, type, full, meta) {
@@ -212,6 +184,34 @@
       });
     }
 
+    // Установить флаг для сервиса
+    function priority(flag) {
+      var str; // Возвращаемая строка
+
+      if (flag.exploitation)
+        switch (flag.priority) {
+          case 'Критическая производственная задача':
+            str = '<i class="fa fa-star" tooltip-placement="top" uib-tooltip="Критическая производственная задача"></i>';
+            break;
+          case 'Вторичная производственная задача':
+            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная задача"></i>';
+            break;
+          case 'Тестирование и отладка':
+            str = '<i class="fa fa-star-o" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
+            break;
+          default:
+            str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не определен"></i>';
+            break;
+        }
+      else
+        str = '<i class="fa fa-cogs" tooltip-placement="top" uib-tooltip="Сервис не в эксплуатации"></i>';
+
+      if (flag.deadline)
+        str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования сервиса окончен"></i>';
+
+      return str;
+    }
+
 // =============================================== Публичные функции ===================================================
 
     // Выполнить запрос на сервер с учетом фильтра
@@ -261,6 +261,19 @@
       self.ports        = angular.copy(data.ports);         // Список открытых портов
       self.networks     = [];                               // Подключения к сети
       self.storages     = [];                               // Подключения к СХД
+      self.flag         = {                                 // Установка флага взависимости от того, введен ли сервис в эксплуатацию и приоритета функционирования
+        icon: '',
+        text: ''
+      };
+
+      if (self.service.exploitation) {
+        self.flag.icon = 'fa-toggle-on text-success';
+        self.flag.text = 'Сервис введен в эксплуатацию';
+      }
+      else {
+        self.flag.icon = 'fa-toggle-off text-muted';
+        self.flag.text = 'Сервис не введен в эксплуатацию';
+      }
 
       // Заполнение массива networks
       $.each(data.networks, function (index, value) {

@@ -28,7 +28,14 @@
 
             = link_to icon("fa fa-cog fa-fw"), "", class: "btn btn-default default-color", "ng-href": "/services/{{ preview.service.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать сервис"
 
-        %h3.modal-title{ "ng-bind": "preview.service.number" }
+        .pull-left
+          %h3.modal-title
+            .pull-left
+              %div{ "ng-bind": "preview.service.number" }
+            .pull-left
+              &nbsp;&nbsp;
+            .pull-left
+              = icon("fa {{ preview.flag.icon }} fa-1x", "tooltip-placement": "bottom", "uib-tooltip": "{{ preview.flag.text }}" )
 
       .modal-body
         = render partial: "preview_table"
