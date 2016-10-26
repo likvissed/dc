@@ -23,6 +23,7 @@ class Service < ActiveRecord::Base
             presence: { message: "Наименование сервиса не может быть пустым" },
             uniqueness: { message: "Сервис с заданым именем уже существует" }
   validates :number, uniqueness: true, allow_blank: true
+  validates :priority, :time_work, presence: true
 
   # Empty attributes will not be converted to nil
   # Sequential spaces in attributes will be collapsed to one space

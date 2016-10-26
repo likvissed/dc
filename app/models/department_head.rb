@@ -8,9 +8,9 @@ class DepartmentHead < ActiveRecord::Base
 
   has_many :contacts, dependent: :nullify
 
-  strip_attributes allow_empty: true, collapse_spaces: true
+  validates :tn, :dept, presence: true, numericality: { greater_than: 0 }, uniqueness: true
 
-  validates :tn, presence: true, numericality: { greater_than: 0 }, uniqueness: true
+  strip_attributes allow_empty: true, collapse_spaces: true
 
   private
 
