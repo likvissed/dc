@@ -152,7 +152,9 @@ class ServicesController < ApplicationController
           ports:        @service.get_ports,
           storages:     @service.get_service_storages,
           missing_file: missing_file,
-          contacts:     @service.get_contacts(:formular)
+          contacts:     @service.get_contacts(:formular),
+          hosting:      @service.cluster.as_json(only: :name),
+          parents:      @service.parents.as_json(only: :name)
         }
       end
     end

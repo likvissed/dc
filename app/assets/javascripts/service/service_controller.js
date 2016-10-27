@@ -265,6 +265,8 @@
         icon: '',
         text: ''
       };
+      self.hosting      = angular.copy(data.hosting);       // Хостинг сервиса
+      self.parents      = angular.copy(data.parents);       // Массив сервисов-родителей
 
       if (self.service.exploitation) {
         self.flag.icon = 'fa-toggle-on text-success';

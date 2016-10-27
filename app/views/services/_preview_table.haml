@@ -1,3 +1,15 @@
+%table.table
+  %tbody
+    %tr
+      %td.col-md-3 Хостинг сервиса
+      %td{ "ng-bind": "preview.hosting[0].name || 'Отсутствует'" }
+    %tr
+      %td.col-md-3 Зависимости сервиса
+      %td
+        %div{ "ng-show": "preview.parents.length == 0" } Отсутствует
+        %ul.list-unstyled{ "ng-show": "preview.parents.length != 0" }
+          %li{ "ng-repeat": "parent in preview.parents", "ng-bind": "parent.name" }
+
 %table.table.table-striped.table-bordered.table-edit-service
 
   -# =============================================== Основные данные ===============================================
