@@ -18,7 +18,16 @@
     %tr
       %td
         %b Приоритет функционирования
-      %td= s.input :priority, label: false, collection: Service.priorities.keys.to_a, as: :select, include_blank: false
+      %td
+        .form-group
+          = select_tag "service[priority]", nil, class: "form-control", "ng-model": "service.priority.selected", "ng-options": "priority for priority in service.priority.values track by priority"
+    %tr.ng-hide{ "ng-show": "service.priority.selected == 'Тестирование и отладка'" }
+      %td Срок тестирования
+      %td
+        .form-group
+          .row
+            .col-md-12
+              = text_field_tag "service[deadline]", "", class: "form-control", "ng-model": "service.priority.deadline", "uib-datepicker-popup": "{{ service.deadline.format }}", "ng-focus": "service.openDatePicker()", "datepicker-options": "service.dateOptions", "is-open": "service.deadline.openDatePicker", "popup-placement": "bottom-left", "show-button-bar": false
     %tr
       %td
         %b Режим гарантированной доступности
@@ -180,7 +189,7 @@
           %td
             %table.internal-table
               %tr
-                %td.form-group.string.optional.template_service_network
+                %td.form-group
                   = text_field_tag "template_service[network][{{ $index }}]", "", "ng-value": "network.view", "ng-focus": "service.showNetworkModal($index)"
 
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][id]", "{{ network.id }}"
@@ -201,8 +210,9 @@
         %tr{ "ng-repeat": "storage in service.storages" }
           %td
             %b{ "ng-bind": "storage.name" }
-          %td.form-group.string.optional.template_service_network
+          %td.form-group
             = text_field_tag "service[storage_systems_attributes][{{ $index }}][name]", "", "ng-value": "storage.value.name"
+
             = hidden_field_tag "service[storage_systems_attributes][{{ $index }}][id]", "{{ storage.id }}"
             = hidden_field_tag "service[storage_systems_attributes][{{ $index }}][_destroy]", "{{ storage.destroy }}"
         %tr
@@ -236,17 +246,16 @@
           %td= s.input :internet, label: false
         %tr
           %td Сетевые порты, доступные из ЛС
-          %td.form-group.string.optional.template_service_network
-            = text_field_tag "template_service[port][0]", "" , "ng-focus": "service.showPortsModal($event)"
+          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.local" }
         %tr
           %td
-          %td
+          %td{ "ng-click": "service.showPortsModal($event)" }
         %tr
           %td Сетевые порты, доступные из Интернет
-          %td
+          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.inet" }
         %tr
           %td
-          %td
+          %td{ "ng-click": "service.showPortsModal($event)" }
         %tr
 
       -# =============================================== Контроль функционирования сервиса =========================

@@ -75,6 +75,7 @@
     function link(scope, element, attrs) {
       function compileElements() {
         $timeout(function () {
+          $compile(element.find('.service-exploitation'))(scope);
           $compile(element.find('.service-filter'))(scope);
           $compile(element.find('.new-record'))(scope);
         }, 0, false);
@@ -85,7 +86,10 @@
       scope.$watch(
         function (scope) {
           if (scope.servicePage)
-            return scope.servicePage.selectedOption
+            return [
+              scope.servicePage.selectedOption,
+              scope.servicePage.exploitation
+            ];
         },
         function () {
           compileElements();
@@ -102,7 +106,7 @@
       restrict: 'C',
       //template: '<button class="btn-sm btn btn-primary btn-block" ng-click="contactPage.showContactModal()">Добавить</button>'
       templateUrl: function (element, attrs) {
-        return '/' + attrs.id + '/link_to_new_record.json';
+        return '/' + attrs.id + '/link/new_record.json';
       }
     }
   }

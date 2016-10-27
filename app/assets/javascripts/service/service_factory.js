@@ -2,9 +2,13 @@
   'use strict';
 
   app
-    .service('Service', Service);
+    .service('Service', Service)
+    .service('ServiceCookies', ServiceCookies);
 
-  Service.$inject = ['$http', 'Flash'];
+  Service.$inject         = ['$http', 'Flash'];
+  ServiceCookies.$inject  = ['$cookies'];
+
+// =============================================== Создание/редактирование сервиса =====================================
 
   function Service($http, Flash) {
     var self = this;
@@ -15,12 +19,21 @@
       visible_storage_count = 2,    // Количество строк "Подключения к СХД", видимых пользователем
       current_id,
       current_name,
-      template_ports        = [];
+      template_ports        = [],
+      ports                 = {     // Объект, содержащий строки открытых портов, доступных из ЛС и сети Интернет
+        local:  '',
+        inet:   ''
+      };
 
     // Переменные, которые возвращаются контроллеру
     var
       service = {                 // Основные данные сервера
         old_data: null,           // Данные, полученные с сервера
+        priority: {
+          selected:   null,       // Используется в качестве модели для первого элемента в поле select "Приоритет функционирования"
+          values:     [],         // Массив приоритетов функционирования
+          deadline:  new Date()   // Срок тестирования
+        },
         network: {
           selected: null,         // Используется в качестве модели для первого элемента в модальном окне "Открытые порты"
           values:   []            // Массив подключений к сети
@@ -180,8 +193,50 @@
 
     // Проверка корректности данных открытых портов
     function _checkTemplatePortPassed(data) {
-      //return data.local_tcp_ports != '' && data.local_udp_ports != '' && data.inet_tcp_ports != '' && data.inet_udp_ports != '';
       return data.local_tcp_ports != '' || data.local_udp_ports != '' || data.inet_tcp_ports != '' || data.inet_udp_ports != '';
+    }
+
+    // Провести входные данные открытых портов через фильтр регулярных выражений (для корректного отображения данных).
+    function _filterPorts(data) {
+      var arr = {
+        local_tcp_ports:  data.local_tcp_ports,
+        local_udp_ports:  data.local_udp_ports,
+        inet_tcp_ports:   data.inet_tcp_ports,
+        inet_udp_ports:   data.inet_udp_ports
+      };
+
+      $.each(arr, function (key, value) {
+        data[key] = value.toString()
+          .replace(/[^\d ,-]/g, '')               // Разрешаем только цифры, пробел, тире и запятую
+          .replace(/-+/g, '-')                    // Множественное повторение тире (оставить одно)
+          .replace(/,+/g, ',')                    // Множественное повторение запятой (оставить одну)
+          .replace(/ +/g, ' ')                    // Множественное повторение пробелов (оставить один)
+          .replace(/, {0,1}- {0,1},/g, ',')       // Только тире (удалить, если без цифр)
+          .replace(/(\d+)[- ]*,/g, '$1,')         // Тире или пробелы после цифры и до запятой (удалить)
+          .replace(/(,[- ]*)+(\d+)/g, ', $2')     // Тире или пробелы до цифры и после запятой (удалить)
+          .replace(/(\d+) ([^-])/g, '$1, $2')     // Поставить запятую, если она отсутствует
+          .replace(/(\d+) {0,1}-[ -]*/g, '$1 - ') // Удалить лишний пробел и тире (например: 60 - - - 80)
+          .replace(/(\d+)-(\d+)/g, '$1 - $2')     // Добавить пробелы при конструкции 60-80
+          .replace(/(\d+)( - \d+)+/g, '$1$2')     // Заменить конструкцию вида 1 - 2 - 3 - 4 на 1 - 4
+          .replace(/^[ ,-]+/g, '')                // Начало строки
+          .replace(/[ ,-]+$/g, '');               // Конец строки;
+      });
+
+      return data;
+    }
+
+    // Установть tcp/udp суффикс к указанным портам
+    // data - Строка, содержащая список портов и прошедшая фильтрация через функцию _filterPorts
+    // suffix - Строка, содержщая суффикс(tcp, udp), который необходимо добавить к портам, указанным в data
+    function _setPortSuffix(data, suffix) {
+      data = data.replace(/(\d+ {0,1}- {0,1}\d+)[, ]*/g, '$1/' + suffix + ', ')
+        .replace(/(\d+)([^\/ *\-\d+] *)/g, '$1/' + suffix + ', ')
+        .replace(/(\d+),{0,1} {0,1}$/g, '$1/' + suffix);
+
+      if (suffix == 'tcp')
+        return data.replace(/(\d+\/tcp),{0,1} {0,1}$/g, '$1');
+      else
+        return data.replace(/(\d+\/udp),{0,1} {0,1}$/g, '$1');
     }
 
 // =============================================== Работа с подключениями к СХД ========================================
@@ -273,6 +328,22 @@
       });
     }
 
+// =============================================== Работа с приоритетом функционирования ===============================
+
+    function _generatePriority(priority, deadline) {
+      service.priority.values = _getOldServiceData('priorities'); // Список всех возможных приоритетов функционирования
+
+      if (priority) {
+        service.priority.selected = priority;
+
+        // Если время ранее не было установлено (сервис не был в категории "Тестирование и отладка")
+        if (deadline != null)
+          service.priority.deadline = new Date(deadline);
+      }
+      else
+        service.priority.selected = service.priority.values[0];
+    }
+
 // =============================================== Публичные методы ====================================================
 
 // =============================================== Методы, вызываемые при инициализации ================================
@@ -285,12 +356,14 @@
 
       //Для нового сервиса
       if (current_id == 0) {
+        _generatePriority();
         _setMissingFile();
         _generateNetworkArr();
         _generateStorageArr();
       }
       //Для существующего сервиса
       else {
+        _generatePriority(_getOldServiceData('priority'), _getOldServiceData('deadline'));
         _setMissingFile(_getOldServiceData('missing_file'));
         _generateNetworkArr(_getOldServiceData('service_networks'));
         _generateStorageArr(_getOldServiceData('storage_systems'));
@@ -308,9 +381,73 @@
       return additional.flags;
     };
 
+    // Получить данные о приоритете фуонкционирования
+    self.getPriorities = function () {
+      return service.priority;
+    };
+
     // Получить данные о подключениях к сети
     self.getNetworks = function () {
       return service.network;
+    };
+
+    // Получить данные об открытых портах
+    self.getPorts = function () {
+      // Получить список портов, доступных из ЛС для vlan 500
+      function get_local_ports(value) {
+        // Проверка на существование подключения к сети
+        if (value.value == null)
+          return false;
+
+        var
+          tmp   = [],
+          flag  = 0;
+
+        if (value.ports.local_tcp_ports && /500/.test(value.value.vlan)) {
+          tmp.push(_setPortSuffix(value.ports.local_tcp_ports, 'tcp'));
+          flag = 1
+        }
+        if (value.ports.local_udp_ports && /500/.test(value.value.vlan)) {
+          tmp.push(_setPortSuffix(value.ports.local_udp_ports, 'udp'));
+          flag = 1
+        }
+
+        if (flag)
+          ports.local += value.value.dns_name + ': ' + tmp.join(", ") + '; ';
+      }
+
+      // Получить список портов, доступных из сети Интернет
+      function get_inet_ports(value) {
+        // Проверка на существование подключения к сети
+        if (value.value == null)
+          return false;
+
+        var
+          tmp   = [],
+          flag  = 0;
+
+        if (value.ports.inet_tcp_ports) {
+          tmp.push(_setPortSuffix(value.ports.inet_tcp_ports, 'tcp'));
+          flag = 1
+        }
+        if (value.ports.inet_udp_ports) {
+          tmp.push(_setPortSuffix(value.ports.inet_udp_ports, 'udp'));
+          flag = 1
+        }
+
+        if (flag)
+          ports.inet += value.value.dns_name + ': ' + tmp.join(", ") + '; ';
+      }
+
+      ports.local = '';
+      ports.inet = '';
+
+      $.each(service.network.values, function (index, value) {
+        get_local_ports(value);
+        get_inet_ports(value);
+      });
+
+      return ports;
     };
 
     // Получить данные о подключениях к СХД
@@ -359,13 +496,32 @@
     };
 
     // Записать новые данные о подключении к сети
-    self.setNetwork = function (index, data) {
+    // index  - индекс массива
+    // data   - данные в поле value
+    // newRec - новая запись
+    self.setNetwork = function (index, data, newRec) {
       if (_checkTemplateNetworkPassed(data)) {
         service.network.values[index].value = data;
         service.network.values[index].view  = _setNetworkString(data);
 
+        // Для случая, когда:
+        // 1. Подключение к сети создано в одной из первых двух строк таблицы (эти строки всегда видны)
+        // 2. Подключение к сети было только что удалено (в скрытое поле установлен параметр _destroy = 1)
+        // 3. На его месте создается другое подключение к сети
+        // Необходимо установить парамет _destroy = 1, чтобы на стороне сервера подключение создалось. Если парамтр не
+        // изменить, то старое подключение удалится, новое не создастся.
+        // Необходимо сбросить значения полей открытых портов
+        if (newRec) {
+          service.network.values[index].destroy = 0;
+          service.network.values[index].ports   = _defaultPorts(index);
+        }
+
+        // В случае, если порты не определены, установить значения по умолчанию
+        // Для случая, когда создается новая завись
         if (!service.network.values[index].ports)
           service.network.values[index].ports = _defaultPorts(index);
+        else
+          self.getPorts();
       }
       else
         service.network.values[index].value = null;
@@ -404,6 +560,9 @@
       }
 
       _setFirstNetworkElement();
+
+      // Обновить строки "Сетевые порты, доступные из ЛС" и "Сетевые порты, доступные из сети Интернет"
+      self.getPorts();
     };
 
 // =============================================== Работа с открытыми портами ==========================================
@@ -424,15 +583,17 @@
       $.each(new_ports, function (i, port) {
         $.each(service.network.values, function (j, network) {
           if (port.local_id == network.local_id) {
-            if (_checkTemplatePortPassed(port))
-              network.ports = port;
-            else
+            if (!_checkTemplatePortPassed(port))
               network.ports.destroy = 1;
 
+            network.ports = _filterPorts(port);
             return false;
           }
         });
       });
+
+      // Обновить строки "Сетевые порты, доступные из ЛС" и "Сетевые порты, доступные из сети Интернет"
+      self.getPorts();
     };
 
 // =============================================== Работа с сервисам-родителями ========================================
@@ -483,13 +644,13 @@
           confirm_str += 'скан?';
           break;
         case 'act':
-          confirm_str += 'акт? ';
+          confirm_str += 'акт?';
           break;
         case 'instr_rec':
-          confirm_str += 'инструкцию по восстановлению? ';
+          confirm_str += 'инструкцию по восстановлению?';
           break;
         case 'instr_off':
-          confirm_str += 'инструкцию по отключению? ';
+          confirm_str += 'инструкцию по отключению?';
           break;
         default:
           confirm_str += 'файл?';
@@ -518,5 +679,35 @@
       if (name == 'portModal' && !value)
         _setFirstNetworkElement();
     };
+  }
+
+// =============================================== Cookies =============================================================
+
+  function ServiceCookies($cookies) {
+    var self = this;
+
+    var service = {
+      showOnlyExploitationServices: true
+    };
+
+    // Получить cookies
+    self.get = function (key) {
+      if (angular.isUndefined(key))
+        return $cookies.getObject('service');
+
+      return angular.isUndefined($cookies.getObject('service')) ? 'Куки отсутсвуют' : $cookies.getObject('service')[key];
+    };
+
+    // Установить cookies
+    self.set = function (key, value) {
+      service[key] = value;
+
+      $cookies.putObject('service', service);
+    };
+
+// =============================================== Инициализация =======================================================
+
+    if (angular.isUndefined($cookies.getObject('service')))
+      $cookies.putObject('service', service);
   }
 })();

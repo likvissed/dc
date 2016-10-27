@@ -17,64 +17,109 @@ class ServicesController < ApplicationController
           :dept,
           :name,
           :priority,
+          :deadline,
           :time_work,
           :contact_1_id,
-          :contact_2_id
+          :contact_2_id,
+          :exploitation,
+          :scan_file_name,
+          :act_file_name,
+          :instr_rec_file_name,
+          :instr_off_file_name
         ]
 
-        @service = case params[:filter]
-                     when 'crit'
-                       Service.select(values).where(priority: "Критическая производственная задача")
-                     when '712'
-                       Service.select(values).where(dept: 712)
-                     when '713'
-                       Service.select(values).where(dept: 713)
-                     when '***REMOVED***'
-                       Service.select(values).where(dept: ***REMOVED***)
-                     when '***REMOVED***'
-                       Service.select(values).where(dept: ***REMOVED***)
-                     when '200'
-                       Service.select(values).where("dept LIKE ('2%')")
-                     when 'notUivt'
-                       Service.select(values).where("dept <> 712 and dept <> 713 and dept <> ***REMOVED*** and dept <> ***REMOVED***")
-                     when 'virt***REMOVED***'
-                       Service.select(values).where("environment LIKE ('%кластер производственной виртуализации VMware')")
-                     when 'virt***REMOVED***'
-                       Service.select(values).where("environment LIKE ('%система виртуализации о.***REMOVED***%')")
-                     when 'virtNetLAN'
-                       Service.select(values).where("environment LIKE ('%система производственной виртуализации ЛВС сетевой службы%')")
-                     when 'virtNetDMZ'
-                       Service.select(values).where("environment LIKE ('%система производственной виртуализации ДМЗ сетевой службы%')")
-                     else
-                       Service.select(values)
+        filter = case params[:filter]
+                   when 'crit'
+                     "priority = 'Критическая производственная задача'"
+                   when '712'
+                     "dept = 712"
+                   when '713'
+                     "dept = 713"
+                   when '***REMOVED***'
+                     "dept = ***REMOVED***"
+                   when '***REMOVED***'
+                     "dept = ***REMOVED***"
+                   when '200'
+                     "dept LIKE ('2%')"
+                   when 'notUivt'
+                     "dept <> 712 and dept <> 713 and dept <> ***REMOVED*** and dept <> ***REMOVED***"
+                   when 'virt***REMOVED***'
+                     "environment LIKE ('%кластер производственной виртуализации VMware')"
+                   when 'virt***REMOVED***'
+                     "environment LIKE ('%система виртуализации о.***REMOVED***%')"
+                   when 'virtNetLAN'
+                     "environment LIKE ('%система производственной виртуализации ЛВС сетевой службы%')"
+                   when 'virtNetDMZ'
+                     "environment LIKE ('%система производственной виртуализации ДМЗ сетевой службы%')"
+                   else
+                     ""
         end
 
+        @service = Service.select(values).where(filter)
+        @service = @service.where(exploitation: true) if params[:exploitation] == 'true'
+
+        now = Time.now.to_date
         data = @service.as_json(
           include: {
             contact_1: { only: :info },
             contact_2: { only: :info }
           },
           except: [:created_at, :updated_at]).each do |s|
-            s['priority']   = "#"
-            s['time_work']  = short_time_work(s['time_work'])
+            # Привести "Режим функционирования" к сокращенному формату
+            s[:time_work]  = short_time_work(s['time_work'])
 
+            # Флаги
+            s[:flags] = {}
+            # Приоритет функционирования сервиса
+            s[:flags][:priority] = s['priority']
+            # Для тестовых затач проверить дату дедлайна (true - если now > deadline)
+            s[:flags][:deadline] = if s['deadline'].nil?
+                                     false
+                                   else
+                                     now > s['deadline']
+                                   end
+            s[:flags][:exploitation] = s['exploitation']
+
+            # Передать только фамилию у ответственных
             if !s.include?('contact_1') && !s.include?('contact_2')   # Если нет контактов
-              s['contacts'] = nil
+              s[:contacts] = nil
             elsif !s.include?('contact_1') && s.include?('contact_2') # Если есть только контакт 2
-              s['contacts'] = s['contact_2']['info'].split(" ")[0]
+              s[:contacts] = s['contact_2']['info'].split(' ')[0]
             elsif !s.include?('contact_2')                            # Если есть только контакт 1
-              s['contacts'] = s['contact_1']['info'].split(" ")[0]
+              s[:contacts] = s['contact_1']['info'].split(' ')[0]
             else                                                      # Если оба контакта
-              s['contacts'] = s['contact_1']['info'].split(" ")[0] + ", " + s['contact_2']['info'].split(" ")[0]
+              s[:contacts] = s['contact_1']['info'].split(' ')[0] + ', ' + s['contact_2']['info'].split(' ')[0]
             end
+
+            s[:missing_file] = get_missing_files(s)
+            # Иконки наличия/отсутствия файлов скана/акта/инструкций
+            s[:scan]      = if s[:missing_file][:scan]
+                              '<i class="fa fa-times"></i>'
+                            else
+                              '<i class="fa fa-check"></i>'
+                            end
+
+            s[:act]       = if s[:missing_file][:act]
+                              '<i class="fa fa-times"></i>'
+                            else
+                              '<i class="fa fa-check"></i>'
+                            end
+
+            s[:instr_rec] = if s[:missing_file][:instr_rec]
+                              '<i class="fa fa-times"></i>'
+                            else
+                              '<i class="fa fa-check"></i>'
+                            end
+
+            s[:instr_off] = if s[:missing_file][:instr_off]
+                              '<i class="fa fa-times"></i>'
+                            else
+                              '<i class="fa fa-check"></i>'
+                            end
 
             s.delete('contact_1_id')
             s.delete('contact_2_id')
-
-            s['scan']       = ""
-            s['act']        = ""
-            s['instr_rec']  = ""
-            s['instr_off']  = ""
+            s.delete('missing_file')
           end
         render json: data
       end
@@ -84,20 +129,32 @@ class ServicesController < ApplicationController
   def show
     respond_to do |format|
       # Массив с флагами отсутствия файлов скана/акта/инструкций
-      missing_file = get_missing_files
+      missing_file = get_missing_files(@service)
 
       format.json do
         service = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
 
         # Установить номер формуляра
-        service['number'] = @service.get_service_number
+        service[:number] = @service.get_service_number
+        # Проверить, прошел ли дедлайн для тестового сервиса
+        deadline = if service['deadline'].nil?
+                     false
+                   else
+                     Time.now.to_date > service['deadline']
+                   end
+        # Установить дедлайн для приоритета "Тестирование и отладка"
+        service[:deadline] = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 
         render json: {
           service:      service,
+          deadline:     deadline,
           networks:     @service.get_service_networks,
+          ports:        @service.get_ports,
           storages:     @service.get_service_storages,
           missing_file: missing_file,
-          contacts:     @service.get_contacts(:formular)
+          contacts:     @service.get_contacts(:formular),
+          hosting:      @service.cluster.as_json(only: :name),
+          parents:      @service.parents.as_json(only: :name)
         }
       end
     end
@@ -108,16 +165,19 @@ class ServicesController < ApplicationController
       format.html { @service = Service.new }
       format.json do
         get_services
-        render json: { services: @services }
+        render json: { services: @services, priorities: Service.priorities.keys }
       end
     end
   end
 
   def create
+    # Заменить названия месяцев для корректной работы ActiveRecord
+    params[:service][:deadline] = regexp_date(params[:service][:deadline])
+
     @service = Service.new(service_params)
     if @service.save
       flash[:notice] = "Данные добавлены."
-      redirect_to action: :index
+      redirect_to action: :index, id: @service.id
     else
       @service.errors.delete(:scan)
       @service.errors.delete(:act)
@@ -153,7 +213,9 @@ class ServicesController < ApplicationController
           ),
           storage_systems: @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
           services: @services,
-          # current_name: @service.name, # Необходимо для исключения этого имени из списка родителей-сервисов
+          priorities: Service.priorities.keys,
+          priority: @service.priority,
+          deadline: @service.deadline,
           parents: @service.service_dep_parents.as_json(
             include: { parent_service: { only: [:id, :name] } },
             only: :id
@@ -171,9 +233,12 @@ class ServicesController < ApplicationController
       end
     end
 
+    # Заменить названия месяцев для корректной работы ActiveRecord
+    params[:service][:deadline] = regexp_date(params[:service][:deadline])
+
     if @service.update_attributes(service_params)
       flash[:notice] = "Данные изменены"
-      redirect_to action: :index
+      redirect_to action: :index, id: @service.id
     else
       @service.errors.delete(:scan)
       @service.errors.delete(:act)
@@ -245,7 +310,7 @@ class ServicesController < ApplicationController
 
     respond_to do |format|
       format.json do
-        render json: { status: status, message: message, missing_file: get_missing_files(true) }
+        render json: { status: status, message: message, missing_file: get_missing_files(@service, true) }
       end
     end
   end
@@ -261,6 +326,7 @@ class ServicesController < ApplicationController
 
   private
 
+  # Разрешенные параметры
   def service_params
     params.require(:service).permit(
       :number,
@@ -270,6 +336,7 @@ class ServicesController < ApplicationController
       :name,
       :descr,
       :priority,
+      :deadline,
       :time_work,
       :max_time_rec,
       :contact_1_id,
@@ -337,18 +404,22 @@ class ServicesController < ApplicationController
     )
   end
 
+  # Получить список всех сервисов
   def get_services
     @services = Service.select(:id, :name)
   end
 
+  # Найти сервис по полю name
   def find_service_by_name
     @service = Service.find_by(name: params[:name])
   end
 
+  # Найти сервис по полю id
   def find_service_by_id
     @service = Service.find(params[:id])
   end
 
+  # Получить отдел (по ответственным), с которым связан сервис
   def get_dept
     if (!params[:service][:contact_1_id].empty?)
       @contact = Contact.find(params[:service][:contact_1_id])
@@ -359,29 +430,69 @@ class ServicesController < ApplicationController
     end
   end
 
+  # Получить аббревиатуру для поля "Режим гарантированной доступности"
   def short_time_work(time_work)
     case time_work
-      when "Круглосуточно (24/7)"
+      when Service.time_works.keys[0] # "Круглосуточно (24/7)"
         "24/7"
-      when "Рабочее время (8/5)"
+      when Service.time_works.keys[1] # "Рабочее время (8/5)"
         "8/5"
-      when "По запросу"
+      when Service.time_works.keys[2] # "По запросу"
         "По запросу"
       else
         "Не определен"
     end
   end
 
-  def get_missing_files(reload = false)
-    @service.reload if reload
+  # Получить объект, содержащий флаги, которые показывают отсутствующие файлы
+  def get_missing_files(service, reload = false)
+    missing_file = {}
 
-    missing_file              = {}
-    missing_file[:scan]       = !@service.scan.exists?
-    missing_file[:act]        = !@service.act.exists?
-    missing_file[:instr_rec]  = !@service.instr_rec.exists?
-    missing_file[:instr_off]  = !@service.instr_off.exists?
+    # Если передали экземпляр класса
+    if service.class == 'Service'
+      service.reload if reload
+
+      missing_file[:scan]       = !service.scan.exists?
+      missing_file[:act]        = !service.act.exists?
+      missing_file[:instr_rec]  = !service.instr_rec.exists?
+      missing_file[:instr_off]  = !service.instr_off.exists?
+    else
+      missing_file[:scan]       = !service['scan_file_name'].present?
+      missing_file[:act]        = !service['act_file_name'].present?
+      missing_file[:instr_rec]  = !service['instr_rec_file_name'].present?
+      missing_file[:instr_off]  = !service['instr_off_file_name'].present?
+    end
 
     missing_file
+  end
+
+  # Заменить названия месяцев для корректной работы ActiveRecord
+  def regexp_date(date)
+    unless date.nil?
+      date.gsub!(/января|февраля|марта|апреля|мая|июня|июля|августа|сентября|октября|ноября|декабря/,
+                          'января'    => 'Jan',
+                          'февраля'   => 'Feb',
+                          'марта'     => 'Mar',
+                          'апреля'    => 'Apr',
+                          'мая'       => 'May',
+                          'июня'      => 'Jun',
+                          'июля'      => 'Jul',
+                          'августа'   => 'Aug',
+                          'сентября'  => 'Sep',
+                          'октября'   => 'Oct',
+                          'ноября'    => 'Nov',
+                          'декабря'   => 'Dec')
+      date.to_date
+    end
+  end
+
+  # Проверить, прошел ли срок дедайна для тестового сервиса
+  def check_deadline(deadline)
+    if deadline.nil?
+      false
+    else
+      Time.now.to_date > deadline
+    end
   end
 
 end

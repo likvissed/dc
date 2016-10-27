@@ -31,7 +31,6 @@ Rails.application.routes.draw do
     patch '/node_roles/:name',        to: 'node_roles#update'
 
     get   '/services/:name/edit',     to: 'services#edit'
-    # get   '/services/:name',          to: 'services#show'
     patch '/services/:name',          to: 'services#update'
   end
 
@@ -48,21 +47,21 @@ Rails.application.routes.draw do
   resources :users,         except: [:edit, :update]
 
   resources :servers,       except: [:edit, :update] do
-    get 'link_to_new_record', to: 'servers#link_to_new_record', on: :collection
+    get 'link/new_record', to: 'servers#link_to_new_record', on: :collection
   end
   resources :server_types,  except: [:edit, :update]
   resources :detail_types,  except: [:edit, :update, :show]
   resources :server_parts,  except: [:edit, :update] do
-    get 'link_to_new_record', to: 'server_parts#link_to_new_record', on: :collection
+    get 'link/new_record', to: 'server_parts#link_to_new_record', on: :collection
   end
   resources :clusters,      except: [:edit, :update]
   resources :node_roles,    except: [:edit, :update, :show]
 
   resources :contacts,          except: [:edit, :update, :show, :destroy] do
-    get 'link_to_new_record', to: 'contacts#link_to_new_record', on: :collection
+    get 'link/new_record', to: 'contacts#link_to_new_record', on: :collection
   end
   resources :department_heads,  except: [:edit, :update, :show, :destroy] do
-    get 'link_to_new_record', to: 'department_heads#link_to_new_record', on: :collection
+    get 'link/new_record', to: 'department_heads#link_to_new_record', on: :collection
   end
   resources :services,          except: [:edit, :update] do
     member do
@@ -72,7 +71,7 @@ Rails.application.routes.draw do
     end
 
     collection do
-      get 'link_to_new_record', to: 'services#link_to_new_record'   # Отрендерить ссылку на новую запись, если у пользователя есть права (через json)
+      get 'link/new_record', to: 'services#link_to_new_record'   # Отрендерить ссылку на новую запись, если у пользователя есть права (через json)
     end
 
   end

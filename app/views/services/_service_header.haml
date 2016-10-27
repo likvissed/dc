@@ -19,7 +19,7 @@
           -#.navbar-form{ role: "service-number" }
         %li.service-number
           .navbar-text № ***REMOVED***-Ф-
-          = s.input :number, label: false, placeholder: "XXX-#{DateTime.now.strftime('%y')}-N"
+          = s.input :number, label: false, placeholder: "xxx-#{DateTime.now.strftime('%y')}-#{Service.get_next_service_number}"
         -#%li.divider-vertical
 
         %li.dropdown
@@ -30,16 +30,16 @@
             %li
               = label_tag :service_scan do
                 = icon("fa fa-plus fa-fw")
-                Добавить
+                &nbsp;Добавить
               = s.input :scan, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
             %li{ "ng-class": "{ disabled: service.missing_file.scan }" }
               = link_to "/services/#{@service.id}/download/scan", "disable-link": "service.missing_file.scan", "data-link-type": "download" do
                 = icon("fa fa-download fa-fw")
-                Скачать
+                &nbsp;Скачать
             %li{ "ng-class": "{ disabled: service.missing_file.scan }" }
               = link_to "/services/#{@service.id}/destroy/scan", "disable-link": true, "data-link-type": "destroy", "data-type": "scan", "ng-click": "service.removeFile($event)" do
                 = icon("fa fa-trash fa-fw")
-                Удалить
+                &nbsp;Удалить
         -#%li.divider-vertical
 
         %li.dropdown
@@ -50,16 +50,16 @@
             %li
               = label_tag :service_act do
                 = icon("fa fa-plus fa-fw")
-                Добавить
+                &nbsp;Добавить
               = s.input :act, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
             %li{ "ng-class": "{ disabled: service.missing_file.act }" }
               = link_to "/services/#{@service.id}/download/act", "disable-link": "service.missing_file.act", "data-link-type": "download" do
                 = icon("fa fa-download fa-fw")
-                Скачать
+                &nbsp;Скачать
             %li{ "ng-class": "{ disabled: service.missing_file.act }" }
               = link_to "/services/#{@service.id}/destroy/act", "disable-link": true, "data-link-type": "destroy", "data-type": "act", "ng-click": "service.removeFile($event)" do
                 = icon("fa fa-trash fa-fw")
-                Удалить
+                &nbsp;Удалить
         -#%li.divider-vertical
 
         %li.dropdown
@@ -70,16 +70,16 @@
             %li
               = label_tag :service_instr_rec do
                 = icon("fa fa-plus fa-fw")
-                Добавить
+                &nbsp;Добавить
               = s.input :instr_rec, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
             %li{ "ng-class": "{ disabled: service.missing_file.instr_rec }" }
               = link_to "/services/#{@service.id}/download/instr_rec", "disable-link": "service.missing_file.instr_rec", "data-link-type": "download" do
                 = icon("fa fa-download fa-fw")
-                Скачать
+                &nbsp;Скачать
             %li{ "ng-class": "{ disabled: service.missing_file.instr_rec }" }
               = link_to "/services/#{@service.id}/destroy/instr_rec", "disable-link": true, "data-link-type": "destroy", "data-type": "instr_rec", "ng-click": "service.removeFile($event)" do
                 = icon("fa fa-trash fa-fw")
-                Удалить
+                &nbsp;Удалить
         -#%li.divider-vertical
 
         %li.dropdown
@@ -90,16 +90,16 @@
             %li
               = label_tag :service_instr_off do
                 = icon("fa fa-plus fa-fw")
-                Добавить
+                &nbsp;Добавить
               = s.input :instr_off, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
             %li{ "ng-class": "{ disabled: service.missing_file.instr_off }" }
               = link_to "/services/#{@service.id}/download/instr_off", "disable-link": "service.missing_file.instr_off", "data-link-type": "download" do
                 = icon("fa fa-download fa-fw")
-                Скачать
+                &nbsp;Скачать
             %li{ "ng-class": "{ disabled: service.missing_file.instr_off }" }
               = link_to "/services/#{@service.id}/destroy/instr_off", "disable-link": true, "data-link-type": "destroy", "data-type": "instr_off", "ng-click": "service.removeFile($event)" do
                 = icon("fa fa-trash fa-fw")
-                Удалить
+                &nbsp;Удалить
       -#%li.divider-vertical
 
       -#%li.divider-vertical

@@ -9,7 +9,7 @@
     .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)
     .controller('DependenceCtrl', DependenceCtrl);
 
-  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies'];
   ServicePreviewCtrl.$inject      = ['$scope'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
@@ -18,12 +18,10 @@
 
 // ================================================ Главная страница сервисов ==========================================
 
-  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
-
-    //$location.absUrl().split('?')[1];
 
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
@@ -79,6 +77,7 @@
       }
     ];
     self.selectedOption = self.options[0];
+    self.exploitation   = ServiceCookies.get('showOnlyExploitationServices'); // Установить флаг, скрывающий сервисы, которые не введены в эксплуатацию
     self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.services       = {};     // Объекты сервисов (id => data)
     self.dtInstance     = {};
@@ -86,7 +85,10 @@
       .newOptions()
       .withOption('ajax', {
         url:  '/services.json',
-        data: { filter: self.selectedOption.value }
+        data: {
+          filter:       self.selectedOption.value,
+          exploitation: self.exploitation
+        }
       })
       .withOption('createdRow', createdRow)
       .withOption('rowCallback', rowCallback)
@@ -94,30 +96,39 @@
         '<"row"' +
           '<"col-sm-2 col-md-2 col-lg-1"' +
             '<"#services.new-record">>' +
-          '<"col-sm-5 col-md-5 col-lg-7">' +
+          '<"col-sm-2 col-md-2 col-lg-5">' +
+          '<"col-sm-3 col-md-3 col-lg-2"' +
+            '<"service-exploitation">>' +
           '<"col-sm-3 col-md-3 col-lg-2"' +
             '<"service-filter">>' +
           '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
-          '<"col-md-12"p>>'
+          '<"col-md-6"i>' +
+          '<"col-md-6"p>>'
       );
 
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('priority').withTitle('').notSortable(),
-      DTColumnBuilder.newColumn('number').withTitle('Номер').withOption('className', 'col-sm-1'),
-      DTColumnBuilder.newColumn('name').withTitle('Имя').withOption('className', 'col-sm-4'),
-      DTColumnBuilder.newColumn('time_work').withTitle('Режим').withOption('className', 'col-sm-1 text-center'),
-      DTColumnBuilder.newColumn('dept').withTitle('Отдел').withOption('className', 'col-sm-1 text-center'),
-      DTColumnBuilder.newColumn('contacts').withTitle('Ответственные').withOption('className', 'col-sm-2'),
-      DTColumnBuilder.newColumn('scan').withTitle('Формуляр').notSortable(),
-      DTColumnBuilder.newColumn('act').withTitle('Акт ввода').notSortable(),
-      DTColumnBuilder.newColumn('instr_rec').withTitle('Инстр. восст.').notSortable(),
-      DTColumnBuilder.newColumn('instr_off').withTitle('Инстр. выкл.').notSortable(),
+      DTColumnBuilder.newColumn('flags').withTitle('Флаг').withOption('className', 'text-center').notSortable().renderWith(priority),
+      DTColumnBuilder.newColumn('number').withTitle('Номер').withOption('className', 'col-md-1'),
+      DTColumnBuilder.newColumn('name').withTitle('Имя').withOption('className', 'col-md-4'),
+      DTColumnBuilder.newColumn('time_work').withTitle('Режим').withOption('className', 'col-md-1 text-center'),
+      DTColumnBuilder.newColumn('dept').withTitle('Отдел').withOption('className', 'col-md-1 text-center'),
+      DTColumnBuilder.newColumn('contacts').withTitle('Ответственные').withOption('className', 'col-md-2'),
+      DTColumnBuilder.newColumn('scan').withTitle('Формуляр').withOption('className', 'text-center').notSortable(),
+      DTColumnBuilder.newColumn('act').withTitle('Акт').withOption('className', 'text-center').notSortable(),
+      DTColumnBuilder.newColumn('instr_rec').withTitle('Инстр. восст.').withOption('className', 'text-center').notSortable(),
+      DTColumnBuilder.newColumn('instr_off').withTitle('Инстр. выкл.').withOption('className', 'text-center').notSortable(),
       DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
 
     var reloadPaging = false;
+
+// =============================================== Сразу же включить режим предпросмотра ===============================
+
+    var params = $location.absUrl().match(/services\?id=(\d+)/);
+    if (params)
+      showServiceData(params[1]);
 
 // =============================================== Приватные функции ===================================================
 
@@ -138,13 +149,13 @@
         if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
           return true;
 
-        $scope.$apply(showServiceData(data));
+        $scope.$apply(showServiceData(data.id));
       });
     }
 
     // Показать данные сервера
-    function showServiceData(row_data) {
-      Server.Service.get({id: row_data.id},
+    function showServiceData(id) {
+      Server.Service.get({id: id},
         // Success
         function (response) {
           // Отправить данные контроллеру ServicePreviewCtrl
@@ -154,23 +165,66 @@
         },
         // Error
         function (response) {
-          Flash.alert();
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
         });
     }
 
     // Отрендерить ссылку на удаление сервиса
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
+    }
+
+    function newQuery() {
+      self.dtInstance.changeData({
+        url:  '/services.json',
+        data: {
+          filter:       self.selectedOption.value,
+          exploitation: self.exploitation
+        }
+      });
+    }
+
+    // Установить флаг для сервиса
+    function priority(flag) {
+      var str; // Возвращаемая строка
+
+      if (flag.exploitation)
+        switch (flag.priority) {
+          case 'Критическая производственная задача':
+            str = '<i class="fa fa-star" tooltip-placement="top" uib-tooltip="Критическая производственная задача"></i>';
+            break;
+          case 'Вторичная производственная задача':
+            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная задача"></i>';
+            break;
+          case 'Тестирование и отладка':
+            str = '<i class="fa fa-star-o" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
+            break;
+          default:
+            str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не определен"></i>';
+            break;
+        }
+      else
+        str = '<i class="fa fa-cogs" tooltip-placement="top" uib-tooltip="Сервис не в эксплуатации"></i>';
+
+      if (flag.deadline)
+        str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования сервиса окончен"></i>';
+
+      return str;
     }
 
 // =============================================== Публичные функции ===================================================
 
     // Выполнить запрос на сервер с учетом фильтра
     self.changeFilter = function () {
-      self.dtInstance.changeData({
-        url:  '/services.json',
-        data: { filter: self.selectedOption.value }
-      });
+      newQuery();
+    };
+
+    // Выполнить запрос на сервер с учетом необходимости показать/скрыть сервисы, которые не введены в эксплуатацию
+    self.showProjects = function () {
+      self.exploitation = self.exploitation == 'true' ? 'false' : 'true';
+      ServiceCookies.set('showOnlyExploitationServices', self.exploitation);
+
+      newQuery();
     };
 
     // Удалить сервис
@@ -201,10 +255,27 @@
 
     $scope.$on('serviceData', function (event, data) {
       self.service      = angular.copy(data.service);       // Данные сервиса
+      self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса
       self.missing_file = angular.copy(data.missing_file);  // Флаги, определяющие, имеются ли загруженные файлы
       self.contacts     = angular.copy(data.contacts);      // Ответственные
+      self.ports        = angular.copy(data.ports);         // Список открытых портов
       self.networks     = [];                               // Подключения к сети
       self.storages     = [];                               // Подключения к СХД
+      self.flag         = {                                 // Установка флага взависимости от того, введен ли сервис в эксплуатацию и приоритета функционирования
+        icon: '',
+        text: ''
+      };
+      self.hosting      = angular.copy(data.hosting);       // Хостинг сервиса
+      self.parents      = angular.copy(data.parents);       // Массив сервисов-родителей
+
+      if (self.service.exploitation) {
+        self.flag.icon = 'fa-toggle-on text-success';
+        self.flag.text = 'Сервис введен в эксплуатацию';
+      }
+      else {
+        self.flag.icon = 'fa-toggle-off text-muted';
+        self.flag.text = 'Сервис не введен в эксплуатацию';
+      }
 
       // Заполнение массива networks
       $.each(data.networks, function (index, value) {
@@ -227,9 +298,9 @@
         };
 
         if (index == 0)
-          self.storages[index].name   = 'Подключение к СХД';
+          self.storages[index].name = 'Подключение к СХД';
 
-        self.storages[index].value  = value;
+        self.storages[index].value = value;
       });
     });
   }
@@ -252,7 +323,9 @@
         .then(function (data) {
           Service.init(id, name, data);
 
-          self.network          = Service.getNetworks();      // Объект, вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
+          self.priority         = Service.getPriorities();    // Объект вида { selected: Выбранный объект в поле select "Приоритет функционирования", values: Массив всех видов приоритетов }
+          self.network          = Service.getNetworks();      // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
+          self.ports            = Service.getPorts();         // Объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя +ы Список портов, доступных из Интернет }
           self.missing_file     = Service.getMissingFiles();  // Массив с отстствующими флагами
           self.parents          = Service.getParents();       // Массив с сервисами-родителями
           self.storages         = Service.getStorages();      // Массив с подключениями к СХД
@@ -267,13 +340,33 @@
         });
     };
 
+// ================================================ "Срок тестирования"  ===============================================
+
+    self.deadline = {
+      openDatePicker: false, // Переменная определяющая начальное состояние календаря (false - скрыть, true - показать)
+      format:         'dd-MMMM-yyyy' // Формат времени, который видит пользователь
+    };
+
+    // Показать календарь
+    self.openDatePicker = function() {
+      self.deadline.openDatePicker = true;
+    };
+
+    // Дополнительные параметры
+    self.dateOptions = {
+      //formatDayTitle: 'MMM yyyy',
+      minDate:    new Date(),
+      showWeeks:  false,
+      locale:     'ru'
+    };
+
 // ================================================ "Подключения к сети" ===============================================
 
     // Открыть модальное окно "Подключение к сети"
     self.showNetworkModal = function ($index) {
       var obj = {
-        index: $index, // Запоминаем индекс строки, данные о которой необходимо изменить
-        network: Service.getNetworkTemplate($index)
+        index:    $index, // Запоминаем индекс строки, данные о которой необходимо изменить
+        network:  Service.getNetworkTemplate($index)
       };
 
       $scope.$broadcast('serviceNetworkData', obj);
@@ -319,9 +412,9 @@
 
     var standart = null; // Переменная, содержащая объект "подключение к сети" до внесения в него изменений
     $scope.$on('serviceNetworkData', function (event, data) {
-      self.index  = data.index;
-      self.value  = data.network;
-      standart    = angular.copy(self.value);
+      self.index  = data.index;               // Индекс в массиве
+      self.value  = data.network;             // Объект, содержащий значения полей
+      standart    = angular.copy(self.value); // Данные на момент открытия модального окна
 
       Service.setFlag('networkModal', true);
     });
@@ -341,8 +434,13 @@
 
     // Закрыть модальное окно по нажатии "Готово"
     self.readyNetworkModal = function () {
+      // Для новых данных
+      if (standart.segment == '' && standart.vlan == '' && standart.dns_name == '')
+        Service.setNetwork(self.index, self.value, 'new'); // Записали новые данные
+      else
+        Service.setNetwork(self.index, self.value); // Записали новые данные
+
       Service.setFlag('networkModal', false);
-      Service.setNetwork(self.index, self.value); // Записали новые данные
     };
   }
 
@@ -361,7 +459,6 @@
         Service.setFlag('portModal', true);
       }
       else {
-        $(data.event.target).blur();
         alert("Необходимо создать \"Подключение к сети\"");
       }
     });
@@ -378,6 +475,7 @@
       });
     };
 
+    // Закрыть модальное окно по кнопке "Готово"
     self.readyPortsModal = function () {
       Service.setFlag('portModal', false);
 
@@ -385,6 +483,7 @@
       Service.setPorts(self.template_value);
     };
 
+    // Закрыть модальное окно по кнопке "Отмена"
     self.closePortsModal = function () {
       Service.setFlag('portModal', false);
     };

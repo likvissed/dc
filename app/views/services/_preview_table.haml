@@ -1,3 +1,15 @@
+%table.table
+  %tbody
+    %tr
+      %td.col-md-3 Хостинг сервиса
+      %td{ "ng-bind": "preview.hosting[0].name || 'Отсутствует'" }
+    %tr
+      %td.col-md-3 Зависимости сервиса
+      %td
+        %div{ "ng-show": "preview.parents.length == 0" } Отсутствует
+        %ul.list-unstyled{ "ng-show": "preview.parents.length != 0" }
+          %li{ "ng-repeat": "parent in preview.parents", "ng-bind": "parent.name" }
+
 %table.table.table-striped.table-bordered.table-edit-service
 
   -# =============================================== Основные данные ===============================================
@@ -19,6 +31,9 @@
       %td
         %b Приоритет функционирования
       %td{ "ng-bind": "preview.service.priority" }
+    %tr{ "ng-show": "preview.service.deadline", "ng-class": "{ danger: preview.deadline }" }
+      %td Срок тестирования
+      %td{ "ng-bind": "preview.service.deadline" }
     %tr
       %td
         %b Режим гарантированной доступности
@@ -208,13 +223,13 @@
           %td{ "ng-bind": "preview.service.internet" }
         %tr
           %td Сетевые порты, доступные из ЛС
-          %td
+          %td{ "ng-bind": "preview.ports.local" }
         %tr
           %td
           %td
         %tr
           %td Сетевые порты, доступные из Интернет
-          %td
+          %td{ "ng-bind": "preview.ports.inet" }
         %tr
           %td
           %td

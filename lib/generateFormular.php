@@ -11,6 +11,7 @@ if (!isset($argv[1]))
 $par              = json_decode($argv[1], true);
 $data             = $par['data'];             // Данные сервиса
 $networks         = $par['networks'];         // Подключения к сети
+$ports            = $par['ports'];            // Список открытых портов
 $contacts         = $par['contact_objects'];  // Объекты контактов
 $contact_strings  = $par['contact_strings'];  // Строки контактов для запись в таблицу
 $storages         = $par['storages'];         // Объекты подключений к сети
@@ -311,10 +312,10 @@ $arrSecColumn = array(
   $data['uac_app_selinux'],
   $data['szi'],
   $data['internet'],
-//  $localPorts,
-//  $inetPorts,
-  "",
-  "",
+  $ports['local'],
+  $ports['inet'],
+  '',
+  '',
   $data['type_mon'],
   $data['service_mon'],
   $data['hardware_mon'],
