@@ -18,22 +18,56 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
-    self.previewModal   = false; // Флаг, скрывающий модальное окно
+    self.statusOptions = [ // Массив фильтра по статусу сервера
+      {
+        value:  'all',
+        string: 'Все статусы'
+      },
+      {
+        value:  'atWork',
+        string: 'В работе'
+      },
+      {
+        value:  'test',
+        string: 'Тест'
+      },
+      {
+        value:  'inactive',
+        string: 'Простой'
+      }
+    ];
+    self.typeOptions    = [ // Массив фильтра по типа серверов (данные берутся с сервера)
+      {
+        id:   0,
+        name: 'Все типы'
+      }
+    ];
+    self.selectedStatusOption = self.statusOptions[0];
+    self.selectedTypeOption   = self.typeOptions[0];
+    self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
-      //.withOption('ajax', {
-      //  url:  '/servers.json',
-      //  data: { filter: self.selectedOption.value }
-      //})
-      .withOption('ajax', '/servers.json')
+      .withDataProp('data')
+      .withOption('ajax', {
+        url:  '/servers.json',
+        data: {
+          serverTypes:  true,
+          statusFilter: self.selectedStatusOption.value
+        }
+      })
+      .withOption('initComplete', initComplete)
       .withOption('createdRow', createdRow)
       .withOption('rowCallback', rowCallback)
       .withDOM(
         '<"row"' +
           '<"col-sm-2 col-md-2 col-lg-2"' +
             '<"#servers.new-record">>' +
-          '<"col-sm-8 col-md-8 col-lg-8">' +
+          '<"col-sm-3 col-md-3 col-lg-3">' +
+          '<"col-sm-3 col-md-3 col-lg-3"' +
+            '<"server-type-filter">>' +
+          '<"col-sm-2 col-md-2 col-lg-2"' +
+            '<"server-status-filter">>' +
           '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
           '<"col-md-12"p>>'
@@ -56,6 +90,13 @@
     function renderIndex(data, type, full, meta) {
       self.servers[data.id] = data;
       return meta.row + 1;
+    }
+
+    function initComplete(settings, json) {
+      if (json.server_types) {
+        self.typeOptions        = self.typeOptions.concat(json.server_types);
+        self.selectedTypeOption = self.typeOptions[0];
+      }
     }
 
     // Компиляция строк
@@ -94,7 +135,23 @@
       return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить сервер"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
+    // Выполнить запрос на сервер с учетом выбранных фильтров
+    function newQuery() {
+      self.dtInstance.changeData({
+        url:  '/servers.json',
+        data: {
+          statusFilter: self.selectedStatusOption.value,
+          typeFilter:   self.selectedTypeOption.id
+        }
+      });
+    }
+
 // =============================================== Публичные функции ===================================================
+
+    // Выполнить запрос на сервер с учетом фильтра
+    self.changeFilter = function () {
+      newQuery();
+    };
 
     // Удалить сервис
     self.destroyServer = function (num) {

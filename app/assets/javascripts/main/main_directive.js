@@ -69,34 +69,44 @@
       restrict: 'E',
       transclude: true,
       template: '<ng-transclude></ng-transclude>',
-      link: link
-    };
+      link: function (scope, element, attrs) {
+        function compileElements() {
+          $timeout(function () {
+            $compile(element.find('.new-record'))(scope);
 
-    function link(scope, element, attrs) {
-      function compileElements() {
-        $timeout(function () {
-          $compile(element.find('.service-exploitation'))(scope);
-          $compile(element.find('.service-filter'))(scope);
-          $compile(element.find('.new-record'))(scope);
-        }, 0, false);
+            $compile(element.find('.service-exploitation'))(scope);
+            $compile(element.find('.service-filter'))(scope);
+
+            $compile(element.find('.server-status-filter'))(scope);
+            $compile(element.find('.server-type-filter'))(scope);
+          }, 0, false);
+        }
+
+        compileElements();
+
+        scope.$watch(
+          function (scope) {
+            // Для таблицы сервисов
+            if (scope.servicePage)
+              return [
+                scope.servicePage.selectedOption,
+                scope.servicePage.exploitation
+              ];
+
+            // Для таблицы серверов
+            if (scope.serverPage)
+              return [
+                scope.serverPage.selectedStatusOption,
+                scope.serverPage.selectedTypeOption
+              ];
+          },
+          function () {
+            compileElements();
+          },
+          true
+        )
       }
-
-      compileElements();
-
-      scope.$watch(
-        function (scope) {
-          if (scope.servicePage)
-            return [
-              scope.servicePage.selectedOption,
-              scope.servicePage.exploitation
-            ];
-        },
-        function () {
-          compileElements();
-        },
-        true
-      )
-    }
+    };
   }
 
   // Для таблицы DataTable добавить кнопку "Добавить", если у пользователя есть доступ

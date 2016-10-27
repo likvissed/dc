@@ -10,15 +10,24 @@ class ServersController < ApplicationController
     respond_to do |format|
       format.html { render :index }
       format.json do
-        if params[:server_type_val].to_i.zero?
-          @servers      = Server.select(:id, :name, :server_type_id, :status, :location)
-          @server_types = ServerType.select(:id, :name)
-        else
-          @servers = Server.select(:id, :name, :server_type_id, :status, :location).where("server_type_id = ?", params[:server_type_val])
-        end
+        @servers      = Server.select(:id, :name, :server_type_id, :status, :location)
+        @server_types = ServerType.select(:id, :name) if params[:serverTypes] == 'true'
 
-        render json: @servers.as_json(include: { server_type: { only: :name } }, except: :server_type_id)
-        # render json: { data: data, server_types: @server_types }
+        status_filter = case params[:statusFilter]
+                          when 'atWork'
+                            Server.statuses["В работе"]
+                          when 'test'
+                            Server.statuses["Тест"]
+                          when 'inactive'
+                            Server.statuses["Простой"]
+                          else
+                            nil
+                        end
+        @servers = @servers.where(status: status_filter) unless status_filter.nil?
+        @servers = @servers.where(server_type_id: params[:typeFilter]) unless params[:typeFilter].to_i.zero?
+
+        data = @servers.as_json(include: { server_type: { only: :name } }, except: :server_type_id)
+        render json: { data: data, server_types: @server_types }
       end
     end
   end

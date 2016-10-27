@@ -174,6 +174,7 @@
       return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
+    // Выполнить запрос на сервер с учетом выбранных фильтров
     function newQuery() {
       self.dtInstance.changeData({
         url:  '/services.json',
