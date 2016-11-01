@@ -70,7 +70,7 @@ class ServersController < ApplicationController
     @server = Server.new(server_params)
     if @server.save
       flash[:notice] = "Данные добавлены."
-      redirect_to action: :index
+      redirect_to action: :index, id: @server.id
     else
       flash.now[:alert] = "Ошибка добавления данных. #{ @server.errors.full_messages.join(", ") }"
       render :new
@@ -132,7 +132,7 @@ class ServersController < ApplicationController
   def update
     if @server.update_attributes(server_params)
       flash[:notice] = "Данные изменены"
-      redirect_to action: :index
+      redirect_to action: :index, id: @server.id
     else
       flash.now[:alert] = "Ошибка изменения данных. #{ @server.errors.full_messages.join(", ") }"
       render :edit

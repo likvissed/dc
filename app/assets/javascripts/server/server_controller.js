@@ -84,6 +84,12 @@
 
     var reloadPaging = false;
 
+// =============================================== Сразу же включить режим предпросмотра ===============================
+
+    var params = $location.absUrl().match(/servers\?id=(\d+)/);
+    if (params)
+      showServerData(params[1]);
+
 // =============================================== Приватные функции ===================================================
 
     // Показать номер строки
@@ -110,13 +116,13 @@
         if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
           return true;
 
-        $scope.$apply(showServerData(data));
+        $scope.$apply(showServerData(data.id));
       });
     }
 
     // Показать данные сервера
-    function showServerData(row_data) {
-      Server.Server.get({id: row_data.id},
+    function showServerData(id) {
+      Server.Server.get({id: id},
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl
@@ -126,7 +132,7 @@
         },
         // Error
         function (response) {
-          Flash.alert();
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
         });
     }
 
