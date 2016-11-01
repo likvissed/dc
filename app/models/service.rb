@@ -21,7 +21,7 @@ class Service < ActiveRecord::Base
 
   validates :name,
             presence: { message: "Наименование сервиса не может быть пустым" },
-            uniqueness: { message: "Сервис с заданым именем уже существует" }
+            uniqueness: { case_sensitive: false }
   validates :number, uniqueness: true, allow_blank: true
   validates :priority, :time_work, presence: true
 
