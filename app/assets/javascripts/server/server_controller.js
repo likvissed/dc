@@ -240,7 +240,7 @@
           self.serverTypes  = data.server_types;    // Все существующие типы серверов
           self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
 
-          if (self.data.real_server_details)
+          if (self.data && self.data.real_server_details)
             getDeatilsCount();
         });
     };
