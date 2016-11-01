@@ -69,14 +69,43 @@ fa-trash-o fa-1g'></a>"
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        server_details = @server_type.template_server_details
-        render json: {
-          server_details: server_details.as_json(
-            include: { server_part: { only: [:id, :name] } },
-            except: [:created_at, :updated_at]
-          ),
-          server_parts: ServerPart.select(:id, :name)
-        }
+        server_details = @server_type.template_server_details.as_json(
+          include: {
+            server_part: {
+              only: [:id, :name],
+              include: {
+                detail_type: { only: :name }
+              }
+            }
+          },
+          except: [:created_at, :updated_at])
+
+        hash  = {}
+        value = []
+
+        # Изменить структуру ответа на:
+        # detail_type => [0: { count, id, index, ..., server_part: {}}]
+        server_details.each_with_index do |detail, index|
+          # Ключ - это имя типа запчасти (Дима, Память и т.д.)
+          key   = detail['server_part']['detail_type']['name']
+          # Проверка на существование ключа
+          # Если ключа не существует в объекте hash или если это первый проход цикла,
+          # то создать чистый массив, в который будут записываться комплектующие для текущего типа оборудования
+          value = if !hash.key?(key) || index.zero?
+                    []
+                  else
+                    hash[key]
+                  end
+
+          detail['server_part'].delete('detail_type')
+          detail['index'] = index
+
+          value.push(detail)
+
+          hash[key] = value
+        end
+
+        render json: hash
       end
     end
   end

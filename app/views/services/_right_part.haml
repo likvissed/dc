@@ -19,7 +19,7 @@
       %tbody{ "ng-repeat": "parent in service.parents", "ng-hide": "parent.destroy" }
         %tr
           %td
-            .form-group.select.optional.service_parents
+            .form-group.padding-right
               = select_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", nil, class: "form-control", "ng-model": "parent.parent_service", "ng-options": "service.name for service in service.services | filter:{ name: '!' + service.current_name }:true track by service.id"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][id]", "{{ parent.id }}"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"

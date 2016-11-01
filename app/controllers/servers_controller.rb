@@ -57,7 +57,12 @@ class ServersController < ApplicationController
           redirect_to action: :index
         end
       end
-      format.json { render json: { types: ServerType.select(:id, :name) } }
+      format.json do
+        render json: {
+                 server_types: ServerType.select(:id, :name),
+                 detail_types: DetailType.select(:id, :name).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+               }
+      end
     end
   end
 
@@ -76,19 +81,49 @@ class ServersController < ApplicationController
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        render json: {
-          server: @server.as_json(
-            only: [],
-            include: {
-              server_type: { only: [:id, :name] },
-              real_server_details: {
-                only: [:id, :server_part_id, :count],
-                include: { server_part: { except: [:created_at, :updated_at] } },
+        server_details = @server.real_server_details.as_json(
+          include: {
+            server_part: {
+              only: [:id, :name],
+              include: {
+                detail_type: { only: :name }
               }
             }
-          ),
-          parts: ServerPart.select(:id, :name),
-          types: ServerType.select(:id, :name),
+          },
+          except: [:created_at, :updated_at])
+
+        hash  = {}
+        value = []
+
+        # Изменить структуру ответа на:
+        # detail_type => [0: { count, id, index, ..., server_part: {}}]
+        server_details.each_with_index do |detail, index|
+          # Ключ - это имя типа запчасти (Дима, Память и т.д.)
+          key   = detail['server_part']['detail_type']['name']
+          # Проверка на существование ключа
+          # Если ключа не существует в объекте hash или если это первый проход цикла,
+          # то создать чистый массив, в который будут записываться комплектующие для текущего типа оборудования
+          value = if !hash.key?(key) || index.zero?
+                    []
+                  else
+                    hash[key]
+                  end
+
+          detail['server_part'].delete('detail_type')
+          detail['index'] = index
+
+          value.push(detail)
+
+          hash[key] = value
+        end
+
+        render json: {
+          server: {
+            server_type:          @server.server_type.as_json(only: [:id, :name]),
+            real_server_details:  hash
+          },
+          server_types: ServerType.select(:id, :name),
+          detail_types: DetailType.select(:id, :name).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
         }
       end
     end

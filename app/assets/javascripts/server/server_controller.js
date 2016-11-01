@@ -183,9 +183,10 @@
       self.name           = data.name;
       self.status         = data.status;
       self.location       = data.location;
-      self.type           = data.server_type.name;
+      if (data.server_type)
+        self.type         = data.server_type.name;
       if (data.clusters[0])
-        self.cluster        = data.clusters[0].name;
+        self.cluster      = data.clusters[0].name;
       self.inventory_num  = data.inventory_num;
       self.serial_num     = data.serial_num;
 
@@ -204,72 +205,113 @@
   function ServerEditCtrl($http, GetDataFromServer) {
     var self = this;
 
-    var presence_count = 0; // Количество комплектцющих. Если = 1, не даст удалить последнюю комплектующую
+    self.presenceCount  = {}; // Объект вида { Имя => Кол-во комплектующих }
+    var lastIndex       = 0;  // Индекс последнего элемента формы. Используется для того, чтобы знать, какой индекс
+                              // указывать для следующего элемента.
 
-    // Посчитать количество комплектующих сервера
+    // Получить текущее кол-во комплектующих для кжадого типа комплектующей
     function getDeatilsCount() {
-      $.each(self.value.real_server_details, function (index, value) {
-        if (value.destroy == 0 || !value.destroy)
-          presence_count ++;
+      $.each(self.detailTypes, function (index, value) {
+        self.presenceCount[value.name] = 0;
+
+        if (self.data.real_server_details[value.name])
+          $.each(self.data.real_server_details[value.name], function (index, in_value) {
+            if (in_value.destroy == 0 || !in_value.destroy)
+              self.presenceCount[value.name] ++;
+          });
+
+        if (self.presenceCount[value.name] > lastIndex)
+          lastIndex = self.presenceCount[value.name];
       });
     }
 
 // =============================================== Инициализация =======================================================
+
     self.init = function (id, name) {
       GetDataFromServer.ajax('servers', id, name)
         .then(function (data) {
-          self.value  = data.server;  // Данные о сервере (состояние, тип, состав)
-          self.types  = data.types;   // Все существующие типы
-          self.parts  = data.parts;   // Все существующие комплектующие серверов
+          self.data         = data.server || null;  // Данные о сервере (состояние, тип, состав)
+          self.serverTypes  = data.server_types;    // Все существующие типы серверов
+          self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
 
-          if (self.value)
+          if (self.data.real_server_details)
             getDeatilsCount();
         });
     };
 
+// =============================================== Публичные функции ===================================================
+
     // Изменить тип сервера
     self.changeType = function () {
-      $http.get('/server_types/' + self.value.server_type.name + '/edit.json')
+      if (!self.data.server_type) {
+        self.data = null;
+        return false;
+      }
+
+      $http.get('/server_types/' + self.data.server_type.name + '/edit.json')
         .success(function(data, status, header, config) {
-          self.value.real_server_details = data.server_details;
-          $.each(self.value.real_server_details, function () {
-            // Сбросить id для комплектующих шаблонного сервера
-            // Это необходимо, так как изначально мы получаем данные от состава шаблонного сервера.
-            // Далее эти данные запишутся в состав реального сервера (другая таблица)
-            this.id = null;
+          self.data.real_server_details = data;  // Запчасти выбранного типа сервера (в БД template_server_details)
+
+          // Внутри self.data.real_server_details массивы сгруппированны по типам комплектующих (диски, памят и т.д.)
+          $.each(self.data.real_server_details, function (key, arr) {
+            $.each(arr, function() {
+              // Сбросить id для всех комплектующих шаблонного сервера
+              // Это необходимо, так как изначально мы получаем данные от состава шаблонного сервера.
+              // Далее эти данные запишутся в состав реального сервера (в другую таблица) и получат новый id.
+              this.id = null;
+
+              // Определение индекса последнего элемента. Необходимо, чтобы при добавлении элементов знать, какой индекс
+              // им выставлять.
+              if (this.index > lastIndex)
+                lastIndex = this.index;
+            });
           });
-          self.parts = data.server_parts;
 
           getDeatilsCount();
         });
     };
 
     // Добавить комплектующую
-    self.addServPart = function () {
-      self.value.real_server_details.push({
-        server_part_id: self.parts[0].id,
-        server_part: self.parts[0],
-        count: 1,
-        destroy: 0
+    // index - индекс типа детали в массиве detailTypes
+    self.addDetail = function (index) {
+      var type = self.detailTypes[index];
+
+      // Выйти, если тип детали не найден.
+      if (!type)
+        return false;
+
+      lastIndex += 1;
+
+      // Если массива с данным видом комплектующих не существует, то необходимо его создать
+      if (!self.data.real_server_details[type.name])
+        self.data.real_server_details[type.name] = [];
+
+      self.data.real_server_details[type.name].push({
+          server_part_id: type.server_parts[0],
+          server_type_id: self.data.server_type.id,
+          server_part:    type.server_parts[0],
+          id:             null,
+          count:          1,
+          destroy:        0,
+          index:          lastIndex
       });
 
-      presence_count ++;
+      self.presenceCount[type.name] ++;
     };
 
     // Удалить комплектующую
-    self.delServPart = function (detail) {
-      // Проверить текущее количество комплектующих
-      if (presence_count == 1) {
-        alert("Состав сервера не может быть пустым");
-        return false;
-      }
-
-      presence_count --;
-
+    // typeName - имя комплектующей
+    // detail - объект-деталь
+    self.delDetail = function (typeName, detail) {
       if (detail.id)
         detail.destroy = 1;
-      else
-        self.value.real_server_details.splice($.inArray(detail, self.value.real_server_details), 1)
+      else {
+        self.data.real_server_details[typeName].splice($.inArray(detail, self.data.real_server_details[typeName]), 1);
+        if (detail.index == lastIndex)
+          lastIndex -= 1;
+      }
+
+      self.presenceCount[typeName] --;
     }
   }
 })();
