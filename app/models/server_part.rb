@@ -13,6 +13,6 @@ class ServerPart < ActiveRecord::Base
   strip_attributes allow_empty: true, collapse_spaces: true
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
-  validates :detail_type_id, presence: true
+  validates :detail_type_id, presence: true, numericality: { greater_than: 0 }
 
 end

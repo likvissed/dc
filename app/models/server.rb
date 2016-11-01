@@ -18,8 +18,9 @@ class Server < ActiveRecord::Base
 
   validates :name, :server_type_id, :status, presence: true
   validates :name, uniqueness: { case_sensitive: false }
+  validates :server_type_id, numericality: { greater_than: 0 }
 
-  enum status:  ["В работе", "Тест", "Простой"]
+  enum status: ["В работе", "Тест", "Простой"]
 
   private
 
