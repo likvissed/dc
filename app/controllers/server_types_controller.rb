@@ -81,7 +81,6 @@ fa-trash-o fa-1g'></a>"
           except: [:created_at, :updated_at])
 
         hash  = {}
-        value = []
 
         # Изменить структуру ответа на:
         # detail_type => [0: { count, id, index, ..., server_part: {}}]

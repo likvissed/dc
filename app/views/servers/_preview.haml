@@ -40,6 +40,7 @@
         %table.table.table-striped{ "data-id": "details" }
           %tbody
             %tr{ "ng-repeat": "detail in preview.details" }
+              %td.col-md-3{ "ng-bind": "detail.type" }
               %td{ "ng-bind": "detail.name" }
               %td.col-md-1{ "ng-bind": "detail.count" }
       .modal-footer

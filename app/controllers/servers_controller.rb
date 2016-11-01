@@ -39,7 +39,17 @@ class ServersController < ApplicationController
           clusters: { only: :name },
           real_server_details: {
             only: :count,
-            include: { server_part: { only: :name } } },
+            include: {
+              server_part: {
+                only: :name,
+                include: {
+                  detail_type: {
+                    only: :name
+                  }
+                }
+              }
+            }
+          },
         },
         except: [:id, :created_at, :updated_at, :server_type_id, :cluster_id])
       }
@@ -93,7 +103,6 @@ class ServersController < ApplicationController
           except: [:created_at, :updated_at])
 
         hash  = {}
-        value = []
 
         # Изменить структуру ответа на:
         # detail_type => [0: { count, id, index, ..., server_part: {}}]
