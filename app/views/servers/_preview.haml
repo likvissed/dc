@@ -36,12 +36,13 @@
             %tr
               %td Серийный номер
               %td{ "ng-bind": "preview.serial_num" }
-        %h4 Состав
-        %table.table.table-striped{ "data-id": "details" }
-          %tbody
-            %tr{ "ng-repeat": "detail in preview.details" }
-              %td.col-md-3{ "ng-bind": "detail.type" }
-              %td{ "ng-bind": "detail.name" }
-              %td.col-md-1{ "ng-bind": "detail.count" }
+        %div.inline-block{ "ng-hide": "preview.details == 0" }
+          %h4 Состав
+          %table.table.table-striped{ "data-id": "details" }
+            %tbody
+              %tr{ "ng-repeat": "detail in preview.details" }
+                %td.col-md-3{ "ng-bind": "detail.type" }
+                %td{ "ng-bind": "detail.name" }
+                %td.col-md-1{ "ng-bind": "detail.count" }
       .modal-footer
         = button_tag "Закрыть", "data-dismiss": "modal"

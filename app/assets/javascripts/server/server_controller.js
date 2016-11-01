@@ -198,7 +198,6 @@
 
       self.details = [];
       $.each(data.real_server_details, function (index, value) {
-        console.log(value);
         self.details.push({
           name:   value.server_part.name,
           type:   value.server_part.detail_type.name,
