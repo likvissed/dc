@@ -40,6 +40,7 @@
       DepartmentHead: $resource('/department_heads/:tn.json', {}, { update: { method: 'PATCH' } }),
 
       Server:         $resource('/servers/:id.json'),
+      ServerType:     $resource('/server_types/:id.json'),
       ServerPart:     $resource('/server_parts/:id.json')
     }
   }

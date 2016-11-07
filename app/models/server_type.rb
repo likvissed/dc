@@ -12,6 +12,5 @@ class ServerType < ActiveRecord::Base
   strip_attributes allow_empty: true, collapse_spaces: true
 
   validates :name, presence: true, uniqueness: { case_sensitive: false }
-  validates :template_server_details, presence: true
 
 end

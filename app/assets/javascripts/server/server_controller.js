@@ -3,14 +3,17 @@
 
   app
     .controller('ServerIndexCtrl', ServerIndexCtrl)
+    .controller('ServerTotalInfoCtrl', ServerTotalInfoCtrl)
     .controller('ServerPreviewCtrl', ServerPreviewCtrl)
     .controller('ServerEditCtrl', ServerEditCtrl);
 
-  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  ServerPreviewCtrl.$inject = ['$scope'];
-  ServerEditCtrl.$inject    = ['$http', 'GetDataFromServer'];
+  ServerIndexCtrl.$inject     = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServerPreviewCtrl.$inject   = ['$scope'];
+  ServerEditCtrl.$inject      = ['$http', 'GetDataFromServer'];
 
-  function ServerIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+// ================================================ Общая таблица серверов =============================================
+
+  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -58,7 +61,6 @@
       })
       .withOption('initComplete', initComplete)
       .withOption('createdRow', createdRow)
-      .withOption('rowCallback', rowCallback)
       .withDOM(
         '<"row"' +
           '<"col-sm-2 col-md-2 col-lg-2"' +
@@ -70,12 +72,13 @@
             '<"server-status-filter">>' +
           '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
-          '<"col-md-12"p>>'
+          '<"col-md-6"i>' +
+          '<"col-md-6"p>>'
       );
     self.servers    = {}; // Объекты серверов (id => data)
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-sm-1').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Имя'),
+      DTColumnBuilder.newColumn('name').withTitle('Оборудование'),
       DTColumnBuilder.newColumn('server_type.name').withTitle('Тип').withOption('className', 'col-sm-2'),
       DTColumnBuilder.newColumn('status').withTitle('Статус').withOption('className', 'col-sm-2'),
       DTColumnBuilder.newColumn('location').withTitle('Расположение').withOption('className', 'col-sm-1'),
@@ -99,25 +102,24 @@
     }
 
     function initComplete(settings, json) {
+      // Заполнить список фильтра типов серверов
       if (json.server_types) {
         self.typeOptions        = self.typeOptions.concat(json.server_types);
         self.selectedTypeOption = self.typeOptions[0];
       }
     }
 
-    // Компиляция строк
     function createdRow(row, data, dataIndex) {
-      $compile(angular.element(row))($scope);
-    }
-
-    function rowCallback(row, data, index) {
-      // Создание события просмотра данных о формуляре
+      // Событие click для просмотра информации об оборудовании
       $(row).off().on('click', function (event) {
         if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
           return true;
 
         $scope.$apply(showServerData(data.id));
       });
+
+      // Компиляция строки
+      $compile(angular.element(row))($scope);
     }
 
     // Показать данные сервера
@@ -138,7 +140,7 @@
 
     // Отрендерить ссылку на удаление сервера
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить сервер"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
     // Выполнить запрос на сервер с учетом выбранных фильтров
@@ -152,6 +154,12 @@
       });
     }
 
+    $rootScope.$on('deletedServerType', function (event, data) {
+      // Удалить тип сервера из фильтра таблицы серверов
+      var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data });
+      self.typeOptions.splice($.inArray(obj[0], self.typeOptions), 1);
+    });
+
 // =============================================== Публичные функции ===================================================
 
     // Выполнить запрос на сервер с учетом фильтра
@@ -159,7 +167,7 @@
       newQuery();
     };
 
-    // Удалить сервис
+    // Удалить сервер
     self.destroyServer = function (num) {
       var confirm_str = "Вы действительно хотите удалить сервер \"" + self.servers[num].name + "\"?";
 
@@ -178,6 +186,12 @@
           Flash.alert(response.data.full_message);
         });
     }
+  }
+
+// ================================================ Общая информация об оборудовании ===================================
+
+  function ServerTotalInfoCtrl() {
+
   }
 
 // ================================================ Режим предпросмотра сервера ========================================
@@ -257,7 +271,7 @@
 
       $http.get('/server_types/' + self.data.server_type.name + '/edit.json')
         .success(function(data, status, header, config) {
-          self.data.real_server_details = data;  // Запчасти выбранного типа сервера (в БД template_server_details)
+          self.data.real_server_details = data.template_server_details;  // Запчасти выбранного типа сервера (в БД template_server_details)
 
           // Внутри self.data.real_server_details массивы сгруппированны по типам комплектующих (диски, памят и т.д.)
           $.each(self.data.real_server_details, function (key, arr) {
@@ -287,7 +301,8 @@
       if (!type)
         return false;
 
-      lastIndex += 1;
+      lastIndex ++;
+      self.presenceCount[type.name] ++;
 
       // Если массива с данным видом комплектующих не существует, то необходимо его создать
       if (!self.data.real_server_details[type.name])
@@ -302,8 +317,6 @@
           destroy:        0,
           index:          lastIndex
       });
-
-      self.presenceCount[type.name] ++;
     };
 
     // Удалить комплектующую
@@ -319,6 +332,6 @@
       }
 
       self.presenceCount[typeName] --;
-    }
+    };
   }
 })();

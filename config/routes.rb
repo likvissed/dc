@@ -49,7 +49,9 @@ Rails.application.routes.draw do
   resources :servers,       except: [:edit, :update] do
     get 'link/new_record', to: 'servers#link_to_new_record', on: :collection
   end
-  resources :server_types,  except: [:edit, :update]
+  resources :server_types,  except: [:edit, :update] do
+    get 'link/new_record', to: 'server_types#link_to_new_record', on: :collection
+  end
   resources :detail_types,  except: [:edit, :update, :show]
   resources :server_parts,  except: [:edit, :update] do
     get 'link/new_record', to: 'server_parts#link_to_new_record', on: :collection
