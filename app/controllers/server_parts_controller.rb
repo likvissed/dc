@@ -8,25 +8,16 @@ class ServerPartsController < ApplicationController
 
   def index
     respond_to do |format|
-      format.html {render :index }
+      format.html { render :index }
       format.json do
-        if params[:detail_type_val].to_i.zero?
-          @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
-          @detail_types = DetailType.select(:id, :name)
-        else
-          @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id).where("detail_type_id = ?", params[:detail_type_val])
-        end
+        # if params[:detail_type_val].to_i.zero?
+        #   @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
+        #   @detail_types = DetailType.select(:id, :name)
+        # else
+        #   @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id).where("detail_type_id = ?", params[:detail_type_val])
+        # end
 
-        # data = @server_parts.as_json(include: { detail_type: { only: :name } }).each do |s|
-        #   s['DT_RowId'] = s['id']
-        #   s['del']      = "<a href='#{server_part_path(s['id'])}' class='text-danger' data-method='delete'
-# rel='nofollow' title='Удалить' data-confirm='Вы действительно хотите удалить \"#{s['name']}\"?'><i class='fa
-# fa-trash-o fa-1g'></a>"
-#           s.delete('id')
-#           s.delete('detail_type_id')
-#         end
-#         render json: { data: data, detail_types: @detail_types }
-
+        @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
         render json: @server_parts.as_json(include: { detail_type: { only: :name } })
       end
     end

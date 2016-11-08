@@ -5,10 +5,10 @@
     .controller('ServerPartIndexCtrl', ServerPartIndexCtrl)
     .controller('ServerPartPreviewCtrl', ServerPartPreviewCtrl);
 
-  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
   ServerPartPreviewCtrl.$inject = ['$scope'];
 
-  function ServerPartIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServerPartIndexCtrl($controller, $scope, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -20,10 +20,6 @@
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
-      //.withOption('ajax', {
-      //  url:  '/server_parts.json',
-      //  data: { filter: self.selectedOption.value }
-      //})
       .withOption('ajax', '/server_parts.json')
       .withOption('createdRow', createdRow)
       .withOption('rowCallback', rowCallback)
@@ -39,7 +35,7 @@
     self.server_parts   = {}; // Объекты комплектующих серверов (id => data)
     self.dtColumns      = [
       DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-sm-1').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Имя'),
+      DTColumnBuilder.newColumn('name').withTitle('Комплектующие'),
       DTColumnBuilder.newColumn('detail_type.name').withTitle('Тип').withOption('className', 'col-sm-2'),
       DTColumnBuilder.newColumn('part_num').withTitle('Номер').withOption('className', 'col-sm-2'),
       DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center col-sm-1').renderWith(delRecord)

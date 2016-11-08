@@ -124,7 +124,7 @@
 
     // Показать данные сервера
     function showServerData(id) {
-      Server.Server.get({id: id},
+      Server.Server.get({ id: id },
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl

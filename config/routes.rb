@@ -19,7 +19,6 @@ Rails.application.routes.draw do
     patch '/server_types/:name',      to: 'server_types#update'
 
     get   '/detail_types/:name/edit', to: 'detail_types#edit'
-    patch '/detail_types/:name',      to: 'detail_types#update'
 
     get   '/server_parts/:name/edit', to: 'server_parts#edit'
     patch '/server_parts/:name',      to: 'server_parts#update'
@@ -52,7 +51,9 @@ Rails.application.routes.draw do
   resources :server_types,  except: [:edit, :update] do
     get 'link/new_record', to: 'server_types#link_to_new_record', on: :collection
   end
-  resources :detail_types,  except: [:edit, :update, :show]
+  resources :detail_types,  except: [:edit, :show] do
+    get 'link/new_record', to: 'detail_types#link_to_new_record', on: :collection
+  end
   resources :server_parts,  except: [:edit, :update] do
     get 'link/new_record', to: 'server_parts#link_to_new_record', on: :collection
   end

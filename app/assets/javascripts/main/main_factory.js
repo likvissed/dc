@@ -41,7 +41,8 @@
 
       Server:         $resource('/servers/:id.json'),
       ServerType:     $resource('/server_types/:id.json'),
-      ServerPart:     $resource('/server_parts/:id.json')
+      ServerPart:     $resource('/server_parts/:id.json'),
+      DetailType:     $resource('/detail_types/:id.json', {}, { update: { method: 'PATCH' } })
     }
   }
 

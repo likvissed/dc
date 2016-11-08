@@ -133,7 +133,7 @@
 // =============================================== Публичные функции ===================================================
 
     // Открыть модальное окно
-    // action - событие, на который идет запрос (new, edit)
+    // num - редактируемый табельный номер
     self.showContactModal = function (num) {
       self.contactModal = true;
       tn                = num;
@@ -185,7 +185,7 @@
 
       if (self.config.method == 'POST') {
         // Сохранить данные на сервере
-        Server.Contact.save({contact: self.value},
+        Server.Contact.save({ contact: self.value },
           // Success
           function (response) {
             successResponse(response);
@@ -199,7 +199,7 @@
         );
       }
       else {
-        Server.Contact.update({tn: tn}, self.value,
+        Server.Contact.update({ tn: tn }, self.value,
           // Success
           function (response) {
             successResponse(response);
@@ -216,12 +216,12 @@
 
     // Удалить контакт
     self.destroyContact = function (num) {
-      var  confirm_str = "Вы действительно хотите удалить контакт \"" + self.contacts[num].info + "\"?";
+      var confirm_str = "Вы действительно хотите удалить контакт \"" + self.contacts[num].info + "\"?";
 
       if (!confirm(confirm_str))
         return false;
 
-      Server.Contact.delete({tn: num},
+      Server.Contact.delete({ tn: num },
       // Success
       function (response) {
         Flash.notice(response.full_message);

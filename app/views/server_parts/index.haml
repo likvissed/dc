@@ -1,11 +1,19 @@
 = title "Комплектующие"
 
-.container{ "ng-controller": "ServerPartIndexCtrl as serverPartPage" }
+.container
   .row
-    .col-md-12.col-lg-8.col-lg-offset-2
+    .col-lg-8
       .well
-        .content-body
+        .content-body{ "ng-controller": "ServerPartIndexCtrl as serverPartPage" }
           %datatable-wrapper
             %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPartPage.dtOptions", "dt-columns": "serverPartPage.dtColumns", "dt-instance": "serverPartPage.dtInstance", width: "100%" }
 
-  = render partial: "preview"
+          = render partial: "preview"
+
+    .col-lg-4
+      .well
+        .content-body{ "ng-controller": "DetailTypeIndexCtrl as detailTypePage" }
+          %datatable-wrapper
+            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "detailTypePage.dtOptions", "dt-columns": "detailTypePage.dtColumns", "dt-instance": "detailTypePage.dtInstance", width: "100%" }
+
+          = render partial: "server_types/modal_form"
