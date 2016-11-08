@@ -21,7 +21,6 @@ Rails.application.routes.draw do
     get   '/detail_types/:name/edit', to: 'detail_types#edit'
 
     get   '/server_parts/:name/edit', to: 'server_parts#edit'
-    patch '/server_parts/:name',      to: 'server_parts#update'
 
     get   '/clusters/:name/edit',     to: 'clusters#edit'
     patch '/clusters/:name',          to: 'clusters#update'
@@ -54,7 +53,7 @@ Rails.application.routes.draw do
   resources :detail_types,  except: [:edit, :show] do
     get 'link/new_record', to: 'detail_types#link_to_new_record', on: :collection
   end
-  resources :server_parts,  except: [:edit, :update] do
+  resources :server_parts,  except: [:edit] do
     get 'link/new_record', to: 'server_parts#link_to_new_record', on: :collection
   end
   resources :clusters,      except: [:edit, :update]
