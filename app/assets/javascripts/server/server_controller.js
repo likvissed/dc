@@ -2,16 +2,16 @@
   'use strict';
 
   app
-    .controller('ServerIndexCtrl', ServerIndexCtrl)
-    .controller('ServerTotalInfoCtrl', ServerTotalInfoCtrl)
-    .controller('ServerPreviewCtrl', ServerPreviewCtrl)
-    .controller('ServerEditCtrl', ServerEditCtrl);
+    .controller('ServerIndexCtrl', ServerIndexCtrl)         // Общая таблица оборудования
+    .controller('ServerTotalInfoCtrl', ServerTotalInfoCtrl) // Общая информация об оборудовании
+    .controller('ServerPreviewCtrl', ServerPreviewCtrl)     // Предпросмотр оборудования
+    .controller('ServerEditCtrl', ServerEditCtrl);          // Форма добавления/редактирования оборудования
 
   ServerIndexCtrl.$inject     = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
   ServerPreviewCtrl.$inject   = ['$scope'];
   ServerEditCtrl.$inject      = ['$http', 'GetDataFromServer'];
 
-// ================================================ Общая таблица серверов =============================================
+// =====================================================================================================================
 
   function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
     var self = this;
@@ -188,13 +188,13 @@
     }
   }
 
-// ================================================ Общая информация об оборудовании ===================================
+// =====================================================================================================================
 
   function ServerTotalInfoCtrl() {
 
   }
 
-// ================================================ Режим предпросмотра сервера ========================================
+// =====================================================================================================================
 
   function ServerPreviewCtrl($scope) {
     var self = this;
@@ -221,7 +221,7 @@
     });
   }
 
-// ================================================ Редактирование сервера =============================================
+// =====================================================================================================================
 
   function ServerEditCtrl($http, GetDataFromServer) {
     var self = this;
