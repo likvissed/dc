@@ -99,7 +99,7 @@
       Server.ServerPart.get({ id: row_data.id },
         // Success
         function (response) {
-          // Отправить данные контроллеру ServerPreviewCtrl
+          // Отправить данные контроллеру ServerPartPreviewCtrl
           $scope.$broadcast('showServerPartData', response);
 
           self.previewModal = true; // Показать модальное окно
@@ -171,7 +171,7 @@
       newQuery();
     };
 
-    // Открыть модальное окно
+    // Открыть модальное окно для создания/редактирования комплектующей
     // name - имя комплектующей
     self.showServerPartModal = function (name) {
       var data = {
