@@ -19,6 +19,7 @@
 // require dataTables/angular-datatables.bootstrap
 
 //= require_tree ./main
+//= require_tree ./detail_type
 //= require_tree ./server_part
 //= require_tree ./server_type
 //= require_tree ./server

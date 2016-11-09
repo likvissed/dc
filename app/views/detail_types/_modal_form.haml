@@ -1,0 +1,19 @@
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "DetailTypeEditCtrl as detail", "modal-show": "detail.detailTypeModal" }
+  .modal-dialog
+    .modal-content
+
+      %form{ role: "form", "name": "detail.form", "data-method": "detail.config.method" }
+        .modal-header
+          %h4.modal-title.text-center{ "ng-bind": "detail.config.title" }
+
+        .modal-body
+          .form-group.required{ "ng-class": "detail.errorClass('detail_type[name]')" }
+            = label_tag :detail_type_name , class: "control-label" do
+              %abbr{ title: "required" } *
+              %b Наименование типа
+            = text_field_tag "detail_type[name]", "", class: "form-control", "ng-model": "detail.value.name"
+            %span.help-block{ "ng-show": "detail.form['detail_type[name]'].$invalid", "ng-bind": "detail.errorMessage('detail_type[name]')" }
+
+        .modal-footer
+          = button_tag "Готово", type: "button", class: "btn btn-success", "ng-click": "detail.readyDetailTypeModal()"
+          = button_tag "Отмена", type: "button", "ng-click": "detail.closeDetailTypeModal()"

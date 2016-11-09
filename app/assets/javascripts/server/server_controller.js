@@ -3,14 +3,17 @@
 
   app
     .controller('ServerIndexCtrl', ServerIndexCtrl)
+    .controller('ServerTotalInfoCtrl', ServerTotalInfoCtrl)
     .controller('ServerPreviewCtrl', ServerPreviewCtrl)
     .controller('ServerEditCtrl', ServerEditCtrl);
 
-  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  ServerPreviewCtrl.$inject = ['$scope'];
-  ServerEditCtrl.$inject    = ['$http', 'GetDataFromServer'];
+  ServerIndexCtrl.$inject     = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServerPreviewCtrl.$inject   = ['$scope'];
+  ServerEditCtrl.$inject      = ['$http', 'GetDataFromServer'];
 
-  function ServerIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+// ================================================ Общая таблица серверов =============================================
+
+  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -18,30 +21,64 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
-    self.previewModal   = false; // Флаг, скрывающий модальное окно
+    self.statusOptions = [ // Массив фильтра по статусу сервера
+      {
+        value:  'all',
+        string: 'Все статусы'
+      },
+      {
+        value:  'atWork',
+        string: 'В работе'
+      },
+      {
+        value:  'test',
+        string: 'Тест'
+      },
+      {
+        value:  'inactive',
+        string: 'Простой'
+      }
+    ];
+    self.typeOptions    = [ // Массив фильтра по типа серверов (данные берутся с сервера)
+      {
+        id:   0,
+        name: 'Все типы'
+      }
+    ];
+    self.selectedStatusOption = self.statusOptions[0];
+    self.selectedTypeOption   = self.typeOptions[0];
+    self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
-      //.withOption('ajax', {
-      //  url:  '/servers.json',
-      //  data: { filter: self.selectedOption.value }
-      //})
-      .withOption('ajax', '/servers.json')
+      .withDataProp('data')
+      .withOption('ajax', {
+        url:  '/servers.json',
+        data: {
+          serverTypes:  true,
+          statusFilter: self.selectedStatusOption.value
+        }
+      })
+      .withOption('initComplete', initComplete)
       .withOption('createdRow', createdRow)
-      .withOption('rowCallback', rowCallback)
       .withDOM(
         '<"row"' +
           '<"col-sm-2 col-md-2 col-lg-2"' +
             '<"#servers.new-record">>' +
-          '<"col-sm-8 col-md-8 col-lg-8">' +
+          '<"col-sm-3 col-md-3 col-lg-3">' +
+          '<"col-sm-3 col-md-3 col-lg-3"' +
+            '<"server-type-filter">>' +
+          '<"col-sm-2 col-md-2 col-lg-2"' +
+            '<"server-status-filter">>' +
           '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
-          '<"col-md-12"p>>'
+          '<"col-md-6"i>' +
+          '<"col-md-6"p>>'
       );
     self.servers    = {}; // Объекты серверов (id => data)
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-sm-1').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Имя'),
+      DTColumnBuilder.newColumn('name').withTitle('Оборудование'),
       DTColumnBuilder.newColumn('server_type.name').withTitle('Тип').withOption('className', 'col-sm-2'),
       DTColumnBuilder.newColumn('status').withTitle('Статус').withOption('className', 'col-sm-2'),
       DTColumnBuilder.newColumn('location').withTitle('Расположение').withOption('className', 'col-sm-1'),
@@ -49,6 +86,12 @@
     ];
 
     var reloadPaging = false;
+
+// =============================================== Сразу же включить режим предпросмотра ===============================
+
+    var params = $location.absUrl().match(/servers\?id=(\d+)/);
+    if (params)
+      showServerData(params[1]);
 
 // =============================================== Приватные функции ===================================================
 
@@ -58,24 +101,30 @@
       return meta.row + 1;
     }
 
-    // Компиляция строк
-    function createdRow(row, data, dataIndex) {
-      $compile(angular.element(row))($scope);
+    function initComplete(settings, json) {
+      // Заполнить список фильтра типов серверов
+      if (json.server_types) {
+        self.typeOptions        = self.typeOptions.concat(json.server_types);
+        self.selectedTypeOption = self.typeOptions[0];
+      }
     }
 
-    function rowCallback(row, data, index) {
-      // Создание события просмотра данных о формуляре
+    function createdRow(row, data, dataIndex) {
+      // Событие click для просмотра информации об оборудовании
       $(row).off().on('click', function (event) {
         if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
           return true;
 
-        $scope.$apply(showServerData(data));
+        $scope.$apply(showServerData(data.id));
       });
+
+      // Компиляция строки
+      $compile(angular.element(row))($scope);
     }
 
     // Показать данные сервера
-    function showServerData(row_data) {
-      Server.Server.get({id: row_data.id},
+    function showServerData(id) {
+      Server.Server.get({ id: id },
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl
@@ -85,18 +134,40 @@
         },
         // Error
         function (response) {
-          Flash.alert();
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
         });
     }
 
     // Отрендерить ссылку на удаление сервера
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить сервер"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
+
+    // Выполнить запрос на сервер с учетом выбранных фильтров
+    function newQuery() {
+      self.dtInstance.changeData({
+        url:  '/servers.json',
+        data: {
+          statusFilter: self.selectedStatusOption.value,
+          typeFilter:   self.selectedTypeOption.id
+        }
+      });
+    }
+
+    $rootScope.$on('deletedServerType', function (event, data) {
+      // Удалить тип сервера из фильтра таблицы серверов
+      var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data });
+      self.typeOptions.splice($.inArray(obj[0], self.typeOptions), 1);
+    });
 
 // =============================================== Публичные функции ===================================================
 
-    // Удалить сервис
+    // Выполнить запрос на сервер с учетом фильтра
+    self.changeFilter = function () {
+      newQuery();
+    };
+
+    // Удалить сервер
     self.destroyServer = function (num) {
       var confirm_str = "Вы действительно хотите удалить сервер \"" + self.servers[num].name + "\"?";
 
@@ -117,6 +188,12 @@
     }
   }
 
+// ================================================ Общая информация об оборудовании ===================================
+
+  function ServerTotalInfoCtrl() {
+
+  }
+
 // ================================================ Режим предпросмотра сервера ========================================
 
   function ServerPreviewCtrl($scope) {
@@ -126,9 +203,10 @@
       self.name           = data.name;
       self.status         = data.status;
       self.location       = data.location;
-      self.type           = data.server_type.name;
+      if (data.server_type)
+        self.type         = data.server_type.name;
       if (data.clusters[0])
-        self.cluster        = data.clusters[0].name;
+        self.cluster      = data.clusters[0].name;
       self.inventory_num  = data.inventory_num;
       self.serial_num     = data.serial_num;
 
@@ -136,6 +214,7 @@
       $.each(data.real_server_details, function (index, value) {
         self.details.push({
           name:   value.server_part.name,
+          type:   value.server_part.detail_type.name,
           count:  value.count
         });
       });
@@ -147,72 +226,112 @@
   function ServerEditCtrl($http, GetDataFromServer) {
     var self = this;
 
-    var presence_count = 0; // Количество комплектцющих. Если = 1, не даст удалить последнюю комплектующую
+    self.presenceCount  = {}; // Объект вида { Имя => Кол-во комплектующих }
+    var lastIndex       = 0;  // Индекс последнего элемента формы. Используется для того, чтобы знать, какой индекс
+                              // указывать для следующего элемента.
 
-    // Посчитать количество комплектующих сервера
+    // Получить текущее кол-во комплектующих для кжадого типа комплектующей
     function getDeatilsCount() {
-      $.each(self.value.real_server_details, function (index, value) {
-        if (value.destroy == 0 || !value.destroy)
-          presence_count ++;
+      $.each(self.detailTypes, function (index, value) {
+        self.presenceCount[value.name] = 0;
+
+        if (self.data.real_server_details[value.name])
+          $.each(self.data.real_server_details[value.name], function (index, in_value) {
+            if (in_value.destroy == 0 || !in_value.destroy)
+              self.presenceCount[value.name] ++;
+          });
+
+        if (self.presenceCount[value.name] > lastIndex)
+          lastIndex = self.presenceCount[value.name];
       });
     }
 
 // =============================================== Инициализация =======================================================
+
     self.init = function (id, name) {
       GetDataFromServer.ajax('servers', id, name)
         .then(function (data) {
-          self.value  = data.server;  // Данные о сервере (состояние, тип, состав)
-          self.types  = data.types;   // Все существующие типы
-          self.parts  = data.parts;   // Все существующие комплектующие серверов
+          self.data         = data.server || null;  // Данные о сервере (состояние, тип, состав)
+          self.serverTypes  = data.server_types;    // Все существующие типы серверов
+          self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
 
-          if (self.value)
+          if (self.data && self.data.real_server_details)
             getDeatilsCount();
         });
     };
 
+// =============================================== Публичные функции ===================================================
+
     // Изменить тип сервера
     self.changeType = function () {
-      $http.get('/server_types/' + self.value.server_type.name + '/edit.json')
+      if (!self.data.server_type) {
+        self.data = null;
+        return false;
+      }
+
+      $http.get('/server_types/' + self.data.server_type.name + '/edit.json')
         .success(function(data, status, header, config) {
-          self.value.real_server_details = data.server_details;
-          $.each(self.value.real_server_details, function () {
-            // Сбросить id для комплектующих шаблонного сервера
-            // Это необходимо, так как изначально мы получаем данные от состава шаблонного сервера.
-            // Далее эти данные запишутся в состав реального сервера (другая таблица)
-            this.id = null;
+          self.data.real_server_details = data.template_server_details;  // Запчасти выбранного типа сервера (в БД template_server_details)
+
+          // Внутри self.data.real_server_details массивы сгруппированны по типам комплектующих (диски, памят и т.д.)
+          $.each(self.data.real_server_details, function (key, arr) {
+            $.each(arr, function() {
+              // Сбросить id для всех комплектующих шаблонного сервера
+              // Это необходимо, так как изначально мы получаем данные от состава шаблонного сервера.
+              // Далее эти данные запишутся в состав реального сервера (в другую таблица) и получат новый id.
+              this.id = null;
+
+              // Определение индекса последнего элемента. Необходимо, чтобы при добавлении элементов знать, какой индекс
+              // им выставлять.
+              if (this.index > lastIndex)
+                lastIndex = this.index;
+            });
           });
-          self.parts = data.server_parts;
 
           getDeatilsCount();
         });
     };
 
     // Добавить комплектующую
-    self.addServPart = function () {
-      self.value.real_server_details.push({
-        server_part_id: self.parts[0].id,
-        server_part: self.parts[0],
-        count: 1,
-        destroy: 0
-      });
+    // index - индекс типа детали в массиве detailTypes
+    self.addDetail = function (index) {
+      var type = self.detailTypes[index];
 
-      presence_count ++;
+      // Выйти, если тип детали не найден.
+      if (!type)
+        return false;
+
+      lastIndex ++;
+      self.presenceCount[type.name] ++;
+
+      // Если массива с данным видом комплектующих не существует, то необходимо его создать
+      if (!self.data.real_server_details[type.name])
+        self.data.real_server_details[type.name] = [];
+
+      self.data.real_server_details[type.name].push({
+          server_part_id: type.server_parts[0],
+          server_type_id: self.data.server_type.id,
+          server_part:    type.server_parts[0],
+          id:             null,
+          count:          1,
+          destroy:        0,
+          index:          lastIndex
+      });
     };
 
     // Удалить комплектующую
-    self.delServPart = function (detail) {
-      // Проверить текущее количество комплектующих
-      if (presence_count == 1) {
-        alert("Состав сервера не может быть пустым");
-        return false;
-      }
-
-      presence_count --;
-
+    // typeName - имя комплектующей
+    // detail - объект-деталь
+    self.delDetail = function (typeName, detail) {
       if (detail.id)
         detail.destroy = 1;
-      else
-        self.value.real_server_details.splice($.inArray(detail, self.value.real_server_details), 1)
-    }
+      else {
+        self.data.real_server_details[typeName].splice($.inArray(detail, self.data.real_server_details[typeName]), 1);
+        if (detail.index == lastIndex)
+          lastIndex -= 1;
+      }
+
+      self.presenceCount[typeName] --;
+    };
   }
 })();

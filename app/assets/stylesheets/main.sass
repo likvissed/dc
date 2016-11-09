@@ -13,8 +13,33 @@ $big-width: 1500px
 .bg-content
   margin-bottom: $line-height-computed
 
-//.disabled
-  background-color: $main-bg-color !important
+.bottom-line
+  border-bottom: 1px $table-border-color solid
+
+.pointer
+  cursor: pointer
+
+.padding-left
+  padding-left: 15px
+
+.padding-right
+  padding-right: 15px
+
+.padding-top
+  padding-top: 15px
+
+.padding-bottom
+  padding-bottom: 15px
+
+.inline-block
+  display: inline-block
+  width: 100%
+
+.no-left-padding
+  padding-left: 0 !important
+
+.no-right-padding
+  padding-right: 0 !important
 
 /* ================================== Страницы входа на сайт ============================ */
 
@@ -58,6 +83,27 @@ a.default-color
   position: absolute
   z-index: 9999
   width: 100%
+
+// Стили для внутренних таблиц, используемых внутри форм
+// (например, используется в пункте "Подключения к сети")
+.internal-table
+  width: 100%
+
+  tr.empty
+    height: 15px
+
+  .fa
+    cursor: pointer
+
+  .min-td
+    width: 20px
+    padding: 1px 2px 0 2px !important
+
+  .form-group
+    margin-bottom: 0 !important
+
+  .icon-padding
+    padding: 10px 0
 
 /* ================================== Размер контента =================================== */
 

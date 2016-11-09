@@ -40,11 +40,16 @@
       DepartmentHead: $resource('/department_heads/:tn.json', {}, { update: { method: 'PATCH' } }),
 
       Server:         $resource('/servers/:id.json'),
-      ServerPart:     $resource('/server_parts/:id.json')
+      ServerType:     $resource('/server_types/:id.json'),
+      ServerPart:     $resource('/server_parts/:id.json', {}, { update: { method: 'PATCH' } }),
+      DetailType:     $resource('/detail_types/:id.json', {}, { update: { method: 'PATCH' } })
     }
   }
 
   // Фабрика для запросов на сервер на new и edit actions
+  // ctrl_name - имя контроллера, на который отправляется запрос
+  // id - id записи, определяющий, создается новая запись или редактируется существующая (0 - новая запись, id не существует)
+  // name - имя записи, данные к оторой необходимо найти
   function GetDataFromServer($http, $q) {
     return {
       ajax: function (ctrl_name, id, name) {
