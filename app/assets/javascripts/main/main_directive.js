@@ -79,6 +79,8 @@
 
             $compile(element.find('.server-status-filter'))(scope);
             $compile(element.find('.server-type-filter'))(scope);
+
+            $compile(element.find('.detail-type-filter'))(scope);
           }, 0, false);
         }
 
@@ -99,6 +101,12 @@
                 scope.serverPage.selectedStatusOption,
                 scope.serverPage.selectedTypeOption
               ];
+
+            // Для таблицы комплектующих
+            if (scope.serverPartPage)
+              return [
+                scope.serverPartPage.selectedTypeOption
+              ]
           },
           function () {
             compileElements();

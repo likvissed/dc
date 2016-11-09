@@ -5,12 +5,12 @@
     .controller('DetailTypeIndexCtrl', DetailTypeIndexCtrl) // Таблица типов комплектующих
     .controller('DetailTypeEditCtrl', DetailTypeEditCtrl);  // Добавление/редактирование типа комплектующей
 
-  DetailTypeIndexCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  DetailTypeEditCtrl.$inject  = ['$scope', 'Flash', 'Server'];
+  DetailTypeIndexCtrl.$inject = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  DetailTypeEditCtrl.$inject  = ['$scope', '$rootScope', 'Flash', 'Server'];
 
 // =====================================================================================================================
 
-  function DetailTypeIndexCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function DetailTypeIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -112,6 +112,9 @@
           Flash.notice(response.full_message);
 
           self.dtInstance.reloadData(null, reloadPaging);
+
+          // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице комплектующих.
+          $rootScope.$emit('changedDetailType', { flag: 'delete', id: id });
         },
         // Error
         function (response) {
@@ -122,7 +125,7 @@
 
 // =====================================================================================================================
 
-  function DetailTypeEditCtrl ($scope, Flash, Server) {
+  function DetailTypeEditCtrl ($scope, $rootScope, Flash, Server) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -236,6 +239,8 @@
 
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('reloadDetailTypeData', { reload: true });
+            // Добавить в фильтр таблицы комплектуюших созданный тип
+            $rootScope.$emit('changedDetailType', { flag: 'add', value: response.detail_type });
           },
           // Error
           function (response) {
@@ -251,6 +256,8 @@
 
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('reloadDetailTypeData', { reload: true });
+            // Изменить имя типа в фильтре таблицы комплектуюших
+            $rootScope.$emit('changedDetailType', { flag: 'update', value: response.detail_type });
           },
           // Error
           function (response) {

@@ -6,13 +6,13 @@
     .controller('ServerPartPreviewCtrl', ServerPartPreviewCtrl)   // Режим предпросмотра комплектующей
     .controller('ServerPartEditCtrl', ServerPartEditCtrl);        // Добавление/редактирование комплектующих
 
-  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
   ServerPartPreviewCtrl.$inject = ['$scope'];
   ServerPartEditCtrl.$inject    = ['$scope', 'Flash', 'Server'];
 
 // =====================================================================================================================
 
-  function ServerPartIndexCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -20,17 +20,33 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
+    self.typeOptions    = [ // Массив фильтра по типу комплектующих (данные берутся с сервера)
+      {
+        id:   0,
+        name: 'Все типы'
+      }
+    ];
+    self.selectedTypeOption = self.typeOptions[0];
     self.previewModal   = false; // Флаг, скрывающий модальное окно
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
-      .withOption('ajax', '/server_parts.json')
+      .withDataProp('data')
+      .withOption('ajax', {
+        url:  '/server_parts.json',
+        data: {
+          detailTypes:  true
+        }
+      })
+      .withOption('initComplete', initComplete)
       .withOption('createdRow', createdRow)
       .withDOM(
       '<"row"' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
           '<"#server_parts.new-record">>' +
-        '<"col-sm-8 col-md-8 col-lg-8">' +
+        '<"col-sm-6 col-md-6 col-lg-6">' +
+        '<"col-sm-2 col-md-2 col-lg-2"' +
+          '<"detail-type-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"f>>' +
       't<"row"' +
         '<"col-md-12"p>>'
@@ -55,6 +71,14 @@
     function renderIndex(data, type, full, meta) {
       serverParts[data.id] = data;
       return meta.row + 1;
+    }
+
+    function initComplete(settings, json) {
+      // Заполнить список фильтра типов комплектующих
+      if (json.detail_types) {
+        self.typeOptions        = self.typeOptions.concat(json.detail_types);
+        self.selectedTypeOption = self.typeOptions[0];
+      }
     }
 
     function createdRow(row, data, dataIndex) {
@@ -86,12 +110,6 @@
         });
     }
 
-    // Событие обновления таблицы после добавления/редактирования комплектующей
-    $scope.$on('reloadServerPartData', function (event, data) {
-      if (data.reload)
-        self.dtInstance.reloadData(null, reloadPaging);
-    });
-
     // Отрендерить ссылку на изменение контакта
     function editRecord(data, type, full, meta) {
       return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g"></a>';
@@ -102,7 +120,56 @@
       return '<a href="" class="text-danger" disable-link=true ng-click="serverPartPage.destroyServerPart(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
+    // Выполнить запрос на сервер с учетом выбранных фильтров
+    function newQuery() {
+      self.dtInstance.changeData({
+        url:  '/server_parts.json',
+        data: {
+          typeFilter: self.selectedTypeOption.id
+        }
+      });
+    }
+
+    // Событие обновления таблицы после добавления/редактирования комплектующей
+    $scope.$on('reloadServerPartData', function (event, data) {
+      if (data.reload)
+        self.dtInstance.reloadData(null, reloadPaging);
+    });
+
+    // Событие обновления фильтра и обновления таблицы (если это необходимо)
+    // data.flag - флаг, определяющий, удалять, изменять или добавлять элементы в фильтра
+    // add - добавить
+    // delete - удалить
+    // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
+    $rootScope.$on('changedDetailType', function (event, data) {
+      // Удалить тип сервера из фильтра таблицы комплектующих
+      if (data.flag == 'delete') {
+        var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data.id });
+        self.typeOptions.splice($.inArray(obj[0], self.typeOptions), 1);
+      }
+
+      // Добавить созданный тип в фильтр таблицы комплектующих
+      else if (data.flag == 'add')
+        self.typeOptions.push(data.value);
+
+      // Изменить имя типа
+      else if (data.flag == 'update') {
+        $.each(self.typeOptions, function (index, value) {
+          if (data.value.id == value.id) {
+            value.name = data.value.name;
+            return false;
+          }
+        });
+        self.dtInstance.reloadData(null, reloadPaging);
+      }
+    });
+
 // =============================================== Публичные функции ===================================================
+
+    // Выполнить запрос на сервер с учетом фильтра
+    self.changeFilter = function () {
+      newQuery();
+    };
 
     // Открыть модальное окно
     // name - имя комплектующей
@@ -133,7 +200,7 @@
             $scope.$broadcast('editServerPartData', data);
           })
           .error(function (response) {
-            Flash.alert(response.data.full_message);
+            Flash.alert(response.full_message);
           });
       }
     };
