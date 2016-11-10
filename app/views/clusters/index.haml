@@ -2,6 +2,21 @@
 
 .container
   .row
+    .col-lg-8
+      .well
+        .content-body{ "ng-controller": "ClusterIndexCtrl as clusterPage" }
+          %datatable-wrapper
+            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "clusterPage.dtOptions", "dt-columns": "clusterPage.dtColumns", "dt-instance": "clusterPage.dtInstance", width: "100%" }
+
+          = render partial: "preview"
+          = render partial: "modal_form"
+
+    .col-lg-4
+      .well
+        .content-body
+
+-#.container
+  .row
     .col-md-10.col-md-offset-1.col-lg-6.col-lg-offset-3
       .well
         .content-body
@@ -13,4 +28,4 @@
                 %th.col-md-10 Имя
                 %th
 
-= render partial: "preview"
+-#= render partial: "preview"

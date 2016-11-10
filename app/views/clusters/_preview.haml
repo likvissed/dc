@@ -1,16 +1,20 @@
-.modal.fade#modal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "ClusterPreviewCtrl as preview", "modal-show": "preview.previewModal" }
   .modal-dialog
     .modal-content
       .modal-header
-        - if can? :manage, Cluster
+        -#- if can? :manage, Cluster
           = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData"
-        %h4.modal-title
+        %h4.modal-title{ "ng-bind": "preview.name" }
+
       .modal-body
-        %h4 Состав
-        %table.table.table-striped{ "data-id": "details" }
+        %h4.ng-hide{ "ng-hide": "preview.presenceCount == 0" } Состав
+        %h4.text-muted.ng-hide{ "ng-hide": "preview.presenceCount != 0" } Состав отсутствует
+
+        %table.table.table-striped
           %tbody
-            %tr.hidden
-              %td
-              %td.col-md-2
+            %tr{ "ng-repeat": "detail in preview.details" }
+              %td.col-md-3{ "ng-bind": "detail.node_role.name" }
+              %td{ "ng-bind": "detail.server.name" }
+
       .modal-footer
-        = button_tag "Закрыть", class: "btn-primary", "data-id": "closeModal"
+        = button_tag "Закрыть", "data-dismiss": "modal"

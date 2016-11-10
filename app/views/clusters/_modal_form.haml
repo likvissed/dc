@@ -1,0 +1,41 @@
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "ClusterEditCtrl as cluster", "modal-show": "cluster.clusterModal" }
+  .modal-dialog
+    .modal-content
+      %form{ role: "form", "name": "cluster.form", "data-method": "cluster.config.method" }
+        .modal-header
+          %h4.modal-title.text-center{ "ng-bind": "cluster.config.title" }
+
+        .modal-body
+          .form-group.required{ "ng-class": "part.errorClass('cluster[name]')" }
+            = label_tag :cluster_name , class: "control-label" do
+              %abbr{ title: "required" } *
+              %b Наименование
+            = text_field_tag "cluster[name]", "", class: "form-control", "ng-model": "cluster.value.name"
+            %span.help-block{ "ng-show": "part.form['cluster[name]'].$invalid", "ng-bind": "part.errorMessage('cluster[name]')" }
+
+          %label{ "ng-class": "{ 'text-muted': cluster.presenceCount == 0 }" }
+            Состав
+          %span.text-muted.ng-hide{ "ng-hide": "cluster.presenceCount != 0" }
+            %b отсутствует
+          &nbsp;
+          = icon("fa fa-plus-circle fa-lg pointer", "tooltip-placement": "right", "uib-tooltip": "Добавить оборудование", "ng-click": "cluster.addDetail($index)")
+          %table.internal-table
+            %tbody{ "ng-repeat": "detail in cluster.value.cluster_details_attributes", "ng-hide": "detail._destroy" }
+              %tr
+                %td.col-sm-4.col-md-4.col-lg-4.no-left-padding
+                  = hidden_field_tag "cluster[cluster_details_attributes][{{ detail.index }}][id]", "{{ detail.id }}"
+                  = hidden_field_tag "cluster[cluster_details_attributes][{{ detail.index }}][_destroy]", "{{ detail._destroy }}"
+                  .form-group
+                    = select_tag "cluster[cluster_details_attributes][{{ detail.index }}][node_role_id]", nil, class: "form-control", "ng-model": "detail.node_role_id", "ng-options": "node_role.id as node_role.name for node_role in cluster.node_roles"
+
+                %td.col-sm-8.col-md-8.col-lg-8
+                  .form-group
+                    .col-sm-11.col-md-11.col-lg-11.no-left-padding.no-right-padding
+                      = select_tag "cluster[cluster_details_attributes][{{ detail.index }}][server_id]", nil, class: "form-control", "ng-model": "detail.server_id", "ng-options": "server.id as server.name for server in cluster.servers"
+                    .col-sm-1.col-md-1.col-lg-1.no-right-padding
+                      = icon("fa fa-minus-circle fa-lg icon-padding", "tooltip-placement": "left", "uib-tooltip": "Удалить оборудование", "ng-click": "cluster.delDetail(detail)")
+              %tr.empty{ "ng-show": "!detail.$last" }
+
+        .modal-footer
+          = button_tag "Готово", type: "button", class: "btn btn-success", "ng-click": "cluster.readyClusterModal()"
+          = button_tag "Отмена", type: "button", "ng-click": "cluster.closeClusterModal()"
