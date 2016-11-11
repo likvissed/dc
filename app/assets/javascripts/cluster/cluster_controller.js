@@ -7,7 +7,7 @@
     .controller('ClusterEditCtrl', ClusterEditCtrl);      // Добавление/редактирование сервера
 
   //ClusterIndexCtrl.$inject = [];
-  ClusterPreviewCtrl.$inject = ['$scope'];
+  ClusterPreviewCtrl.$inject = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Flash'];
   //ClusterEditCtrl.$inject = [];
 
 // =====================================================================================================================
@@ -20,26 +20,50 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
+    self.deptOptions    = [ // Массив фильтра по отделам (данные берутся с сервера)
+      { dept: 'Все отделы' },
+      { dept: 'Без отделов' }
+    ];
+    self.typeOptions    = [ // Массив фильтра по типу сервера (данные берутся с сервера)
+      {
+        id:   0,
+        name: 'Все типы'
+      }
+    ];
+    self.selectedDeptOption   = self.deptOptions[0];
+    self.selectedTypeOption   = self.typeOptions[0];
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
-      //.withDataProp('data')
-      .withOption('ajax', '/clusters.json')
-      //.withOption('initComplete', initComplete)
+      .withDataProp('data')
+      .withOption('ajax', {
+        url:  '/clusters.json',
+        data: {
+          clusterTypes: true, // Флаг, необходимый, чтобы получить с сервера все типы серверов
+          clusterDepts: true  // Флаге, необходимый, чтобы получить с сервера все отделы
+        }
+      })
+      .withOption('initComplete', initComplete)
       .withOption('createdRow', createdRow)
       .withDOM(
       '<"row"' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
           '<"#clusters.new-record">>' +
-        '<"col-sm-8 col-md-8 col-lg-8">' +
+        '<"col-sm-8 col-md-8 col-lg-4">' +
+        '<"col-sm-2 col-md-2 col-lg-2"' +
+          '<"cluster-dept-filter">>' +
+        '<"col-sm-2 col-md-2 col-lg-2"' +
+          '<"cluster-type-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"f>>' +
       't<"row"' +
-        '<"col-md-12"p>>'
+        '<"col-md-6"i>' +
+        '<"col-md-6"p>>'
     );
 
     self.dtColumns      = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Серверы').withOption('className', 'col-lg-10'),
+      DTColumnBuilder.newColumn('name').withTitle('Серверы').withOption('className', 'col-lg-8'),
+      DTColumnBuilder.newColumn('services').withTitle('Отделы').notSortable().withOption('className', 'col-lg-2 text-center'),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
@@ -54,6 +78,20 @@
     function renderIndex(data, type, full, meta) {
       clusters[data.id] = data;
       return meta.row + 1;
+    }
+
+    function initComplete(settings, json) {
+      // Заполнить список фильтра по типам оборудования
+      if (json.node_roles) {
+        self.typeOptions        = self.typeOptions.concat(json.node_roles);
+        self.selectedTypeOption = self.typeOptions[0];
+      }
+
+      // Заполнить список фильтра по отделам
+      if (json.depts) {
+        self.deptOptions        = self.deptOptions.concat(json.depts);
+        self.selectedDeptOption = self.deptOptions[0];
+      }
     }
 
     function createdRow(row, data, dataIndex) {
@@ -93,12 +131,29 @@
       return '<a href="" class="text-danger" disable-link=true ng-click="clusterPage.destroyCluster(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
+    // Выполнить запрос на сервер с учетом выбранных фильтров
+    function newQuery() {
+      self.dtInstance.changeData({
+        url:  '/clusters.json',
+        data: {
+          deptFilter: self.selectedDeptOption.dept,
+          typeFilter: self.selectedTypeOption.id
+        }
+      });
+    }
+
+    // Обновить таблицу серверов
     $scope.$on('reloadClusterData', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
     });
 
 // =============================================== Публичные функции ===================================================
+
+    // Выполнить запрос на сервер с учетом фильтра
+    self.changeFilter = function () {
+      newQuery();
+    };
 
     // Открыть модальное окно для создания/редактирования сервера
     // name - имя сервера
@@ -160,19 +215,44 @@
 
 // =====================================================================================================================
 
-  function ClusterPreviewCtrl($scope) {
+  function ClusterPreviewCtrl($scope, $rootScope, Server, ServiceShareFunc, Flash) {
     var self = this;
 
     self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.presenceCount  = 0;      // Количество оборудования, из которого состоит сервер
+
+// =============================================== Инициализация =======================================================
 
     $scope.$on('showClusterData', function (event, data) {
       self.previewModal = true; // Показать модальное окно
 
       self.name           = data.name;
       self.details        = data.cluster_details;
+      self.services       = data.services;
+      self.depts          = data.depts;
       self.presenceCount  = data.cluster_details.length;
+
+      // Установить флаги приоритетов для полученных сервисов
+      $.each(self.services, function (index, value) {
+        value.flag = ServiceShareFunc.priority(value);
+      })
     });
+
+// =============================================== Публичные функции ===================================================
+
+    // Показать данные сервиса
+    self.showService = function (id) {
+      Server.Service.get({ id: id },
+        // Success
+        function (response) {
+          // Отправить данные контроллеру ServicePreviewCtrl
+          $rootScope.$broadcast('serviceData', response);
+        },
+        // Error
+        function (response) {
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        });
+    };
   }
 
 // =====================================================================================================================

@@ -87,7 +87,7 @@ class ServerPartsController < ApplicationController
   end
 
   # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
-  # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
+  # Запрос отсылается из JS файла при инициализации таблицы "Комплектующие"
   def link_to_new_record
     link = create_link_to_new_record :modal, ServerPart, "ng-click='serverPartPage.showServerPartModal()"
     respond_to do |format|

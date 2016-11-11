@@ -25,7 +25,6 @@ Rails.application.routes.draw do
     get   '/clusters/:name/edit',     to: 'clusters#edit'
 
     get   '/node_roles/:name/edit',   to: 'node_roles#edit'
-    patch '/node_roles/:name',        to: 'node_roles#update'
 
     get   '/services/:name/edit',     to: 'services#edit'
     patch '/services/:name',          to: 'services#update'
@@ -55,10 +54,13 @@ Rails.application.routes.draw do
   resources :server_parts,  except: [:edit] do
     get 'link/new_record', to: 'server_parts#link_to_new_record', on: :collection
   end
-  resources :clusters,      except: [:edit] do
+
+  resources :clusters,    except: [:edit] do
     get 'link/new_record', to: 'clusters#link_to_new_record', on: :collection
   end
-  resources :node_roles,    except: [:edit, :update, :show]
+  resources :node_roles,  except: [:edit, :show] do
+    get 'link/new_record', to: 'node_roles#link_to_new_record', on: :collection
+  end
 
   resources :contacts,          except: [:edit, :update, :show, :destroy] do
     get 'link/new_record', to: 'contacts#link_to_new_record', on: :collection

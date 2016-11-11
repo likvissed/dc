@@ -2,13 +2,14 @@
   'use strict';
 
   app
-    .service('Service', Service)
-    .service('ServiceCookies', ServiceCookies);
+    .service('Service', Service)                    // Создание/редактирование сервиса
+    .service('ServiceCookies', ServiceCookies)      // Куки для фильтра таблицы сервисов
+    .service('ServiceShareFunc', ServiceShareFunc);  // Функции, которые вызываются не только на странице сервисов
 
   Service.$inject         = ['$http', 'Flash'];
   ServiceCookies.$inject  = ['$cookies'];
 
-// =============================================== Создание/редактирование сервиса =====================================
+// =====================================================================================================================
 
   function Service($http, Flash) {
     var self = this;
@@ -681,7 +682,7 @@
     };
   }
 
-// =============================================== Cookies =============================================================
+// =====================================================================================================================
 
   function ServiceCookies($cookies) {
     var self = this;
@@ -689,6 +690,13 @@
     var service = {
       showOnlyExploitationServices: true
     };
+
+// =============================================== Инициализация =======================================================
+
+    if (angular.isUndefined($cookies.getObject('service')))
+      $cookies.putObject('service', service);
+
+// =============================================== Публичные функции ===================================================
 
     // Получить cookies
     self.get = function (key) {
@@ -704,10 +712,40 @@
 
       $cookies.putObject('service', service);
     };
+  }
 
-// =============================================== Инициализация =======================================================
+// =====================================================================================================================
 
-    if (angular.isUndefined($cookies.getObject('service')))
-      $cookies.putObject('service', service);
+  function ServiceShareFunc() {
+    var self = this;
+
+    // Получить иконку приоритета функционирования
+    // flag - объект, содержащий такие параметры сервиса, как exploitation, priority, deadline
+    self.priority = function (flag) {
+      var str; // Возвращаемая строка
+
+      if (flag.exploitation)
+        switch (flag.priority) {
+          case 'Критическая производственная задача':
+            str = '<i class="fa fa-star" tooltip-placement="top" uib-tooltip="Критическая производственная задача"></i>';
+            break;
+          case 'Вторичная производственная задача':
+            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная задача"></i>';
+            break;
+          case 'Тестирование и отладка':
+            str = '<i class="fa fa-star-o" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
+            break;
+          default:
+            str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не определен"></i>';
+            break;
+        }
+      else
+        str = '<i class="fa fa-cogs" tooltip-placement="top" uib-tooltip="Сервис не в эксплуатации"></i>';
+
+      if (flag.deadline)
+        str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования сервиса окончен"></i>';
+
+      return str;
+    }
   }
 })();

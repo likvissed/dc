@@ -40,6 +40,7 @@
       DepartmentHead: $resource('/department_heads/:tn.json', {}, { update: { method: 'PATCH' } }),
 
       Cluster:        $resource('/clusters/:id.json', {}, { update: { method: 'PATCH' } }),
+      NodeRole:       $resource('/node_roles/:id.json', {}, { update: { method: 'PATCH' } }),
 
       Server:         $resource('/servers/:id.json'),
       ServerType:     $resource('/server_types/:id.json'),

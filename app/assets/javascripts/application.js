@@ -24,6 +24,7 @@
 //= require_tree ./server_type
 //= require_tree ./server
 //= require_tree ./cluster
+//= require_tree ./node_role
 //= require_tree ./service
 //= require_tree ./contact
 //= require_tree ./department_head

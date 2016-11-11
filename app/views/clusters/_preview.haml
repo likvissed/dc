@@ -4,12 +4,44 @@
       .modal-header
         -#- if can? :manage, Cluster
           = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData"
-        %h4.modal-title{ "ng-bind": "preview.name" }
+        -#.pull-right
+          .btn-group
+            = button_tag class: "dropdown-toggle", "data-toggle": "dropdown", "ng-class": "{ disabled: preview.services.length == 0 }" do
+              Просмотреть
+              %span.caret
+            %ul.dropdown-menu
+              %li{ "ng-repeat": "service in preview.services" }
+                = link_to "", "disable-link": true, "ng-click": "preview.showService(service.id)" do
+                  %div.pull-left{ "ng-bind-html": "service.flag" }
+                  %div.pull-left &nbsp;
+                  %div{ "ng-bind": "service.name" }
+        .pull-left
+          %h4.modal-title{ "ng-bind": "preview.name" }
 
       .modal-body
+        %h4 Описание
+        %table.table.table-striped
+          %tbody
+            %tr
+              %td.col-md-4 Использующие отделы
+              %td
+                %div{ "ng-bind": "preview.depts", "ng-show": "preview.depts" }
+                %div{ "ng-hide": "preview.depts" } Отсутствуют
+            %tr
+              %td Список сервисов
+              %td
+                %div{ "ng-hide": "preview.services.length != 0" } Сервисы отсутствуют
+                .row.no-margin-right{ "ng-hide": "preview.service.length == 0" }
+                  %table.table.table-condensed
+                    %tbody
+                      %tr{ "ng-repeat": "service in preview.services" }
+                        %td= icon("fa fa-eye fa-1g pointer", "tooltip-placement": "top", "uib-tooltip": "Просмотреть формуляр сервиса", "ng-click": "preview.showService(service.id)")
+                        %td{ "ng-bind-html": "service.flag" }
+                        %td.col-md-10{ "ng-bind": "service.name" }
+                        %td.col-md-1{ "ng-bind": "service.dept" }
+
         %h4.ng-hide{ "ng-hide": "preview.presenceCount == 0" } Состав
         %h4.text-muted.ng-hide{ "ng-hide": "preview.presenceCount != 0" } Состав отсутствует
-
         %table.table.table-striped
           %tbody
             %tr{ "ng-repeat": "detail in preview.details" }
