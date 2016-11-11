@@ -32,7 +32,7 @@
                               .col-sm-10.col-md-10.col-lg-10.no-left-padding.no-right-padding
                                 = text_field_tag "server_type[template_server_details_attributes][{{ detail.index }}][count]", "{{ detail.count }}", class: "form-control", "ng-model": "detail.count"
                               .col-sm-2.col-md-2.col-lg-2.no-right-padding
-                                = icon("fa fa-minus-circle fa-lg icon-padding", "tooltip-placement": "left", "uib-tooltip": "Удалить комплектующую", "ng-click": "serverType.delDetail(detail_type.name, detail)")
+                                = icon("fa fa-minus-circle fa-lg icon-padding pointer", "tooltip-placement": "left", "uib-tooltip": "Удалить комплектующую", "ng-click": "serverType.delDetail(detail_type.name, detail)")
                           %tr.empty{ "ng-show": "!detail.$last" }
                       .bottom-line
 

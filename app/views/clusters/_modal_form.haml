@@ -33,7 +33,7 @@
                     .col-sm-11.col-md-11.col-lg-11.no-left-padding.no-right-padding
                       = select_tag "cluster[cluster_details_attributes][{{ detail.index }}][server_id]", nil, class: "form-control", "ng-model": "detail.server_id", "ng-options": "server.id as server.name for server in cluster.servers"
                     .col-sm-1.col-md-1.col-lg-1.no-right-padding
-                      = icon("fa fa-minus-circle fa-lg icon-padding", "tooltip-placement": "left", "uib-tooltip": "Удалить оборудование", "ng-click": "cluster.delDetail(detail)")
+                      = icon("fa fa-minus-circle fa-lg icon-padding pointer", "tooltip-placement": "left", "uib-tooltip": "Удалить оборудование", "ng-click": "cluster.delDetail(detail)")
               %tr.empty{ "ng-show": "!detail.$last" }
 
         .modal-footer

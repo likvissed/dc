@@ -4,7 +4,7 @@
       .modal-header
         .pull-right
           - if can? :manage, Server
-            = link_to icon("fa fa-cog fa-fw"), "", class: "default-color", "ng-href": "/servers/{{ preview.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать оборудование"
+            = link_to icon("fa fa-cog fa-fw pointer"), "", class: "default-color", "ng-href": "/servers/{{ preview.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать оборудование"
         %h4.modal-title{ "ng-bind": "preview.name + ' (' + preview.status + ')'" }
       .modal-body
         %h4 Описание

@@ -116,7 +116,7 @@
 
     // Отрендерить ссылку на изменение контакта
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="depHeadPage.showHeadModal(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="depHeadPage.showHeadModal(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
     }
 
     // Отрендерить ссылку на удаление контакта

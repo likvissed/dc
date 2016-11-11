@@ -66,7 +66,7 @@
 
     // Отрендерить ссылку на изменение контакта
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="nodeRolePage.showNodeRoleModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="nodeRolePage.showNodeRoleModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
     }
 
     // Отрендерить ссылку на удаление контакта
