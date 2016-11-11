@@ -5,8 +5,8 @@
     .controller('NodeRoleIndexCtrl', NodeRoleIndexCtrl) // Таблица типов серверов
     .controller('NodeRoleEditCtrl', NodeRoleEditCtrl);  // Добавление/редактирование типа сервера
 
-  //NodeRoleIndexCtrl.$inject = [];
-  //NodeRoleEditCtrl.$inject = [];
+  NodeRoleIndexCtrl.$inject = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  NodeRoleEditCtrl.$inject  = ['$scope', '$rootScope', 'Flash', 'Server'];
 
 // =====================================================================================================================
 
