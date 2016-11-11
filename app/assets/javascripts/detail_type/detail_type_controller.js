@@ -30,7 +30,8 @@
         '<"col-sm-8 col-md-8 col-lg-4">' +
         '<"col-sm-2 col-md-2 col-lg-4"f>>' +
       't<"row"' +
-        '<"col-md-12"p>>'
+        '<"col-md-6"i>' +
+        '<"col-md-6"p>>'
     );
 
     self.dtColumns      = [

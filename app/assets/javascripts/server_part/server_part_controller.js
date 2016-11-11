@@ -49,7 +49,8 @@
           '<"detail-type-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"f>>' +
       't<"row"' +
-        '<"col-md-12"p>>'
+        '<"col-md-6"i>' +
+        '<"col-md-6"p>>'
     );
 
     self.dtColumns      = [
