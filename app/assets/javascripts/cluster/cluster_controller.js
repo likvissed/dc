@@ -41,6 +41,9 @@
         data: {
           clusterTypes: true, // Флаг, необходимый, чтобы получить с сервера все типы серверов
           clusterDepts: true  // Флаге, необходимый, чтобы получить с сервера все отделы
+        },
+        error: function (response) {
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
         }
       })
       .withOption('initComplete', initComplete)

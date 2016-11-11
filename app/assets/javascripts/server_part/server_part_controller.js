@@ -34,8 +34,9 @@
       .withDataProp('data')
       .withOption('ajax', {
         url:  '/server_parts.json',
-        data: {
-          detailTypes:  true
+        data: { detailTypes:  true },
+        error: function (response) {
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
         }
       })
       .withOption('initComplete', initComplete)

@@ -87,6 +87,9 @@
         data: {
           filter:       self.selectedOption.value,
           exploitation: self.exploitation
+        },
+        error: function (response) {
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
         }
       })
       .withOption('createdRow', createdRow)

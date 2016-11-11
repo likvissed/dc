@@ -24,7 +24,12 @@
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
-      .withOption('ajax', { url: '/server_types.json' })
+      .withOption('ajax', {
+        url: '/server_types.json',
+        error: function (response) {
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        }
+      })
       .withOption('createdRow', createdRow)
       .withDOM(
       '<"row"' +
