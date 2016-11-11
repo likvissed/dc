@@ -32,11 +32,11 @@
       },
       {
         value:  'test',
-        string: 'Тест'
+        string: 'Тестовые'
       },
       {
         value:  'inactive',
-        string: 'Простой'
+        string: 'В простое'
       }
     ];
     self.typeOptions    = [ // Массив фильтра по типу оборудования (данные берутся с сервера)
