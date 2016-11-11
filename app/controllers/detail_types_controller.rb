@@ -56,7 +56,7 @@ class DetailTypesController < ApplicationController
   end
 
   # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
-  # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
+  # Запрос отсылается из JS файла при инициализации таблицы "Типы деталей"
   def link_to_new_record
     link = create_link_to_new_record :modal, Contact, "ng-click='detailTypePage.showDetailTypeModal()"
     respond_to do |format|

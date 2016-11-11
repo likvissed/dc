@@ -161,7 +161,7 @@ class ServersController < ApplicationController
   end
 
   # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
-  # Запрос отсылается из JS файла при инициализации таблицы "Серверы"
+  # Запрос отсылается из JS файла при инициализации таблицы "Оборудование"
   def link_to_new_record
     link = create_link_to_new_record :page, Server, "/servers/new"
     respond_to do |format|

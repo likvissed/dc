@@ -1,6 +1,6 @@
-.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "modal-show": "servicePage.previewModal" }
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "ServicePreviewCtrl as preview", "modal-show": "preview.previewModal" }
   .modal-dialog.preview-service-table
-    .modal-content{ "ng-controller": "ServicePreviewCtrl as preview" }
+    .modal-content
       .modal-header
         - if can? :manage, Service
           .pull-right
@@ -38,6 +38,6 @@
               = icon("fa {{ preview.flag.icon }} fa-1x", "tooltip-placement": "bottom", "uib-tooltip": "{{ preview.flag.text }}" )
 
       .modal-body
-        = render partial: "preview_table"
+        = render partial: "/services/preview_table"
       .modal-footer
         = button_tag "Закрыть", "data-dismiss": "modal"

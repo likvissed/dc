@@ -1,18 +1,18 @@
-(function () {
+(function() {
   'use strict';
 
   app
-    .controller('ServerPartIndexCtrl', ServerPartIndexCtrl)       // Таблица комплектующих
-    .controller('ServerPartPreviewCtrl', ServerPartPreviewCtrl)   // Режим предпросмотра комплектующей
-    .controller('ServerPartEditCtrl', ServerPartEditCtrl);        // Добавление/редактирование комплектующих
+    .controller('ClusterIndexCtrl', ClusterIndexCtrl)     // Таблица серверов (кластеров)
+    .controller('ClusterPreviewCtrl', ClusterPreviewCtrl) // Предпросмотр сервера
+    .controller('ClusterEditCtrl', ClusterEditCtrl);      // Добавление/редактирование сервера
 
-  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  ServerPartPreviewCtrl.$inject = ['$scope'];
-  ServerPartEditCtrl.$inject    = ['$scope', 'Flash', 'Server'];
+  //ClusterIndexCtrl.$inject = [];
+  ClusterPreviewCtrl.$inject = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Flash'];
+  //ClusterEditCtrl.$inject = [];
 
 // =====================================================================================================================
 
-  function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -20,22 +20,27 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
-    self.typeOptions    = [ // Массив фильтра по типу комплектующих (данные берутся с сервера)
+    self.deptOptions    = [ // Массив фильтра по отделам (данные берутся с сервера)
+      { dept: 'Все отделы' },
+      { dept: 'Без отделов' }
+    ];
+    self.typeOptions    = [ // Массив фильтра по типу сервера (данные берутся с сервера)
       {
         id:   0,
         name: 'Все типы'
       }
     ];
-    self.selectedTypeOption = self.typeOptions[0];
-    self.previewModal   = false; // Флаг, скрывающий модальное окно
+    self.selectedDeptOption   = self.deptOptions[0];
+    self.selectedTypeOption   = self.typeOptions[0];
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
       .withDataProp('data')
       .withOption('ajax', {
-        url:  '/server_parts.json',
+        url:  '/clusters.json',
         data: {
-          detailTypes:  true
+          clusterTypes: true, // Флаг, необходимый, чтобы получить с сервера все типы серверов
+          clusterDepts: true  // Флаге, необходимый, чтобы получить с сервера все отделы
         }
       })
       .withOption('initComplete', initComplete)
@@ -43,41 +48,49 @@
       .withDOM(
       '<"row"' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
-          '<"#server_parts.new-record">>' +
-        '<"col-sm-6 col-md-6 col-lg-6">' +
+          '<"#clusters.new-record">>' +
+        '<"col-sm-8 col-md-8 col-lg-4">' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
-          '<"detail-type-filter">>' +
+          '<"cluster-dept-filter">>' +
+        '<"col-sm-2 col-md-2 col-lg-2"' +
+          '<"cluster-type-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"f>>' +
       't<"row"' +
-        '<"col-md-12"p>>'
+        '<"col-md-6"i>' +
+        '<"col-md-6"p>>'
     );
 
     self.dtColumns      = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Комплектующие').withOption('className', 'col-lg-6'),
-      DTColumnBuilder.newColumn('detail_type.name').withTitle('Тип').withOption('className', 'col-lg-2'),
-      DTColumnBuilder.newColumn('part_num').withTitle('Номер').withOption('className', 'col-lg-2'),
+      DTColumnBuilder.newColumn('name').withTitle('Серверы').withOption('className', 'col-lg-8'),
+      DTColumnBuilder.newColumn('services').withTitle('Отделы').notSortable().withOption('className', 'col-lg-2 text-center'),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
 
     var
-      serverParts   = {},     // Объекты комплектующих серверов (id => data)
+      clusters      = {},     // Объекты комплектующих серверов (id => data)
       reloadPaging  = false;  // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
 
 // =============================================== Приватные функции ===================================================
 
     // Показать номер строки
     function renderIndex(data, type, full, meta) {
-      serverParts[data.id] = data;
+      clusters[data.id] = data;
       return meta.row + 1;
     }
 
     function initComplete(settings, json) {
-      // Заполнить список фильтра типов комплектующих
-      if (json.detail_types) {
-        self.typeOptions        = self.typeOptions.concat(json.detail_types);
+      // Заполнить список фильтра по типам оборудования
+      if (json.node_roles) {
+        self.typeOptions        = self.typeOptions.concat(json.node_roles);
         self.selectedTypeOption = self.typeOptions[0];
+      }
+
+      // Заполнить список фильтра по отделам
+      if (json.depts) {
+        self.deptOptions        = self.deptOptions.concat(json.depts);
+        self.selectedDeptOption = self.deptOptions[0];
       }
     }
 
@@ -87,22 +100,20 @@
         if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
           return true;
 
-        $scope.$apply(showServerPartData(data));
+        $scope.$apply(showClusterData(data));
       });
 
       // Компиляция строк
       $compile(angular.element(row))($scope);
     }
 
-    // Показать данные комплектующей
-    function showServerPartData(row_data) {
-      Server.ServerPart.get({ id: row_data.id },
+    // Показать данные кластера/сервера
+    function showClusterData(row_data) {
+      Server.Cluster.get({ id: row_data.id },
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPartPreviewCtrl
-          $scope.$broadcast('showServerPartData', response);
-
-          self.previewModal = true; // Показать модальное окно
+          $scope.$broadcast('showClusterData', response);
         },
         // Error
         function (response) {
@@ -110,28 +121,29 @@
         });
     }
 
-    // Отрендерить ссылку на изменение комплектующей
+    // Отрендерить ссылку на изменение сервера
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="clusterPage.showClusterModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g"></a>';
     }
 
-    // Отрендерить ссылку на удаление комплектующей
+    // Отрендерить ссылку на удаление сервера
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverPartPage.destroyServerPart(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="clusterPage.destroyCluster(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
     // Выполнить запрос на сервер с учетом выбранных фильтров
     function newQuery() {
       self.dtInstance.changeData({
-        url:  '/server_parts.json',
+        url:  '/clusters.json',
         data: {
+          deptFilter: self.selectedDeptOption.dept,
           typeFilter: self.selectedTypeOption.id
         }
       });
     }
 
-    // Событие обновления таблицы после добавления/редактирования комплектующей
-    $scope.$on('reloadServerPartData', function (event, data) {
+    // Событие обновления таблицы после добавления/редактирования сервера
+    $scope.$on('reloadClusterData', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
     });
@@ -141,7 +153,7 @@
     // add - добавить
     // delete - удалить
     // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
-    $rootScope.$on('changedDetailType', function (event, data) {
+    $rootScope.$on('changedNodeRole', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {
         var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data.id });
@@ -171,33 +183,36 @@
       newQuery();
     };
 
-    // Открыть модальное окно для создания/редактирования комплектующей
-    // name - имя комплектующей
-    self.showServerPartModal = function (name) {
+    // Открыть модальное окно для создания/редактирования сервера
+    // name - имя сервера
+    self.showClusterModal = function (name) {
       var data = {
         method:       '',   // Протокол отправки сообщения (POST, PATCH)
-        detail_types: null, // Все типы комплектующих
+        node_roles:   null, // Все типы серверов
+        servers:      null, // Всё оборудование
         value:        null  // Данные выбранной комплектующей
       };
 
       // Если запись редактируется
       if (name) {
-        $http.get('/server_parts/' + name + '/edit.json').success(function (response) {
-          data.method       = 'PUT';
-          data.detail_types = angular.copy(response.detail_types);
-          data.value        = angular.copy(response.data);
+        $http.get('/clusters/' + name + '/edit.json').success(function (response) {
+          data.method     = 'PUT';
+          data.node_roles = angular.copy(response.node_roles);
+          data.servers    = angular.copy(response.servers);
+          data.value      = angular.copy(response.data);
 
-          $scope.$broadcast('editServerPartData', data);
+          $scope.$broadcast('editClusterData', data);
         });
       }
       else {
-        $http.get('/server_parts/new.json')
+        $http.get('/clusters/new.json')
           .success(function (response) {
-            data.method       = 'POST';
-            data.detail_types = angular.copy(response.detail_types);
-            data.value        = angular.copy(response.data);
+            data.method     = 'POST';
+            data.node_roles = angular.copy(response.node_roles);
+            data.servers    = angular.copy(response.servers);
+            data.value      = angular.copy(response.data);
 
-            $scope.$broadcast('editServerPartData', data);
+            $scope.$broadcast('editClusterData', data);
           })
           .error(function (response) {
             Flash.alert(response.full_message);
@@ -205,14 +220,14 @@
       }
     };
 
-    // Удалить сервис
-    self.destroyServerPart = function (num) {
-      var confirm_str = "Вы действительно хотите удалить комплектующую \"" + serverParts[num].name + "\"?";
+    // Удалить сервер
+    self.destroyCluster = function (num) {
+      var confirm_str = "Вы действительно хотите удалить сервер \"" + clusters[num].name + "\"?";
 
       if (!confirm(confirm_str))
         return false;
 
-      Server.ServerPart.delete({ id: num },
+      Server.Cluster.delete({ id: num },
         // Success
         function (response) {
           Flash.notice(response.full_message);
@@ -228,49 +243,92 @@
 
 // =====================================================================================================================
 
-  function ServerPartPreviewCtrl($scope) {
+  function ClusterPreviewCtrl($scope, $rootScope, Server, ServiceShareFunc, Flash) {
     var self = this;
 
-    $scope.$on('showServerPartData', function (event, data) {
-      self.name     = data.name;
-      self.type     = data.detail_type.name;
-      self.number   = data.part_num;
-      self.comment  = data.comment || 'Отсутствует';
+    self.previewModal   = false;  // Флаг, скрывающий модальное окно
+    self.presenceCount  = 0;      // Количество оборудования, из которого состоит сервер
+
+// =============================================== Инициализация =======================================================
+
+    $scope.$on('showClusterData', function (event, data) {
+      self.previewModal = true; // Показать модальное окно
+
+      self.name           = data.name;
+      self.details        = data.cluster_details;
+      self.services       = data.services;
+      self.depts          = data.depts;
+      self.presenceCount  = data.cluster_details.length;
+
+      // Установить флаги приоритетов для полученных сервисов
+      $.each(self.services, function (index, value) {
+        value.flag = ServiceShareFunc.priority(value);
+      })
     });
+
+// =============================================== Публичные функции ===================================================
+
+    // Показать данные сервиса
+    self.showService = function (id) {
+      Server.Service.get({ id: id },
+        // Success
+        function (response) {
+          // Отправить данные контроллеру ServicePreviewCtrl
+          $rootScope.$broadcast('serviceData', response);
+        },
+        // Error
+        function (response) {
+          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        });
+    };
   }
 
 // =====================================================================================================================
 
-  function ServerPartEditCtrl($scope, Flash, Server) {
+  function ClusterEditCtrl($scope, Flash, Server) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
-    self.serverPartModal  = false;  // Флаг состояния модального окна (false - скрыто, true - открыто)
-    self.config           = {
-      title:  '',                   // Шапка модального окна
-      method: ''                    // Метод отправки запрос (POST, PATCH)
+    self.clusterModal   = false;  // Флаг состояния модального окна (false - скрыто, true - открыто)
+    self.config         = {
+      title:  '',                 // Шапка модального окна
+      method: ''                  // Метод отправки запрос (POST, PATCH)
     };
-    self.value = null;
+    self.value          = null;   // Данные о сервере (имя, состав и т.д.)
+    self.presenceCount  = 0;      // Количество оборудования, из которого состоит сервер
 
     var
-      id              = null,   // Id изменяемой комплектующей
+      id              = null,   // Id изменяемого кластера
       errors          = null,   // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
-      value_template  = {       // Шаблон данных (вызывается при создании нового контакта)
-        name:     '',
-        part_num: '',
-        comment:  ''
+      value_template  = {       // Шаблон данных (вызывается при создании нового сервера)
+        name: '',
+        cluster_details_attributes: []
       };
 
-    $scope.$on('editServerPartData', function (event, data) {
-      self.serverPartModal = true;
+    $scope.$on('editClusterData', function (event, data) {
+      self.clusterModal = true;
 
-      self.detail_types   = angular.copy(data.detail_types);
-      self.value          = angular.copy(data.value);
+      self.servers        = angular.copy(data.servers);
+      self.node_roles     = angular.copy(data.node_roles);
       self.config.method  = angular.copy(data.method);
-      self.config.title   = data.method == 'POST' ? 'Новая комплектующая' : data.value.name;
-      if (data.value)
-        id = data.value.id;
+
+      if (data.method == 'POST') {
+        self.config.title   = 'Новый сервер/кластер';
+        self.value          = value_template;
+        self.presenceCount  = 0;
+      }
+      else {
+        self.config.title   = data.value.name;
+        self.value          = angular.copy(data.value);
+        id                  = data.value.id;
+        self.presenceCount  = self.value.cluster_details.length;
+
+        // Переименовать объект cluster_details, так как на сервере необходимо другое имя
+        self.value.cluster_details_attributes = self.value.cluster_details;
+        // Удалить старый объект
+        delete self.value.cluster_details;
+      }
     });
 
 // =============================================== Приватные функции ===================================================
@@ -297,7 +355,7 @@
 
     // Действия в случае успешного создания/изменения контакта
     function successResponse(response) {
-      self.serverPartModal = false;
+      self.clusterModal = false;
       clearForm();
 
       Flash.notice(response.full_message);
@@ -307,7 +365,7 @@
     function errorResponse(response) {
       // Ошибка на стороне сервера
       if (parseInt(response.status) >= 500) {
-        self.serverPartModal = false;
+        self.clusterModal = false;
         Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
         return false;
       }
@@ -324,6 +382,27 @@
     }
 
 // =============================================== Публичные функции ===================================================
+
+    // Добавить оборудование в составе сервера
+    self.addDetail = function () {
+      self.value.cluster_details_attributes.push({
+        server_id:    self.servers[0].id,
+        node_role_id: self.node_roles[0].id
+      });
+
+      self.presenceCount ++;
+    };
+
+    // Удалить оборудование из состава сервера
+    // detail - удаляемая деталь
+    self.delDetail = function (detail) {
+      if (detail.id)
+        detail._destroy = 1;
+      else
+        self.value.cluster_details_attributes.splice($.inArray(detail, self.value.cluster_details_attributes), 1);
+
+      self.presenceCount --;
+    };
 
     // Добавить класс "has-error" к элементу форму
     self.errorClass = function (name) {
@@ -342,7 +421,7 @@
     };
 
     // Отправить данные формы на сервер
-    self.readyServerPartModal = function () {
+    self.readyClusterModal = function () {
       // Удалить все предыдущие ошибки валидаций, если таковые имеются
       if (errors) {
         setValidations(errors, true);
@@ -351,13 +430,13 @@
 
       if (self.config.method == 'POST') {
         // Сохранить данные на сервере
-        Server.ServerPart.save({ server_part: self.value },
+        Server.Cluster.save({ cluster: self.value },
           // Success
           function (response) {
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadServerPartData', { reload: true });
+            $scope.$emit('reloadClusterData', { reload: true });
           },
           // Error
           function (response) {
@@ -366,13 +445,13 @@
         );
       }
       else {
-        Server.ServerPart.update({ id: id }, self.value,
+        Server.Cluster.update({ id: id }, { cluster: self.value},
           // Success
           function (response) {
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadServerPartData', { reload: true });
+            $scope.$emit('reloadClusterData', { reload: true });
           },
           // Error
           function (response) {
@@ -383,8 +462,8 @@
     };
 
     // Закрыть модальное окно по кнопке "Отмена"
-    self.closeServerPartModal = function () {
-      self.serverPartModal = false;
+    self.closeClusterModal = function () {
+      self.clusterModal = false;
       clearForm();
     };
   }

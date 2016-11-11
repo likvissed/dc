@@ -316,7 +316,7 @@ class ServicesController < ApplicationController
   end
 
   # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
-  # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
+  # Запрос отсылается из JS файла при инициализации таблицы "Сервисы"
   def link_to_new_record
     link = create_link_to_new_record :page, Service, "/services/new"
     respond_to do |format|
@@ -330,8 +330,6 @@ class ServicesController < ApplicationController
   def service_params
     params.require(:service).permit(
       :number,
-      :dept,
-      :name,
       :dept,
       :name,
       :descr,

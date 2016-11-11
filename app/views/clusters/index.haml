@@ -2,15 +2,20 @@
 
 .container
   .row
-    .col-md-10.col-md-offset-1.col-lg-6.col-lg-offset-3
+    .col-lg-8
       .well
-        .content-body
-          = button_to "Добавить", new_cluster_path, method: :get, class: "btn btn-primary btn-block", form: { id: "add_cluster_form" }
-          %table.table.table-hover.table-striped#clusterTable{ width: "100%" }
-            %thead
-              %tr
-                %th #
-                %th.col-md-10 Имя
-                %th
+        .content-body{ "ng-controller": "ClusterIndexCtrl as clusterPage" }
+          %datatable-wrapper
+            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "clusterPage.dtOptions", "dt-columns": "clusterPage.dtColumns", "dt-instance": "clusterPage.dtInstance", width: "100%" }
 
-= render partial: "preview"
+          = render partial: "preview"
+          = render partial: "modal_form"
+          = render partial: "services/preview"
+
+    .col-lg-4
+      .well
+        .content-body{ "ng-controller": "NodeRoleIndexCtrl as nodeRolePage" }
+          %datatable-wrapper
+            %table.table.center-header.table-striped{ datatable: "", "dt-options": "nodeRolePage.dtOptions", "dt-columns": "nodeRolePage.dtColumns", "dt-instance": "nodeRolePage.dtInstance", width: "100%" }
+
+          = render partial: "node_roles/modal_form"

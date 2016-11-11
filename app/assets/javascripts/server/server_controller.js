@@ -21,7 +21,7 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
-    self.statusOptions = [ // Массив фильтра по статусу сервера
+    self.statusOptions = [ // Массив фильтра по статусу оборудования
       {
         value:  'all',
         string: 'Все статусы'
@@ -39,7 +39,7 @@
         string: 'Простой'
       }
     ];
-    self.typeOptions    = [ // Массив фильтра по типа серверов (данные берутся с сервера)
+    self.typeOptions    = [ // Массив фильтра по типу оборудования (данные берутся с сервера)
       {
         id:   0,
         name: 'Все типы'
@@ -75,7 +75,7 @@
           '<"col-md-6"i>' +
           '<"col-md-6"p>>'
       );
-    self.servers    = {}; // Объекты серверов (id => data)
+    self.servers    = {}; // Объекты оборудования (id => data)
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-sm-1').renderWith(renderIndex),
       DTColumnBuilder.newColumn('name').withTitle('Оборудование'),
@@ -102,7 +102,7 @@
     }
 
     function initComplete(settings, json) {
-      // Заполнить список фильтра типов серверов
+      // Заполнить список фильтра типов оборудования
       if (json.server_types) {
         self.typeOptions        = self.typeOptions.concat(json.server_types);
         self.selectedTypeOption = self.typeOptions[0];
@@ -122,7 +122,7 @@
       $compile(angular.element(row))($scope);
     }
 
-    // Показать данные сервера
+    // Показать данные оборудования
     function showServerData(id) {
       Server.Server.get({ id: id },
         // Success
@@ -138,7 +138,7 @@
         });
     }
 
-    // Отрендерить ссылку на удаление сервера
+    // Отрендерить ссылку на удаление оборудования
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
@@ -155,7 +155,7 @@
     }
 
     $rootScope.$on('deletedServerType', function (event, data) {
-      // Удалить тип сервера из фильтра таблицы серверов
+      // Удалить тип оборудования из фильтра таблицы оборудования
       var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data });
       self.typeOptions.splice($.inArray(obj[0], self.typeOptions), 1);
     });
@@ -167,9 +167,9 @@
       newQuery();
     };
 
-    // Удалить сервер
+    // Удалить оборудование
     self.destroyServer = function (num) {
-      var confirm_str = "Вы действительно хотите удалить сервер \"" + self.servers[num].name + "\"?";
+      var confirm_str = "Вы действительно хотите удалить оборудование \"" + self.servers[num].name + "\"?";
 
       if (!confirm(confirm_str))
         return false;
@@ -251,8 +251,8 @@
     self.init = function (id, name) {
       GetDataFromServer.ajax('servers', id, name)
         .then(function (data) {
-          self.data         = data.server || null;  // Данные о сервере (состояние, тип, состав)
-          self.serverTypes  = data.server_types;    // Все существующие типы серверов
+          self.data         = data.server || null;  // Данные об оборудовании (состояние, тип, состав)
+          self.serverTypes  = data.server_types;    // Все существующие типы оборудования
           self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
 
           if (self.data && self.data.real_server_details)
@@ -262,7 +262,7 @@
 
 // =============================================== Публичные функции ===================================================
 
-    // Изменить тип сервера
+    // Изменить тип оборудования
     self.changeType = function () {
       if (!self.data.server_type) {
         self.data = null;
@@ -271,14 +271,14 @@
 
       $http.get('/server_types/' + self.data.server_type.name + '/edit.json')
         .success(function(data, status, header, config) {
-          self.data.real_server_details = data.template_server_details;  // Запчасти выбранного типа сервера (в БД template_server_details)
+          self.data.real_server_details = data.template_server_details;  // Запчасти выбранного типа оборудования (в БД template_server_details)
 
           // Внутри self.data.real_server_details массивы сгруппированны по типам комплектующих (диски, памят и т.д.)
           $.each(self.data.real_server_details, function (key, arr) {
             $.each(arr, function() {
-              // Сбросить id для всех комплектующих шаблонного сервера
-              // Это необходимо, так как изначально мы получаем данные от состава шаблонного сервера.
-              // Далее эти данные запишутся в состав реального сервера (в другую таблица) и получат новый id.
+              // Сбросить id для всех комплектующих шаблонного оборудования
+              // Это необходимо, так как изначально мы получаем данные от состава шаблонного оборудования.
+              // Далее эти данные запишутся в состав реального оборудования (в другую таблица) и получат новый id.
               this.id = null;
 
               // Определение индекса последнего элемента. Необходимо, чтобы при добавлении элементов знать, какой индекс

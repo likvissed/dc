@@ -9,7 +9,7 @@
     .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)
     .controller('DependenceCtrl', DependenceCtrl);
 
-  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc'];
   ServicePreviewCtrl.$inject      = ['$scope'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
@@ -18,7 +18,7 @@
 
 // ================================================ Главная страница сервисов ==========================================
 
-  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies) {
+  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -78,7 +78,6 @@
     ];
     self.selectedOption = self.options[0];
     self.exploitation   = ServiceCookies.get('showOnlyExploitationServices'); // Установить флаг, скрывающий сервисы, которые не введены в эксплуатацию
-    self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.services       = {};     // Объекты сервисов (id => data)
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
@@ -155,13 +154,11 @@
 
     // Показать данные сервера
     function showServiceData(id) {
-      Server.Service.get({id: id},
+      Server.Service.get({ id: id },
         // Success
         function (response) {
           // Отправить данные контроллеру ServicePreviewCtrl
           $scope.$broadcast('serviceData', response);
-
-          self.previewModal = true; // Показать модальное окно
         },
         // Error
         function (response) {
@@ -185,32 +182,9 @@
       });
     }
 
-    // Установить флаг для сервиса
+    // Установить флаг приоритета функционирования для сервиса
     function priority(flag) {
-      var str; // Возвращаемая строка
-
-      if (flag.exploitation)
-        switch (flag.priority) {
-          case 'Критическая производственная задача':
-            str = '<i class="fa fa-star" tooltip-placement="top" uib-tooltip="Критическая производственная задача"></i>';
-            break;
-          case 'Вторичная производственная задача':
-            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная задача"></i>';
-            break;
-          case 'Тестирование и отладка':
-            str = '<i class="fa fa-star-o" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
-            break;
-          default:
-            str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не определен"></i>';
-            break;
-        }
-      else
-        str = '<i class="fa fa-cogs" tooltip-placement="top" uib-tooltip="Сервис не в эксплуатации"></i>';
-
-      if (flag.deadline)
-        str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования сервиса окончен"></i>';
-
-      return str;
+      return ServiceShareFunc.priority(flag);
     }
 
 // =============================================== Публичные функции ===================================================
@@ -235,7 +209,7 @@
       if (!confirm(confirm_str))
         return false;
 
-      Server.Service.delete({id: num},
+      Server.Service.delete({ id: num },
         // Success
         function (response) {
           Flash.notice(response.full_message);
@@ -254,7 +228,13 @@
   function ServicePreviewCtrl($scope) {
     var self = this;
 
+    self.previewModal = false;  // Флаг, скрывающий модальное окно
+
+// ================================================ Инициализация ======================================================
+
     $scope.$on('serviceData', function (event, data) {
+      self.previewModal = true; // Показать модальное окно
+
       self.service      = angular.copy(data.service);       // Данные сервиса
       self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса
       self.missing_file = angular.copy(data.missing_file);  // Флаги, определяющие, имеются ли загруженные файлы

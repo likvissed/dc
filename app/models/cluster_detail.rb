@@ -6,4 +6,6 @@ class ClusterDetail < ActiveRecord::Base
   belongs_to :server
   belongs_to :node_role
 
+  validates :server_id, :node_role_id, presence: true, numericality: { greater_than: 0 }
+
 end

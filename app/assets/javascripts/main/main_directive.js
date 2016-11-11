@@ -77,6 +77,9 @@
             $compile(element.find('.service-exploitation'))(scope);
             $compile(element.find('.service-filter'))(scope);
 
+            $compile(element.find('.cluster-dept-filter'))(scope);
+            $compile(element.find('.cluster-type-filter'))(scope);
+
             $compile(element.find('.server-status-filter'))(scope);
             $compile(element.find('.server-type-filter'))(scope);
 
@@ -93,6 +96,13 @@
               return [
                 scope.servicePage.selectedOption,
                 scope.servicePage.exploitation
+              ];
+
+            // Для таблицы оборудования
+            if (scope.clusterPage)
+              return [
+                scope.clusterPage.selectedDeptOption,
+                scope.clusterPage.selectedTypeOption
               ];
 
             // Для таблицы серверов
