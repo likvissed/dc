@@ -250,7 +250,7 @@
         );
       }
       else {
-        Server.DetailType.update({ id: id }, self.value,
+        Server.DetailType.update({ id: id }, { detail_type: self.value },
           // Success
           function (response) {
             successResponse(response);

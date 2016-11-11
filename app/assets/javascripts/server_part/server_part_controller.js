@@ -367,7 +367,7 @@
         );
       }
       else {
-        Server.ServerPart.update({ id: id }, self.value,
+        Server.ServerPart.update({ id: id }, { server_part: self.value },
           // Success
           function (response) {
             successResponse(response);

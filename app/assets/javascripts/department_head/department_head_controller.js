@@ -179,7 +179,7 @@
 
       if (self.config.method == 'POST') {
         // Сохранить данные на сервере
-        Server.DepartmentHead.save({department_head: self.value},
+        Server.DepartmentHead.save({ department_head: self.value },
           // Success
           function (response) {
             successResponse(response);
@@ -193,7 +193,7 @@
         );
       }
       else {
-        Server.DepartmentHead.update({tn: tn}, self.value,
+        Server.DepartmentHead.update({ tn: tn }, { department_head: self.value },
           // Success
           function (response) {
             successResponse(response);
@@ -215,7 +215,7 @@
       if (!confirm(confirm_str))
         return false;
 
-      Server.DepartmentHead.delete({tn: num},
+      Server.DepartmentHead.delete({ tn: num },
         // Success
         function (response) {
           Flash.notice(response.full_message);

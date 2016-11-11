@@ -200,7 +200,7 @@
         );
       }
       else {
-        Server.Contact.update({ tn: tn }, self.value,
+        Server.Contact.update({ tn: tn }, { contact: self.value },
           // Success
           function (response) {
             successResponse(response);
