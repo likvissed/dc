@@ -142,10 +142,38 @@
       });
     }
 
-    // Обновить таблицу серверов
+    // Событие обновления таблицы после добавления/редактирования сервера
     $scope.$on('reloadClusterData', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
+    });
+
+    // Событие обновления фильтра и обновления таблицы (если это необходимо)
+    // data.flag - флаг, определяющий, удалять, изменять или добавлять элементы в фильтра
+    // add - добавить
+    // delete - удалить
+    // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
+    $rootScope.$on('changedNodeRole', function (event, data) {
+      // Удалить тип сервера из фильтра таблицы комплектующих
+      if (data.flag == 'delete') {
+        var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data.id });
+        self.typeOptions.splice($.inArray(obj[0], self.typeOptions), 1);
+      }
+
+      // Добавить созданный тип в фильтр таблицы комплектующих
+      else if (data.flag == 'add')
+        self.typeOptions.push(data.value);
+
+      // Изменить имя типа
+      else if (data.flag == 'update') {
+        $.each(self.typeOptions, function (index, value) {
+          if (data.value.id == value.id) {
+            value.name = data.value.name;
+            return false;
+          }
+        });
+        self.dtInstance.reloadData(null, reloadPaging);
+      }
     });
 
 // =============================================== Публичные функции ===================================================

@@ -115,7 +115,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице серверов.
-          //$rootScope.$emit('changedNodeRole', { flag: 'delete', id: id });
+          $rootScope.$emit('changedNodeRole', { flag: 'delete', id: id });
         },
         // Error
         function (response) {
@@ -241,7 +241,7 @@
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('reloadNodeRoleData', { reload: true });
             // Добавить в фильтр таблицы серверов созданный тип
-            //$rootScope.$emit('changedNodeRole', { flag: 'add', value: response.node_role });
+            $rootScope.$emit('changedNodeRole', { flag: 'add', value: response.node_role });
           },
           // Error
           function (response) {

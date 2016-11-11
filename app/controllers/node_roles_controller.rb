@@ -15,7 +15,7 @@ class NodeRolesController < ApplicationController
     @node_role = NodeRole.new(node_role_params)
     if @node_role.save
       respond_to do |format|
-        format.json { render json: { detail_type: @node_role, full_message: "Тип сервера добавлен" }, status: :created }
+        format.json { render json: { node_role: @node_role, full_message: "Тип сервера добавлен" }, status: :created }
       end
     else
       respond_to do |format|
@@ -33,7 +33,7 @@ class NodeRolesController < ApplicationController
   def update
     if @node_role.update_attributes(node_role_params)
       respond_to do |format|
-        format.json { render json: { detail_type: @node_role, full_message: "Тип сервера изменен" }, status: :ok }
+        format.json { render json: { node_role: @node_role, full_message: "Тип сервера изменен" }, status: :ok }
       end
     else
       respond_to do |format|
