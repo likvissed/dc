@@ -6,9 +6,9 @@
     .controller('ClusterPreviewCtrl', ClusterPreviewCtrl) // Предпросмотр сервера
     .controller('ClusterEditCtrl', ClusterEditCtrl);      // Добавление/редактирование сервера
 
-  //ClusterIndexCtrl.$inject = [];
-  ClusterPreviewCtrl.$inject = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Flash'];
-  //ClusterEditCtrl.$inject = [];
+  ClusterIndexCtrl.$inject    = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ClusterPreviewCtrl.$inject  = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Flash'];
+  ClusterEditCtrl.$inject     = ['$scope', 'Flash', 'Server'];
 
 // =====================================================================================================================
 

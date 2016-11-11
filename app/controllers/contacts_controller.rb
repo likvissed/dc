@@ -16,7 +16,7 @@ class ContactsController < ApplicationController
     @contact = Contact.new(contact_params)
     if @contact.save
       respond_to do |format|
-        format.json { render json: { contact: @contact.as_json(except: [:id, :department_head_id, :created_at, :updated_at]), full_message: "Контакт добавлен" }, status: :created }
+        format.json { render json: { full_message: "Контакт добавлен" }, status: :created }
       end
     else
       respond_to do |format|
@@ -34,7 +34,7 @@ class ContactsController < ApplicationController
   def update
     if @contact.update_attributes(contact_params)
       respond_to do |format|
-        format.json { render json: { contact: @contact.as_json(except: [:id, :department_head_id, :created_at, :updated_at]), full_message: "Данные изменены" }, status: :ok }
+        format.json { render json: { full_message: "Данные изменены" }, status: :ok }
       end
     else
       respond_to do |format|
