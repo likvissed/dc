@@ -1,14 +1,17 @@
 (function() {
   app
-    .service('Flash', Flash)
-    .factory('Server', Server)
-    .factory('GetDataFromServer', GetDataFromServer);
+    .service('Flash', Flash)                          // Сервис уведомлений пользователя (как об успешных операциях, так и об ошибках)
+    .service('Error', Error)                          // Сервис обработки ошибок
+    .factory('Server', Server)                        // Фабрика для работы с CRUD действиями
+    .factory('GetDataFromServer', GetDataFromServer); // Фабрика для работы с new и edit действиями
 
   Flash.$inject             = ['$timeout'];
+  Error.$inject             = ['Flash'];
   Server.$inject            = ['$resource'];
   GetDataFromServer.$inject = ['$http', '$q'];
 
-  // Уведомления (успешные действия и ошибки) для пользователя
+// =====================================================================================================================
+
   function Flash($timeout) {
     var self = this;
 
@@ -32,7 +35,36 @@
     };
   }
 
-  // Ресурс с CRUD actions
+// =====================================================================================================================
+
+  function Error(Flash) {
+    var self = this;
+
+    self.response = function (response, status) {
+      var code; // код ответа
+
+      code = (response && response.status) ? parseInt(response.status): parseInt(status);
+
+      switch(code) {
+        case 403:
+          Flash.alert('Доступ запрещен.');
+          break;
+        case 404:
+          Flash.alert('Запись не найдена.');
+          break;
+        case 422:
+          Flash.alert(response.data.full_message);
+          break;
+        default:
+          var descr = (response && response.statusText) ? ' (' + response.statusText + ')' : '';
+          Flash.alert('Ошибка. Код: ' + code + descr + '. Обратитесь к администратору.');
+          break;
+      }
+    };
+  }
+
+// =====================================================================================================================
+
   function Server($resource) {
     return {
       Service:        $resource('/services/:id.json'),
@@ -48,6 +80,8 @@
       DetailType:     $resource('/detail_types/:id.json', {}, { update: { method: 'PATCH' } })
     }
   }
+
+// =====================================================================================================================
 
   // Фабрика для запросов на сервер на new и edit actions
   // ctrl_name - имя контроллера, на который отправляется запрос
