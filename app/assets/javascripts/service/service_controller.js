@@ -9,7 +9,7 @@
     .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)
     .controller('DependenceCtrl', DependenceCtrl);
 
-  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc', 'Error'];
   ServicePreviewCtrl.$inject      = ['$scope'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
@@ -18,7 +18,7 @@
 
 // ================================================ Главная страница сервисов ==========================================
 
-  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc) {
+  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -89,7 +89,7 @@
           exploitation: self.exploitation
         },
         error: function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+          Error.response(response);
         }
       })
       .withOption('createdRow', createdRow)
@@ -165,7 +165,7 @@
         },
         // Error
         function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+          Error.response(response);
         });
     }
 
@@ -181,6 +181,9 @@
         data: {
           filter:       self.selectedOption.value,
           exploitation: self.exploitation
+        },
+        error: function (response) {
+          Error.response(response);
         }
       });
     }
@@ -221,7 +224,7 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
@@ -236,7 +239,7 @@
 // ================================================ Инициализация ======================================================
 
     $scope.$on('serviceData', function (event, data) {
-      self.previewModal = true; // Показать модальное окно
+      self.previewModal = true;                             // Показать модальное окно
 
       self.service      = angular.copy(data.service);       // Данные сервиса
       self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса

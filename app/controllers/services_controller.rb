@@ -58,8 +58,8 @@ class ServicesController < ApplicationController
         @service = Service.select(values).where(filter)
         @service = @service.where(exploitation: true) if params[:exploitation] == 'true'
 
-        now = Time.now.to_date
-        data = @service.as_json(
+        now   = Time.now.to_date
+        data  = @service.as_json(
           include: {
             contact_1: { only: :info },
             contact_2: { only: :info }
