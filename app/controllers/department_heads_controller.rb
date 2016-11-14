@@ -7,7 +7,7 @@ class DepartmentHeadsController < ApplicationController
   def index
     respond_to do |format|
       format.html
-      format.json { render json: DepartmentHead.select(:tn, :dept, :info) }
+      format.json { render json: DepartmentHead.select(:id, :tn, :dept, :info).order(:id) }
     end
   end
 

@@ -8,9 +8,9 @@ class ClustersController < ApplicationController
     respond_to do |format|
       format.html
       format.json do
-        # Список серверов
+        # Список серверов/кластеров
         @clusters   = Cluster.select(:id, :name).order(:id).includes(:services)
-        # Список типов серверов
+        # Список типов серверов/кластеров
         @node_roles = NodeRole.select(:id, :name).order(:id) if params[:clusterTypes] == 'true'
         # Список известных отделов
         @services   = Service.select(:dept).where.not(dept: nil).uniq if params[:clusterDepts] == 'true'
@@ -23,7 +23,7 @@ class ClustersController < ApplicationController
           # Внимание! В выборке будут отсутствовать сервисы других отделов, даже если они расположены на серверах, попавших в выборку.
           @clusters_filtered = @clusters.where(services: { dept: params[:deptFilter] })
           # Сделать новый запрос к базе для получения списка серверов и ВСЕХ ассоциированных сервисов.
-          @clusters = Cluster.select(:id, :name).includes(:services).where(id: @clusters_filtered.each{ |c| c.id })
+          @clusters = Cluster.select(:id, :name).order(:id).includes(:services).where(id: @clusters_filtered.each{ |c| c.id })
         elsif params[:deptFilter] == 'Без отделов' && params[:clusterTypes] != 'true'
           @clusters = @clusters.where(services: { dept: nil })
         end
@@ -32,7 +32,8 @@ class ClustersController < ApplicationController
         @clusters = @clusters.as_json(
           include: {
            services: { only: :dept }
-        }).each do |c|
+          }
+        ).each do |c|
           c['services'] = c['services'].uniq.map{ |s| s['dept'] }.join(', ')
         end
 
@@ -49,8 +50,8 @@ class ClustersController < ApplicationController
             cluster_details: {
               only: [],
               include: {
-                server: { only: :name },
-                node_role: { only: :name }
+                server:     { only: :name },
+                node_role:  { only: :name }
               }
             },
             services: {
@@ -69,8 +70,8 @@ class ClustersController < ApplicationController
     respond_to do |format|
       format.json do
         if Server.exists? && NodeRole.exists?
-          @servers    = Server.select(:id, :name)
-          @node_roles = NodeRole.select(:id, :name)
+          @servers    = Server.select(:id, :name).order(:id)
+          @node_roles = NodeRole.select(:id, :name).order(:id)
 
           render json: { servers: @servers, node_roles: @node_roles }, status: :ok
         else
@@ -97,15 +98,16 @@ class ClustersController < ApplicationController
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        @servers    = Server.select(:id, :name)
-        @node_roles = NodeRole.select(:id, :name)
+        @servers    = Server.select(:id, :name).order(:id)
+        @node_roles = NodeRole.select(:id, :name).order(:id)
         render json: {
-          data: @cluster.as_json(include: {
-            cluster_details: {
-              except: [:created_at, :updated_at]
-            } },
-          except: [:created_at, :updated_at]),
-          servers: @servers,
+          data:       @cluster.as_json(
+            include: {
+              cluster_details: {
+                except: [:created_at, :updated_at]
+              } },
+            except: [:created_at, :updated_at]),
+          servers:    @servers,
           node_roles: @node_roles
         }
       end
