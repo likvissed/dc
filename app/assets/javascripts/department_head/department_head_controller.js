@@ -4,9 +4,9 @@
   app
     .controller('DepartmentHeadCtrl', DepartmentHeadCtrl);
 
-  DepartmentHeadCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  DepartmentHeadCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
 
-  function DepartmentHeadCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function DepartmentHeadCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -20,7 +20,7 @@
       .withOption('ajax', {
         url: '/department_heads.json',
         error: function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+          Error.response(response);
         }
       })
       .withOption('createdRow', createdRow)
@@ -76,7 +76,7 @@
     function setValidations(array, flag) {
       $.each(array, function (key, value) {
         $.each(value, function (index, message) {
-          if (key != 'base')
+          if (key != 'base' && self.form['department_head[' + key + ']'])
             self.form['department_head[' + key + ']'].$setValidity(message, flag);
         });
       });
@@ -101,22 +101,10 @@
 
     // Действия в случае ошибки создания/изменения контакта
     function errorResponse(response) {
-      // Ошибка на стороне сервера
-      if (parseInt(response.status) >= 500) {
-        self.headModal = false;
-        Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
-        return false;
-      }
-      // Нет доступа
-      else if (parseInt(response.status) == 403) {
-        Flash.alert(response.data.full_message);
-        return false;
-      }
+      Error.response(response);
 
       errors = response.data.object;
       setValidations(errors, false);
-
-      Flash.alert(response.data.full_message);
     }
 
     // Отрендерить ссылку на изменение контакта
@@ -139,11 +127,15 @@
 
       // Если запись редактируется
       if (tn) {
-        $http.get('/department_heads/' + tn + '/edit.json').success(function (success) {
-          self.config.method  = 'PUT';
-          self.value          = angular.copy(success); //Заполнить поля данными, полученными с сервера
-          self.config.title   = success.info;
-        });
+        $http.get('/department_heads/' + tn + '/edit.json')
+          .success(function (success) {
+            self.config.method  = 'PUT';
+            self.value          = angular.copy(success); //Заполнить поля данными, полученными с сервера
+            self.config.title   = success.info;
+          })
+          .error(function (response, status) {
+            Error.response(response, status);
+          });
       }
       else {
         self.config.method  = 'POST';
@@ -229,7 +221,7 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.full_message);
+          Error.response(response);
         });
     }
   }
