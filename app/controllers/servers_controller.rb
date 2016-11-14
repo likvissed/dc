@@ -8,7 +8,7 @@ class ServersController < ApplicationController
 
   def index
     respond_to do |format|
-      format.html { render :index }
+      format.html
       format.json do
         @servers      = Server.select(:id, :name, :server_type_id, :status, :location)
         @server_types = ServerType.select(:id, :name) if params[:serverTypes] == 'true'
@@ -89,7 +89,7 @@ class ServersController < ApplicationController
 
   def edit
     respond_to do |format|
-      format.html { render :edit }
+      format.html
       format.json do
         server_details = @server.real_server_details.as_json(
           include: {

@@ -191,7 +191,7 @@ class ServicesController < ApplicationController
 
   def edit
     respond_to do |format|
-      format.html { render :edit }
+      format.html
       format.json do
         get_services
 

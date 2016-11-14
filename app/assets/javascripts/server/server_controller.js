@@ -7,13 +7,13 @@
     .controller('ServerPreviewCtrl', ServerPreviewCtrl)     // Предпросмотр оборудования
     .controller('ServerEditCtrl', ServerEditCtrl);          // Форма добавления/редактирования оборудования
 
-  ServerIndexCtrl.$inject     = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  ServerPreviewCtrl.$inject   = ['$scope'];
-  ServerEditCtrl.$inject      = ['$http', 'GetDataFromServer'];
+  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ServerPreviewCtrl.$inject = ['$scope'];
+  ServerEditCtrl.$inject    = ['$http', 'GetDataFromServer', 'Error'];
 
 // =====================================================================================================================
 
-  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -59,7 +59,7 @@
           statusFilter: self.selectedStatusOption.value
         },
         error: function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+          Error.response(response);
         }
       })
       .withOption('initComplete', initComplete)
@@ -136,8 +136,8 @@
           self.previewModal = true; // Показать модальное окно
         },
         // Error
-        function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        function (response, status) {
+          Error.response(response, status);
         });
     }
 
@@ -177,7 +177,7 @@
       if (!confirm(confirm_str))
         return false;
 
-      Server.Server.delete({id: num},
+      Server.Server.delete({ id: num },
         // Success
         function (response) {
           Flash.notice(response.full_message);
@@ -186,7 +186,7 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
@@ -226,7 +226,7 @@
 
 // =====================================================================================================================
 
-  function ServerEditCtrl($http, GetDataFromServer) {
+  function ServerEditCtrl($http, GetDataFromServer, Error) {
     var self = this;
 
     self.presenceCount  = {}; // Объект вида { Имя => Кол-во комплектующих }
@@ -292,6 +292,9 @@
           });
 
           getDeatilsCount();
+        })
+        .error(function (response, status) {
+          Error.response(response, status);
         });
     };
 
