@@ -6,13 +6,13 @@
     .controller('ServerTypePreviewCtrl', ServerTypePreviewCtrl)
     .controller('ServerEditTypeCtrl', ServerEditTypeCtrl);
 
-  ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
   ServerTypePreviewCtrl.$inject = ['$scope'];
   ServerEditTypeCtrl.$inject    = ['GetDataFromServer'];
 
 // ================================================ Общая таблица типов серверов =======================================
 
-  function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -27,7 +27,7 @@
       .withOption('ajax', {
         url: '/server_types.json',
         error: function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+          Error.response(response);
         }
       })
       .withOption('createdRow', createdRow)
@@ -73,7 +73,7 @@
 
     // Показать данные сервера
     function showServerTypeData(id) {
-      Server.ServerType.get({id: id},
+      Server.ServerType.get({ id: id },
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl
@@ -82,8 +82,8 @@
           self.previewModal = true; // Показать модальное окно
         },
         // Error
-        function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        function (response, status) {
+          Error.response(response, status);
         });
     }
 
@@ -101,7 +101,7 @@
       if (!confirm(confirm_str))
         return false;
 
-      Server.ServerType.delete({id: num},
+      Server.ServerType.delete({ id: num },
         // Success
         function (response) {
           Flash.notice(response.full_message);
@@ -113,7 +113,7 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }

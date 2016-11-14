@@ -65,7 +65,7 @@ class ServerTypesController < ApplicationController
 
   def edit
     respond_to do |format|
-      format.html { render :edit }
+      format.html
       format.json do
         server_details = @server_type.template_server_details.as_json(
           include: {
