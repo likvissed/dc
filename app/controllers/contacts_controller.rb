@@ -7,7 +7,7 @@ class ContactsController < ApplicationController
 
   def index
     respond_to do |format|
-      format.html { render :index }
+      format.html
       format.json { render json: Contact.select(:tn, :info, :dept, :work_num, :mobile_num) }
     end
   end
