@@ -16,12 +16,12 @@
                   .col-md-12.col-lg-12
                     %div.form-group{ "ng-repeat": "detail_type in serverType.detailTypes" }
                       %label{ "ng-bind": "detail_type.name", "ng-class": "{ 'text-muted': serverType.presenceCount[detail_type.name] == 0 }" }
-                      %span.text-muted.ng-hide{ "ng-hide": "serverType.presenceCount[detail_type.name] != 0" }
+                      %span.text-muted.ng-hide.animate-show{ "ng-hide": "serverType.presenceCount[detail_type.name] != 0" }
                         %b отсутствует
                       &nbsp;
                       = icon("fa fa-plus-circle fa-lg pointer", "tooltip-placement": "right", "uib-tooltip": "Добавить коплектующую", "ng-click": "serverType.addDetail($index)")
                       %table.internal-table
-                        %tbody{ "ng-repeat": "detail in serverType.data[detail_type.name]", "ng-hide": "detail.destroy" }
+                        %tbody.animate-repeat.animate-show{ "ng-repeat": "detail in serverType.data[detail_type.name]", "ng-hide": "detail.destroy" }
                           %tr
                             %td.col-sm-9.col-md-7.col-lg-9.no-left-padding
                               .form-group

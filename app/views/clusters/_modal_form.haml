@@ -15,12 +15,12 @@
 
           %label{ "ng-class": "{ 'text-muted': cluster.presenceCount == 0 }" }
             Состав
-          %span.text-muted.ng-hide{ "ng-hide": "cluster.presenceCount != 0" }
+          %span.text-muted.ng-hide.animate-show{ "ng-hide": "cluster.presenceCount != 0" }
             %b отсутствует
           &nbsp;
           = icon("fa fa-plus-circle fa-lg pointer", "tooltip-placement": "right", "uib-tooltip": "Добавить оборудование", "ng-click": "cluster.addDetail($index)")
           %table.internal-table
-            %tbody{ "ng-repeat": "detail in cluster.value.cluster_details_attributes", "ng-hide": "detail._destroy" }
+            %tbody.animate-repeat.animate-show{ "ng-repeat": "detail in cluster.value.cluster_details_attributes", "ng-hide": "detail._destroy" }
               %tr
                 %td.col-sm-4.col-md-4.col-lg-4.no-left-padding
                   = hidden_field_tag "cluster[cluster_details_attributes][{{ detail.index }}][id]", "{{ detail.id }}"
@@ -34,7 +34,7 @@
                       = select_tag "cluster[cluster_details_attributes][{{ detail.index }}][server_id]", nil, class: "form-control", "ng-model": "detail.server_id", "ng-options": "server.id as server.name for server in cluster.servers"
                     .col-sm-1.col-md-1.col-lg-1.no-right-padding
                       = icon("fa fa-minus-circle fa-lg icon-padding pointer", "tooltip-placement": "left", "uib-tooltip": "Удалить оборудование", "ng-click": "cluster.delDetail(detail)")
-              %tr.empty{ "ng-show": "!detail.$last" }
+              %tr.empty.animate-show{ "ng-show": "!detail.$last" }
 
         .modal-footer
           = button_tag "Готово", type: "button", class: "btn btn-success", "ng-click": "cluster.readyClusterModal()"

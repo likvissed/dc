@@ -178,7 +178,7 @@
         %tr
           %th{ colspan: 2 } Подключение к сетям передачи и хранения данных
       %tbody
-        %tr{ "ng-repeat": "network in service.network.values", "ng-hide": "network.hide" }
+        %tr.animate-repeat.animate-show{ "ng-repeat": "network in service.network.values", "ng-hide": "network.hide" }
           %td
             %table.internal-table
               %tr

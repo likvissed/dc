@@ -16,7 +16,7 @@
     %div.ng-hide{ "ng-show": "service.showParents()" } Отсутствуют
 
     %table.ng-hide.internal-table{ "ng-show": "service.parents.length" }
-      %tbody{ "ng-repeat": "parent in service.parents", "ng-hide": "parent.destroy" }
+      %tbody.animate-repeat.animate-show{ "ng-repeat": "parent in service.parents", "ng-hide": "parent.destroy" }
         %tr
           %td
             .form-group.padding-right
@@ -25,4 +25,4 @@
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"
           %td.min-td
             = icon("fa fa-minus-circle fa-lg pointer", "tooltip-placement": "top", "uib-tooltip": "Удалить зависимость", "ng-click": "dependence.delParent(parent)")
-        %tr.empty{ "ng-show": "!$last" }
+        %tr.empty.animate-show{ "ng-show": "!$last" }

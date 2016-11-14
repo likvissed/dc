@@ -20,7 +20,7 @@
               = check_box_tag "contact[manually]", true, false, "ng-model": "contactPage.value.manually", "ng-checked": "contactPage.value.manually"
               Заполнить данные контакта вручную
 
-          %div{ "ng-show": "contactPage.value.manually" }
+          %div.animate-show{ "ng-show": "contactPage.value.manually" }
 
             .form-group.required{ "ng-class": "contactPage.errorClass('contact[info]')" }
               = label_tag :contact_info , class: "control-label" do

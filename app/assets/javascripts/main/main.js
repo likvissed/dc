@@ -3,6 +3,7 @@ var app = angular
     'ngResource',
     'ngCookies',
     'ngSanitize',
+    'ngAnimate',
     'datatables',
     'ui.bootstrap'
   ]);
