@@ -2,7 +2,6 @@ class ServerPartsController < ApplicationController
 
   load_and_authorize_resource
 
-  before_action { |ctrl| ctrl.check_for_cancel server_parts_path }
   before_action :find_server_part_by_name,  only: [:edit]
   before_action :find_server_part_by_id,    only: [:show, :update, :destroy]
 

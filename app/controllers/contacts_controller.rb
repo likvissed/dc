@@ -2,7 +2,6 @@ class ContactsController < ApplicationController
 
   load_and_authorize_resource
 
-  before_action { |ctrl| ctrl.check_for_cancel contacts_path }
   before_action :find_contact_by_tn, only: [:edit, :update, :destroy]
 
   def index
