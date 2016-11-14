@@ -57,7 +57,7 @@
       },
       {
         value:  'notUivt',
-        string: 'Сервисы других подразделений (не ***REMOVED***)'
+        string: 'Сервисы других подразделений (не УИВТ)'
       },
       {
         value:  'virt***REMOVED***',
@@ -164,8 +164,8 @@
           $scope.$broadcast('serviceData', response);
         },
         // Error
-        function (response) {
-          Error.response(response);
+        function (response, status) {
+          Error.response(response, status);
         });
     }
 
