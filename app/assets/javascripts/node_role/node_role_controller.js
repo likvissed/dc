@@ -5,12 +5,12 @@
     .controller('NodeRoleIndexCtrl', NodeRoleIndexCtrl) // Таблица типов серверов
     .controller('NodeRoleEditCtrl', NodeRoleEditCtrl);  // Добавление/редактирование типа сервера
 
-  NodeRoleIndexCtrl.$inject = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  NodeRoleEditCtrl.$inject  = ['$scope', '$rootScope', 'Flash', 'Server'];
+  NodeRoleIndexCtrl.$inject = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  NodeRoleEditCtrl.$inject  = ['$scope', '$rootScope', 'Flash', 'Server', 'Error'];
 
 // =====================================================================================================================
 
-  function NodeRoleIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function NodeRoleIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -24,7 +24,7 @@
       .withOption('ajax', {
         url: '/node_roles.json',
         error: function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+          Error.response(response);
         }
       })
       .withOption('createdRow', createdRow)
@@ -91,12 +91,16 @@
 
       // Если запись редактируется
       if (name) {
-        $http.get('/node_roles/' + name + '/edit.json').success(function (success) {
-          data.method = 'PUT';
-          data.value  = angular.copy(success);
+        $http.get('/node_roles/' + name + '/edit.json')
+          .success(function (success) {
+            data.method = 'PUT';
+            data.value  = angular.copy(success);
 
-          $scope.$broadcast('nodeRoleData', data);
-        });
+            $scope.$broadcast('nodeRoleData', data);
+          })
+          .error(function (response, status) {
+            Error.response(response, status);
+          });
       }
       else {
         data.method = 'POST';
@@ -124,14 +128,14 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
 
 // =====================================================================================================================
 
-  function NodeRoleEditCtrl ($scope, $rootScope, Flash, Server) {
+  function NodeRoleEditCtrl ($scope, $rootScope, Flash, Server, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -192,22 +196,10 @@
 
     // Действия в случае ошибки создания/изменения типа детали
     function errorResponse(response) {
-      // Ошибка на стороне сервера
-      if (parseInt(response.status) >= 500) {
-        self.nodeRoleModal = false;
-        Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
-        return false;
-      }
-      // Нет доступа
-      else if (parseInt(response.status) == 403) {
-        Flash.alert(response.data.full_message);
-        return false;
-      }
+      Error.response(response);
 
       errors = response.data.object;
       setValidations(errors, false);
-
-      Flash.alert(response.data.full_message);
     }
 
 // =============================================== Публичные функции ===================================================
