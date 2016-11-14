@@ -8,7 +8,7 @@ class ServerPartsController < ApplicationController
 
   def index
     respond_to do |format|
-      format.html { render :index }
+      format.html
       format.json do
         @detail_types = DetailType.select(:id, :name) if params[:detailTypes] == 'true'
         @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
