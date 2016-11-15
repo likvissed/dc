@@ -2,15 +2,15 @@
   'use strict';
 
   app
-    .controller('ServerTypeIndexCtrl', ServerTypeIndexCtrl)
-    .controller('ServerTypePreviewCtrl', ServerTypePreviewCtrl)
-    .controller('ServerEditTypeCtrl', ServerEditTypeCtrl);
+    .controller('ServerTypeIndexCtrl', ServerTypeIndexCtrl)     // Общая таблица типов серверов
+    .controller('ServerTypePreviewCtrl', ServerTypePreviewCtrl) // Предпросмотр типа
+    .controller('ServerEditTypeCtrl', ServerEditTypeCtrl);      // Форма добавления/редактирования типа
 
   ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
   ServerTypePreviewCtrl.$inject = ['$scope'];
   ServerEditTypeCtrl.$inject    = ['GetDataFromServer'];
 
-// ================================================ Общая таблица типов серверов =======================================
+// =====================================================================================================================
 
   function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
@@ -92,7 +92,7 @@
       return '<a href="" class="text-danger" disable-link=true ng-click="serverType.destroyServerType(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
-// =============================================== Приватные функции ===================================================
+// =============================================== Публичные функции ===================================================
 
     // Удалить тип сервера
     self.destroyServerType = function (num) {
@@ -118,7 +118,7 @@
     }
   }
 
-// ================================================ Режим предпросмотра типа сервера ===================================
+// =====================================================================================================================
 
   function ServerTypePreviewCtrl($scope) {
     var self = this;
@@ -137,7 +137,7 @@
     });
   }
 
-// ================================================ Редактирование типа сервера ========================================
+// =====================================================================================================================
 
   function ServerEditTypeCtrl(GetDataFromServer) {
     var self = this;
