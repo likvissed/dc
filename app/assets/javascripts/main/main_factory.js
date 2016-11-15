@@ -3,12 +3,14 @@
     .service('Flash', Flash)                          // Сервис уведомлений пользователя (как об успешных операциях, так и об ошибках)
     .service('Error', Error)                          // Сервис обработки ошибок
     .factory('Server', Server)                        // Фабрика для работы с CRUD действиями
-    .factory('GetDataFromServer', GetDataFromServer); // Фабрика для работы с new и edit действиями
+    .factory('GetDataFromServer', GetDataFromServer)  // Фабрика для работы с new и edit действиями
+    .factory('myHttpInterceptor', myHttpInterceptor); // Фабрика для настройки параметрв для индикатора выполнения ajax запросов
 
   Flash.$inject             = ['$timeout'];
   Error.$inject             = ['Flash'];
   Server.$inject            = ['$resource'];
   GetDataFromServer.$inject = ['$http', '$q'];
+  //myHttpInterceptor.$inject = ['q'];
 
 // =====================================================================================================================
 
@@ -107,4 +109,59 @@
       }
     };
   }
+
+// =====================================================================================================================
+
+  function myHttpInterceptor($q) {
+    var self = this;
+
+    self.requests = {
+      data: []
+    };
+
+// =============================================== Приватные функции ===================================================
+
+    // Увеличить счетчик запросов
+    function incCount() {
+      self.requests.data.push(true);
+    }
+
+    // Уменьшить счетчик запросов
+    function decCount() {
+      self.requests.data.pop();
+    }
+
+// =============================================== Публичные функции ===================================================
+
+    return {
+      getRequestsCount: self.requests,
+      incCount: function () {
+        incCount();
+      },
+      decCount: function () {
+        decCount();
+      },
+      request: function(config) {
+        incCount();
+
+        return config;
+      },
+      requestError: function(rejection) {
+        decCount();
+
+        return $q.reject(rejection);
+      },
+      response: function(response) {
+        decCount();
+
+        return response;
+      },
+      responseError: function(rejection) {
+        decCount();
+
+        return $q.reject(rejection);
+      }
+    };
+  }
+
 })();
