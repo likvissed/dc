@@ -12,7 +12,7 @@ class ServiceDependency < ActiveRecord::Base
 
   # Запретить ссылаться на себя
   def reject_self_references
-    errors.add(:parent_id, "Нельзя ссылаться на себя") if self.child_id == self.parent_id
+    errors.add(:parent_id, "не может ссылаться на себя в поле зависимостей") if self.child_id == self.parent_id
   end
 
 end

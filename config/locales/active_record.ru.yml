@@ -1,0 +1,34 @@
+ru:
+  activerecord:
+    attributes:
+      service:
+        name: "Имя сервиса"
+        number: "Указанный номер"
+        priority: "Приоритет функционирования"
+        time_work: "Режим гарантированной доступности"
+      service/service_dep_parents:
+        parent_id: "Сервис"
+      service_network:
+        segment: "Сегмент сети"
+        vlan: "Наименование виртуальносй сети"
+        dns_name: "DNS имя"
+      contact:
+        tn: "Табельный номер"
+        info: "ФИО"
+        dept: "Номер отдела"
+      department_head:
+        tn: "Табельный номер"
+      storage_system:
+        name: "Наименование подключения к СХД"
+      service_dependency:
+        parent_id: "Сервис-родитель"
+      cluster:
+        name: "Имя кластера"
+      server:
+        name: "Имя сервера"
+        server_type_id: "Тип сервера"
+      server_type:
+        name: "Имя типа сервера"
+      server_part:
+        name: "Имя комплектующей"
+        detail_type_id: "Тип комплектующей"

@@ -32,7 +32,7 @@
             .form-group{ "ng-class": "contactPage.errorClass('contact[dept]')" }
               = label_tag :contact_dept , class: "control-label" do
                 %abbr{ title: "required" } *
-                %b Отдел
+                %b Номер отдела
               = text_field_tag "contact[dept]", "", class: "form-control", "ng-model": "contactPage.value.dept"
               %span.help-block{ "ng-show": "contactPage.form['contact[dept]'].$invalid", "ng-bind": "contactPage.errorMessage('contact[dept]')" }
 
