@@ -73,13 +73,6 @@ $big-width:       1500px
 body
   background-color: $main-bg-color
 
-%template-content
-  height: 100%
-  margin: 0 auto
-  box-shadow: 0 0 10px rgba(0,0,0,0.2)
-  border: 1px $table-border-color solid
-  background-color: white
-
 button
   @extend .btn, .btn-default
 
@@ -115,20 +108,6 @@ a.default-color
 
   .icon-padding
     padding: 10px 0
-
-/* ================================================ Размер контента ================================================= */
-
-.medium-content
-  @extend %template-content
-  width: $medium-width
-
-.default-content
-  @extend %template-content
-  width: $defatul-width
-
-.big-content
-  @extend %template-content
-  width: $big-width
 
 /* ================================================ Блоки контента ================================================== */
 
