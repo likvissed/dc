@@ -15,6 +15,6 @@
       .well
         .content-body{ "ng-controller": "DetailTypeIndexCtrl as detailTypePage" }
           %datatable-wrapper
-            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "detailTypePage.dtOptions", "dt-columns": "detailTypePage.dtColumns", "dt-instance": "detailTypePage.dtInstance", width: "100%" }
+            %table.table.center-header.table-striped{ datatable: "", "dt-options": "detailTypePage.dtOptions", "dt-columns": "detailTypePage.dtColumns", "dt-instance": "detailTypePage.dtInstance", width: "100%" }
 
           = render partial: "detail_types/modal_form"

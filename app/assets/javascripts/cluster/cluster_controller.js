@@ -6,13 +6,13 @@
     .controller('ClusterPreviewCtrl', ClusterPreviewCtrl) // Предпросмотр сервера
     .controller('ClusterEditCtrl', ClusterEditCtrl);      // Добавление/редактирование сервера
 
-  //ClusterIndexCtrl.$inject = [];
-  ClusterPreviewCtrl.$inject = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Flash'];
-  //ClusterEditCtrl.$inject = [];
+  ClusterIndexCtrl.$inject    = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ClusterPreviewCtrl.$inject  = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Error'];
+  ClusterEditCtrl.$inject     = ['$scope', 'Flash', 'Server', 'Error'];
 
 // =====================================================================================================================
 
-  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -41,6 +41,9 @@
         data: {
           clusterTypes: true, // Флаг, необходимый, чтобы получить с сервера все типы серверов
           clusterDepts: true  // Флаге, необходимый, чтобы получить с сервера все отделы
+        },
+        error: function (response) {
+          Error.response(response);
         }
       })
       .withOption('initComplete', initComplete)
@@ -49,7 +52,7 @@
       '<"row"' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
           '<"#clusters.new-record">>' +
-        '<"col-sm-8 col-md-8 col-lg-4">' +
+        '<"col-sm-4 col-md-4 col-lg-4">' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
           '<"cluster-dept-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
@@ -116,14 +119,14 @@
           $scope.$broadcast('showClusterData', response);
         },
         // Error
-        function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        function (response, status) {
+          Error.response(response, status);
         });
     }
 
     // Отрендерить ссылку на изменение сервера
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="clusterPage.showClusterModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="clusterPage.showClusterModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
     }
 
     // Отрендерить ссылку на удаление сервера
@@ -195,14 +198,18 @@
 
       // Если запись редактируется
       if (name) {
-        $http.get('/clusters/' + name + '/edit.json').success(function (response) {
-          data.method     = 'PUT';
-          data.node_roles = angular.copy(response.node_roles);
-          data.servers    = angular.copy(response.servers);
-          data.value      = angular.copy(response.data);
+        $http.get('/clusters/' + name + '/edit.json')
+          .success(function (response) {
+            data.method     = 'PUT';
+            data.node_roles = angular.copy(response.node_roles);
+            data.servers    = angular.copy(response.servers);
+            data.value      = angular.copy(response.data);
 
-          $scope.$broadcast('editClusterData', data);
-        });
+            $scope.$broadcast('editClusterData', data);
+          })
+          .error(function (response, status) {
+            Error.response(response, status);
+          });
       }
       else {
         $http.get('/clusters/new.json')
@@ -214,8 +221,8 @@
 
             $scope.$broadcast('editClusterData', data);
           })
-          .error(function (response) {
-            Flash.alert(response.full_message);
+          .error(function (response, status) {
+            Error.response(response, status);
           });
       }
     };
@@ -236,14 +243,14 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
 
 // =====================================================================================================================
 
-  function ClusterPreviewCtrl($scope, $rootScope, Server, ServiceShareFunc, Flash) {
+  function ClusterPreviewCtrl($scope, $rootScope, Server, ServiceShareFunc, Error) {
     var self = this;
 
     self.previewModal   = false;  // Флаг, скрывающий модальное окно
@@ -277,15 +284,15 @@
           $rootScope.$broadcast('serviceData', response);
         },
         // Error
-        function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        function (response, status) {
+          Error.response(response, status);
         });
     };
   }
 
 // =====================================================================================================================
 
-  function ClusterEditCtrl($scope, Flash, Server) {
+  function ClusterEditCtrl($scope, Flash, Server, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -363,22 +370,10 @@
 
     // Действия в случае ошибки создания/изменения комплектующей
     function errorResponse(response) {
-      // Ошибка на стороне сервера
-      if (parseInt(response.status) >= 500) {
-        self.clusterModal = false;
-        Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
-        return false;
-      }
-      // Нет доступа
-      else if (parseInt(response.status) == 403) {
-        Flash.alert(response.data.full_message);
-        return false;
-      }
+      Error.response(response);
 
       errors = response.data.object;
       setValidations(errors, false);
-
-      Flash.alert(response.data.full_message);
     }
 
 // =============================================== Публичные функции ===================================================

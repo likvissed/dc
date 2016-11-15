@@ -8,7 +8,7 @@ class ServerTypesController < ApplicationController
 
   def index
     respond_to do |format|
-      format.json { render json: ServerType.select(:id, :name) }
+      format.json { render json: ServerType.select(:id, :name).order(:id) }
     end
   end
 
@@ -47,7 +47,15 @@ class ServerTypesController < ApplicationController
         end
       end
       format.json do
-        render json: { detail_types: DetailType.select(:id, :name).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } }) }
+        @detail_types = DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(
+          include: {
+            server_parts: {
+              only: [:id, :name]
+            }
+          }
+        )
+
+        render json: { detail_types: @detail_types }
       end
     end
   end
@@ -65,7 +73,7 @@ class ServerTypesController < ApplicationController
 
   def edit
     respond_to do |format|
-      format.html { render :edit }
+      format.html
       format.json do
         server_details = @server_type.template_server_details.as_json(
           include: {
@@ -104,7 +112,7 @@ class ServerTypesController < ApplicationController
 
         render json: {
                  template_server_details: hash,
-                 detail_types: DetailType.select(:id, :name).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
                }
       end
     end

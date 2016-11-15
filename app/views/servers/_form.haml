@@ -27,16 +27,16 @@
                 .col-md-7.col-lg-6
                   %h3.bottom-line
                     Состав оборудования
-                    %small.ng-hide{ "ng-show": "!server.data" } - Необходимо выбрать тип оборудования
+                    %small.ng-hide.animate-show{ "ng-show": "!server.data" } - Необходимо выбрать тип оборудования
                   .col-lg-12
-                    %div.form-group{ "ng-repeat": "detail_type in server.detailTypes", "ng-show": "server.data" }
+                    %div.form-group.animate-repeat.animate-show{ "ng-repeat": "detail_type in server.detailTypes", "ng-show": "server.data" }
                       %label{ "ng-bind": "detail_type.name", "ng-class": "{ 'text-muted': server.presenceCount[detail_type.name] == 0 }" }
-                      %span.text-muted.ng-hide{ "ng-hide": "server.presenceCount[detail_type.name] != 0" }
+                      %span.text-muted.ng-hide.animate-show{ "ng-hide": "server.presenceCount[detail_type.name] != 0" }
                         %b отсутствует
                       &nbsp;
                       = icon("fa fa-plus-circle fa-lg pointer", "tooltip-placement": "right", "uib-tooltip": "Добавить коплектующую", "ng-click": "server.addDetail($index)")
                       %table.internal-table
-                        %tbody{ "ng-repeat": "detail in server.data.real_server_details[detail_type.name]", "ng-hide": "detail.destroy" }
+                        %tbody.animate-repeat.animate-show{ "ng-repeat": "detail in server.data.real_server_details[detail_type.name]", "ng-hide": "detail.destroy" }
                           %tr
                             %td.col-sm-9.col-md-7.col-lg-8.no-left-padding
                               .form-group
@@ -47,8 +47,8 @@
                               .col-sm-10.col-md-10.col-lg-10.no-left-padding.no-right-padding
                                 = text_field_tag "server[real_server_details_attributes][{{ detail.index }}][count]", "{{ detail.count }}", class: "form-control", "ng-model": "detail.count"
                               .col-sm-2.col-md-2.col-lg-2.no-right-padding
-                                = icon("fa fa-minus-circle fa-lg icon-padding", "tooltip-placement": "left", "uib-tooltip": "Удалить комплектующую", "ng-click": "server.delDetail(detail_type.name, detail)")
-                          %tr.empty{ "ng-show": "!detail.$last" }
+                                = icon("fa fa-minus-circle fa-lg icon-padding pointer", "tooltip-placement": "left", "uib-tooltip": "Удалить комплектующую", "ng-click": "server.delDetail(detail_type.name, detail)")
+                          %tr.empty.animate-show{ "ng-show": "!detail.$last" }
                       .bottom-line
 
             .content-footer

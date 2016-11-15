@@ -2,17 +2,17 @@
   'use strict';
 
   app
-    .controller('ServerTypeIndexCtrl', ServerTypeIndexCtrl)
-    .controller('ServerTypePreviewCtrl', ServerTypePreviewCtrl)
-    .controller('ServerEditTypeCtrl', ServerEditTypeCtrl);
+    .controller('ServerTypeIndexCtrl', ServerTypeIndexCtrl)     // Общая таблица типов серверов
+    .controller('ServerTypePreviewCtrl', ServerTypePreviewCtrl) // Предпросмотр типа
+    .controller('ServerEditTypeCtrl', ServerEditTypeCtrl);      // Форма добавления/редактирования типа
 
-  ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
   ServerTypePreviewCtrl.$inject = ['$scope'];
   ServerEditTypeCtrl.$inject    = ['GetDataFromServer'];
 
-// ================================================ Общая таблица типов серверов =======================================
+// =====================================================================================================================
 
-  function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -24,7 +24,12 @@
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
-      .withOption('ajax', { url: '/server_types.json' })
+      .withOption('ajax', {
+        url: '/server_types.json',
+        error: function (response) {
+          Error.response(response);
+        }
+      })
       .withOption('createdRow', createdRow)
       .withDOM(
       '<"row"' +
@@ -68,7 +73,7 @@
 
     // Показать данные сервера
     function showServerTypeData(id) {
-      Server.ServerType.get({id: id},
+      Server.ServerType.get({ id: id },
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl
@@ -77,17 +82,17 @@
           self.previewModal = true; // Показать модальное окно
         },
         // Error
-        function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        function (response, status) {
+          Error.response(response, status);
         });
     }
 
     // Отрендерить ссылку на удаление сервера
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverType.destroyServerType(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="serverType.destroyServerType(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
-// =============================================== Приватные функции ===================================================
+// =============================================== Публичные функции ===================================================
 
     // Удалить тип сервера
     self.destroyServerType = function (num) {
@@ -96,7 +101,7 @@
       if (!confirm(confirm_str))
         return false;
 
-      Server.ServerType.delete({id: num},
+      Server.ServerType.delete({ id: num },
         // Success
         function (response) {
           Flash.notice(response.full_message);
@@ -108,12 +113,12 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
 
-// ================================================ Режим предпросмотра типа сервера ===================================
+// =====================================================================================================================
 
   function ServerTypePreviewCtrl($scope) {
     var self = this;
@@ -132,7 +137,7 @@
     });
   }
 
-// ================================================ Редактирование типа сервера ========================================
+// =====================================================================================================================
 
   function ServerEditTypeCtrl(GetDataFromServer) {
     var self = this;

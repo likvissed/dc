@@ -2,16 +2,17 @@ class ServerPartsController < ApplicationController
 
   load_and_authorize_resource
 
-  before_action { |ctrl| ctrl.check_for_cancel server_parts_path }
   before_action :find_server_part_by_name,  only: [:edit]
   before_action :find_server_part_by_id,    only: [:show, :update, :destroy]
 
   def index
     respond_to do |format|
-      format.html { render :index }
+      format.html
       format.json do
-        @detail_types = DetailType.select(:id, :name) if params[:detailTypes] == 'true'
-        @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id)
+        # Получить список типов комплектующих при построении таблицы
+        @detail_types = DetailType.select(:id, :name).order(:id) if params[:detailTypes] == 'true'
+
+        @server_parts = ServerPart.select(:id, :name, :part_num, :detail_type_id).order(:id).includes(:detail_type)
         @server_parts = @server_parts.where(detail_type_id: params[:typeFilter]) unless params[:typeFilter].to_i.zero?
 
         data = @server_parts.as_json(include: { detail_type: { only: :name } })
@@ -23,7 +24,8 @@ class ServerPartsController < ApplicationController
 
   def show
     respond_to do |format|
-        format.json { render json: @server_part.as_json(include: {
+        format.json { render json: @server_part.as_json(
+          include: {
             detail_type: { only: :name }
           },
           except: [:id, :created_at, :updated_at, :detail_type_id])
@@ -35,7 +37,7 @@ class ServerPartsController < ApplicationController
     respond_to do |format|
       format.json do
         if DetailType.exists?
-          render json: { detail_types: DetailType.select(:id, :name) }, status: :ok
+          render json: { detail_types: DetailType.select(:id, :name).order(:id) }, status: :ok
         else
           render json: { full_message: "Перед созданием комплектующих необходимо создать \"Типы комплектующих\"" }, status: :unprocessable_entity
         end
@@ -58,7 +60,7 @@ class ServerPartsController < ApplicationController
 
   def edit
     respond_to do |format|
-      format.json { render json: { data: @server_part, detail_types: DetailType.select(:id, :name) }, status: :ok }
+      format.json { render json: { data: @server_part, detail_types: DetailType.select(:id, :name).order(:id) }, status: :ok }
     end
   end
 

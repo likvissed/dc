@@ -7,7 +7,7 @@ class NodeRolesController < ApplicationController
 
   def index
     respond_to do |format|
-      format.json { render json: NodeRole.select(:id, :name) }
+      format.json { render json: NodeRole.select(:id, :name).order(:id) }
     end
   end
 

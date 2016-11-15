@@ -2,13 +2,12 @@ class DetailTypesController < ApplicationController
 
   load_and_authorize_resource
 
-  before_action { |ctrl| ctrl.check_for_cancel detail_types_path }
   before_action :find_detail_type_by_name,  only: [:edit]
   before_action :find_detail_type_by_id,    only: [:update, :destroy]
 
   def index
     respond_to do |format|
-      format.json { render json: DetailType.select(:id, :name) }
+      format.json { render json: DetailType.select(:id, :name).order(:id) }
     end
   end
 

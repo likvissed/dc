@@ -2,24 +2,20 @@ class DepartmentHeadsController < ApplicationController
 
   load_and_authorize_resource
 
-  before_action { |ctrl| ctrl.check_for_cancel department_heads_path }
   before_action :find_contact_by_tn, only: [:edit, :update, :destroy]
 
   def index
     respond_to do |format|
       format.html
-      format.json { render json: DepartmentHead.select(:tn, :dept, :info) }
+      format.json { render json: DepartmentHead.select(:id, :tn, :dept, :info).order(:id) }
     end
-  end
-
-  def new
   end
 
   def create
     @department_head = DepartmentHead.new(department_head_params)
     if @department_head.save
       respond_to do |format|
-        format.json { render json: { department_head: @department_head.as_json(except: [:id, :department_head_id, :created_at, :updated_at]), full_message: "Руководитель добавлен" }, status: :created }
+        format.json { render json: { full_message: "Руководитель добавлен" }, status: :created }
       end
     else
       respond_to do |format|
@@ -37,7 +33,7 @@ class DepartmentHeadsController < ApplicationController
   def update
     if @department_head.update_attributes(department_head_params)
       respond_to do |format|
-        format.json { render json: { department_head: @department_head.as_json(except: [:id, :department_head_id, :created_at, :updated_at]), full_message: "Данные изменены" }, status: :ok }
+        format.json { render json: { full_message: "Данные изменены" }, status: :ok }
       end
     else
       respond_to do |format|

@@ -8,10 +8,11 @@ class ServersController < ApplicationController
 
   def index
     respond_to do |format|
-      format.html { render :index }
+      format.html
       format.json do
-        @servers      = Server.select(:id, :name, :server_type_id, :status, :location)
-        @server_types = ServerType.select(:id, :name) if params[:serverTypes] == 'true'
+        @servers      = Server.select(:id, :name, :server_type_id, :status, :location).order(:id).includes(:server_type)
+        # Получить список типов серверов при построении таблицы
+        @server_types = ServerType.select(:id, :name).order(:id) if params[:serverTypes] == 'true'
 
         status_filter = case params[:statusFilter]
                           when 'atWork'
@@ -23,10 +24,17 @@ class ServersController < ApplicationController
                           else
                             nil
                         end
+
+        # Применить фильтры к полученным данным, если это необходимо
         @servers = @servers.where(status: status_filter) unless status_filter.nil?
         @servers = @servers.where(server_type_id: params[:typeFilter]) unless params[:typeFilter].to_i.zero?
 
-        data = @servers.as_json(include: { server_type: { only: :name } }, except: :server_type_id)
+        data = @servers.as_json(
+          include: {
+            server_type: { only: :name }
+          },
+          except: :server_type_id
+        )
         render json: { data: data, server_types: @server_types }
       end
     end
@@ -69,8 +77,8 @@ class ServersController < ApplicationController
       end
       format.json do
         render json: {
-                 server_types: ServerType.select(:id, :name),
-                 detail_types: DetailType.select(:id, :name).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+                 server_types: ServerType.select(:id, :name).order(:id),
+                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
                }
       end
     end
@@ -89,7 +97,7 @@ class ServersController < ApplicationController
 
   def edit
     respond_to do |format|
-      format.html { render :edit }
+      format.html
       format.json do
         server_details = @server.real_server_details.as_json(
           include: {
@@ -131,8 +139,8 @@ class ServersController < ApplicationController
             server_type:          @server.server_type.as_json(only: [:id, :name]),
             real_server_details:  hash
           },
-          server_types: ServerType.select(:id, :name),
-          detail_types: DetailType.select(:id, :name).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+          server_types: ServerType.select(:id, :name).order(:id),
+          detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
         }
       end
     end

@@ -7,13 +7,13 @@
     .controller('ServerPreviewCtrl', ServerPreviewCtrl)     // Предпросмотр оборудования
     .controller('ServerEditCtrl', ServerEditCtrl);          // Форма добавления/редактирования оборудования
 
-  ServerIndexCtrl.$inject     = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  ServerPreviewCtrl.$inject   = ['$scope'];
-  ServerEditCtrl.$inject      = ['$http', 'GetDataFromServer'];
+  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ServerPreviewCtrl.$inject = ['$scope'];
+  ServerEditCtrl.$inject    = ['$http', 'GetDataFromServer', 'Error'];
 
 // =====================================================================================================================
 
-  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -32,11 +32,11 @@
       },
       {
         value:  'test',
-        string: 'Тест'
+        string: 'Тестовые'
       },
       {
         value:  'inactive',
-        string: 'Простой'
+        string: 'В простое'
       }
     ];
     self.typeOptions    = [ // Массив фильтра по типу оборудования (данные берутся с сервера)
@@ -57,6 +57,9 @@
         data: {
           serverTypes:  true,
           statusFilter: self.selectedStatusOption.value
+        },
+        error: function (response) {
+          Error.response(response);
         }
       })
       .withOption('initComplete', initComplete)
@@ -133,14 +136,14 @@
           self.previewModal = true; // Показать модальное окно
         },
         // Error
-        function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        function (response, status) {
+          Error.response(response, status);
         });
     }
 
     // Отрендерить ссылку на удаление оборудования
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="right" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
     // Выполнить запрос на сервер с учетом выбранных фильтров
@@ -174,7 +177,7 @@
       if (!confirm(confirm_str))
         return false;
 
-      Server.Server.delete({id: num},
+      Server.Server.delete({ id: num },
         // Success
         function (response) {
           Flash.notice(response.full_message);
@@ -183,7 +186,7 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
@@ -223,7 +226,7 @@
 
 // =====================================================================================================================
 
-  function ServerEditCtrl($http, GetDataFromServer) {
+  function ServerEditCtrl($http, GetDataFromServer, Error) {
     var self = this;
 
     self.presenceCount  = {}; // Объект вида { Имя => Кол-во комплектующих }
@@ -289,6 +292,9 @@
           });
 
           getDeatilsCount();
+        })
+        .error(function (response, status) {
+          Error.response(response, status);
         });
     };
 

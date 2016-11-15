@@ -55,11 +55,11 @@ class ServicesController < ApplicationController
                      ""
         end
 
-        @service = Service.select(values).where(filter)
+        @service = Service.select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
         @service = @service.where(exploitation: true) if params[:exploitation] == 'true'
 
-        now = Time.now.to_date
-        data = @service.as_json(
+        now   = Time.now.to_date
+        data  = @service.as_json(
           include: {
             contact_1: { only: :info },
             contact_2: { only: :info }
@@ -128,10 +128,10 @@ class ServicesController < ApplicationController
 
   def show
     respond_to do |format|
-      # Массив с флагами отсутствия файлов скана/акта/инструкций
-      missing_file = get_missing_files(@service)
-
       format.json do
+        # Массив с флагами отсутствия файлов скана/акта/инструкций
+        missing_file = get_missing_files(@service)
+
         service = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
 
         # Установить номер формуляра
@@ -191,7 +191,7 @@ class ServicesController < ApplicationController
 
   def edit
     respond_to do |format|
-      format.html { render :edit }
+      format.html
       format.json do
         get_services
 
@@ -211,12 +211,12 @@ class ServicesController < ApplicationController
             },
             except: [:ip, :service_id, :created_at, :updated_at]
           ),
-          storage_systems: @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
-          services: @services,
-          priorities: Service.priorities.keys,
-          priority: @service.priority,
-          deadline: @service.deadline,
-          parents: @service.service_dep_parents.as_json(
+          storage_systems:  @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
+          services:         @services,
+          priorities:       Service.priorities.keys,
+          priority:         @service.priority,
+          deadline:         @service.deadline,
+          parents:          @service.service_dep_parents.as_json(
             include: { parent_service: { only: [:id, :name] } },
             only: :id
           )

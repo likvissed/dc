@@ -2,23 +2,23 @@
   'use strict';
 
   app
-    .controller('ServiceIndexCtrl', ServiceIndexCtrl)
-    .controller('ServicePreviewCtrl', ServicePreviewCtrl)
-    .controller('ServiceEditCtrl', ServiceEditCtrl)
-    .controller('ServiceEditNetworkCtrl', ServiceEditNetworkCtrl)
-    .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)
-    .controller('DependenceCtrl', DependenceCtrl);
+    .controller('ServiceIndexCtrl', ServiceIndexCtrl)             // Общая таблица сервисов
+    .controller('ServicePreviewCtrl', ServicePreviewCtrl)         // Предпросмотр сервиса
+    .controller('ServiceEditCtrl', ServiceEditCtrl)               // Форма добавления/редактирования сервиса
+    .controller('ServiceEditNetworkCtrl', ServiceEditNetworkCtrl) // Работа с подключениями к сети
+    .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)       // Работа с открытыми портами
+    .controller('DependenceCtrl', DependenceCtrl);                // Устанавливает зависимости сервиса
 
-  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc', 'Error'];
   ServicePreviewCtrl.$inject      = ['$scope'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
   ServiceEditPortCtrl.$inject     = ['$scope', 'Service'];
   DependenceCtrl.$inject          = ['Service'];
 
-// ================================================ Главная страница сервисов ==========================================
+// =====================================================================================================================
 
-  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc) {
+  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -57,7 +57,7 @@
       },
       {
         value:  'notUivt',
-        string: 'Сервисы других подразделений (не ***REMOVED***)'
+        string: 'Сервисы других подразделений (не УИВТ)'
       },
       {
         value:  'virt***REMOVED***',
@@ -87,6 +87,9 @@
         data: {
           filter:       self.selectedOption.value,
           exploitation: self.exploitation
+        },
+        error: function (response) {
+          Error.response(response);
         }
       })
       .withOption('createdRow', createdRow)
@@ -161,8 +164,8 @@
           $scope.$broadcast('serviceData', response);
         },
         // Error
-        function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        function (response, status) {
+          Error.response(response, status);
         });
     }
 
@@ -178,6 +181,9 @@
         data: {
           filter:       self.selectedOption.value,
           exploitation: self.exploitation
+        },
+        error: function (response) {
+          Error.response(response);
         }
       });
     }
@@ -218,12 +224,12 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
 
-// ================================================ Режим предпросмотра сервиса ========================================
+// =====================================================================================================================
 
   function ServicePreviewCtrl($scope) {
     var self = this;
@@ -233,7 +239,7 @@
 // ================================================ Инициализация ======================================================
 
     $scope.$on('serviceData', function (event, data) {
-      self.previewModal = true; // Показать модальное окно
+      self.previewModal = true;                             // Показать модальное окно
 
       self.service      = angular.copy(data.service);       // Данные сервиса
       self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса
@@ -286,7 +292,7 @@
     });
   }
 
-// ================================================ Редактирование сервиса =============================================
+// =====================================================================================================================
 
   function ServiceEditCtrl($scope, Service, GetDataFromServer) {
     var self = this;
@@ -386,7 +392,7 @@
     };
   }
 
-// ================================================ Модальное окно "Подключение к сети" ================================
+// =====================================================================================================================
 
   function ServiceEditNetworkCtrl($scope, Service) {
     var self = this;
@@ -425,7 +431,7 @@
     };
   }
 
-// ================================================ Модальное окно "Открытые порты" ====================================
+// =====================================================================================================================
 
   function ServiceEditPortCtrl($scope, Service) {
     var self = this;
@@ -477,7 +483,7 @@
     };
   }
 
-// ================================================ Сервисы-родители ===================================================
+// =====================================================================================================================
 
   function DependenceCtrl(Service) {
 

@@ -6,7 +6,7 @@ class ServiceDependency < ActiveRecord::Base
   belongs_to :parent_service, foreign_key: :parent_id, class_name: "Service"
 
   validates :parent_id, presence: true, numericality: { greater_than: 0 }
-  validate :reject_self_references
+  validate  :reject_self_references
 
   private
 

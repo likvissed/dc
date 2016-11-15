@@ -6,13 +6,13 @@
     .controller('ServerPartPreviewCtrl', ServerPartPreviewCtrl)   // Режим предпросмотра комплектующей
     .controller('ServerPartEditCtrl', ServerPartEditCtrl);        // Добавление/редактирование комплектующих
 
-  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
   ServerPartPreviewCtrl.$inject = ['$scope'];
-  ServerPartEditCtrl.$inject    = ['$scope', 'Flash', 'Server'];
+  ServerPartEditCtrl.$inject    = ['$scope', 'Flash', 'Server', 'Error'];
 
 // =====================================================================================================================
 
-  function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -34,8 +34,9 @@
       .withDataProp('data')
       .withOption('ajax', {
         url:  '/server_parts.json',
-        data: {
-          detailTypes:  true
+        data: { detailTypes:  true },
+        error: function (response) {
+          Error.response(response);
         }
       })
       .withOption('initComplete', initComplete)
@@ -49,7 +50,8 @@
           '<"detail-type-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"f>>' +
       't<"row"' +
-        '<"col-md-12"p>>'
+        '<"col-md-6"i>' +
+        '<"col-md-6"p>>'
     );
 
     self.dtColumns      = [
@@ -105,14 +107,14 @@
           self.previewModal = true; // Показать модальное окно
         },
         // Error
-        function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+        function (response, status) {
+          Error.response(response, status);
         });
     }
 
     // Отрендерить ссылку на изменение комплектующей
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
     }
 
     // Отрендерить ссылку на удаление комплектующей
@@ -182,13 +184,17 @@
 
       // Если запись редактируется
       if (name) {
-        $http.get('/server_parts/' + name + '/edit.json').success(function (response) {
-          data.method       = 'PUT';
-          data.detail_types = angular.copy(response.detail_types);
-          data.value        = angular.copy(response.data);
+        $http.get('/server_parts/' + name + '/edit.json')
+          .success(function (response) {
+            data.method       = 'PUT';
+            data.detail_types = angular.copy(response.detail_types);
+            data.value        = angular.copy(response.data);
 
-          $scope.$broadcast('editServerPartData', data);
-        });
+            $scope.$broadcast('editServerPartData', data);
+          })
+          .error(function (response, status) {
+            Error.response(response, status);
+          });
       }
       else {
         $http.get('/server_parts/new.json')
@@ -199,8 +205,8 @@
 
             $scope.$broadcast('editServerPartData', data);
           })
-          .error(function (response) {
-            Flash.alert(response.full_message);
+          .error(function (response, status) {
+            Error.response(response, status);
           });
       }
     };
@@ -221,7 +227,7 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
@@ -241,7 +247,7 @@
 
 // =====================================================================================================================
 
-  function ServerPartEditCtrl($scope, Flash, Server) {
+  function ServerPartEditCtrl($scope, Flash, Server, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -305,22 +311,10 @@
 
     // Действия в случае ошибки создания/изменения комплектующей
     function errorResponse(response) {
-      // Ошибка на стороне сервера
-      if (parseInt(response.status) >= 500) {
-        self.serverPartModal = false;
-        Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
-        return false;
-      }
-      // Нет доступа
-      else if (parseInt(response.status) == 403) {
-        Flash.alert(response.data.full_message);
-        return false;
-      }
+      Error.response(response);
 
       errors = response.data.object;
       setValidations(errors, false);
-
-      Flash.alert(response.data.full_message);
     }
 
 // =============================================== Публичные функции ===================================================
@@ -366,7 +360,7 @@
         );
       }
       else {
-        Server.ServerPart.update({ id: id }, self.value,
+        Server.ServerPart.update({ id: id }, { server_part: self.value },
           // Success
           function (response) {
             successResponse(response);
