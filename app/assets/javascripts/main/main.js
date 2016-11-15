@@ -9,7 +9,6 @@ var app = angular
   ]);
 
 (function () {
-
   app
     // Настройка ресурсов
     .config(['$resourceProvider', function($resourceProvider) {
@@ -29,6 +28,4 @@ $(function() {
     keyboard: true,
     show:     false
   });
-
-
 });
