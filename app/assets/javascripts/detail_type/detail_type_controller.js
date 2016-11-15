@@ -5,12 +5,12 @@
     .controller('DetailTypeIndexCtrl', DetailTypeIndexCtrl) // Таблица типов комплектующих
     .controller('DetailTypeEditCtrl', DetailTypeEditCtrl);  // Добавление/редактирование типа комплектующей
 
-  DetailTypeIndexCtrl.$inject = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
-  DetailTypeEditCtrl.$inject  = ['$scope', '$rootScope', 'Flash', 'Server'];
+  DetailTypeIndexCtrl.$inject = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  DetailTypeEditCtrl.$inject  = ['$scope', '$rootScope', 'Flash', 'Server', 'Error'];
 
 // =====================================================================================================================
 
-  function DetailTypeIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function DetailTypeIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -24,7 +24,7 @@
       .withOption('ajax', {
         url: '/detail_types.json',
         error: function (response) {
-          Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
+          Error.response(response);
         }
       })
       .withOption('createdRow', createdRow)
@@ -91,12 +91,16 @@
 
       // Если запись редактируется
       if (name) {
-        $http.get('/detail_types/' + name + '/edit.json').success(function (success) {
-          data.method = 'PUT';
-          data.value  = angular.copy(success);
+        $http.get('/detail_types/' + name + '/edit.json')
+          .success(function (success) {
+            data.method = 'PUT';
+            data.value  = angular.copy(success);
 
-          $scope.$broadcast('detailTypeData', data);
-        });
+            $scope.$broadcast('detailTypeData', data);
+          })
+          .error(function (response, status) {
+            Error.response(response, status);
+          });
       }
       else {
         data.method = 'POST';
@@ -124,7 +128,7 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.data.full_message);
+          Error.response(response);
         });
     }
   }
@@ -192,22 +196,10 @@
 
     // Действия в случае ошибки создания/изменения типа детали
     function errorResponse(response) {
-      // Ошибка на стороне сервера
-      if (parseInt(response.status) >= 500) {
-        self.detailTypeModal = false;
-        Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
-        return false;
-      }
-      // Нет доступа
-      else if (parseInt(response.status) == 403) {
-        Flash.alert(response.data.full_message);
-        return false;
-      }
+      Error.response(response);
 
       errors = response.data.object;
       setValidations(errors, false);
-
-      Flash.alert(response.data.full_message);
     }
 
 // =============================================== Публичные функции ===================================================
