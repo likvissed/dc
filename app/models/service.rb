@@ -91,7 +91,7 @@ class Service < ActiveRecord::Base
                                     ],
                                     message: "Инструкция по отключению имеет неверный тип данных"
 
-  # Поулчает текущий последний номер формуляра и возвращает следующий за ним номер.
+  # Получает последний номер формуляра и возвращает следующий за ним номер.
   def self.get_next_service_number
     last = 000
 
@@ -208,7 +208,7 @@ class Service < ActiveRecord::Base
     if self.number.empty?
       "Номер формуляра отсутствует"
     else
-      "Формуляр № ***REMOVED***-Ф-#{self.number}"
+      "Формуляр № УИВТ-Ф-#{self.number}"
     end
   end
 
