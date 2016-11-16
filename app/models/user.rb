@@ -1,6 +1,6 @@
 class User < ActiveRecord::Base
 
-  ROLES = ["admin", "manage_serv"].freeze
+  ROLES = ["admin", "uivt", "not_uivt", "head"].freeze
 
   rolify
   # :confirmable, :lockable, :timeoutable, :omniauthable and :registerable
@@ -10,8 +10,6 @@ class User < ActiveRecord::Base
 
   validates :username, uniqueness: { case_sensitive: false }, format: { with: /\w+/, message: "Разрешены только английские символы, цифры и знак '_'" }
   validates :password, confirmation: true
-
-  paginates_per 20
 
   attr_accessor :login
 
