@@ -65,7 +65,6 @@
       },
       complete: function() {
         myHttpInterceptor.decCount();
-        self.test --;
       }
     });
   }
