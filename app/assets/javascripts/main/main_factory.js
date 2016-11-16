@@ -59,7 +59,7 @@
           break;
         default:
           var descr = (response && response.statusText) ? ' (' + response.statusText + ')' : '';
-          Flash.alert('Ошибка. Код: ' + code + descr + '. Обратитесь к администратору.');
+          Flash.alert('Ошибка. Код: ' + code + descr + '. Обратитесь к администратору (тел. ***REMOVED***).');
           break;
       }
     };
