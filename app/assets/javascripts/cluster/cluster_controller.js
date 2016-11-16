@@ -459,6 +459,8 @@
     // Закрыть модальное окно по кнопке "Отмена"
     self.closeClusterModal = function () {
       self.clusterModal = false;
+
+      self.value.cluster_details_attributes = []; // Очищаем список оборудования
       clearForm();
     };
   }
