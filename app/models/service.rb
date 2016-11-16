@@ -19,10 +19,8 @@ class Service < ActiveRecord::Base
   belongs_to :contact_1, class_name: 'Contact'
   belongs_to :contact_2, class_name: 'Contact'
 
-  validates :name,
-            presence: { message: "Наименование сервиса не может быть пустым" },
-            uniqueness: { case_sensitive: false }
-  validates :number, uniqueness: true, allow_blank: true
+  validates :name, presence: true, uniqueness: { case_sensitive: false }
+  validates :number, uniqueness: { case_sensitive: false }, allow_blank: true
   validates :priority, :time_work, presence: true
 
   # Empty attributes will not be converted to nil
@@ -208,7 +206,7 @@ class Service < ActiveRecord::Base
     if self.number.empty?
       "Номер формуляра отсутствует"
     else
-      "Формуляр № УИВТ-Ф-#{self.number}"
+      "Формуляр № ***REMOVED***-Ф-#{self.number}"
     end
   end
 

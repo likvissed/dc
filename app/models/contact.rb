@@ -11,8 +11,6 @@ class Contact < ActiveRecord::Base
   belongs_to :department_head
 
   validates :tn, presence: true, numericality: { greater_than: 0 }, uniqueness: true
-  # presence: { message: "Табельный номер не может быть пустым" }
-  # presence: { message: "\"Фамилия Имя Отчество\" не может быть пустым" }
   validates :info, presence: true, if: Proc.new { |obj| obj.manually }
   validates :dept, presence: true, numericality: true, if: Proc.new { |obj| obj.manually }
 

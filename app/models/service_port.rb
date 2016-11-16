@@ -12,10 +12,10 @@ class ServicePort < ActiveRecord::Base
 
   # Фильтр для корректной формы записи данных
   def filter_ports
-    self.local_tcp_ports = filter(self.local_tcp_ports) unless self.local_tcp_ports.nil?
-    self.local_udp_ports = filter(self.local_udp_ports) unless self.local_udp_ports.nil?
-    self.inet_tcp_ports = filter(self.inet_tcp_ports) unless self.inet_tcp_ports.nil?
-    self.inet_udp_ports = filter(self.inet_udp_ports) unless self.inet_udp_ports.nil?
+    self.local_tcp_ports  = filter(self.local_tcp_ports) unless self.local_tcp_ports.nil?
+    self.local_udp_ports  = filter(self.local_udp_ports) unless self.local_udp_ports.nil?
+    self.inet_tcp_ports   = filter(self.inet_tcp_ports) unless self.inet_tcp_ports.nil?
+    self.inet_udp_ports   = filter(self.inet_udp_ports) unless self.inet_udp_ports.nil?
   end
 
   def filter(value)
