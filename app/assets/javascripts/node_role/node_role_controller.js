@@ -156,12 +156,19 @@
 
     $scope.$on('nodeRoleData', function (event, data) {
       self.nodeRoleModal = true;
-
-      self.value          = angular.copy(data.value);
       self.config.method  = angular.copy(data.method);
-      self.config.title   = data.method == 'POST' ? 'Новый тип сервера' : data.value.name;
-      if (data.value)
-        id = data.value.id;
+
+      console.log(data);
+      if (data.method == 'POST') {
+        self.config.title   = 'Новый тип сервера';
+        self.value          = angular.copy(value_template);
+      }
+      else {
+        self.config.title   = angular.copy(data.value.name);
+        self.value          = angular.copy(data.value);
+        id                  = angular.copy(data.value.id);
+      }
+
     });
 
 // =============================================== Приватные функции ===================================================

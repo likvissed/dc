@@ -135,7 +135,7 @@
 
 // =====================================================================================================================
 
-  function DetailTypeEditCtrl ($scope, $rootScope, Flash, Server) {
+  function DetailTypeEditCtrl ($scope, $rootScope, Flash, Server, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -159,9 +159,16 @@
 
       self.value          = angular.copy(data.value);
       self.config.method  = angular.copy(data.method);
-      self.config.title   = data.method == 'POST' ? 'Новый тип комплектующей' : data.value.name;
-      if (data.value)
-        id = data.value.id;
+
+      if (data.method == 'POST') {
+        self.config.title = 'Новый тип комплектующей';
+        self.value        = angular.copy(value_template);
+      }
+      else {
+        self.config.title = angular.copy(data.value.name);
+        self.value        = angular.copy(data.value);
+        id                = angular.copy(data.value.id);
+      }
     });
 
 // =============================================== Приватные функции ===================================================

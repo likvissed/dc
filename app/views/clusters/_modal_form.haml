@@ -6,12 +6,12 @@
           %h4.modal-title.text-center{ "ng-bind": "cluster.config.title" }
 
         .modal-body
-          .form-group.required{ "ng-class": "part.errorClass('cluster[name]')" }
+          .form-group.required{ "ng-class": "cluster.errorClass('cluster[name]')" }
             = label_tag :cluster_name , class: "control-label" do
               %abbr{ title: "required" } *
               %b Наименование
             = text_field_tag "cluster[name]", "", class: "form-control", "ng-model": "cluster.value.name"
-            %span.help-block{ "ng-show": "part.form['cluster[name]'].$invalid", "ng-bind": "part.errorMessage('cluster[name]')" }
+            %span.help-block{ "ng-show": "cluster.form['cluster[name]'].$invalid", "ng-bind": "cluster.errorMessage('cluster[name]')" }
 
           %label{ "ng-class": "{ 'text-muted': cluster.presenceCount == 0 }" }
             Состав

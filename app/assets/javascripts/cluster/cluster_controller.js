@@ -346,7 +346,7 @@
       $.each(array, function (key, value) {
         $.each(value, function (index, message) {
           if (key != 'base')
-            self.form['server_part[' + key + ']'].$setValidity(message, flag);
+            self.form['cluster[' + key + ']'].$setValidity(message, flag);
         });
       });
     }

@@ -272,11 +272,17 @@
       self.serverPartModal = true;
 
       self.detail_types   = angular.copy(data.detail_types);
-      self.value          = angular.copy(data.value);
       self.config.method  = angular.copy(data.method);
-      self.config.title   = data.method == 'POST' ? 'Новая комплектующая' : data.value.name;
-      if (data.value)
-        id = data.value.id;
+
+      if (data.method == 'POST') {
+        self.config.title = 'Новая комплектующая';
+        self.value        = angular.copy(value_template);
+      }
+      else {
+        self.config.title = angular.copy(data.value.name);
+        self.value        = angular.copy(data.value);
+        id                = angular.copy(data.value.id);
+      }
     });
 
 // =============================================== Приватные функции ===================================================
