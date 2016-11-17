@@ -6,13 +6,13 @@
     .controller('ClusterPreviewCtrl', ClusterPreviewCtrl) // Предпросмотр сервера
     .controller('ClusterEditCtrl', ClusterEditCtrl);      // Добавление/редактирование сервера
 
-  ClusterIndexCtrl.$inject    = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ClusterIndexCtrl.$inject    = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
   ClusterPreviewCtrl.$inject  = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Error'];
   ClusterEditCtrl.$inject     = ['$scope', 'Flash', 'Server', 'Error'];
 
 // =====================================================================================================================
 
-  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
+  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -65,7 +65,7 @@
 
     self.dtColumns      = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Серверы').withOption('className', 'col-lg-8'),
+      DTColumnBuilder.newColumn('name').withTitle('Серверы').withOption('className', 'col-lg-9'),
       DTColumnBuilder.newColumn('services').withTitle('Отделы').notSortable().withOption('className', 'col-lg-2 text-center'),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
@@ -84,6 +84,25 @@
     }
 
     function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать иконки управления только для определенных ролей
+            api.column(3).visible(Ability.canView('admin_tools'));
+            api.column(4).visible(Ability.canView('admin_tools'));
+          },
+          function (response, status) {
+            Error.response(response, status);
+
+            // Удалить все данные в случае ошибки проверки прав доступа
+            api.rows().remove().draw();
+          });
+
       // Заполнить список фильтра по типам оборудования
       if (json.node_roles) {
         self.typeOptions        = self.typeOptions.concat(json.node_roles);

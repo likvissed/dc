@@ -40,7 +40,9 @@ Rails.application.routes.draw do
     delete  '/department_heads/:tn',      to: 'department_heads#destroy'
   end
 
-  resources :users,         except: [:edit, :update]
+  resources :users, except: [:edit, :update] do
+    get 'role', to: 'users#role', on: :collection
+  end
 
   resources :servers,       except: [:edit, :update] do
     get 'link/new_record', to: 'servers#link_to_new_record', on: :collection
@@ -78,7 +80,6 @@ Rails.application.routes.draw do
     collection do
       get 'link/new_record', to: 'services#link_to_new_record'   # Отрендерить ссылку на новую запись, если у пользователя есть права (через json)
     end
-
   end
 
   get '*unmatched_route', to: 'application#render_404'

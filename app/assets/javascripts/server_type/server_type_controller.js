@@ -6,13 +6,13 @@
     .controller('ServerTypePreviewCtrl', ServerTypePreviewCtrl) // Предпросмотр типа
     .controller('ServerEditTypeCtrl', ServerEditTypeCtrl);      // Форма добавления/редактирования типа
 
-  ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
   ServerTypePreviewCtrl.$inject = ['$scope'];
   ServerEditTypeCtrl.$inject    = ['GetDataFromServer'];
 
 // =====================================================================================================================
 
-  function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
+  function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -30,6 +30,7 @@
           Error.response(response);
         }
       })
+      .withOption('initComplete', initComplete)
       .withOption('createdRow', createdRow)
       .withDOM(
       '<"row"' +
@@ -56,6 +57,26 @@
     function renderIndex(data, type, full, meta) {
       self.serverTypes[data.id] = data;
       return meta.row + 1;
+    }
+
+    function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать инструкции и иконки урпавления только для определенных ролей
+            api.column(2).visible(Ability.canView('admin_tools'));
+          },
+          function (response, status) {
+            Error.response(response, status);
+
+            // Удалить все данные в случае ошибки проверки прав доступа
+            api.rows().remove().draw();
+          });
     }
 
     function createdRow(row, data, dataIndex) {

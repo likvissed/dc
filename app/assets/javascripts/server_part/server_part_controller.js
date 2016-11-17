@@ -6,13 +6,13 @@
     .controller('ServerPartPreviewCtrl', ServerPartPreviewCtrl)   // Режим предпросмотра комплектующей
     .controller('ServerPartEditCtrl', ServerPartEditCtrl);        // Добавление/редактирование комплектующих
 
-  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
   ServerPartPreviewCtrl.$inject = ['$scope'];
   ServerPartEditCtrl.$inject    = ['$scope', 'Flash', 'Server', 'Error'];
 
 // =====================================================================================================================
 
-  function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
+  function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -58,7 +58,7 @@
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
       DTColumnBuilder.newColumn('name').withTitle('Комплектующие').withOption('className', 'col-lg-6'),
       DTColumnBuilder.newColumn('detail_type.name').withTitle('Тип').withOption('className', 'col-lg-2'),
-      DTColumnBuilder.newColumn('part_num').withTitle('Номер').withOption('className', 'col-lg-2'),
+      DTColumnBuilder.newColumn('part_num').withTitle('Номер').withOption('className', 'col-lg-3'),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
@@ -76,6 +76,25 @@
     }
 
     function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать инструкции и иконки урпавления только для определенных ролей
+            api.column(4).visible(Ability.canView('admin_tools'));
+            api.column(5).visible(Ability.canView('admin_tools'));
+          },
+          function (response, status) {
+            Error.response(response, status);
+
+            // Удалить все данные в случае ошибки проверки прав доступа
+            api.rows().remove().draw();
+          });
+
       // Заполнить список фильтра типов комплектующих
       if (json.detail_types) {
         self.typeOptions        = self.typeOptions.concat(json.detail_types);

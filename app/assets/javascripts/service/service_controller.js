@@ -9,8 +9,8 @@
     .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)       // Работа с открытыми портами
     .controller('DependenceCtrl', DependenceCtrl);                // Устанавливает зависимости сервиса
 
-  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc', 'Error'];
-  ServicePreviewCtrl.$inject      = ['$scope'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc', 'Error', 'Ability'];
+  ServicePreviewCtrl.$inject      = ['$scope', 'Ability'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
   ServiceEditPortCtrl.$inject     = ['$scope', 'Service'];
@@ -18,7 +18,7 @@
 
 // =====================================================================================================================
 
-  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc, Error) {
+  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -57,7 +57,7 @@
       },
       {
         value:  'notUivt',
-        string: 'Сервисы других подразделений (не УИВТ)'
+        string: 'Сервисы других подразделений (не ***REMOVED***)'
       },
       {
         value:  'virt***REMOVED***',
@@ -92,8 +92,8 @@
           Error.response(response);
         }
       })
+      .withOption('initComplete', initComplete)
       .withOption('createdRow', createdRow)
-      .withOption('rowCallback', rowCallback)
       .withDOM(
         '<"row"' +
           '<"col-sm-2 col-md-2 col-lg-1"' +
@@ -140,12 +140,30 @@
       return meta.row + 1;
     }
 
-    // Компиляция строк
-    function createdRow(row, data, dataIndex) {
-      $compile(angular.element(row))($scope);
+    function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать инструкции и иконки урпавления только для определенных ролей
+            api.column(9).visible(Ability.canView('instr'));
+            api.column(10).visible(Ability.canView('instr'));
+            api.column(11).visible(Ability.canView('admin_tools'));
+          },
+            function (response, status) {
+              Error.response(response, status);
+
+              // Удалить все данные в случае ошибки проверки прав доступа
+              api.rows().remove().draw();
+            });
     }
 
-    function rowCallback(row, data, index) {
+    // Компиляция строк
+    function createdRow(row, data, dataIndex) {
       // Создание события просмотра данных о формуляре
       $(row).off().on('click', function (event) {
         if (event.target.tagName == 'I' || $(event.target).hasClass('dataTables_empty'))
@@ -153,6 +171,9 @@
 
         $scope.$apply(showServiceData(data.id));
       });
+
+      // Компиляция строки
+      $compile(angular.element(row))($scope);
     }
 
     // Показать данные сервера
@@ -231,7 +252,7 @@
 
 // =====================================================================================================================
 
-  function ServicePreviewCtrl($scope) {
+  function ServicePreviewCtrl($scope, Ability) {
     var self = this;
 
     self.previewModal = false;  // Флаг, скрывающий модальное окно
@@ -240,6 +261,7 @@
 
     $scope.$on('serviceData', function (event, data) {
       self.previewModal = true;                             // Показать модальное окно
+      self.showInstr    = Ability.canView('instr');
 
       self.service      = angular.copy(data.service);       // Данные сервиса
       self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса

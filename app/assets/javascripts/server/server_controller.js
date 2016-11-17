@@ -7,13 +7,13 @@
     .controller('ServerPreviewCtrl', ServerPreviewCtrl)     // Предпросмотр оборудования
     .controller('ServerEditCtrl', ServerEditCtrl);          // Форма добавления/редактирования оборудования
 
-  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
   ServerPreviewCtrl.$inject = ['$scope'];
   ServerEditCtrl.$inject    = ['$http', 'GetDataFromServer', 'Error'];
 
 // =====================================================================================================================
 
-  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
+  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -105,6 +105,27 @@
     }
 
     function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать иконки управления только для определенных ролей
+            api.column(5).visible(Ability.canView('admin_tools'));
+          },
+          function (response, status) {
+            Error.response(response, status);
+
+            // Удалить все данные в случае ошибки проверки прав доступа
+            api.rows().remove().draw();
+          });
+
+      // Показать иконки управления только для определенных ролей
+      api.column(5).visible(Ability.canView('admin_tools'));
+
       // Заполнить список фильтра типов оборудования
       if (json.server_types) {
         self.typeOptions        = self.typeOptions.concat(json.server_types);

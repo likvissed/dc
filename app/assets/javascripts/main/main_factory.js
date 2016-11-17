@@ -4,13 +4,16 @@
     .service('Error', Error)                          // Сервис обработки ошибок
     .factory('Server', Server)                        // Фабрика для работы с CRUD действиями
     .factory('GetDataFromServer', GetDataFromServer)  // Фабрика для работы с new и edit действиями
-    .factory('myHttpInterceptor', myHttpInterceptor); // Фабрика для настройки параметрв для индикатора выполнения ajax запросов
+    .factory('myHttpInterceptor', myHttpInterceptor)  // Фабрика для настройки параметрв для индикатора выполнения ajax запросов
+    .factory('Ability', Ability);                     // Хранит роль пользователя и проверяет права доступа к определенным объектам
+
 
   Flash.$inject             = ['$timeout'];
   Error.$inject             = ['Flash'];
   Server.$inject            = ['$resource'];
   GetDataFromServer.$inject = ['$http', '$q'];
-  //myHttpInterceptor.$inject = ['q'];
+  myHttpInterceptor.$inject = ['$q'];
+  Ability.$inject           = ['Server'];
 
 // =====================================================================================================================
 
@@ -79,7 +82,9 @@
       Server:         $resource('/servers/:id.json'),
       ServerType:     $resource('/server_types/:id.json'),
       ServerPart:     $resource('/server_parts/:id.json', {}, { update: { method: 'PATCH' } }),
-      DetailType:     $resource('/detail_types/:id.json', {}, { update: { method: 'PATCH' } })
+      DetailType:     $resource('/detail_types/:id.json', {}, { update: { method: 'PATCH' } }),
+
+      UserRole:       $resource('/users/role.json')
     }
   }
 
@@ -98,11 +103,17 @@
           $http.get('/' + ctrl_name + '/new.json')
             .success(function (data, status, header, config) {
               deferred.resolve(data);
+            })
+            .error(function (data, status) {
+              deferred.reject(status);
             });
         else
           $http.get('/' + ctrl_name + '/' + name + '/edit.json')
             .success(function (data, status, header, config) {
               deferred.resolve(data);
+            })
+            .error(function (data, status) {
+              deferred.reject(status);
             });
 
         return deferred.promise;
@@ -164,4 +175,36 @@
     };
   }
 
+// =====================================================================================================================
+
+  function Ability(Server) {
+    var role = null; // Роль пользователя
+
+// =============================================== Публичные функции ===================================================
+
+    return {
+      // Инициализация
+      init: function () {
+        return Server.UserRole.get({}).$promise;
+      },
+      // Установить роль
+      setRole: function (new_role) {
+        role = new_role
+      },
+      // Проверить право доступа
+      canView: function (type) {
+        switch (type) {
+          case 'instr':
+            return role == 'admin' || role == 'head';
+          case 'admin_tools':
+            return role == 'admin';
+        }
+      }
+    };
+
+    // Проверка прав доступа (сейчас не используется):
+    // 1. Существует ли массив объектов с указанный правом (read, manage и т.д.)
+    // 2. Имеется ли в найденном массиве указанный объект или объект 'all'. Если да - значит есть право доступа.
+    // return (abilities && abilities[ability] && ($.inArray(model, abilities[ability]) != -1 || $.inArray('all', abilities[ability]) != -1)) ? true : false;
+  }
 })();

@@ -61,6 +61,15 @@ class UsersController < ApplicationController
     redirect_to users_path
   end
 
+  # Получить роль текущего пользователя
+  def role
+    respond_to do |format|
+      format.json do
+        render json: { role: current_user.roles.first.name }
+      end
+    end
+  end
+
   private
 
   # Разрешение strong params
