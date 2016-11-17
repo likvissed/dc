@@ -7,7 +7,10 @@
             = link_to icon("fa fa-cog fa-fw pointer"), "", class: "default-color", "ng-href": "/server_types/{{ preview.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать тип"
         %h4.modal-title{ "ng-bind": "preview.name" }
       .modal-body
-        %h4 Состав
+        %h4{ "ng-class": "{ 'text-muted': preview.details == 0 }" }
+          %div{"ng-class": "{ 'pull-left': preview.details == 0 }"} Состав&nbsp;
+          %div.text-muted.ng-hide{ "ng-show": "preview.details == 0" } отсутствует
+
         %table.table.table-striped
           %tbody
             %tr{ "ng-repeat": "detail in preview.details" }

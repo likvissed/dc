@@ -145,9 +145,9 @@
     var self = this;
 
     $scope.$on('serverTypeData', function (event, data) {
-      self.name           = data.name;
+      self.name    = data.name; // Заголовок модального окна
+      self.details = [];        // Состав типа оборудования
 
-      self.details = [];
       $.each(data.template_server_details, function (index, value) {
         self.details.push({
           name:   value.server_part.name,
