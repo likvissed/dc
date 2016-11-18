@@ -2,7 +2,7 @@ class User < ActiveRecord::Base
 
   ROLES = ["admin", "uivt", "not_uivt", "head"].freeze
 
-  rolify
+  rolify before_add: :delete_roles
   # :confirmable, :lockable, :timeoutable, :omniauthable and :registerable
   devise :database_authenticatable, :trackable, authentication_keys: [:login]
 
@@ -28,6 +28,26 @@ class User < ActiveRecord::Base
 
   def email_changed?
     false
+  end
+
+  private
+
+  # Удалить все роли пользователя перед добавлением новой
+  # Это обеспечит структуру, при которой каждому пользователю будет присвоена только одна роль
+  def delete_roles(role)
+    ROLES.each do |role|
+      begin
+        delete_role role
+      rescue RuntimeError
+        "Роль не найдена"
+      end
+
+    end
+  end
+
+  # Удалить указанную связку Пользователь - Роль
+  def delete_role(role_symbol, target = nil)
+    UsersRoles.delete_role self, role_symbol, target
   end
 
 end
