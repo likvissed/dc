@@ -692,7 +692,7 @@
     var self = this;
 
     var service = {
-      showOnlyExploitationServices: true
+      showOnlyExploitationServices: 'true'
     };
 
 // =============================================== Инициализация =======================================================
