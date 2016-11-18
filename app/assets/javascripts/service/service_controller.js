@@ -421,9 +421,9 @@
 
     var standart = null; // Переменная, содержащая объект "подключение к сети" до внесения в него изменений
     $scope.$on('serviceNetworkData', function (event, data) {
-      self.index  = data.index;               // Индекс в массиве
-      self.value  = data.network;             // Объект, содержащий значения полей
-      standart    = angular.copy(self.value); // Данные на момент открытия модального окна
+      self.index  = data.index;                 // Индекс в массиве
+      self.value  = angular.copy(data.network); // Объект, содержащий значения полей
+      standart    = angular.copy(self.value);   // Данные на момент открытия модального окна
 
       Service.setFlag('networkModal', true);
     });
@@ -448,8 +448,6 @@
         Service.setNetwork(self.index, self.value, 'new'); // Записали новые данные
       else
         Service.setNetwork(self.index, self.value); // Записали новые данные
-
-      Service.setFlag('networkModal', false);
     };
   }
 
