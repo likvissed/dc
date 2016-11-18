@@ -152,7 +152,7 @@
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl
-          $scope.$broadcast('serverData', response);
+          $scope.$broadcast('server:show', response);
 
           self.previewModal = true; // Показать модальное окно
         },
@@ -178,7 +178,7 @@
       });
     }
 
-    $rootScope.$on('deletedServerType', function (event, data) {
+    $rootScope.$on('table:server:filter:server_type:delete', function (event, data) {
       // Удалить тип оборудования из фильтра таблицы оборудования
       var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data });
       self.typeOptions.splice($.inArray(obj[0], self.typeOptions), 1);
@@ -223,7 +223,7 @@
   function ServerPreviewCtrl($scope) {
     var self = this;
 
-    $scope.$on('serverData', function (event, data) {
+    $scope.$on('server:show', function (event, data) {
       self.name           = data.name;
       self.status         = data.status;
       self.location       = data.location;

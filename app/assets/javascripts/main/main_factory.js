@@ -58,7 +58,7 @@
           Flash.alert('Запись не найдена.');
           break;
         case 422:
-          Flash.alert(response.data.full_message);
+          response.data ? Flash.alert(response.data.full_message) : Flash.alert(response.full_message);
           break;
         default:
           var descr = (response && response.statusText) ? ' (' + response.statusText + ')' : '';

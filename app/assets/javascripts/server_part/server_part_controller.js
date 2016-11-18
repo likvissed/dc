@@ -121,7 +121,7 @@
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPartPreviewCtrl
-          $scope.$broadcast('showServerPartData', response);
+          $scope.$broadcast('server_part:show', response);
 
           self.previewModal = true; // Показать модальное окно
         },
@@ -152,7 +152,7 @@
     }
 
     // Событие обновления таблицы после добавления/редактирования комплектующей
-    $scope.$on('reloadServerPartData', function (event, data) {
+    $scope.$on('table:server_part:reload', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
     });
@@ -162,7 +162,7 @@
     // add - добавить
     // delete - удалить
     // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
-    $rootScope.$on('changedDetailType', function (event, data) {
+    $rootScope.$on('table:server_part:filter:detail_type', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {
         var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data.id });
@@ -209,7 +209,7 @@
             data.detail_types = angular.copy(response.detail_types);
             data.value        = angular.copy(response.data);
 
-            $scope.$broadcast('editServerPartData', data);
+            $scope.$broadcast('server_part:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -222,7 +222,7 @@
             data.detail_types = angular.copy(response.detail_types);
             data.value        = angular.copy(response.data);
 
-            $scope.$broadcast('editServerPartData', data);
+            $scope.$broadcast('server_part:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -256,7 +256,7 @@
   function ServerPartPreviewCtrl($scope) {
     var self = this;
 
-    $scope.$on('showServerPartData', function (event, data) {
+    $scope.$on('server_part:show', function (event, data) {
       self.name     = data.name;
       self.type     = data.detail_type.name;
       self.number   = data.part_num;
@@ -287,7 +287,7 @@
         comment:  ''
       };
 
-    $scope.$on('editServerPartData', function (event, data) {
+    $scope.$on('server_part:edit', function (event, data) {
       self.serverPartModal = true;
 
       self.detail_types   = angular.copy(data.detail_types);
@@ -376,7 +376,7 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadServerPartData', { reload: true });
+            $scope.$emit('table:server_part:reload', { reload: true });
           },
           // Error
           function (response) {
@@ -391,7 +391,7 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadServerPartData', { reload: true });
+            $scope.$emit('table:server_part:reload', { reload: true });
           },
           // Error
           function (response) {

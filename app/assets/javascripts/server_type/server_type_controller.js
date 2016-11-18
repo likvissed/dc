@@ -98,7 +98,7 @@
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl
-          $scope.$broadcast('serverTypeData', response);
+          $scope.$broadcast('server_type:show', response);
 
           self.previewModal = true; // Показать модальное окно
         },
@@ -130,7 +130,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице серверов.
-          $rootScope.$emit('deletedServerType', num);
+          $rootScope.$emit('table:server:filter:server_type:delete', num);
         },
         // Error
         function (response) {
@@ -144,7 +144,7 @@
   function ServerTypePreviewCtrl($scope) {
     var self = this;
 
-    $scope.$on('serverTypeData', function (event, data) {
+    $scope.$on('server_type:show', function (event, data) {
       self.name    = data.name; // Заголовок модального окна
       self.details = [];        // Состав типа оборудования
 

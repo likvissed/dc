@@ -10,7 +10,7 @@
     .controller('DependenceCtrl', DependenceCtrl);                // Устанавливает зависимости сервиса
 
   ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc', 'Error', 'Ability'];
-  ServicePreviewCtrl.$inject      = ['$scope', 'Ability'];
+  ServicePreviewCtrl.$inject      = ['$scope', '$rootScope', 'Server', 'Ability', 'Error'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
   ServiceEditPortCtrl.$inject     = ['$scope', 'Service'];
@@ -57,7 +57,7 @@
       },
       {
         value:  'notUivt',
-        string: 'Сервисы других подразделений (не ***REMOVED***)'
+        string: 'Сервисы других подразделений (не УИВТ)'
       },
       {
         value:  'virt***REMOVED***',
@@ -182,7 +182,7 @@
         // Success
         function (response) {
           // Отправить данные контроллеру ServicePreviewCtrl
-          $scope.$broadcast('serviceData', response);
+          $scope.$broadcast('service:show', response);
         },
         // Error
         function (response, status) {
@@ -247,21 +247,21 @@
         function (response) {
           Error.response(response);
         });
-    }
+    };
   }
 
 // =====================================================================================================================
 
-  function ServicePreviewCtrl($scope, Ability) {
+  function ServicePreviewCtrl($scope, $rootScope, Server, Ability, Error) {
     var self = this;
 
     self.previewModal = false;  // Флаг, скрывающий модальное окно
 
 // ================================================ Инициализация ======================================================
 
-    $scope.$on('serviceData', function (event, data) {
+    $scope.$on('service:show', function (event, data) {
       self.previewModal = true;                             // Показать модальное окно
-      self.showInstr    = Ability.canView('instr');
+      self.showInstr    = Ability.canView('instr');         // Определяет, есть ли права на показ инструкций
 
       self.service      = angular.copy(data.service);       // Данные сервиса
       self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса
@@ -274,8 +274,10 @@
         icon: '',
         text: ''
       };
-      self.hosting      = angular.copy(data.hosting);       // Хостинг сервиса
+      self.hosting      = angular.copy(data.hosting[0]);    // Хостинг сервиса
       self.parents      = angular.copy(data.parents);       // Массив сервисов-родителей
+
+      self.tooltip = self.hosting ? 'Просмотреть информацию о сервере' : 'Хостинг сервиса отсутствует';
 
       if (self.service.exploitation) {
         self.flag.icon = 'fa-toggle-on text-success';
@@ -312,6 +314,30 @@
         self.storages[index].value = value;
       });
     });
+
+// =============================================== Публичные функции ===================================================
+
+    // Показать информацию о сервере
+    self.showCluster = function () {
+      if (!self.hosting)
+        return false;
+
+      Server.Cluster.get({ id: self.hosting.id },
+        // Success
+        function (response) {
+          var data = {
+            response:     response,
+            fromService:  self.service.name
+          };
+
+          // Отправить данные контроллеру ServerPartPreviewCtrl
+          $rootScope.$broadcast('cluster:show', data);
+        },
+        // Error
+        function (response, status) {
+          Error.response(response, status);
+        });
+    };
   }
 
 // =====================================================================================================================
@@ -349,7 +375,7 @@
         });
     };
 
-// ================================================ "Срок тестирования"  ===============================================
+// ================================================ "Срок тестирования" ================================================
 
     self.deadline = {
       openDatePicker: false, // Переменная определяющая начальное состояние календаря (false - скрыть, true - показать)
@@ -378,7 +404,7 @@
         network:  Service.getNetworkTemplate($index)
       };
 
-      $scope.$broadcast('serviceNetworkData', obj);
+      $scope.$broadcast('service:network:show', obj);
     };
 
     // Добавить строку "Подключения к сети"
@@ -402,7 +428,7 @@
         ports:    Service.getCurrentPorts()
       };
 
-      $scope.$broadcast('servicePortsData', obj);
+      $scope.$broadcast('service:ports:show', obj);
     };
 
 // ================================================ Работа с файлами ===================================================
@@ -420,7 +446,7 @@
     var self = this;
 
     var standart = null; // Переменная, содержащая объект "подключение к сети" до внесения в него изменений
-    $scope.$on('serviceNetworkData', function (event, data) {
+    $scope.$on('service:network:show', function (event, data) {
       self.index  = data.index;                 // Индекс в массиве
       self.value  = angular.copy(data.network); // Объект, содержащий значения полей
       standart    = angular.copy(self.value);   // Данные на момент открытия модального окна
@@ -457,7 +483,7 @@
     var self = this;
 
     // Инициализация
-    $scope.$on('servicePortsData', function (event, data) {
+    $scope.$on('service:ports:show', function (event, data) {
       if (data.ports.length != 0) {
         self.template_index = 0;
         self.template_value = angular.copy(data.ports);

@@ -2,10 +2,11 @@
   %tbody
     %tr
       %td.col-md-3 Хостинг сервиса
-      %td{ "ng-bind": "preview.hosting[0].name || 'Отсутствует'" }
+      %td= icon("fa fa-eye fa-1g pointer", "tooltip-placement": "top", "uib-tooltip": "{{ preview.tooltip }}", "ng-click": "preview.showCluster()", "ng-class": "{ 'disabled-icon': !preview.hosting.name }")
+      %td.col-md-9{ "ng-bind": "preview.hosting.name || 'Отсутствует'" }
     %tr
       %td.col-md-3 Зависимости сервиса
-      %td
+      %td{ colspan: 2 }
         %div{ "ng-show": "preview.parents.length == 0" } Отсутствует
         %ul.list-unstyled{ "ng-show": "preview.parents.length != 0" }
           %li{ "ng-repeat": "parent in preview.parents", "ng-bind": "parent.name" }

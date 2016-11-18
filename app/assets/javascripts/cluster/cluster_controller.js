@@ -134,8 +134,13 @@
       Server.Cluster.get({ id: row_data.id },
         // Success
         function (response) {
+          var data = {
+            response:     response,
+            fromService:  null
+          };
+
           // Отправить данные контроллеру ServerPartPreviewCtrl
-          $scope.$broadcast('showClusterData', response);
+          $scope.$broadcast('cluster:show', data);
         },
         // Error
         function (response, status) {
@@ -165,7 +170,7 @@
     }
 
     // Событие обновления таблицы после добавления/редактирования сервера
-    $scope.$on('reloadClusterData', function (event, data) {
+    $scope.$on('table:cluster:reload', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
     });
@@ -175,7 +180,7 @@
     // add - добавить
     // delete - удалить
     // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
-    $rootScope.$on('changedNodeRole', function (event, data) {
+    var listener = $rootScope.$on('table:cluster:filter:node_role', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {
         var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data.id });
@@ -196,6 +201,8 @@
         });
         self.dtInstance.reloadData(null, reloadPaging);
       }
+
+      $scope.$on('$destroy', listener);
     });
 
 // =============================================== Публичные функции ===================================================
@@ -224,7 +231,7 @@
             data.servers    = angular.copy(response.servers);
             data.value      = angular.copy(response.data);
 
-            $scope.$broadcast('editClusterData', data);
+            $scope.$broadcast('cluster:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -238,7 +245,7 @@
             data.servers    = angular.copy(response.servers);
             data.value      = angular.copy(response.data);
 
-            $scope.$broadcast('editClusterData', data);
+            $scope.$broadcast('cluster:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -264,7 +271,7 @@
         function (response) {
           Error.response(response);
         });
-    }
+    };
   }
 
 // =====================================================================================================================
@@ -274,17 +281,21 @@
 
     self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.presenceCount  = 0;      // Количество оборудования, из которого состоит сервер
+    self.fromService    = null;   // Показывает, вызвана ли функция из режима просмотра формуляра (наличие имени - флаг)
 
 // =============================================== Инициализация =======================================================
 
-    $scope.$on('showClusterData', function (event, data) {
+    $scope.$on('cluster:show', function (event, json) {
       self.previewModal = true; // Показать модальное окно
 
-      self.name           = data.name;
-      self.details        = data.cluster_details;
-      self.services       = data.services;
-      self.depts          = data.depts;
-      self.presenceCount  = data.cluster_details.length;
+      var data = json.response;                           // Данные, полученные с сервера
+
+      self.name           = data.name;                    // Имя сервера
+      self.details        = data.cluster_details;         // Состав сервера
+      self.services       = data.services;                // Список сервисов, функционирующих на сервере
+      self.depts          = data.depts;                   // Отделы, использующие сервер
+      self.presenceCount  = data.cluster_details.length;  // Число оборудования, входящих в сервер
+      self.fromService    = json.fromService;             // Показывает, вызвана ли функция из режима просмотра формуляра (наличие имени - флаг)
 
       // Установить флаги приоритетов для полученных сервисов
       $.each(self.services, function (index, value) {
@@ -300,7 +311,11 @@
         // Success
         function (response) {
           // Отправить данные контроллеру ServicePreviewCtrl
-          $rootScope.$broadcast('serviceData', response);
+          $rootScope.$broadcast('service:show', response);
+
+          // Закрыть окно просмотрп сервера, если оно было открыто из окна просмотра сервиса
+          if (self.fromService)
+            self.previewModal = false;
         },
         // Error
         function (response, status) {
@@ -332,7 +347,7 @@
         cluster_details_attributes: []
       };
 
-    $scope.$on('editClusterData', function (event, data) {
+    $scope.$on('cluster:edit', function (event, data) {
       self.clusterModal = true;
 
       self.servers        = angular.copy(data.servers);
@@ -450,7 +465,7 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadClusterData', { reload: true });
+            $scope.$emit('table:cluster:reload', { reload: true });
           },
           // Error
           function (response) {
@@ -465,7 +480,7 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadClusterData', { reload: true });
+            $scope.$emit('table:cluster:reload', { reload: true });
           },
           // Error
           function (response) {

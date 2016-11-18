@@ -64,7 +64,7 @@
     }
 
     // Событие обновления таблицы после добавления/редактирования типа сервера
-    $scope.$on('reloadNodeRoleData', function (event, data) {
+    $scope.$on('table:node_role:reload', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
     });
@@ -96,7 +96,7 @@
             data.method = 'PUT';
             data.value  = angular.copy(success);
 
-            $scope.$broadcast('nodeRoleData', data);
+            $scope.$broadcast('node_role:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -105,7 +105,7 @@
       else {
         data.method = 'POST';
 
-        $scope.$broadcast('nodeRoleData', data);
+        $scope.$broadcast('node_role:edit', data);
       }
     };
 
@@ -124,7 +124,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице серверов.
-          $rootScope.$emit('changedNodeRole', { flag: 'delete', id: id });
+          $rootScope.$emit('table:cluster:filter:node_role', { flag: 'delete', id: id });
         },
         // Error
         function (response) {
@@ -154,11 +154,10 @@
         name: ''
       };
 
-    $scope.$on('nodeRoleData', function (event, data) {
+    $scope.$on('node_role:edit', function (event, data) {
       self.nodeRoleModal = true;
       self.config.method  = angular.copy(data.method);
 
-      console.log(data);
       if (data.method == 'POST') {
         self.config.title   = 'Новый тип сервера';
         self.value          = angular.copy(value_template);
@@ -243,9 +242,9 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadNodeRoleData', { reload: true });
+            $scope.$emit('table:node_role:reload', { reload: true });
             // Добавить в фильтр таблицы серверов созданный тип
-            $rootScope.$emit('changedNodeRole', { flag: 'add', value: response.node_role });
+            $rootScope.$emit('table:cluster:filter:node_role', { flag: 'add', value: response.node_role });
           },
           // Error
           function (response) {
@@ -260,9 +259,9 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadNodeRoleData', { reload: true });
+            $scope.$emit('table:node_role:reload', { reload: true });
             // Изменить имя типа в фильтре таблицы серверов
-            $rootScope.$emit('changedNodeRole', { flag: 'update', value: response.node_role });
+            $rootScope.$emit('table:cluster:filter:node_role', { flag: 'update', value: response.node_role });
           },
           // Error
           function (response) {
