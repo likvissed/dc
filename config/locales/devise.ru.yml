@@ -12,7 +12,7 @@ ru:
       last_attempt: "У Вас осталась еще одна попытка ввести пароль до блокировки."
       not_found_in_database: "Неверный %{authentication_keys} или пароль."
       timeout: "Ваш сеанс закончился. Пожалуйста, войдите в систему снова."
-      unauthenticated: "Вам необходимо войти в систему или зарегистрироваться."
+      unauthenticated: "Вам необходимо войти в систему."
       unconfirmed: "Вы должны подтвердить вашу учётную запись."
     mailer:
       confirmation_instructions:

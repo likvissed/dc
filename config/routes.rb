@@ -1,10 +1,13 @@
 Rails.application.routes.draw do
+  devise_for :users
 
-  #root 'servers#index'
+  authenticated :user do
+    root 'services#index', as: :authenticated_root
+  end
+
   devise_scope :user do
     root 'devise/sessions#new'
   end
-  devise_for :users
 
   constraints name: /\w+/ do
     get   '/users/:name/edit',        to: 'users#edit'
