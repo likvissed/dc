@@ -224,23 +224,26 @@
     var self = this;
 
     $scope.$on('server:show', function (event, data) {
-      self.name           = data.name;
-      self.status         = data.status;
-      self.location       = data.location;
+      self.name           = data.name;              // Имя оборудования
+      self.status         = data.status;            // Статус
+      self.location       = data.location;          // Расположение
       if (data.server_type)
-        self.type         = data.server_type.name;
+        self.type         = data.server_type.name;  // Тип оборудования
       if (data.clusters[0])
-        self.cluster      = data.clusters[0].name;
-      self.inventory_num  = data.inventory_num;
-      self.serial_num     = data.serial_num;
+        self.cluster      = data.clusters[0].name;  // В состав какого сервера входит
+      self.inventory_num  = data.inventory_num;     // Инвентарный номер
+      self.serial_num     = data.serial_num;        // Серийный номер
+      self.presenceCount = 0;                       // Количество комплектующих
 
-      self.details = [];
+      self.details = [];                            // Список комплектующих оборудования
       $.each(data.real_server_details, function (index, value) {
         self.details.push({
           name:   value.server_part.name,
           type:   value.server_part.detail_type.name,
           count:  value.count
         });
+
+        self.presenceCount ++;
       });
     });
   }
