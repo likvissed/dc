@@ -62,6 +62,7 @@ ru:
         name: "Имя кластера"
       server:
         name: "Имя сервера"
+        status: "Статус"
         server_type_id: "Тип сервера"
       server/real_server_details:
         server_part_id: "Комплектующая"
