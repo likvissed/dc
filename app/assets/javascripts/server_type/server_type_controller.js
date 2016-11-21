@@ -205,7 +205,7 @@
       var type = self.detailTypes[index];
 
       // Выйти, если тип детали не найден.
-      if (!type)
+      if (!type || type.server_parts.length == 0)
         return false;
 
       lastIndex ++;
