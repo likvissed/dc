@@ -1,0 +1,75 @@
+ru:
+  activerecord:
+    errors:
+      messages:
+        greater_than: "должен иметь значение большее чем %{count}"
+        greater_than_or_equal_to: "должен иметь значение большее или равное %{count}"
+        less_than: "должен иметь значение меньшее чем %{count}"
+        less_than_or_equal_to: "должен иметь значение меньшее или равное %{count}"
+        restrict_dependent_destroy:
+         one: "Невозможно удалить, так как данная запись используется в другой модели"
+         many: "Невозможно удалить, так как данная запись используется в других моделях"
+
+      models:
+        real_server_detail:
+          attributes:
+            server_part_id:
+              not_a_number: "не выбрана"
+              greater_than: "не выбрана"
+        template_server_detail:
+          attributes:
+            server_part_id:
+              not_a_number: "не выбрана"
+              greater_than: "не выбрана"
+
+    models:
+      service: "сервисы"
+      contact: "контакты"
+      department_head: "руководители"
+      service_network: "подключения к сети"
+      service_port: "открытые порты"
+      storage_system: "подключения к СХД"
+      cluster: "серверы"
+      node_role: "типы серверов"
+      server: "оборудование"
+      server_type: "типы серверов"
+      server_part: "комплектующие"
+      detail_type: "типы комплектующих"
+
+    attributes:
+      service:
+        name: "Имя сервиса"
+        number: "Указанный номер"
+        priority: "Приоритет функционирования"
+        time_work: "Режим гарантированной доступности"
+      service/service_dep_parents:
+        parent_id: "Сервис"
+      service_network:
+        segment: "Сегмент сети"
+        vlan: "Наименование виртуальносй сети"
+        dns_name: "DNS имя"
+      contact:
+        tn: "Табельный номер"
+        info: "ФИО"
+        dept: "Номер отдела"
+      department_head:
+        tn: "Табельный номер"
+      storage_system:
+        name: "Наименование подключения к СХД"
+      service_dependency:
+        parent_id: "Сервис-родитель"
+      cluster:
+        name: "Имя кластера"
+      server:
+        name: "Имя сервера"
+        status: "Статус"
+        server_type_id: "Тип сервера"
+      server/real_server_details:
+        server_part_id: "Комплектующая"
+      server_type/template_server_details:
+        server_part_id: "Комплектующая"
+      server_type:
+        name: "Имя типа сервера"
+      server_part:
+        name: "Имя комплектующей"
+        detail_type_id: "Тип комплектующей"

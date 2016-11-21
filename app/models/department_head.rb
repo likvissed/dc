@@ -8,9 +8,9 @@ class DepartmentHead < ActiveRecord::Base
 
   has_many :contacts, dependent: :nullify
 
-  strip_attributes allow_empty: true, collapse_spaces: true
-
   validates :tn, presence: true, numericality: { greater_than: 0 }, uniqueness: true
+
+  strip_attributes allow_empty: true, collapse_spaces: true
 
   private
 
@@ -19,25 +19,24 @@ class DepartmentHead < ActiveRecord::Base
     !self.errors.any?
   end
 
-  # Проверить, существует ли уже начальник отдела в базе до того, перед тем как создать нового руководителя
-  def check_dept
-    @department_heads = DepartmentHead.all
-    self.errors.add(:base, "Руководитель отдела \"#{self.dept}\" уже существует. Удалите существующего руководителя и повторите действия, либо отредактируйте запись, связанную с существующим руководителем") if @department_heads.where(dept: self.dept).any?
-  end
-
   # Получить данные о руководителе из базы Netadmin
   def get_user_iss_data
     @user = UserIss.find_by(tn: self.tn)
     if @user.nil?
-      self.errors.add(:tn, "Информация по указанному табельному не найдена")
+      self.errors.add(:base, "Информация по указанному табельному не найдена. Проверьте правильность введенного табельного номера и повторите попытку")
       return
     end
 
     self.info = @user.fio
     self.dept = @user.dept
 
-    # check_dept
     self.errors.add(:base, "Номер отдела не может пройти проверку (неверный тип данных). Обратитесь к администртору") unless self.dept.to_s =~ /\d+/
+  end
+
+  # Проверить, существует ли уже начальник отдела в базе до того, перед тем как создать нового руководителя
+  def check_dept
+    @department_heads = DepartmentHead.all
+    self.errors.add(:base, "Руководитель отдела \"#{self.dept}\" уже существует. Удалите существующего руководителя и повторите действия, либо отредактируйте запись, связанную с существующим руководителем") if @department_heads.where(dept: self.dept).any?
   end
 
   # Создание внешнего ключа на руководителя для всех существующих контактов

@@ -1,10 +1,13 @@
 Rails.application.routes.draw do
+  devise_for :users
 
-  #root 'servers#index'
+  authenticated :user do
+    root 'services#index', as: :authenticated_root
+  end
+
   devise_scope :user do
     root 'devise/sessions#new'
   end
-  devise_for :users
 
   constraints name: /\w+/ do
     get   '/users/:name/edit',        to: 'users#edit'
@@ -19,19 +22,14 @@ Rails.application.routes.draw do
     patch '/server_types/:name',      to: 'server_types#update'
 
     get   '/detail_types/:name/edit', to: 'detail_types#edit'
-    patch '/detail_types/:name',      to: 'detail_types#update'
 
     get   '/server_parts/:name/edit', to: 'server_parts#edit'
-    patch '/server_parts/:name',      to: 'server_parts#update'
 
     get   '/clusters/:name/edit',     to: 'clusters#edit'
-    patch '/clusters/:name',          to: 'clusters#update'
 
     get   '/node_roles/:name/edit',   to: 'node_roles#edit'
-    patch '/node_roles/:name',        to: 'node_roles#update'
 
     get   '/services/:name/edit',     to: 'services#edit'
-    # get   '/services/:name',          to: 'services#show'
     patch '/services/:name',          to: 'services#update'
   end
 
@@ -45,24 +43,35 @@ Rails.application.routes.draw do
     delete  '/department_heads/:tn',      to: 'department_heads#destroy'
   end
 
-  resources :users,         except: [:edit, :update]
+  resources :users, except: [:edit, :update] do
+    get 'role', to: 'users#role', on: :collection
+  end
 
   resources :servers,       except: [:edit, :update] do
-    get 'link_to_new_record', to: 'servers#link_to_new_record', on: :collection
+    get 'link/new_record', to: 'servers#link_to_new_record', on: :collection
   end
-  resources :server_types,  except: [:edit, :update]
-  resources :detail_types,  except: [:edit, :update, :show]
-  resources :server_parts,  except: [:edit, :update] do
-    get 'link_to_new_record', to: 'server_parts#link_to_new_record', on: :collection
+  resources :server_types,  except: [:edit, :update] do
+    get 'link/new_record', to: 'server_types#link_to_new_record', on: :collection
   end
-  resources :clusters,      except: [:edit, :update]
-  resources :node_roles,    except: [:edit, :update, :show]
+  resources :detail_types,  except: [:edit, :show] do
+    get 'link/new_record', to: 'detail_types#link_to_new_record', on: :collection
+  end
+  resources :server_parts,  except: [:edit] do
+    get 'link/new_record', to: 'server_parts#link_to_new_record', on: :collection
+  end
+
+  resources :clusters,    except: [:edit] do
+    get 'link/new_record', to: 'clusters#link_to_new_record', on: :collection
+  end
+  resources :node_roles,  except: [:edit, :show] do
+    get 'link/new_record', to: 'node_roles#link_to_new_record', on: :collection
+  end
 
   resources :contacts,          except: [:edit, :update, :show, :destroy] do
-    get 'link_to_new_record', to: 'contacts#link_to_new_record', on: :collection
+    get 'link/new_record', to: 'contacts#link_to_new_record', on: :collection
   end
   resources :department_heads,  except: [:edit, :update, :show, :destroy] do
-    get 'link_to_new_record', to: 'department_heads#link_to_new_record', on: :collection
+    get 'link/new_record', to: 'department_heads#link_to_new_record', on: :collection
   end
   resources :services,          except: [:edit, :update] do
     member do
@@ -72,9 +81,8 @@ Rails.application.routes.draw do
     end
 
     collection do
-      get 'link_to_new_record', to: 'services#link_to_new_record'   # Отрендерить ссылку на новую запись, если у пользователя есть права (через json)
+      get 'link/new_record', to: 'services#link_to_new_record'   # Отрендерить ссылку на новую запись, если у пользователя есть права (через json)
     end
-
   end
 
   get '*unmatched_route', to: 'application#render_404'

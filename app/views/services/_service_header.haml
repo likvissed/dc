@@ -1,114 +1,110 @@
-%nav.navbar.navbar-default{ role: "navigation" }
+.navbar.navbar-default{ role: "navigation" }
   .container-fluid
-    %ul.nav.navbar-nav.navbar-left
-      %li.divider-vertical
-      %li.exploitation-block
-        = hidden_field_tag "service[exploitation]", "false"
-        = check_box_tag "service[exploitation]", "true", @service.exploitation, "id": "service_exploitation_id", class: "exploitation-checkbox"
-        = label_tag "service_exploitation_id", "", "tooltip-placement": "right", "uib-tooltip": "Маркер введения в эксплуатацию"
-      %li.divider-vertical
+    .navbar-header
+      = button_tag "", type: "button", class: "navbar-toggle", "data-toggle": "collapse", "data-target": ".navbar-collapse-service" do
+        %span.sr-only Toggle navigation
+        %span.icon-bar
+        %span.icon-bar
+        %span.icon-bar
 
-      %li
-        %p.navbar-text.font-header Формуляр № ***REMOVED***-Ф-
-      %li.navbar-form.service-number
-        = s.input :number, label: false, placeholder: "XXX-#{DateTime.now.strftime('%y')}-N"
-      %li.divider-vertical
+    .collapse.navbar-collapse.navbar-collapse-service
+      %ul.nav.navbar-nav.navbar-left
+        -#%li.divider-vertical
+        %li.exploitation-block
+          = hidden_field_tag "service[exploitation]", "false"
+          = check_box_tag "service[exploitation]", "true", @service.exploitation, "id": "service_exploitation_id", class: "exploitation-checkbox"
+          = label_tag "service_exploitation_id", "", "tooltip-placement": "right", "uib-tooltip": "Маркер введения в эксплуатацию"
+        -#%li.divider-vertical
 
-      %li.dropdown
-        = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
-          Формуляр
-          %b.caret
-        %ul.dropdown-menu
-          %li
-            = label_tag :service_scan do
-              = icon("fa fa-plus fa-fw")
-              Добавить
-            = s.input :scan, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
-          %li{ "ng-class": "{ disabled: service.missing_file.scan }" }
-            = link_to "/services/#{@service.id}/download/scan", "disable-link": "service.missing_file.scan", "data-link-type": "download" do
-              = icon("fa fa-download fa-fw")
-              Скачать
-          %li{ "ng-class": "{ disabled: service.missing_file.scan }" }
-            = link_to "/services/#{@service.id}/destroy/scan", "disable-link": true, "data-link-type": "destroy", "data-type": "scan", "ng-click": "service.removeFile($event)" do
-              = icon("fa fa-trash fa-fw")
-              Удалить
-      %li.divider-vertical
+          -#.navbar-form{ role: "service-number" }
+        %li.service-number
+          .navbar-text № ***REMOVED***-Ф-
+          = s.input :number, label: false, placeholder: "xxx-#{DateTime.now.strftime('%y')}-#{Service.get_next_service_number}"
+        -#%li.divider-vertical
 
-      %li.dropdown
-        = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
-          Акт
-          %b.caret
-        %ul.dropdown-menu
-          %li
-            = label_tag :service_act do
-              = icon("fa fa-plus fa-fw")
-              Добавить
-            = s.input :act, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
-          %li{ "ng-class": "{ disabled: service.missing_file.act }" }
-            = link_to "/services/#{@service.id}/download/act", "disable-link": "service.missing_file.act", "data-link-type": "download" do
-              = icon("fa fa-download fa-fw")
-              Скачать
-          %li{ "ng-class": "{ disabled: service.missing_file.act }" }
-            = link_to "/services/#{@service.id}/destroy/act", "disable-link": true, "data-link-type": "destroy", "data-type": "act", "ng-click": "service.removeFile($event)" do
-              = icon("fa fa-trash fa-fw")
-              Удалить
-      %li.divider-vertical
+        %li.dropdown
+          = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+            Формуляр
+            %b.caret
+          %ul.dropdown-menu
+            %li
+              = label_tag :service_scan do
+                = icon("fa fa-plus fa-fw")
+                &nbsp;Добавить
+              = s.input :scan, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
+            %li{ "ng-class": "{ disabled: service.missing_file.scan }" }
+              = link_to "/services/#{@service.id}/download/scan", "disable-link": "service.missing_file.scan", "data-link-type": "download" do
+                = icon("fa fa-download fa-fw")
+                &nbsp;Скачать
+            %li{ "ng-class": "{ disabled: service.missing_file.scan }" }
+              = link_to "/services/#{@service.id}/destroy/scan", "disable-link": true, "data-link-type": "destroy", "data-type": "scan", "ng-click": "service.removeFile($event)" do
+                = icon("fa fa-trash fa-fw")
+                &nbsp;Удалить
+        -#%li.divider-vertical
 
-      %li.dropdown
-        = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
-          Инстр. восст.
-          %b.caret
-        %ul.dropdown-menu
-          %li
-            = label_tag :service_instr_rec do
-              = icon("fa fa-plus fa-fw")
-              Добавить
-            = s.input :instr_rec, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
-          %li{ "ng-class": "{ disabled: service.missing_file.instr_rec }" }
-            = link_to "/services/#{@service.id}/download/instr_rec", "disable-link": "service.missing_file.instr_rec", "data-link-type": "download" do
-              = icon("fa fa-download fa-fw")
-              Скачать
-          %li{ "ng-class": "{ disabled: service.missing_file.instr_rec }" }
-            = link_to "/services/#{@service.id}/destroy/instr_rec", "disable-link": true, "data-link-type": "destroy", "data-type": "instr_rec", "ng-click": "service.removeFile($event)" do
-              = icon("fa fa-trash fa-fw")
-              Удалить
-      %li.divider-vertical
+        %li.dropdown
+          = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+            Акт
+            %b.caret
+          %ul.dropdown-menu
+            %li
+              = label_tag :service_act do
+                = icon("fa fa-plus fa-fw")
+                &nbsp;Добавить
+              = s.input :act, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
+            %li{ "ng-class": "{ disabled: service.missing_file.act }" }
+              = link_to "/services/#{@service.id}/download/act", "disable-link": "service.missing_file.act", "data-link-type": "download" do
+                = icon("fa fa-download fa-fw")
+                &nbsp;Скачать
+            %li{ "ng-class": "{ disabled: service.missing_file.act }" }
+              = link_to "/services/#{@service.id}/destroy/act", "disable-link": true, "data-link-type": "destroy", "data-type": "act", "ng-click": "service.removeFile($event)" do
+                = icon("fa fa-trash fa-fw")
+                &nbsp;Удалить
+        -#%li.divider-vertical
 
-      %li.dropdown
-        = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
-          Инстр. выкл.
-          %b.caret
-        %ul.dropdown-menu
-          %li
-            = label_tag :service_instr_off do
-              = icon("fa fa-plus fa-fw")
-              Добавить
-            = s.input :instr_off, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
-          %li{ "ng-class": "{ disabled: service.missing_file.instr_off }" }
-            = link_to "/services/#{@service.id}/download/instr_off", "disable-link": "service.missing_file.instr_off", "data-link-type": "download" do
-              = icon("fa fa-download fa-fw")
-              Скачать
-          %li{ "ng-class": "{ disabled: service.missing_file.instr_off }" }
-            = link_to "/services/#{@service.id}/destroy/instr_off", "disable-link": true, "data-link-type": "destroy", "data-type": "instr_off", "ng-click": "service.removeFile($event)" do
-              = icon("fa fa-trash fa-fw")
-              Удалить
-      %li.divider-vertical
+        %li.dropdown
+          = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+            Инстр. восст.
+            %b.caret
+          %ul.dropdown-menu
+            %li
+              = label_tag :service_instr_rec do
+                = icon("fa fa-plus fa-fw")
+                &nbsp;Добавить
+              = s.input :instr_rec, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
+            %li{ "ng-class": "{ disabled: service.missing_file.instr_rec }" }
+              = link_to "/services/#{@service.id}/download/instr_rec", "disable-link": "service.missing_file.instr_rec", "data-link-type": "download" do
+                = icon("fa fa-download fa-fw")
+                &nbsp;Скачать
+            %li{ "ng-class": "{ disabled: service.missing_file.instr_rec }" }
+              = link_to "/services/#{@service.id}/destroy/instr_rec", "disable-link": true, "data-link-type": "destroy", "data-type": "instr_rec", "ng-click": "service.removeFile($event)" do
+                = icon("fa fa-trash fa-fw")
+                &nbsp;Удалить
+        -#%li.divider-vertical
 
-    %ul.nav.navbar-nav.navbar-right
-      %li.divider-vertical
-      %li.navbar-form.btn-group
-        = s.button :submit, "Готово", class: "btn-success"
-        = button_tag "Отмена", type: "submit", name: "cancel", value: true
-      %li.divider-vertical
+        %li.dropdown
+          = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+            Инстр. выкл.
+            %b.caret
+          %ul.dropdown-menu
+            %li
+              = label_tag :service_instr_off do
+                = icon("fa fa-plus fa-fw")
+                &nbsp;Добавить
+              = s.input :instr_off, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false, error: false
+            %li{ "ng-class": "{ disabled: service.missing_file.instr_off }" }
+              = link_to "/services/#{@service.id}/download/instr_off", "disable-link": "service.missing_file.instr_off", "data-link-type": "download" do
+                = icon("fa fa-download fa-fw")
+                &nbsp;Скачать
+            %li{ "ng-class": "{ disabled: service.missing_file.instr_off }" }
+              = link_to "/services/#{@service.id}/destroy/instr_off", "disable-link": true, "data-link-type": "destroy", "data-type": "instr_off", "ng-click": "service.removeFile($event)" do
+                = icon("fa fa-trash fa-fw")
+                &nbsp;Удалить
+      -#%li.divider-vertical
 
-    -#%ul.nav.navbar-nav.navbar-right
-      %li.divider-vertical
-      %li.dropdown
-        = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
-          Доп. параметры
-          %b.caret
-        %ul.dropdown-menu
-          %li
-            = link_to "#" do
-              = icon("fa fa-share-alt fa-fw")
-              Зависимости
+      -#%li.divider-vertical
+      .navbar-form.navbar-right
+        .btn-group
+          = s.button :submit, "Готово", class: "btn-success"
+          = button_tag "Отмена", type: "submit", name: "cancel", value: true
+          -#%li.divider-vertical

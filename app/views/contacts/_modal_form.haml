@@ -20,7 +20,7 @@
               = check_box_tag "contact[manually]", true, false, "ng-model": "contactPage.value.manually", "ng-checked": "contactPage.value.manually"
               Заполнить данные контакта вручную
 
-          %div{ "ng-show": "contactPage.value.manually" }
+          %div.animate-show{ "ng-show": "contactPage.value.manually" }
 
             .form-group.required{ "ng-class": "contactPage.errorClass('contact[info]')" }
               = label_tag :contact_info , class: "control-label" do
@@ -32,7 +32,7 @@
             .form-group{ "ng-class": "contactPage.errorClass('contact[dept]')" }
               = label_tag :contact_dept , class: "control-label" do
                 %abbr{ title: "required" } *
-                %b Отдел
+                %b Номер отдела
               = text_field_tag "contact[dept]", "", class: "form-control", "ng-model": "contactPage.value.dept"
               %span.help-block{ "ng-show": "contactPage.form['contact[dept]'].$invalid", "ng-bind": "contactPage.errorMessage('contact[dept]')" }
 

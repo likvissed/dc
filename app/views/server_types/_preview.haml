@@ -1,16 +1,21 @@
-.modal.fade#modal{ "tabindex": "-1", "role": "document", "aria-hidden": true }
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "modal-show": "serverType.previewModal" }
   .modal-dialog
-    .modal-content
+    .modal-content{ "ng-controller": "ServerTypePreviewCtrl as preview" }
       .modal-header
-        - if can? :manage, ServerType
-          = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData"
-        %h4.modal-title
+        .pull-right
+          - if can? :manage, ServerType
+            = link_to icon("fa fa-cog fa-fw pointer"), "", class: "default-color", "ng-href": "/server_types/{{ preview.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать тип"
+        %h4.modal-title{ "ng-bind": "preview.name" }
       .modal-body
-        %h4 Состав
-        %table.table.table-striped{ "data-id": "details" }
+        %h4{ "ng-class": "{ 'text-muted': preview.details == 0 }" }
+          %div{"ng-class": "{ 'pull-left': preview.details == 0 }"} Состав&nbsp;
+          %div.text-muted.ng-hide{ "ng-show": "preview.details == 0" } отсутствует
+
+        %table.table.table-striped
           %tbody
-            %tr.hidden
-              %td
-              %td.col-md-1
+            %tr{ "ng-repeat": "detail in preview.details" }
+              %td.col-md-3{ "ng-bind": "detail.type" }
+              %td{ "ng-bind": "detail.name" }
+              %td.col-md-1{ "ng-bind": "detail.count" }
       .modal-footer
         = button_tag "Закрыть", "data-dismiss": "modal"

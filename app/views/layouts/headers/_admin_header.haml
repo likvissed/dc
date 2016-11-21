@@ -1,0 +1,42 @@
+.navbar.navbar-default{ role: "navigation-main" }
+  .container
+    .navbar-header
+      = button_tag "", class: "navbar-toggle", "data-toggle": "collapse", "data-target": ".navbar-collapse-main" do
+        %span.sr-only Toggle navigation
+        %span.icon-bar
+        %span.icon-bar
+        %span.icon-bar
+
+    .collapse.navbar-collapse.navbar-collapse-main
+      %ul.nav.navbar-nav
+        %li.dropdown
+          = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+            Сервисы
+            %b.caret
+          %ul.dropdown-menu{ "data-dropdown-in": "fadeIn", "data-dropdown-out": "fadeOut" }
+            %li
+              = link_to "Просмотр", services_path
+            %li
+              = link_to "Контакты", contacts_path
+        %li
+          = link_to "Серверы", clusters_path
+        %li.dropdown
+          = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+            Оборудование
+            %b.caret
+          %ul.dropdown-menu
+            %li
+              = link_to "Просмотр", servers_path
+            %li
+              = link_to "Комплектующие", server_parts_path
+      %ul.nav.navbar-nav.pull-right
+        %p.navbar-text.corp-color{ "tooltip-placement": "bottom", "uib-tooltip": "Текущая страница" }= yield(:title)
+        %li.dropdown
+          = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do
+            Администрирование
+            %b.caret
+          %ul.dropdown-menu
+            %li
+              = link_to "Пользователи", users_path
+            %li
+              = link_to "Роли", "#"

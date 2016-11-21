@@ -2,6 +2,8 @@ class Service < ActiveRecord::Base
 
   resourcify
 
+  before_save :set_deadline
+
   has_many :service_networks, dependent: :destroy
   has_many :storage_systems, dependent: :destroy
 
@@ -17,9 +19,9 @@ class Service < ActiveRecord::Base
   belongs_to :contact_1, class_name: 'Contact'
   belongs_to :contact_2, class_name: 'Contact'
 
-  validates :name,
-            presence: { message: "Наименование сервиса не может быть пустым" },
-            uniqueness: { message: "Сервис с заданым именем уже существует" }
+  validates :name, presence: true, uniqueness: { case_sensitive: false }
+  validates :number, uniqueness: { case_sensitive: false }, allow_blank: true
+  validates :priority, :time_work, presence: true
 
   # Empty attributes will not be converted to nil
   # Sequential spaces in attributes will be collapsed to one space
@@ -87,7 +89,27 @@ class Service < ActiveRecord::Base
                                     ],
                                     message: "Инструкция по отключению имеет неверный тип данных"
 
-  # errors.delete(:scan)
+  # Получает последний номер формуляра и возвращает следующий за ним номер.
+  def self.get_next_service_number
+    last = 000
+
+    select(:number).each do |s|
+      unless s[:number].empty?
+        tmp_last = s[:number].slice(/\d{3}-\d{2}-(\d{3})/, 1)
+        last = tmp_last.to_i if tmp_last.to_i > last
+      end
+    end
+
+    if last.to_i.next < 10
+      last = "00#{last.to_i.next}"
+    elsif last.to_i.next < 100
+      last = "0#{last.to_i.next}"
+    else
+      last = last.to_i.next
+    end
+
+    last
+  end
 
   # Получить всех ответственных
   # type - передается функции get_contact (:formular - для таблицы формуляра в виде строки, :obj - в виде объектов)
@@ -110,7 +132,7 @@ class Service < ActiveRecord::Base
   # type - тип файла (formulat - формуляр, act - акт)
   def generate_rtf(type)
     # Начальник отдела ответственного за сервис (пустая строка, если не определен в базе)
-    head = if self.contact_1.department_head.nil?
+    head = if self.contact_1.nil? || self.contact_2.nil? || self.contact_1.department_head.nil?
              ''
            else
              short_name self.contact_1.department_head.info, :act
@@ -118,12 +140,13 @@ class Service < ActiveRecord::Base
 
     if type == 'formular'
       data = {
-        data: self,
-        contact_strings: get_contacts(:formular),
-        contact_objects: get_contacts(:obj),
-        networks: self.service_networks,
-        storages: self.storage_systems,
-        head: head
+        data:             self,
+        contact_strings:  get_contacts(:formular),
+        contact_objects:  get_contacts(:obj),
+        networks:         self.service_networks,
+        ports:            self.get_ports,
+        storages:         self.storage_systems,
+        head:             head
       }.to_json
 
       file = IO.popen("php #{Rails.root}/lib/generateFormular.php '#{data}'")
@@ -141,7 +164,6 @@ class Service < ActiveRecord::Base
 
     file.read
   end
-
 
   # Возвращает массив строк с подключениями к сети
   # Если количество подключений к сети < 2, добавить пустые строки
@@ -179,12 +201,37 @@ class Service < ActiveRecord::Base
     storages
   end
 
+  # Возвращает номер формуляра, если он существует.
   def get_service_number
     if self.number.empty?
       "Номер формуляра отсутствует"
     else
       "Формуляр № ***REMOVED***-Ф-#{self.number}"
     end
+  end
+
+  # Возвращает объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя + Список портов, доступных из Интернет }
+  def get_ports
+    ports = {
+      local:  '',
+      inet:   ''
+    }
+
+    self.service_networks.each do |net|
+      return false if net.service_port.nil?
+
+      # Если 500 vlan, получить список открытых портов, доступных из ЛС
+      if net.vlan =~ /500/
+        local = get_local_ports(net.service_port)
+        ports[:local] += "#{net.dns_name}: #{local}; " unless local.empty?
+      end
+
+      # Получить список открытых портв, доступных из сети Интернет
+      inet = get_inet_ports(net.service_port)
+      ports[:inet] += "#{net.dns_name}: #{inet}; " unless inet.empty?
+    end
+
+    ports
   end
 
   private
@@ -261,12 +308,55 @@ class Service < ActiveRecord::Base
     end
   end
 
+  # Возвращает либо пустую строку (если подключение к сети отсутсвутет), либо имя подключения к СХД
   def get_storage_string(storage)
     if storage.nil?
       ''
     else
       storage.name
     end
+  end
+
+  # Получить строку вида "<Имя>: <Список откр. портов>/tcp, <Список откр. портов>/udp;"
+  def get_local_ports(value)
+    tmp   = []
+
+    tmp << set_port_suffix(value.local_tcp_ports, :tcp) unless value.local_tcp_ports.empty?
+    tmp << set_port_suffix(value.local_udp_ports, :udp) unless value.local_udp_ports.empty?
+
+    tmp.join(", ")
+  end
+
+  # Получить строку вида "<Имя>: <Список откр. портов>/tcp, <Список откр. портов>/udp;"
+  def get_inet_ports(value)
+    tmp   = []
+
+    tmp << set_port_suffix(value.inet_tcp_ports, :tcp) unless value.inet_tcp_ports.empty?
+    tmp << set_port_suffix(value.inet_udp_ports, :udp) unless value.inet_udp_ports.empty?
+
+    tmp.join(", ")
+  end
+
+  # Установть tcp/udp суффикс к указанным портам
+  # data - Строка, содержащая список портов и прошедшая фильтрация через функцию _filterPorts
+  # suffix - Строка, содержщая суффикс(tcp, udp), который необходимо добавить к портам, указанным в data
+  def set_port_suffix(data, suffix)
+    return if data.empty?
+
+    data.gsub!(/(\d+ {0,1}- {0,1}\d+)[, ]*/, '\1/' + suffix.to_s + ', ')
+    data.gsub!(/(\d+)([^\/ *\-\d+] *)/, '\1/' + suffix.to_s + ', ')
+    data.gsub!(/(\d+),{0,1} {0,1}$/, '\1/' + suffix.to_s)
+
+    if suffix == :tcp
+      data.gsub!(/(\d+\/tcp),{0,1} {0,1}$/, '\1')
+    else
+      data.gsub!(/(\d+\/udp),{0,1} {0,1}$/, '\1')
+    end
+  end
+
+  # Установить в поле test_date значение nil, если приоритет не равен "Тестирование и отладка"
+  def set_deadline
+    self.deadline = nil unless self.priority == "Тестирование и отладка"
   end
 
 end

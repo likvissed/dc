@@ -4,9 +4,9 @@
   app
     .controller('DepartmentHeadCtrl', DepartmentHeadCtrl);
 
-  DepartmentHeadCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  DepartmentHeadCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
 
-  function DepartmentHeadCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function DepartmentHeadCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -17,16 +17,22 @@
     self.dtInstance = {};
     self.dtOptions = DTOptionsBuilder
       .newOptions()
-      .withOption('ajax', '/department_heads.json')
+      .withOption('ajax', {
+        url: '/department_heads.json',
+        error: function (response) {
+          Error.response(response);
+        }
+      })
       .withOption('createdRow', createdRow)
       .withDOM(
         '<"row"' +
-          '<"col-sm-2"' +
+          '<"col-sm-2 col-md-3 col-lg-2"' +
             '<"#department_heads.new-record">>' +
-          '<"col-sm-8">' +
-          '<"col-sm-2"f>>' +
+          '<"col-sm-8 col-md-6 col-lg-8">' +
+          '<"col-sm-2 col-md-3 col-lg-2"f>>' +
         't<"row"' +
-          '<"col-sm-12"p>>'
+          '<"col-md-6"i>' +
+          '<"col-md-6"p>>'
       );
 
     self.dtColumns = [
@@ -70,7 +76,7 @@
     function setValidations(array, flag) {
       $.each(array, function (key, value) {
         $.each(value, function (index, message) {
-          if (key != 'base')
+          if (key != 'base' && self.form['department_head[' + key + ']'])
             self.form['department_head[' + key + ']'].$setValidity(message, flag);
         });
       });
@@ -95,32 +101,20 @@
 
     // Действия в случае ошибки создания/изменения контакта
     function errorResponse(response) {
-      // Ошибка на стороне сервера
-      if (parseInt(response.status) >= 500) {
-        self.headModal = false;
-        Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
-        return false;
-      }
-      // Нет доступа
-      else if (parseInt(response.status) == 403) {
-        Flash.alert(response.data.full_message);
-        return false;
-      }
+      Error.response(response);
 
       errors = response.data.object;
       setValidations(errors, false);
-
-      Flash.alert(response.data.full_message);
     }
 
     // Отрендерить ссылку на изменение контакта
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="depHeadPage.showHeadModal(' + data.tn + ')" tooltip-placement="right" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="depHeadPage.showHeadModal(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
     }
 
     // Отрендерить ссылку на удаление контакта
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="depHeadPage.destroyHead(' + data.tn + ')" tooltip-placement="right" uib-tooltip="Удалить контакт"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="depHeadPage.destroyHead(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Удалить контакт"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
   // =============================================== Публичные функции ===================================================
@@ -133,11 +127,15 @@
 
       // Если запись редактируется
       if (tn) {
-        $http.get('/department_heads/' + tn + '/edit.json').success(function (success) {
-          self.config.method  = 'PUT';
-          self.value          = angular.copy(success); //Заполнить поля данными, полученными с сервера
-          self.config.title   = success.info;
-        });
+        $http.get('/department_heads/' + tn + '/edit.json')
+          .success(function (success) {
+            self.config.method  = 'PUT';
+            self.value          = angular.copy(success); //Заполнить поля данными, полученными с сервера
+            self.config.title   = success.info;
+          })
+          .error(function (response, status) {
+            Error.response(response, status);
+          });
       }
       else {
         self.config.method  = 'POST';
@@ -178,7 +176,7 @@
 
       if (self.config.method == 'POST') {
         // Сохранить данные на сервере
-        Server.DepartmentHead.save({department_head: self.value},
+        Server.DepartmentHead.save({ department_head: self.value },
           // Success
           function (response) {
             successResponse(response);
@@ -192,7 +190,7 @@
         );
       }
       else {
-        Server.DepartmentHead.update({tn: tn}, self.value,
+        Server.DepartmentHead.update({ tn: tn }, { department_head: self.value },
           // Success
           function (response) {
             successResponse(response);
@@ -214,7 +212,7 @@
       if (!confirm(confirm_str))
         return false;
 
-      Server.DepartmentHead.delete({tn: num},
+      Server.DepartmentHead.delete({ tn: num },
         // Success
         function (response) {
           Flash.notice(response.full_message);
@@ -223,7 +221,7 @@
         },
         // Error
         function (response) {
-          Flash.alert(response.full_message);
+          Error.response(response);
         });
     }
   }

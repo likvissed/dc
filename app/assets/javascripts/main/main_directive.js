@@ -69,30 +69,62 @@
       restrict: 'E',
       transclude: true,
       template: '<ng-transclude></ng-transclude>',
-      link: link
-    };
+      link: function (scope, element, attrs) {
+        function compileElements() {
+          $timeout(function () {
+            $compile(element.find('.new-record'))(scope);
 
-    function link(scope, element, attrs) {
-      function compileElements() {
-        $timeout(function () {
-          $compile(element.find('.service-filter'))(scope);
-          $compile(element.find('.new-record'))(scope);
-        }, 0, false);
+            $compile(element.find('.service-exploitation'))(scope);
+            $compile(element.find('.service-filter'))(scope);
+
+            $compile(element.find('.cluster-dept-filter'))(scope);
+            $compile(element.find('.cluster-type-filter'))(scope);
+
+            $compile(element.find('.server-status-filter'))(scope);
+            $compile(element.find('.server-type-filter'))(scope);
+
+            $compile(element.find('.detail-type-filter'))(scope);
+          }, 0, false);
+        }
+
+        compileElements();
+
+        scope.$watch(
+          function (scope) {
+            // Для таблицы сервисов
+            if (scope.servicePage)
+              return [
+                scope.servicePage.selectedOption,
+                scope.servicePage.exploitation
+              ];
+
+            // Для таблицы оборудования
+            if (scope.clusterPage)
+              return [
+                scope.clusterPage.selectedDeptOption,
+                scope.clusterPage.selectedTypeOption
+              ];
+
+            // Для таблицы серверов
+            if (scope.serverPage)
+              return [
+                scope.serverPage.selectedStatusOption,
+                scope.serverPage.selectedTypeOption
+              ];
+
+            // Для таблицы комплектующих
+            if (scope.serverPartPage)
+              return [
+                scope.serverPartPage.selectedTypeOption
+              ]
+          },
+          function () {
+            compileElements();
+          },
+          true
+        )
       }
-
-      compileElements();
-
-      scope.$watch(
-        function (scope) {
-          if (scope.servicePage)
-            return scope.servicePage.selectedOption
-        },
-        function () {
-          compileElements();
-        },
-        true
-      )
-    }
+    };
   }
 
   // Для таблицы DataTable добавить кнопку "Добавить", если у пользователя есть доступ
@@ -102,7 +134,7 @@
       restrict: 'C',
       //template: '<button class="btn-sm btn btn-primary btn-block" ng-click="contactPage.showContactModal()">Добавить</button>'
       templateUrl: function (element, attrs) {
-        return '/' + attrs.id + '/link_to_new_record.json';
+        return '/' + attrs.id + '/link/new_record.json';
       }
     }
   }

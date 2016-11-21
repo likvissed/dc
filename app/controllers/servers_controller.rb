@@ -8,17 +8,34 @@ class ServersController < ApplicationController
 
   def index
     respond_to do |format|
-      format.html { render :index }
+      format.html
       format.json do
-        if params[:server_type_val].to_i.zero?
-          @servers      = Server.select(:id, :name, :server_type_id, :status, :location)
-          @server_types = ServerType.select(:id, :name)
-        else
-          @servers = Server.select(:id, :name, :server_type_id, :status, :location).where("server_type_id = ?", params[:server_type_val])
-        end
+        @servers      = Server.select(:id, :name, :server_type_id, :status, :location).order(:id).includes(:server_type)
+        # Получить список типов серверов при построении таблицы
+        @server_types = ServerType.select(:id, :name).order(:id) if params[:serverTypes] == 'true'
 
-        render json: @servers.as_json(include: { server_type: { only: :name } }, except: :server_type_id)
-        # render json: { data: data, server_types: @server_types }
+        status_filter = case params[:statusFilter]
+                          when 'atWork'
+                            Server.statuses["В работе"]
+                          when 'test'
+                            Server.statuses["Тест"]
+                          when 'inactive'
+                            Server.statuses["Простой"]
+                          else
+                            nil
+                        end
+
+        # Применить фильтры к полученным данным, если это необходимо
+        @servers = @servers.where(status: status_filter) unless status_filter.nil?
+        @servers = @servers.where(server_type_id: params[:typeFilter]) unless params[:typeFilter].to_i.zero?
+
+        data = @servers.as_json(
+          include: {
+            server_type: { only: :name }
+          },
+          except: :server_type_id
+        )
+        render json: { data: data, server_types: @server_types }
       end
     end
   end
@@ -30,7 +47,17 @@ class ServersController < ApplicationController
           clusters: { only: :name },
           real_server_details: {
             only: :count,
-            include: { server_part: { only: :name } } },
+            include: {
+              server_part: {
+                only: :name,
+                include: {
+                  detail_type: {
+                    only: :name
+                  }
+                }
+              }
+            }
+          },
         },
         except: [:id, :created_at, :updated_at, :server_type_id, :cluster_id])
       }
@@ -48,7 +75,12 @@ class ServersController < ApplicationController
           redirect_to action: :index
         end
       end
-      format.json { render json: { types: ServerType.select(:id, :name) } }
+      format.json do
+        render json: {
+                 server_types: ServerType.select(:id, :name).order(:id),
+                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+               }
+      end
     end
   end
 
@@ -56,7 +88,7 @@ class ServersController < ApplicationController
     @server = Server.new(server_params)
     if @server.save
       flash[:notice] = "Данные добавлены."
-      redirect_to action: :index
+      redirect_to action: :index, id: @server.id
     else
       flash.now[:alert] = "Ошибка добавления данных. #{ @server.errors.full_messages.join(", ") }"
       render :new
@@ -65,21 +97,50 @@ class ServersController < ApplicationController
 
   def edit
     respond_to do |format|
-      format.html { render :edit }
+      format.html
       format.json do
-        render json: {
-          server: @server.as_json(
-            only: [],
-            include: {
-              server_type: { only: [:id, :name] },
-              real_server_details: {
-                only: [:id, :server_part_id, :count],
-                include: { server_part: { except: [:created_at, :updated_at] } },
+        server_details = @server.real_server_details.as_json(
+          include: {
+            server_part: {
+              only: [:id, :name],
+              include: {
+                detail_type: { only: :name }
               }
             }
-          ),
-          parts: ServerPart.select(:id, :name),
-          types: ServerType.select(:id, :name),
+          },
+          except: [:created_at, :updated_at])
+
+        hash  = {}
+
+        # Изменить структуру ответа на:
+        # detail_type => [0: { count, id, index, ..., server_part: {}}]
+        server_details.each_with_index do |detail, index|
+          # Ключ - это имя типа запчасти (Дима, Память и т.д.)
+          key   = detail['server_part']['detail_type']['name']
+          # Проверка на существование ключа
+          # Если ключа не существует в объекте hash или если это первый проход цикла,
+          # то создать чистый массив, в который будут записываться комплектующие для текущего типа оборудования
+          value = if !hash.key?(key) || index.zero?
+                    []
+                  else
+                    hash[key]
+                  end
+
+          detail['server_part'].delete('detail_type')
+          detail['index'] = index
+
+          value.push(detail)
+
+          hash[key] = value
+        end
+
+        render json: {
+          server: {
+            server_type:          @server.server_type.as_json(only: [:id, :name]),
+            real_server_details:  hash
+          },
+          server_types: ServerType.select(:id, :name).order(:id),
+          detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
         }
       end
     end
@@ -88,7 +149,7 @@ class ServersController < ApplicationController
   def update
     if @server.update_attributes(server_params)
       flash[:notice] = "Данные изменены"
-      redirect_to action: :index
+      redirect_to action: :index, id: @server.id
     else
       flash.now[:alert] = "Ошибка изменения данных. #{ @server.errors.full_messages.join(", ") }"
       render :edit
@@ -108,7 +169,7 @@ class ServersController < ApplicationController
   end
 
   # Если у пользователя есть доступ, в ответ присылается html-код кнопки "Добавить" для создания новой записи
-  # Запрос отсылается из JS файла при инициализации таблицы "Контакты"
+  # Запрос отсылается из JS файла при инициализации таблицы "Оборудование"
   def link_to_new_record
     link = create_link_to_new_record :page, Server, "/servers/new"
     respond_to do |format|

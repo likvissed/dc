@@ -2,7 +2,7 @@
   .modal-dialog
     .modal-content{ "ng-controller": "ServerPartPreviewCtrl as preview" }
       .modal-header
-        - if can? :manage, ServerPart
+        -#- if can? :manage, ServerPart
           = link_to icon("fa fa-cog fa-fw"), "#", "ng-href": "/server_parts/{{ preview.name }}/edit", class: "pull-right default-color", "tooltip-placement": "left", "uib-tooltip": "Редактировать комплектующую"
         %h4.modal-title{ "ng-bind": "preview.name" }
       .modal-body

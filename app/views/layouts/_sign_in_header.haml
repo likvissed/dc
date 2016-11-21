@@ -1,7 +1,9 @@
-.header-content
-  .header-top
-    .logo
-      = image_tag("Logo.png")
-    .user-menu
-      %ul
-        %li Необходимо авторизоваться
+.navbar.navbar-inverse{ role: "navigation-top" }
+  .container
+    .row
+      .col-md-8.col-md-offset-2
+        .navbar-header
+          = image_tag("Logo.png")
+
+        .collapse.navbar-collapse
+          .navbar-text.pull-right Необходимо авторизоваться

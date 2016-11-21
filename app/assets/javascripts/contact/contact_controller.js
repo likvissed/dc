@@ -4,9 +4,9 @@
   app
     .controller('ContactCtrl', ContactCtrl);
 
-  ContactCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash'];
+  ContactCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
 
-  function ContactCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash) {
+  function ContactCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -17,16 +17,22 @@
     self.dtInstance   = {};
     self.dtOptions    = DTOptionsBuilder
       .newOptions()
-      .withOption('ajax', '/contacts.json')
+      .withOption('ajax', {
+        url: '/contacts.json',
+        error: function (response) {
+          Error.response(response);
+        }
+      })
       .withOption('createdRow', createdRow)
       .withDOM(
         '<"row"' +
-          '<"col-sm-2"' +
+          '<"col-sm-2 col-md-3 col-lg-2"' +
             '<"#contacts.new-record">>' +
-          '<"col-sm-8">' +
-          '<"col-sm-2"f>>' +
+          '<"col-sm-8 col-md-6 col-lg-8">' +
+          '<"col-sm-2 col-md-3 col-lg-2"f>>' +
         't<"row"' +
-          '<"col-sm-12"p>>'
+          '<"col-md-6"i>' +
+          '<"col-md-6"p>>'
       );
 
     self.dtColumns    = [
@@ -102,54 +108,49 @@
 
     // Действия в случае ошибки создания/изменения контакта
     function errorResponse(response) {
-      // Ошибка на стороне сервера
-      if (parseInt(response.status) >= 500) {
-        self.contactModal = false;
-        Flash.alert("Ошибка. Код: " + response.status + " (" + response.statusText + "). Обратитесь к администратору.");
-        return false;
-      }
-      // Нет доступа
-      else if (parseInt(response.status) == 403) {
-        Flash.alert(response.data.full_message);
-        return false;
-      }
+      Error.response(response);
 
       errors = response.data.object;
       setValidations(errors, false);
-
-      Flash.alert(response.data.full_message);
     }
 
     // Отрендерить ссылку на изменение контакта
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="contactPage.showContactModal(' + data.tn + ')" tooltip-placement="right" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="contactPage.showContactModal(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
     }
 
     // Отрендерить ссылку на удаление контакта
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="contactPage.destroyContact(' + data.tn + ')" tooltip-placement="right" uib-tooltip="Удалить контакт"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="contactPage.destroyContact(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Удалить контакт"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
 // =============================================== Публичные функции ===================================================
 
     // Открыть модальное окно
-    // action - событие, на который идет запрос (new, edit)
+    // num - редактируемый табельный номер
     self.showContactModal = function (num) {
-      self.contactModal = true;
-      tn                = num;
+      tn = num;
 
       // Если запись редактируется
       if (tn) {
-        $http.get('/contacts/' + tn + '/edit.json').success(function (success) {
-          self.config.method  = 'PUT';
-          self.value          = angular.copy(success); //Заполнить поля данными, полученными с сервера
-          self.config.title   = success.info;
-        });
+        $http.get('/contacts/' + tn + '/edit.json')
+          .success(function (success) {
+            self.config.method  = 'PUT';
+            self.value          = angular.copy(success); //Заполнить поля данными, полученными с сервера
+            self.config.title   = success.info;
+
+            self.contactModal = true; // Открыть модальное окно
+          })
+          .error(function (response, status) {
+            Error.response(response, status);
+          });
       }
       else {
         self.config.method  = 'POST';
         self.value          = angular.copy(value_template);
         self.config.title   = 'Новый контакт';
+
+        self.contactModal = true; // Открыть модальное окно
       }
     };
 
@@ -185,7 +186,7 @@
 
       if (self.config.method == 'POST') {
         // Сохранить данные на сервере
-        Server.Contact.save({contact: self.value},
+        Server.Contact.save({ contact: self.value },
           // Success
           function (response) {
             successResponse(response);
@@ -199,7 +200,7 @@
         );
       }
       else {
-        Server.Contact.update({tn: tn}, self.value,
+        Server.Contact.update({ tn: tn }, { contact: self.value },
           // Success
           function (response) {
             successResponse(response);
@@ -216,12 +217,12 @@
 
     // Удалить контакт
     self.destroyContact = function (num) {
-      var  confirm_str = "Вы действительно хотите удалить контакт \"" + self.contacts[num].info + "\"?";
+      var confirm_str = "Вы действительно хотите удалить контакт \"" + self.contacts[num].info + "\"?";
 
       if (!confirm(confirm_str))
         return false;
 
-      Server.Contact.delete({tn: num},
+      Server.Contact.delete({ tn: num },
       // Success
       function (response) {
         Flash.notice(response.full_message);
@@ -230,7 +231,7 @@
       },
       // Error
       function (response) {
-        Flash.alert(response.data.full_message);
+        Error.response(response);
       });
     }
   }
