@@ -25,7 +25,7 @@ module ServerApp
     config.active_record.raise_in_transactional_callbacks = true
 
     # Web console settings
-    config.web_console.whitelisted_ips = '10.1.8.26'
+    # config.web_console.whitelisted_ips = '10.1.8.26'
 
     config.generators do |g|
       g.template_engine     :haml
