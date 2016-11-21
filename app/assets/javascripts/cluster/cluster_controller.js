@@ -308,8 +308,15 @@
       Server.Service.get({ id: id },
         // Success
         function (response) {
+          var
+            fromCluster = self.fromService ? false : true,
+            data = {
+              response:     response,
+              fromCluster:  fromCluster
+            };
+
           // Отправить данные контроллеру ServicePreviewCtrl
-          $rootScope.$broadcast('service:show', response);
+          $rootScope.$broadcast('service:show', data);
 
           // Закрыть окно просмотрп сервера, если оно было открыто из окна просмотра сервиса
           if (self.fromService)

@@ -11,7 +11,7 @@
 
   ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc', 'Error', 'Ability'];
   ServicePreviewCtrl.$inject      = ['$scope', '$rootScope', 'Server', 'Ability', 'Error'];
-  ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer'];
+  ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer', 'Error'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
   ServiceEditPortCtrl.$inject     = ['$scope', 'Service'];
   DependenceCtrl.$inject          = ['Service'];
@@ -181,8 +181,13 @@
       Server.Service.get({ id: id },
         // Success
         function (response) {
+          var data = {
+            response:     response,
+            fromCluster:  false
+          };
+
           // Отправить данные контроллеру ServicePreviewCtrl
-          $scope.$broadcast('service:show', response);
+          $scope.$broadcast('service:show', data);
         },
         // Error
         function (response, status) {
@@ -255,13 +260,18 @@
   function ServicePreviewCtrl($scope, $rootScope, Server, Ability, Error) {
     var self = this;
 
-    self.previewModal = false;  // Флаг, скрывающий модальное окно
+    self.previewModal           = false; // Флаг, скрывающий модальное окно
+    self.disableClusterPreview  = false; // Флаг, запрещающий просматривать информацию о сервере, т.к. предпросмотр формуляра и так открыт из режима предпросмотра сервера
 
 // ================================================ Инициализация ======================================================
 
-    $scope.$on('service:show', function (event, data) {
+    $scope.$on('service:show', function (event, json) {
       self.previewModal = true;                             // Показать модальное окно
       self.showInstr    = Ability.canView('instr');         // Определяет, есть ли права на показ инструкций
+
+      self.disableClusterPreview = json.fromCluster;        // Флаг. Если режим просмотра сервиса открывается из режима просмотра сервера - true
+
+      var data = json.response;                             // Данные, полученные с сервера
 
       self.service      = angular.copy(data.service);       // Данные сервиса
       self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса
@@ -319,7 +329,7 @@
 
     // Показать информацию о сервере
     self.showCluster = function () {
-      if (!self.hosting)
+      if (!self.hosting || self.disableClusterPreview)
         return false;
 
       Server.Cluster.get({ id: self.hosting.id },
@@ -342,7 +352,7 @@
 
 // =====================================================================================================================
 
-  function ServiceEditCtrl($scope, Service, GetDataFromServer) {
+  function ServiceEditCtrl($scope, Service, GetDataFromServer, Error) {
     var self = this;
 
 // ================================================ Инициализация ======================================================
@@ -355,18 +365,23 @@
     // name - имя формуляра
     self.init = function (id, name) {
       GetDataFromServer.ajax('services', id, name)
-        .then(function (data) {
-          Service.init(id, name, data);
+        .then(
+          function (data) {
+            Service.init(id, name, data);
 
-          self.priority         = Service.getPriorities();    // Объект вида { selected: Выбранный объект в поле select "Приоритет функционирования", values: Массив всех видов приоритетов }
-          self.network          = Service.getNetworks();      // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
-          self.ports            = Service.getPorts();         // Объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя +ы Список портов, доступных из Интернет }
-          self.missing_file     = Service.getMissingFiles();  // Массив с отстствующими флагами
-          self.parents          = Service.getParents();       // Массив с сервисами-родителями
-          self.storages         = Service.getStorages();      // Массив с подключениями к СХД
-          self.current_name     = name ? name : null;         // Необходим для исключения этого имени из списка родителей-сервисов
-          self.services         = Service.getServices();      // Массив всех существующих сервисов для выбора сервисов-родителей.
-        })
+            self.priority         = Service.getPriorities();    // Объект вида { selected: Выбранный объект в поле select "Приоритет функционирования", values: Массив всех видов приоритетов }
+            self.network          = Service.getNetworks();      // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
+            self.ports            = Service.getPorts();         // Объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя +ы Список портов, доступных из Интернет }
+            self.missing_file     = Service.getMissingFiles();  // Массив с отстствующими флагами
+            self.parents          = Service.getParents();       // Массив с сервисами-родителями
+            self.storages         = Service.getStorages();      // Массив с подключениями к СХД
+            self.current_name     = name ? name : null;         // Необходим для исключения этого имени из списка родителей-сервисов
+            self.services         = Service.getServices();      // Массив всех существующих сервисов для выбора сервисов-родителей.
+          },
+          function (response, data) {
+            Error.response(response, data);
+          }
+        )
         .then(function () {
           // Фильтр, определяющий, показывать ли надпись "Отсутствует" в поле родителей-сервисов
           self.showParents = function () {

@@ -277,14 +277,18 @@
 
     self.init = function (id, name) {
       GetDataFromServer.ajax('servers', id, name)
-        .then(function (data) {
-          self.data         = data.server || null;  // Данные об оборудовании (состояние, тип, состав)
-          self.serverTypes  = data.server_types;    // Все существующие типы оборудования
-          self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
+        .then(
+          function (data) {
+            self.data         = data.server || null;  // Данные об оборудовании (состояние, тип, состав)
+            self.serverTypes  = data.server_types;    // Все существующие типы оборудования
+            self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
 
-          if (self.data && self.data.real_server_details)
-            getDeatilsCount();
-        });
+            if (self.data && self.data.real_server_details)
+              getDeatilsCount();
+          },
+          function (response, status) {
+            Error.response(response, status);
+          });
     };
 
 // =============================================== Публичные функции ===================================================
