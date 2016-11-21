@@ -477,7 +477,7 @@
       // перед открытием окна. Чтобы пустой объект не появился в поле select (модальное окно "Открытые порты"),
       // необходимо записать null в объект network
       if (standart.segment == '' && standart.vlan == '' && standart.dns_name == '')
-        Service.setNetwork(self.index, null); // Записали null
+        Service.setNetwork(self.index, null, 'cancel'); // Записали null
       else
         Service.setNetwork(self.index, standart); // Записали изначальные данные
     };

@@ -499,8 +499,8 @@
     // Записать новые данные о подключении к сети
     // index  - индекс массива
     // data   - данные в поле value
-    // newRec - новая запись
-    self.setNetwork = function (index, data, newRec) {
+    // type   - тип события (new - новая запись, cancel - нажата кнопка "Отмена")
+    self.setNetwork = function (index, data, type) {
       if (_checkTemplateNetworkPassed(data)) {
         self.setFlag('networkModal', false); // Закрыть модальное окно в случае успешной проверки валидации полей
 
@@ -514,7 +514,7 @@
         // Необходимо установить парамет _destroy = 1, чтобы на стороне сервера подключение создалось. Если парамтр не
         // изменить, то старое подключение удалится, новое не создастся.
         // Необходимо сбросить значения полей открытых портов
-        if (newRec) {
+        if (type == 'new') {
           service.network.values[index].destroy = 0;
           service.network.values[index].ports   = _defaultPorts(index);
         }
@@ -527,7 +527,8 @@
           self.getPorts();
       }
       else {
-        alert("Необходимо заполнить все поля.");
+        if (type != 'cancel')
+          alert("Необходимо заполнить все поля.");
         //service.network.values[index].value = null;
       }
 
