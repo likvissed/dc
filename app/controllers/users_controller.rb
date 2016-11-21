@@ -8,7 +8,7 @@ class UsersController < ApplicationController
   before_action :select_all_roles,  only: [:new, :edit]
 
   def index
-    @users = User.select(:id, :username).page params[:page]
+    @users = User.select(:id, :username).includes(:roles).page params[:page]
   end
 
   def show
@@ -19,9 +19,18 @@ class UsersController < ApplicationController
   end
 
   def create
+    # Проверка наличия роли
+    if params[:roles].nil? || params[:roles][:name].empty?
+      select_all_roles
+      flash.now[:alert] = "Необходимо выбрать роль."
+
+      render action: :new
+      return
+    end
+
     @user = User.new(user_params)
     if @user.save
-      roles_params.each { |role, value| @user.add_role role if value.to_i == 1 }
+      roles_params.each { |role, value| @user.add_role value }
 
       flash[:notice] = "Пользователь создан."
       redirect_to users_path
@@ -39,8 +48,7 @@ class UsersController < ApplicationController
     params[:user].delete(:password) if params[:user][:password].blank?
     params[:user].delete(:password_confirmation) if params[:user][:password].blank? and params[:user][:password_confirmation].blank?
     if @user.update_attributes(user_params)
-      @user.roles = []
-      roles_params.each { |role, value| @user.add_role role if value.to_i == 1 }
+      roles_params.each { |role, value| @user.add_role value }
 
       flash[:notice] = "Данные изменены."
       redirect_to users_path
@@ -61,6 +69,15 @@ class UsersController < ApplicationController
     redirect_to users_path
   end
 
+  # Получить роль текущего пользователя
+  def role
+    respond_to do |format|
+      format.json do
+        render json: { role: current_user.roles.first.name }
+      end
+    end
+  end
+
   private
 
   # Разрешение strong params
@@ -69,7 +86,7 @@ class UsersController < ApplicationController
   end
 
   def roles_params
-    params.require(:roles).permit(User::ROLES)
+    params.require(:roles).permit(:name)
   end
 
   # Поиск данных о типе запчасти по name

@@ -7,13 +7,16 @@
           = button_to "Добавить", new_user_path, method: :get, class: "btn btn-primary", form_class: "text-center"
           %table.table.table-striped
             %th.col-md-1 #
-            %th Имя
+            %th.col-md-5 Имя
+            %th.col-md-4 Роль
             %th.col-md-1
             %th.col-md-1
             - @users.each_with_index do |user, index|
+              - role = user.roles.first.name rescue "Отсутствует"
               %tr
                 %td= index.next
                 %td= user.username
+                %td= role
                 %td
                   = link_to icon("fa fa-pencil-square-o fa-1g"), "/users/" + user.username + "/edit", class: "default-color", title: "Редактировать"
                 %td

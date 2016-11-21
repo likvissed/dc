@@ -6,13 +6,13 @@
     .controller('ServerTypePreviewCtrl', ServerTypePreviewCtrl) // Предпросмотр типа
     .controller('ServerEditTypeCtrl', ServerEditTypeCtrl);      // Форма добавления/редактирования типа
 
-  ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ServerTypeIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
   ServerTypePreviewCtrl.$inject = ['$scope'];
   ServerEditTypeCtrl.$inject    = ['GetDataFromServer'];
 
 // =====================================================================================================================
 
-  function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
+  function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -30,6 +30,7 @@
           Error.response(response);
         }
       })
+      .withOption('initComplete', initComplete)
       .withOption('createdRow', createdRow)
       .withDOM(
       '<"row"' +
@@ -58,6 +59,26 @@
       return meta.row + 1;
     }
 
+    function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать инструкции и иконки урпавления только для определенных ролей
+            api.column(2).visible(Ability.canView('admin_tools'));
+          },
+          function (response, status) {
+            Error.response(response, status);
+
+            // Удалить все данные в случае ошибки проверки прав доступа
+            api.rows().remove().draw();
+          });
+    }
+
     function createdRow(row, data, dataIndex) {
       // Событие click для просмотра информации об оборудовании
       $(row).off().on('click', function (event) {
@@ -77,7 +98,7 @@
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl
-          $scope.$broadcast('serverTypeData', response);
+          $scope.$broadcast('server_type:show', response);
 
           self.previewModal = true; // Показать модальное окно
         },
@@ -109,7 +130,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице серверов.
-          $rootScope.$emit('deletedServerType', num);
+          $rootScope.$emit('table:server:filter:server_type:delete', num);
         },
         // Error
         function (response) {
@@ -123,10 +144,10 @@
   function ServerTypePreviewCtrl($scope) {
     var self = this;
 
-    $scope.$on('serverTypeData', function (event, data) {
-      self.name           = data.name;
+    $scope.$on('server_type:show', function (event, data) {
+      self.name    = data.name; // Заголовок модального окна
+      self.details = [];        // Состав типа оборудования
 
-      self.details = [];
       $.each(data.template_server_details, function (index, value) {
         self.details.push({
           name:   value.server_part.name,
@@ -184,7 +205,7 @@
       var type = self.detailTypes[index];
 
       // Выйти, если тип детали не найден.
-      if (!type)
+      if (!type || type.server_parts.length == 0)
         return false;
 
       lastIndex ++;

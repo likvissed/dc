@@ -6,13 +6,13 @@
     .controller('ClusterPreviewCtrl', ClusterPreviewCtrl) // Предпросмотр сервера
     .controller('ClusterEditCtrl', ClusterEditCtrl);      // Добавление/редактирование сервера
 
-  ClusterIndexCtrl.$inject    = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ClusterIndexCtrl.$inject    = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
   ClusterPreviewCtrl.$inject  = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Error'];
   ClusterEditCtrl.$inject     = ['$scope', 'Flash', 'Server', 'Error'];
 
 // =====================================================================================================================
 
-  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
+  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -65,7 +65,7 @@
 
     self.dtColumns      = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Серверы').withOption('className', 'col-lg-8'),
+      DTColumnBuilder.newColumn('name').withTitle('Серверы').withOption('className', 'col-lg-9'),
       DTColumnBuilder.newColumn('services').withTitle('Отделы').notSortable().withOption('className', 'col-lg-2 text-center'),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
@@ -84,6 +84,25 @@
     }
 
     function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать иконки управления только для определенных ролей
+            api.column(3).visible(Ability.canView('admin_tools'));
+            api.column(4).visible(Ability.canView('admin_tools'));
+          },
+          function (response, status) {
+            Error.response(response, status);
+
+            // Удалить все данные в случае ошибки проверки прав доступа
+            api.rows().remove().draw();
+          });
+
       // Заполнить список фильтра по типам оборудования
       if (json.node_roles) {
         self.typeOptions        = self.typeOptions.concat(json.node_roles);
@@ -115,8 +134,13 @@
       Server.Cluster.get({ id: row_data.id },
         // Success
         function (response) {
+          var data = {
+            response:     response,
+            fromService:  null
+          };
+
           // Отправить данные контроллеру ServerPartPreviewCtrl
-          $scope.$broadcast('showClusterData', response);
+          $scope.$broadcast('cluster:show', data);
         },
         // Error
         function (response, status) {
@@ -146,7 +170,7 @@
     }
 
     // Событие обновления таблицы после добавления/редактирования сервера
-    $scope.$on('reloadClusterData', function (event, data) {
+    $scope.$on('table:cluster:reload', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
     });
@@ -156,7 +180,7 @@
     // add - добавить
     // delete - удалить
     // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
-    $rootScope.$on('changedNodeRole', function (event, data) {
+    $rootScope.$on('table:cluster:filter:node_role', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {
         var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data.id });
@@ -205,7 +229,7 @@
             data.servers    = angular.copy(response.servers);
             data.value      = angular.copy(response.data);
 
-            $scope.$broadcast('editClusterData', data);
+            $scope.$broadcast('cluster:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -219,7 +243,7 @@
             data.servers    = angular.copy(response.servers);
             data.value      = angular.copy(response.data);
 
-            $scope.$broadcast('editClusterData', data);
+            $scope.$broadcast('cluster:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -245,7 +269,7 @@
         function (response) {
           Error.response(response);
         });
-    }
+    };
   }
 
 // =====================================================================================================================
@@ -255,17 +279,21 @@
 
     self.previewModal   = false;  // Флаг, скрывающий модальное окно
     self.presenceCount  = 0;      // Количество оборудования, из которого состоит сервер
+    self.fromService    = null;   // Показывает, вызвана ли функция из режима просмотра формуляра (наличие имени - флаг)
 
 // =============================================== Инициализация =======================================================
 
-    $scope.$on('showClusterData', function (event, data) {
+    $scope.$on('cluster:show', function (event, json) {
       self.previewModal = true; // Показать модальное окно
 
-      self.name           = data.name;
-      self.details        = data.cluster_details;
-      self.services       = data.services;
-      self.depts          = data.depts;
-      self.presenceCount  = data.cluster_details.length;
+      var data = json.response;                           // Данные, полученные с сервера
+
+      self.name           = data.name;                    // Имя сервера
+      self.details        = data.cluster_details;         // Состав сервера
+      self.services       = data.services;                // Список сервисов, функционирующих на сервере
+      self.depts          = data.depts;                   // Отделы, использующие сервер
+      self.presenceCount  = data.cluster_details.length;  // Число оборудования, входящих в сервер
+      self.fromService    = json.fromService;             // Показывает, вызвана ли функция из режима просмотра формуляра (наличие имени - флаг)
 
       // Установить флаги приоритетов для полученных сервисов
       $.each(self.services, function (index, value) {
@@ -280,8 +308,19 @@
       Server.Service.get({ id: id },
         // Success
         function (response) {
+          var
+            fromCluster = self.fromService ? false : true,
+            data = {
+              response:     response,
+              fromCluster:  fromCluster
+            };
+
           // Отправить данные контроллеру ServicePreviewCtrl
-          $rootScope.$broadcast('serviceData', response);
+          $rootScope.$broadcast('service:show', data);
+
+          // Закрыть окно просмотрп сервера, если оно было открыто из окна просмотра сервиса
+          if (self.fromService)
+            self.previewModal = false;
         },
         // Error
         function (response, status) {
@@ -313,7 +352,7 @@
         cluster_details_attributes: []
       };
 
-    $scope.$on('editClusterData', function (event, data) {
+    $scope.$on('cluster:edit', function (event, data) {
       self.clusterModal = true;
 
       self.servers        = angular.copy(data.servers);
@@ -346,7 +385,7 @@
       $.each(array, function (key, value) {
         $.each(value, function (index, message) {
           if (key != 'base')
-            self.form['server_part[' + key + ']'].$setValidity(message, flag);
+            self.form['cluster[' + key + ']'].$setValidity(message, flag);
         });
       });
     }
@@ -431,7 +470,7 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadClusterData', { reload: true });
+            $scope.$emit('table:cluster:reload', { reload: true });
           },
           // Error
           function (response) {
@@ -446,7 +485,7 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadClusterData', { reload: true });
+            $scope.$emit('table:cluster:reload', { reload: true });
           },
           // Error
           function (response) {
@@ -459,6 +498,8 @@
     // Закрыть модальное окно по кнопке "Отмена"
     self.closeClusterModal = function () {
       self.clusterModal = false;
+
+      self.value.cluster_details_attributes = []; // Очищаем список оборудования
       clearForm();
     };
   }

@@ -1,8 +1,9 @@
-= title "Комплектующие"
+= title "Просмотр комплектующих"
 
 .container
   .row
-    .col-lg-8
+    - ident_class = can?(:read, DetailType) ? "" : "col-lg-offset-2"
+    .col-lg-8{ class: "#{ident_class}" }
       .well
         .content-body{ "ng-controller": "ServerPartIndexCtrl as serverPartPage" }
           %datatable-wrapper
@@ -11,10 +12,11 @@
           = render partial: "preview"
           = render partial: "modal_form"
 
-    .col-lg-4
-      .well
-        .content-body{ "ng-controller": "DetailTypeIndexCtrl as detailTypePage" }
-          %datatable-wrapper
-            %table.table.center-header.table-striped{ datatable: "", "dt-options": "detailTypePage.dtOptions", "dt-columns": "detailTypePage.dtColumns", "dt-instance": "detailTypePage.dtInstance", width: "100%" }
+    - if can? :read, DetailType
+      .col-lg-4
+        .well
+          .content-body{ "ng-controller": "DetailTypeIndexCtrl as detailTypePage" }
+            %datatable-wrapper
+              %table.table.center-header.table-striped{ datatable: "", "dt-options": "detailTypePage.dtOptions", "dt-columns": "detailTypePage.dtColumns", "dt-instance": "detailTypePage.dtInstance", width: "100%" }
 
-          = render partial: "detail_types/modal_form"
+            = render partial: "detail_types/modal_form"

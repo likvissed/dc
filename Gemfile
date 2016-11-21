@@ -94,7 +94,5 @@ group :development do
 
   # For console
   gem 'awesome_print'
-  # Debug app
-  # gem 'byebug'
 
 end

@@ -34,7 +34,10 @@
                       %span.text-muted.ng-hide.animate-show{ "ng-hide": "server.presenceCount[detail_type.name] != 0" }
                         %b отсутствует
                       &nbsp;
-                      = icon("fa fa-plus-circle fa-lg pointer", "tooltip-placement": "right", "uib-tooltip": "Добавить коплектующую", "ng-click": "server.addDetail($index)")
+                      = icon("fa fa-plus-circle fa-lg pointer", "tooltip-placement": "right", "uib-tooltip": "Добавить коплектующую", "ng-click": "server.addDetail($index)", "ng-class": "{ 'disabled-icon': detail_type.server_parts.length == 0 }")
+                      %span.text-muted{ "ng-show": "detail_type.server_parts.length == 0" }
+                        &nbsp;
+                        %b (комплектующие отсутствуют)
                       %table.internal-table
                         %tbody.animate-repeat.animate-show{ "ng-repeat": "detail in server.data.real_server_details[detail_type.name]", "ng-hide": "detail.destroy" }
                           %tr

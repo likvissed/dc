@@ -65,7 +65,8 @@
       },
       complete: function() {
         myHttpInterceptor.decCount();
-        self.test --;
+
+        self.requests = myHttpInterceptor.getRequestsCount;
       }
     });
   }

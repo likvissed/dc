@@ -1,0 +1,21 @@
+.navbar.navbar-default{ role: "navigation-main" }
+  .container
+    .navbar-header
+      = button_tag "", class: "navbar-toggle", "data-toggle": "collapse", "data-target": ".navbar-collapse-main" do
+        %span.sr-only Toggle navigation
+        %span.icon-bar
+        %span.icon-bar
+        %span.icon-bar
+
+    .collapse.navbar-collapse.navbar-collapse-main
+      %ul.nav.navbar-nav
+        %li
+          = link_to "Сервисы", services_path
+        %li
+          = link_to "Серверы", clusters_path
+        %li
+          = link_to "Оборудование", servers_path
+        %li
+          = link_to "Комплектующие", server_parts_path
+      %ul.nav.navbar-nav.pull-right
+        %p.navbar-text.corp-color{ "tooltip-placement": "bottom", "uib-tooltip": "Текущая страница" }= yield(:title)

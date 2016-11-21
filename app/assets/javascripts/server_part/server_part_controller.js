@@ -6,13 +6,13 @@
     .controller('ServerPartPreviewCtrl', ServerPartPreviewCtrl)   // Режим предпросмотра комплектующей
     .controller('ServerPartEditCtrl', ServerPartEditCtrl);        // Добавление/редактирование комплектующих
 
-  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ServerPartIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
   ServerPartPreviewCtrl.$inject = ['$scope'];
   ServerPartEditCtrl.$inject    = ['$scope', 'Flash', 'Server', 'Error'];
 
 // =====================================================================================================================
 
-  function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
+  function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -58,7 +58,7 @@
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
       DTColumnBuilder.newColumn('name').withTitle('Комплектующие').withOption('className', 'col-lg-6'),
       DTColumnBuilder.newColumn('detail_type.name').withTitle('Тип').withOption('className', 'col-lg-2'),
-      DTColumnBuilder.newColumn('part_num').withTitle('Номер').withOption('className', 'col-lg-2'),
+      DTColumnBuilder.newColumn('part_num').withTitle('Номер').withOption('className', 'col-lg-3'),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
@@ -76,6 +76,25 @@
     }
 
     function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать инструкции и иконки урпавления только для определенных ролей
+            api.column(4).visible(Ability.canView('admin_tools'));
+            api.column(5).visible(Ability.canView('admin_tools'));
+          },
+          function (response, status) {
+            Error.response(response, status);
+
+            // Удалить все данные в случае ошибки проверки прав доступа
+            api.rows().remove().draw();
+          });
+
       // Заполнить список фильтра типов комплектующих
       if (json.detail_types) {
         self.typeOptions        = self.typeOptions.concat(json.detail_types);
@@ -102,7 +121,7 @@
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPartPreviewCtrl
-          $scope.$broadcast('showServerPartData', response);
+          $scope.$broadcast('server_part:show', response);
 
           self.previewModal = true; // Показать модальное окно
         },
@@ -133,7 +152,7 @@
     }
 
     // Событие обновления таблицы после добавления/редактирования комплектующей
-    $scope.$on('reloadServerPartData', function (event, data) {
+    $scope.$on('table:server_part:reload', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
     });
@@ -143,7 +162,7 @@
     // add - добавить
     // delete - удалить
     // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
-    $rootScope.$on('changedDetailType', function (event, data) {
+    $rootScope.$on('table:server_part:filter:detail_type', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {
         var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data.id });
@@ -190,7 +209,7 @@
             data.detail_types = angular.copy(response.detail_types);
             data.value        = angular.copy(response.data);
 
-            $scope.$broadcast('editServerPartData', data);
+            $scope.$broadcast('server_part:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -203,7 +222,7 @@
             data.detail_types = angular.copy(response.detail_types);
             data.value        = angular.copy(response.data);
 
-            $scope.$broadcast('editServerPartData', data);
+            $scope.$broadcast('server_part:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -237,7 +256,7 @@
   function ServerPartPreviewCtrl($scope) {
     var self = this;
 
-    $scope.$on('showServerPartData', function (event, data) {
+    $scope.$on('server_part:show', function (event, data) {
       self.name     = data.name;
       self.type     = data.detail_type.name;
       self.number   = data.part_num;
@@ -268,15 +287,21 @@
         comment:  ''
       };
 
-    $scope.$on('editServerPartData', function (event, data) {
+    $scope.$on('server_part:edit', function (event, data) {
       self.serverPartModal = true;
 
       self.detail_types   = angular.copy(data.detail_types);
-      self.value          = angular.copy(data.value);
       self.config.method  = angular.copy(data.method);
-      self.config.title   = data.method == 'POST' ? 'Новая комплектующая' : data.value.name;
-      if (data.value)
-        id = data.value.id;
+
+      if (data.method == 'POST') {
+        self.config.title = 'Новая комплектующая';
+        self.value        = angular.copy(value_template);
+      }
+      else {
+        self.config.title = angular.copy(data.value.name);
+        self.value        = angular.copy(data.value);
+        id                = angular.copy(data.value.id);
+      }
     });
 
 // =============================================== Приватные функции ===================================================
@@ -351,7 +376,7 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadServerPartData', { reload: true });
+            $scope.$emit('table:server_part:reload', { reload: true });
           },
           // Error
           function (response) {
@@ -366,7 +391,7 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadServerPartData', { reload: true });
+            $scope.$emit('table:server_part:reload', { reload: true });
           },
           // Error
           function (response) {

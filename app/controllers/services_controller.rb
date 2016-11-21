@@ -153,7 +153,7 @@ class ServicesController < ApplicationController
           storages:     @service.get_service_storages,
           missing_file: missing_file,
           contacts:     @service.get_contacts(:formular),
-          hosting:      @service.cluster.as_json(only: :name),
+          hosting:      @service.cluster.as_json(only: [:id, :name]),
           parents:      @service.parents.as_json(only: :name)
         }
       end
@@ -263,6 +263,7 @@ class ServicesController < ApplicationController
   end
 
   # Скачать файл (формуляр/акт/инструкцию по отключению/инструкцию по восстановлению)
+  # Для инструкций дополнительно проверяется роль пользователя. Разрешено только для :admin и :head
   def download_file
     case params[:file]
       when 'scan'
@@ -270,9 +271,17 @@ class ServicesController < ApplicationController
       when 'act'
         send_file @service.act.path, filename: @service.act_file_name, type: @service.act_content_type, disposition: 'attachment'
       when 'instr_rec'
-        send_file @service.instr_rec.path, filename: @service.instr_rec_file_name, type: @service.instr_rec_content_type, disposition: 'attachment'
+        if current_user.has_any_role? :admin, :head
+          send_file @service.instr_rec.path, filename: @service.instr_rec_file_name, type: @service.instr_rec_content_type, disposition: 'attachment'
+        else
+          render_404
+        end
       when 'instr_off'
-        send_file @service.instr_off.path, filename: @service.instr_off_file_name, type: @service.instr_off_content_type, disposition: 'attachment'
+        if current_user.has_any_role? :admin, :head
+          send_file @service.instr_off.path, filename: @service.instr_off_file_name, type: @service.instr_off_content_type, disposition: 'attachment'
+        else
+          render_404
+        end
       else
         render_404
     end

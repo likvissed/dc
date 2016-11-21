@@ -1,8 +1,9 @@
-= title "Серверы"
+= title "Просмотр серверов"
 
 .container
   .row
-    .col-lg-8
+    - ident_class = can?(:read, NodeRole) ? "" : "col-lg-offset-2"
+    .col-lg-8{ class: "#{ident_class}" }
       .well
         .content-body{ "ng-controller": "ClusterIndexCtrl as clusterPage" }
           %datatable-wrapper
@@ -12,10 +13,11 @@
           = render partial: "modal_form"
           = render partial: "services/preview"
 
-    .col-lg-4
-      .well
-        .content-body{ "ng-controller": "NodeRoleIndexCtrl as nodeRolePage" }
-          %datatable-wrapper
-            %table.table.center-header.table-striped{ datatable: "", "dt-options": "nodeRolePage.dtOptions", "dt-columns": "nodeRolePage.dtColumns", "dt-instance": "nodeRolePage.dtInstance", width: "100%" }
+    - if can? :read, NodeRole
+      .col-lg-4
+        .well
+          .content-body{ "ng-controller": "NodeRoleIndexCtrl as nodeRolePage" }
+            %datatable-wrapper
+              %table.table.center-header.table-striped{ datatable: "", "dt-options": "nodeRolePage.dtOptions", "dt-columns": "nodeRolePage.dtColumns", "dt-instance": "nodeRolePage.dtInstance", width: "100%" }
 
-          = render partial: "node_roles/modal_form"
+            = render partial: "node_roles/modal_form"

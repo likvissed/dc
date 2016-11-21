@@ -64,7 +64,7 @@
     }
 
     // Событие обновления таблицы после добавления/редактирования типа комплектующей
-    $scope.$on('reloadDetailTypeData', function (event, data) {
+    $scope.$on('table:detail_type:reload', function (event, data) {
       if (data.reload)
         self.dtInstance.reloadData(null, reloadPaging);
     });
@@ -96,7 +96,7 @@
             data.method = 'PUT';
             data.value  = angular.copy(success);
 
-            $scope.$broadcast('detailTypeData', data);
+            $scope.$broadcast('detail_type:edit', data);
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -105,7 +105,7 @@
       else {
         data.method = 'POST';
 
-        $scope.$broadcast('detailTypeData', data);
+        $scope.$broadcast('detail_type:edit', data);
       }
     };
 
@@ -124,7 +124,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице комплектующих.
-          $rootScope.$emit('changedDetailType', { flag: 'delete', id: id });
+          $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'delete', id: id });
         },
         // Error
         function (response) {
@@ -135,7 +135,7 @@
 
 // =====================================================================================================================
 
-  function DetailTypeEditCtrl ($scope, $rootScope, Flash, Server) {
+  function DetailTypeEditCtrl ($scope, $rootScope, Flash, Server, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -154,14 +154,21 @@
         name: ''
       };
 
-    $scope.$on('detailTypeData', function (event, data) {
+    $scope.$on('detail_type:edit', function (event, data) {
       self.detailTypeModal = true;
 
       self.value          = angular.copy(data.value);
       self.config.method  = angular.copy(data.method);
-      self.config.title   = data.method == 'POST' ? 'Новый тип комплектующей' : data.value.name;
-      if (data.value)
-        id = data.value.id;
+
+      if (data.method == 'POST') {
+        self.config.title = 'Новый тип комплектующей';
+        self.value        = angular.copy(value_template);
+      }
+      else {
+        self.config.title = angular.copy(data.value.name);
+        self.value        = angular.copy(data.value);
+        id                = angular.copy(data.value.id);
+      }
     });
 
 // =============================================== Приватные функции ===================================================
@@ -236,9 +243,9 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadDetailTypeData', { reload: true });
+            $scope.$emit('table:detail_type:reload', { reload: true });
             // Добавить в фильтр таблицы комплектуюших созданный тип
-            $rootScope.$emit('changedDetailType', { flag: 'add', value: response.detail_type });
+            $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'add', value: response.detail_type });
           },
           // Error
           function (response) {
@@ -253,9 +260,9 @@
             successResponse(response);
 
             // Послать флаг родительскому контроллеру на обновление таблицы
-            $scope.$emit('reloadDetailTypeData', { reload: true });
+            $scope.$emit('table:detail_type:reload', { reload: true });
             // Изменить имя типа в фильтре таблицы комплектуюших
-            $rootScope.$emit('changedDetailType', { flag: 'update', value: response.detail_type });
+            $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'update', value: response.detail_type });
           },
           // Error
           function (response) {

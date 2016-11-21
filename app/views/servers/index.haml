@@ -7,7 +7,8 @@
         .content-body{ "ng-controller": "ServerTotalInfoCtrl as serverlnfo" }
           = render partial: "info"
   .row
-    .col-lg-8
+    - ident_class = can?(:read, ServerType) ? "" : "col-lg-offset-2"
+    .col-lg-8{ class: "#{ident_class}" }
       .well
         .content-body{ "ng-controller": "ServerIndexCtrl as serverPage" }
           %datatable-wrapper
@@ -15,10 +16,11 @@
 
           = render partial: "preview"
 
-    .col-lg-4
-      .well
-        .content-body{ "ng-controller": "ServerTypeIndexCtrl as serverType" }
-          %datatable-wrapper
-            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverType.dtOptions", "dt-columns": "serverType.dtColumns", "dt-instance": "serverType.dtInstance", width: "100%" }
+    - if can? :read, ServerType
+      .col-lg-4
+        .well
+          .content-body{ "ng-controller": "ServerTypeIndexCtrl as serverType" }
+            %datatable-wrapper
+              %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverType.dtOptions", "dt-columns": "serverType.dtColumns", "dt-instance": "serverType.dtInstance", width: "100%" }
 
-          = render partial: "server_types/preview"
+            = render partial: "server_types/preview"

@@ -2,15 +2,18 @@
   app
     .service('Flash', Flash)                          // Сервис уведомлений пользователя (как об успешных операциях, так и об ошибках)
     .service('Error', Error)                          // Сервис обработки ошибок
+    .service('Ability', Ability)                      // Хранит роль пользователя и проверяет права доступа к определенным объектам
     .factory('Server', Server)                        // Фабрика для работы с CRUD действиями
     .factory('GetDataFromServer', GetDataFromServer)  // Фабрика для работы с new и edit действиями
     .factory('myHttpInterceptor', myHttpInterceptor); // Фабрика для настройки параметрв для индикатора выполнения ajax запросов
 
+
   Flash.$inject             = ['$timeout'];
   Error.$inject             = ['Flash'];
+  Ability.$inject           = ['$q', '$timeout', 'Server'];
   Server.$inject            = ['$resource'];
   GetDataFromServer.$inject = ['$http', '$q'];
-  //myHttpInterceptor.$inject = ['q'];
+  myHttpInterceptor.$inject = ['$q'];
 
 // =====================================================================================================================
 
@@ -55,14 +58,109 @@
           Flash.alert('Запись не найдена.');
           break;
         case 422:
-          Flash.alert(response.data.full_message);
+          response.data ? Flash.alert(response.data.full_message) : Flash.alert(response.full_message);
           break;
         default:
           var descr = (response && response.statusText) ? ' (' + response.statusText + ')' : '';
-          Flash.alert('Ошибка. Код: ' + code + descr + '. Обратитесь к администратору.');
+          Flash.alert('Ошибка. Код: ' + code + descr + '. Обратитесь к администратору (тел. ***REMOVED***).');
           break;
       }
     };
+  }
+
+// =====================================================================================================================
+
+  function Ability($q, $timeout, Server) {
+    var self = this;
+
+    var
+      role          = null, // Роль пользователя
+      requestsCount = 0,    // Счетчик запросов (не делать новый запрос, если != 0, т.к. кто-то его уже сделал)
+      count         = 0,    // Счетчик прохода цикла функции timeout (если == limit, остановить цикл)
+      limit         = 400;  // Лимит, при котором необходимо остановить цикл проверки роли - 20 секунд (400 циклов).
+
+// =============================================== Приватные функции ===================================================
+
+    // Установить таймаут на случай, если счетчик requestsCount != 0, а role = null. Это значит, что кто-то уже выполнил
+    // запрос на сервер для того, чтобы получить роль пользователя, но ответ еще не успел прийти.
+    function waitingRole() {
+      var deferred = $q.defer();
+
+      timeout(deferred);
+
+      return deferred.promise;
+    }
+
+    // Функция ожидания роли. Выполнять таймаут до тех пор, пока не изменится значение переменной role или не пройдет.
+    function timeout (deferred) {
+      $timeout(function () {
+        // Если подошел лимит, но роль так и не получили
+        if (count == limit) {
+          count = 0;
+          return role ? deferred.resolve(role) : deferred.reject(null);
+        }
+
+        count ++;
+
+        if (!role)
+          timeout(deferred);
+        else {
+          count = 0;
+          return deferred.resolve(role);
+        }
+      }, 50);
+    }
+
+// =============================================== Публичные функции ===================================================
+
+    // Инициализация (проверка наличия роли, запрос на сервер)
+    self.init = function () {
+      if (requestsCount != 0) {
+        if (!role) {
+          var deferred = $q.defer();
+
+          waitingRole().then(
+            function() {
+              deferred.resolve(role);
+            },
+            function () {
+              deferred.reject({ full_message: "Ошибка. Не удалось проверить роль. Попробуйте обновить страницу. Если ошибка не исчезнет, обратитесь к администратору (тел. ***REMOVED***)", status: 422 });
+            });
+
+          return deferred.promise;
+        }
+        else
+          return $q.resolve({ role: role });
+      }
+
+      requestsCount ++;
+      return Server.UserRole.get({}).$promise;
+    };
+
+    // Установить роль
+    self.setRole = function (new_role) {
+      role = new_role;
+    };
+
+    // Получить роль
+    self.getRole = function () {
+      return role;
+    };
+
+    // Проверка прав доступа
+    self.canView = function (type) {
+      switch (type) {
+        case 'instr':
+          return role == 'admin' || role == 'head';
+        case 'admin_tools':
+          return role == 'admin';
+      }
+    };
+
+    // Проверка прав доступа (сейчас не используется):
+    // 1. Существует ли массив объектов с указанный правом (read, manage и т.д.)
+    // 2. Имеется ли в найденном массиве указанный объект или объект 'all'. Если да - значит есть право доступа.
+    // return (abilities && abilities[ability] && ($.inArray(model, abilities[ability]) != -1 || $.inArray('all', abilities[ability]) != -1)) ? true : false;
   }
 
 // =====================================================================================================================
@@ -79,7 +177,9 @@
       Server:         $resource('/servers/:id.json'),
       ServerType:     $resource('/server_types/:id.json'),
       ServerPart:     $resource('/server_parts/:id.json', {}, { update: { method: 'PATCH' } }),
-      DetailType:     $resource('/detail_types/:id.json', {}, { update: { method: 'PATCH' } })
+      DetailType:     $resource('/detail_types/:id.json', {}, { update: { method: 'PATCH' } }),
+
+      UserRole:       $resource('/users/role.json')
     }
   }
 
@@ -98,11 +198,17 @@
           $http.get('/' + ctrl_name + '/new.json')
             .success(function (data, status, header, config) {
               deferred.resolve(data);
+            })
+            .error(function (data, status) {
+              deferred.reject(status);
             });
         else
           $http.get('/' + ctrl_name + '/' + name + '/edit.json')
             .success(function (data, status, header, config) {
               deferred.resolve(data);
+            })
+            .error(function (data, status) {
+              deferred.reject(status);
             });
 
         return deferred.promise;
@@ -116,19 +222,19 @@
     var self = this;
 
     self.requests = {
-      data: []
+      count: 0
     };
 
 // =============================================== Приватные функции ===================================================
 
     // Увеличить счетчик запросов
     function incCount() {
-      self.requests.data.push(true);
+      self.requests.count ++;
     }
 
     // Уменьшить счетчик запросов
     function decCount() {
-      self.requests.data.pop();
+      self.requests.count --;
     }
 
 // =============================================== Публичные функции ===================================================
@@ -163,5 +269,4 @@
       }
     };
   }
-
 })();

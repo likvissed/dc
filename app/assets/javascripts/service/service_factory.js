@@ -502,6 +502,8 @@
     // newRec - новая запись
     self.setNetwork = function (index, data, newRec) {
       if (_checkTemplateNetworkPassed(data)) {
+        self.setFlag('networkModal', false); // Закрыть модальное окно в случае успешной проверки валидации полей
+
         service.network.values[index].value = data;
         service.network.values[index].view  = _setNetworkString(data);
 
@@ -524,8 +526,10 @@
         else
           self.getPorts();
       }
-      else
-        service.network.values[index].value = null;
+      else {
+        alert("Необходимо заполнить все поля.");
+        //service.network.values[index].value = null;
+      }
 
       _setFirstNetworkElement();
     };
@@ -688,7 +692,7 @@
     var self = this;
 
     var service = {
-      showOnlyExploitationServices: true
+      showOnlyExploitationServices: 'true'
     };
 
 // =============================================== Инициализация =======================================================

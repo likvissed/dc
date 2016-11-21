@@ -2,22 +2,8 @@
   .modal-dialog
     .modal-content
       .modal-header
-        -#- if can? :manage, Cluster
-          = link_to icon("fa fa-cog fa-fw"), "#", class: "pull-right default-color", title: "Редактировать", "data-id": "changeData"
-        -#.pull-right
-          .btn-group
-            = button_tag class: "dropdown-toggle", "data-toggle": "dropdown", "ng-class": "{ disabled: preview.services.length == 0 }" do
-              Просмотреть
-              %span.caret
-            %ul.dropdown-menu
-              %li{ "ng-repeat": "service in preview.services" }
-                = link_to "", "disable-link": true, "ng-click": "preview.showService(service.id)" do
-                  %div.pull-left{ "ng-bind-html": "service.flag" }
-                  %div.pull-left &nbsp;
-                  %div{ "ng-bind": "service.name" }
         .pull-left
           %h4.modal-title{ "ng-bind": "preview.name" }
-
       .modal-body
         %h4 Описание
         %table.table.table-striped
@@ -34,7 +20,7 @@
                 .row.no-margin-right{ "ng-hide": "preview.service.length == 0" }
                   %table.table.table-condensed
                     %tbody
-                      %tr{ "ng-repeat": "service in preview.services" }
+                      %tr{ "ng-repeat": "service in preview.services", "ng-class": "{ 'success': service.name == preview.fromService }" }
                         %td= icon("fa fa-eye fa-1g pointer", "tooltip-placement": "top", "uib-tooltip": "Просмотреть формуляр сервиса", "ng-click": "preview.showService(service.id)")
                         %td{ "ng-bind-html": "service.flag" }
                         %td.col-md-10{ "ng-bind": "service.name" }

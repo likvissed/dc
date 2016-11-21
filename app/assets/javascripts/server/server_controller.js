@@ -7,13 +7,13 @@
     .controller('ServerPreviewCtrl', ServerPreviewCtrl)     // Предпросмотр оборудования
     .controller('ServerEditCtrl', ServerEditCtrl);          // Форма добавления/редактирования оборудования
 
-  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
+  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
   ServerPreviewCtrl.$inject = ['$scope'];
   ServerEditCtrl.$inject    = ['$http', 'GetDataFromServer', 'Error'];
 
 // =====================================================================================================================
 
-  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
+  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
@@ -105,6 +105,27 @@
     }
 
     function initComplete(settings, json) {
+      var api = new $.fn.dataTable.Api(settings);
+
+      Ability.init()
+        .then(
+          function (data) {
+            // Записать в фабрику
+            Ability.setRole(data.role);
+
+            // Показать иконки управления только для определенных ролей
+            api.column(5).visible(Ability.canView('admin_tools'));
+          },
+          function (response, status) {
+            Error.response(response, status);
+
+            // Удалить все данные в случае ошибки проверки прав доступа
+            api.rows().remove().draw();
+          });
+
+      // Показать иконки управления только для определенных ролей
+      api.column(5).visible(Ability.canView('admin_tools'));
+
       // Заполнить список фильтра типов оборудования
       if (json.server_types) {
         self.typeOptions        = self.typeOptions.concat(json.server_types);
@@ -131,7 +152,7 @@
         // Success
         function (response) {
           // Отправить данные контроллеру ServerPreviewCtrl
-          $scope.$broadcast('serverData', response);
+          $scope.$broadcast('server:show', response);
 
           self.previewModal = true; // Показать модальное окно
         },
@@ -157,7 +178,7 @@
       });
     }
 
-    $rootScope.$on('deletedServerType', function (event, data) {
+    $rootScope.$on('table:server:filter:server_type:delete', function (event, data) {
       // Удалить тип оборудования из фильтра таблицы оборудования
       var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data });
       self.typeOptions.splice($.inArray(obj[0], self.typeOptions), 1);
@@ -202,24 +223,27 @@
   function ServerPreviewCtrl($scope) {
     var self = this;
 
-    $scope.$on('serverData', function (event, data) {
-      self.name           = data.name;
-      self.status         = data.status;
-      self.location       = data.location;
+    $scope.$on('server:show', function (event, data) {
+      self.name           = data.name;              // Имя оборудования
+      self.status         = data.status;            // Статус
+      self.location       = data.location;          // Расположение
       if (data.server_type)
-        self.type         = data.server_type.name;
+        self.type         = data.server_type.name;  // Тип оборудования
       if (data.clusters[0])
-        self.cluster      = data.clusters[0].name;
-      self.inventory_num  = data.inventory_num;
-      self.serial_num     = data.serial_num;
+        self.cluster      = data.clusters[0].name;  // В состав какого сервера входит
+      self.inventory_num  = data.inventory_num;     // Инвентарный номер
+      self.serial_num     = data.serial_num;        // Серийный номер
+      self.presenceCount = 0;                       // Количество комплектующих
 
-      self.details = [];
+      self.details = [];                            // Список комплектующих оборудования
       $.each(data.real_server_details, function (index, value) {
         self.details.push({
           name:   value.server_part.name,
           type:   value.server_part.detail_type.name,
           count:  value.count
         });
+
+        self.presenceCount ++;
       });
     });
   }
@@ -253,14 +277,18 @@
 
     self.init = function (id, name) {
       GetDataFromServer.ajax('servers', id, name)
-        .then(function (data) {
-          self.data         = data.server || null;  // Данные об оборудовании (состояние, тип, состав)
-          self.serverTypes  = data.server_types;    // Все существующие типы оборудования
-          self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
+        .then(
+          function (data) {
+            self.data         = data.server || null;  // Данные об оборудовании (состояние, тип, состав)
+            self.serverTypes  = data.server_types;    // Все существующие типы оборудования
+            self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
 
-          if (self.data && self.data.real_server_details)
-            getDeatilsCount();
-        });
+            if (self.data && self.data.real_server_details)
+              getDeatilsCount();
+          },
+          function (response, status) {
+            Error.response(response, status);
+          });
     };
 
 // =============================================== Публичные функции ===================================================
@@ -304,7 +332,7 @@
       var type = self.detailTypes[index];
 
       // Выйти, если тип детали не найден.
-      if (!type)
+      if (!type || type.server_parts.length == 0)
         return false;
 
       lastIndex ++;
