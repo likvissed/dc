@@ -9,7 +9,6 @@ class TemplateServerDetail < ActiveRecord::Base
   # Sequential spaces in attributes will be collapsed to one space
   strip_attributes allow_empty: true, collapse_spaces: true
 
-  validates :count, presence: true, numericality: { greater_than: 0 }
-  validates :server_part_id, presence: true
+  validates :count, :server_part_id, presence: true, numericality: { greater_than: 0 }
 
 end

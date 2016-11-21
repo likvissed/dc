@@ -1,7 +1,5 @@
 ru:
   activerecord:
-    attributes:
-      service/service_dep_childs: "Error"
     errors:
       messages:
         greater_than: "должен иметь значение большее чем %{count}"
@@ -12,11 +10,17 @@ ru:
          one: "Невозможно удалить, так как данная запись используется в другой модели"
          many: "Невозможно удалить, так как данная запись используется в других моделях"
 
-#      models:
-#        service:
-#          attributes:
-#            name:
-#              blank: "ERROR"
+      models:
+        real_server_detail:
+          attributes:
+            server_part_id:
+              not_a_number: "не выбрана"
+              greater_than: "не выбрана"
+        template_server_detail:
+          attributes:
+            server_part_id:
+              not_a_number: "не выбрана"
+              greater_than: "не выбрана"
 
     models:
       service: "сервисы"
@@ -30,7 +34,7 @@ ru:
       server: "оборудование"
       server_type: "типы серверов"
       server_part: "комплектующие"
-      detail_types: "типы комплектующих"
+      detail_type: "типы комплектующих"
 
     attributes:
       service:
@@ -59,6 +63,10 @@ ru:
       server:
         name: "Имя сервера"
         server_type_id: "Тип сервера"
+      server/real_server_details:
+        server_part_id: "Комплектующая"
+      server_type/template_server_details:
+        server_part_id: "Комплектующая"
       server_type:
         name: "Имя типа сервера"
       server_part:
