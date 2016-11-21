@@ -180,7 +180,7 @@
     // add - добавить
     // delete - удалить
     // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
-    var listener = $rootScope.$on('table:cluster:filter:node_role', function (event, data) {
+    $rootScope.$on('table:cluster:filter:node_role', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {
         var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data.id });
@@ -201,8 +201,6 @@
         });
         self.dtInstance.reloadData(null, reloadPaging);
       }
-
-      $scope.$on('$destroy', listener);
     });
 
 // =============================================== Публичные функции ===================================================
