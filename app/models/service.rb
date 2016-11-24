@@ -95,20 +95,12 @@ class Service < ActiveRecord::Base
 
     select(:number).each do |s|
       unless s[:number].empty?
-        tmp_last = s[:number].slice(/\d{3}-\d{2}-(\d{3})/, 1)
-        last = tmp_last.to_i if tmp_last.to_i > last
+        tmp_last  = s[:number].slice(/\d{3}-\d{2}-(\d{3})/, 1)
+        last      = tmp_last.to_i if tmp_last.to_i > last
       end
     end
 
-    if last.to_i.next < 10
-      last = "00#{last.to_i.next}"
-    elsif last.to_i.next < 100
-      last = "0#{last.to_i.next}"
-    else
-      last = last.to_i.next
-    end
-
-    last
+    sprintf('%03d', last.to_i.next)
   end
 
   # Получить всех ответственных
@@ -117,7 +109,7 @@ class Service < ActiveRecord::Base
     contacts = {}
 
     if type == :formular
-      contacts[:first] = get_contact :first, :formular
+      contacts[:first]  = get_contact :first, :formular
       contacts[:second] = get_contact :second, :formular
     else
       contacts[:first]  = self.contact_1
