@@ -218,7 +218,7 @@ class Service < ActiveRecord::Base
     }
 
     self.service_networks.each do |net|
-      return false if net.service_port.nil?
+      next if net.service_port.nil?
 
       # Если 500 vlan, получить список открытых портов, доступных из ЛС
       if net.vlan =~ /500/
