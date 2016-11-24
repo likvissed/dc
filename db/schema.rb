@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 201610210***REMOVED***14) do
+ActiveRecord::Schema.define(version: 20161124021744) do
 
   create_table "cluster_details", force: :cascade do |t|
     t.integer  "cluster_id",   limit: 4
@@ -211,10 +211,6 @@ ActiveRecord::Schema.define(version: 201610210***REMOVED***14) do
     t.string   "uac_app_selinux",        limit: 255
     t.string   "szi",                    limit: 255
     t.string   "internet",               limit: 255
-    t.text     "tcp_ports",              limit: 65535
-    t.text     "udp_ports",              limit: 65535
-    t.text     "inet_tcp",               limit: 65535
-    t.text     "inet_udp",               limit: 65535
     t.string   "type_mon",               limit: 255
     t.string   "service_mon",            limit: 255
     t.string   "hardware_mon",           limit: 255
