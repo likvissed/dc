@@ -1,5 +1,5 @@
 Rails.application.routes.draw do
-  devise_for :users
+  devise_for :users, controllers: { omniauth_callbacks: "users/callbacks" }
 
   authenticated :user do
     root 'services#index', as: :authenticated_root
@@ -7,11 +7,6 @@ Rails.application.routes.draw do
 
   devise_scope :user do
     root 'devise/sessions#new'
-  end
-
-  constraints name: /\w+/ do
-    get   '/users/:name/edit',        to: 'users#edit'
-    patch '/users/:name',             to: 'users#update'
   end
 
   constraints name: /[^\/]+/ do
@@ -43,7 +38,7 @@ Rails.application.routes.draw do
     delete  '/department_heads/:tn',      to: 'department_heads#destroy'
   end
 
-  resources :users, except: [:edit, :update] do
+  resources :users do
     get 'role', to: 'users#role', on: :collection
   end
 

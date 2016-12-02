@@ -4,9 +4,9 @@
       .auth-header
         %h2 Вход
       .auth-content
-        = simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|
+        -#= simple_form_for(resource, as: resource_name, url: session_path(resource_name)) do |f|
           .form-inputs
-            = f.input :login, label: false, autofocus: true, placeholder: "Логин"
+            = f.input :login, label: false, autofocus: true, placeholder: "Табельный номер"
             = f.input :password, label: false, placeholder: "Пароль"
             = f.input :remember_me, label: "Запомнить меня", as: :boolean if devise_mapping.rememberable?
 
