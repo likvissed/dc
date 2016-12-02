@@ -9,8 +9,8 @@
             %span.icon-bar
             %span.icon-bar
 
-          = image_tag("Logo.png")
-          = "Пользователь #{current_user.username}"
+          = image_tag "Logo.png"
+          = "Пользователь #{session[:user_fullname]}"
         .collapse.navbar-collapse.navbar-collapse-head
           .navbar-text.pull-right
             = link_to "Выход", destroy_user_session_path, method: :delete, class: "navbar-link"
