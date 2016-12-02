@@ -10,7 +10,7 @@ module OmniAuth
       option :identity, nil
       option :mandatory_fields, []
 
-      option :sign_in, 'http://dc-dev/users/sign_in'
+      option :sign_in, "http://#{SERVER_CONFIG['hostname']}/users/sign_in"
 
       uid { request.params['openid.assoc_handle'] }
 
