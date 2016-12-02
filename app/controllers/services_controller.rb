@@ -8,8 +8,6 @@ class ServicesController < ApplicationController
   before_action :get_dept,              only: [:create, :update]
 
   def index
-    logger.info session.inspect
-
     respond_to do |format|
       format.html { render :index }
       format.json do
