@@ -5,6 +5,8 @@ gem 'paperclip-i18n'
 gem 'kaminari'
 # Devise authentication
 gem 'devise'
+# Omniauth authentication
+gem 'omniauth'
 # Access manager
 gem 'cancancan'
 # Roles

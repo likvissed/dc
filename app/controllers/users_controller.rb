@@ -3,15 +3,11 @@ class UsersController < ApplicationController
   load_and_authorize_resource
 
   before_action { |ctrl| ctrl.check_for_cancel users_path }
-  before_action :find_user_by_name, only: [:edit, :update]
-  before_action :find_user_by_id,   only: [:show, :destroy]
+  before_action :find_user_by_id,   only: [:show, :edit, :update, :destroy]
   before_action :select_all_roles,  only: [:new, :edit]
 
   def index
-    @users = User.select(:id, :username).includes(:roles).page params[:page]
-  end
-
-  def show
+    @users = User.select(:id, :tn, :info).includes(:roles).page params[:page]
   end
 
   def new
@@ -82,16 +78,11 @@ class UsersController < ApplicationController
 
   # Разрешение strong params
   def user_params
-    params.require(:user).permit(:username, :password, :password_confirmation)
+    params.require(:user).permit(:tn, :password, :password_confirmation)
   end
 
   def roles_params
     params.require(:roles).permit(:name)
-  end
-
-  # Поиск данных о типе запчасти по name
-  def find_user_by_name
-    @user = User.find_by(username: params[:name])
   end
 
   # Поиск данных о пользователе по id

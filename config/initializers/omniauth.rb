@@ -1,0 +1,1 @@
+require './lib/open_id_***REMOVED***_strategy.rb'
