@@ -1,0 +1,8 @@
+development:
+  hostname: dc-dev
+
+test:
+  hostname: dc-dev
+
+production:
+  hostname: dc
