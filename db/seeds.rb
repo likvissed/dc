@@ -10,5 +10,5 @@ Role.create(
   ]
 )
 
-user = User.create(username: 'admin', password: 'admin')
+user = User.create(tn: ***REMOVED***)
 user.add_role :admin
