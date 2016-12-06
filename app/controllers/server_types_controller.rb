@@ -43,7 +43,7 @@ class ServerTypesController < ApplicationController
           render :new
         else
           flash[:alert] = "Перед созданием типа оборудования необходимо создать \"Комплектующие\""
-          redirect_to action: :index
+          redirect_to controller: :servers, action: :index
         end
       end
       format.json do
