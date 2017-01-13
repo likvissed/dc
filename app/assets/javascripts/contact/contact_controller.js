@@ -6,6 +6,20 @@
 
   ContactCtrl.$inject = ['$controller', '$scope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error'];
 
+  /**
+   * Управление таблицей контактов.
+   *
+   * @class DataCenter.ContactCtrl
+   * @param $controller
+   * @param $scope
+   * @param $http
+   * @param $compile
+   * @param DTOptionsBuilder
+   * @param DTColumnBuilder
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function ContactCtrl($controller, $scope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
@@ -44,42 +58,71 @@
       DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
-    self.contacts     = {};     // Объекты контактов (id => data)
-    self.contactModal = false;  // Флаг состояния модального окна (false - скрыто, true - открыто)
+    // Объекты контактов (id => data)
+    self.contacts     = {};
+    // Флаг состояния модального окна (false - скрыто, true - открыто)
+    self.contactModal = false;
     self.config       = {
-      title:  '',               // Шапка модального окна
-      method: ''                // Метод отправки запрос (POST, PATCH)
+      // Шапка модального окна
+      title:  '',
+      // Метод отправки запрос (POST, PATCH)
+      method: ''
     };
     self.value        = angular.copy(value_template);
 
-    var
-      reloadPaging    = false,  // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
-      errors          = null,   // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
-      tn              = null,   // Табельный номер редактируемого контакта
-      value_template  = {       // Шаблон данных (вызывается при создании нового контакта)
-        tn:         '',
-        manually:   false,
-        info:       '',
-        dept:       '',
-        work_num:   '',
-        mobile_num: ''
-      };
+    // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
+    var reloadPaging    = false;
+    // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
+    var errors          = null;
+    // Табельный номер редактируемого контакта
+    var tn              = null;
+    // Шаблон данных (вызывается при создании нового контакта)
+    var value_template  = {
+      tn:         '',
+      manually:   false,
+      info:       '',
+      dept:       '',
+      work_num:   '',
+      mobile_num: ''
+    };
 
 // =============================================== Приватные функции ===================================================
 
-    // Показать номер строки
+    /**
+     * Показать номер строки.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {*}
+     * @private
+     */
     function renderIndex(data, type, full, meta) {
       self.contacts[data.tn] = data; // Сохранить данные контакта (нужны для вывода пользователю информации об удаляемом элементе)
       return meta.row + 1;
     }
 
-    // Компиляция строк
+    /**
+     * Callback после создания каждой строки.
+     *
+     * @param row
+     * @param data
+     * @param dataIndex
+     * @private
+     */
     function createdRow (row, data, dataIndex) {
       $compile(angular.element(row))($scope);
     }
 
-    // array - объект, содержащий ошибки
-    // flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
+    /**
+     * Установить валидаторы на поля формы. В случае ошибок валидации пользователю будет предоставлено сообщение об
+     * ошибке.
+     *
+     * @param array - объект, содержащий ошибки
+     * @param flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
+     * @private
+     */
     function setValidations(array, flag) {
       $.each(array, function (key, value) {
         $.each(value, function (index, message) {
@@ -89,7 +132,11 @@
       });
     }
 
-    // Очистить модальное окно
+    /**
+     * Очистить модальное окно.
+     *
+     * @private
+     */
     function clearForm() {
       self.value = angular.copy(value_template);
       if (errors) {
@@ -98,7 +145,12 @@
       }
     }
 
-    // Действия в случае успешного создания/изменения контакта
+    /**
+     * Действия в случае успешного создания/изменения руководителя.
+     *
+     * @param response
+     * @private
+     */
     function successResponse(response) {
       self.contactModal = false;
       clearForm();
@@ -106,7 +158,12 @@
       Flash.notice(response.full_message);
     }
 
-    // Действия в случае ошибки создания/изменения контакта
+    /**
+     * Действия в случае ошибки создания/изменения руководителя.
+     *
+     * @param response
+     * @private
+     */
     function errorResponse(response) {
       Error.response(response);
 
@@ -114,20 +171,42 @@
       setValidations(errors, false);
     }
 
-    // Отрендерить ссылку на изменение контакта
+    /**
+     * Отрендерить ссылку на изменение руководителя.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function editRecord(data, type, full, meta) {
       return '<a href="" class="default-color" disable-link=true ng-click="contactPage.showContactModal(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
     }
 
-    // Отрендерить ссылку на удаление контакта
+    /**
+     * Отрендерить ссылку на удаление руководителя.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="contactPage.destroyContact(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Удалить контакт"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
 // =============================================== Публичные функции ===================================================
 
-    // Открыть модальное окно
-    // num - редактируемый табельный номер
+    /**
+     * Открыть модальное окно.
+     *
+     * @methodOf DataCenter.ContactCtrl
+     * @param num
+     */
     self.showContactModal = function (num) {
       tn = num;
 
@@ -136,10 +215,12 @@
         $http.get('/contacts/' + tn + '/edit.json')
           .success(function (success) {
             self.config.method  = 'PUT';
-            self.value          = angular.copy(success); //Заполнить поля данными, полученными с сервера
+            //Заполнить поля данными, полученными с сервера
+            self.value          = angular.copy(success);
             self.config.title   = success.info;
 
-            self.contactModal = true; // Открыть модальное окно
+            // Открыть модальное окно
+            self.contactModal = true;
           })
           .error(function (response, status) {
             Error.response(response, status);
@@ -150,22 +231,39 @@
         self.value          = angular.copy(value_template);
         self.config.title   = 'Новый контакт';
 
-        self.contactModal = true; // Открыть модальное окно
+        // Открыть модальное окно
+        self.contactModal = true;
       }
     };
 
-    // Закрыть модальное окно по кнопке "Отмена"
+    /**
+     * Закрыть модальное окно по кнопке "Отмена".
+     * 
+     * @methodOf DataCenter.ContactCtrl
+     */
     self.closeContactModal = function () {
       self.contactModal = false;
       clearForm();
     };
 
-    // Добавить класс "has-error" к элементу форму
+    /**
+     * Добавить класс "has-error" к элементу форму.
+     *
+     * @methodOf DataCenter.ContactCtrl
+     * @param name
+     * @returns {string}
+     */
     self.errorClass = function (name) {
       return (self.form[name].$invalid) ? 'has-error': ''
     };
 
-    // Добавить сообщение об ошибках валидации к элементу формы
+    /**
+     * Добавить сообщение об ошибках валидации к элементу формы.
+     *
+     * @methodOf DataCenter.ContactCtrl
+     * @param name
+     * @returns {string}
+     */
     self.errorMessage = function (name) {
       var message = [];
 
@@ -176,7 +274,11 @@
       return message.join(', ');
     };
 
-    // Отправить данные формы на сервер
+    /**
+     * Отправить данные формы на сервер.
+     *
+     * @methodOf DataCenter.ContactCtrl
+     */
     self.readyContactModal = function () {
       // Удалить все предыдущие ошибки валидаций, если таковые имеются
       if (errors) {
@@ -215,7 +317,13 @@
       }
     };
 
-    // Удалить контакт
+    /**
+     * Удалить контакт.
+     *
+     * @methodOf DataCenter.ContactCtrl
+     * @param num
+     * @returns {boolean}
+     */
     self.destroyContact = function (num) {
       var confirm_str = "Вы действительно хотите удалить контакт \"" + self.contacts[num].info + "\"?";
 

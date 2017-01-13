@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  // Чтобы директивы скомпилировались, необходимо их добавить в функцию линковки в файле service_directive.js
+  // Чтобы директивы скомпилировались, необходимо их добавить в функцию линковки в файле main_directive.js
 
   app
     .directive('serviceFilter', serviceFilter)
@@ -10,7 +10,7 @@
   function serviceFilter() {
     return {
       restrict: 'C',
-      template: '<select class="form-control" ng-change="servicePage.changeFilter()"  ng-model="servicePage.selectedOption" ng-options="option as option.string for option in servicePage.options track by option.value"></select>'
+      template: '<select class="form-control" ng-change="servicePage.changeFilter()"  ng-model="servicePage.selectedOption" ng-options="option.value as option.string for option in servicePage.options"></select>'
     }
   }
 

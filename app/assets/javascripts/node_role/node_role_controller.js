@@ -10,6 +10,21 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление таблицей типов серверов.
+   *
+   * @class DataCenter.NodeRoleIndexCtrl
+   * @param $controller
+   * @param $scope
+   * @param $rootScope
+   * @param $http
+   * @param $compile
+   * @param DTOptionsBuilder
+   * @param DTColumnBuilder
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function NodeRoleIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
@@ -46,18 +61,37 @@
       DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center col-lg-1').renderWith(delRecord)
     ];
 
-    var
-      nodeRoles     = {},     // Объекты типов серверов (id => data)
-      reloadPaging  = false;  // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
+    // Объекты типов серверов (id => data)
+    var nodeRoles     = {};
+    // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
+    var reloadPaging  = false;
 
 // =============================================== Приватные функции ===================================================
 
-    // Показать номер строки
+    /**
+     * Показать номер строки.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {*}
+     * @private
+     */
     function renderIndex(data, type, full, meta) {
-      nodeRoles[data.id] = data; // Сохранить данные контакта (нужны для вывода пользователю информации об удаляемом элементе)
+      // Сохранить данные типа сервера (нужны для вывода пользователю информации об удаляемом элементе)
+      nodeRoles[data.id] = data;
       return meta.row + 1;
     }
 
+    /**
+     * Callback после создания каждой строки.
+     *
+     * @param row
+     * @param data
+     * @param dataIndex
+     * @private
+     */
     function createdRow(row, data, dataIndex) {
       // Компиляция строки
       $compile(angular.element(row))($scope);
@@ -69,20 +103,42 @@
         self.dtInstance.reloadData(null, reloadPaging);
     });
 
-    // Отрендерить ссылку на изменение контакта
+    /**
+     * Отрендерить ссылку на изменение типа сервера.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function editRecord(data, type, full, meta) {
       return '<a href="" class="default-color" disable-link=true ng-click="nodeRolePage.showNodeRoleModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
     }
 
-    // Отрендерить ссылку на удаление контакта
+    /**
+     * Отрендерить ссылку на удаление типа сервера.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="nodeRolePage.destroyNodeRole(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
 // =============================================== Публичные функции ===================================================
 
-    // Открыть модальное окно для создания/редактирования типа сервера
-    // name - имя типа сервера
+    /**
+     * Открыть модальное окно для создания/редактирования типа сервера.
+     *
+     * @methodOf DataCenter.NodeRoleIndexCtrl
+     * @param name - имя типа сервера
+     */
     self.showNodeRoleModal = function (name) {
       var data = {
         method: '',
@@ -109,7 +165,13 @@
       }
     };
 
-    // Удалить тип сервера
+    /**
+     * Удалить тип сервера
+     *
+     * @methodOf DataCenter.NodeRoleIndexCtrl
+     * @param id - id типа сервера
+     * @returns {boolean}
+     */
     self.destroyNodeRole = function (id) {
       var confirm_str = "Вы действительно хотите удалить тип сервера \"" + nodeRoles[id].name + "\"?";
 
@@ -135,24 +197,38 @@
 
 // =====================================================================================================================
 
+  /**
+   * Добавление/редактирование типа сервера.
+   *
+   * @class DataCenter.NodeRoleEditCtrl
+   * @param $scope
+   * @param $rootScope
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function NodeRoleEditCtrl ($scope, $rootScope, Flash, Server, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
-    self.nodeRoleModal  = false;  // Флаг состояния модального окна (false - скрыто, true - открыто)
+    // Флаг состояния модального окна (false - скрыто, true - открыто)
+    self.nodeRoleModal  = false;
     self.config         = {
-      title:  '',                 // Шапка модального окна
-      method: ''                  // Метод отправки запрос (POST, PATCH)
+      // Шапка модального окна
+      title:  '',
+      // Метод отправки запрос (POST, PATCH)
+      method: ''
     };
-    self.value          = null; // Данные поля name в форме form
+    // Данные поля name в форме form
+    self.value          = null;
 
-    var
-      id              = null,   // Id изменяемого типа детали
-      errors          = null,   // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
-      value_template  = {       // Шаблон данных (вызывается при создании нового контакта)
-        name: ''
-      };
+    // Id изменяемого типа детали
+    var id              = null;
+    // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
+    var errors          = null;
+    // Шаблон данных (вызывается при создании нового типа сервера)
+    var value_template  = { name: '' };
 
     $scope.$on('node_role:edit', function (event, data) {
       self.nodeRoleModal = true;
@@ -172,8 +248,14 @@
 
 // =============================================== Приватные функции ===================================================
 
-    // array - объект, содержащий ошибки
-    // flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
+    /**
+     * Установить валидаторы на поля формы. В случае ошибок валидации пользователю будет предоставлено сообщение об
+     * ошибке.
+     *
+     * @param array - объект, содержащий ошибки
+     * @param flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
+     * @private
+     */
     function setValidations(array, flag) {
       $.each(array, function (key, value) {
         $.each(value, function (index, message) {
@@ -183,7 +265,11 @@
       });
     }
 
-    // Очистить модальное окно
+    /**
+     * Очистить модальное окно.
+     *
+     * @private
+     */
     function clearForm() {
       self.value = angular.copy(value_template);
       if (errors) {
@@ -192,7 +278,12 @@
       }
     }
 
-    // Действия в случае успешного создания/изменения контакта
+    /**
+     * Действия в случае успешного создания/изменения типа сервера.
+     *
+     * @param response
+     * @private
+     */
     function successResponse(response) {
       self.nodeRoleModal = false;
       clearForm();
@@ -200,7 +291,12 @@
       Flash.notice(response.full_message);
     }
 
-    // Действия в случае ошибки создания/изменения типа детали
+    /**
+     * Действия в случае ошибки создания/изменения типа сервера.
+     *
+     * @param response
+     * @private
+     */
     function errorResponse(response) {
       Error.response(response);
 
@@ -210,12 +306,24 @@
 
 // =============================================== Публичные функции ===================================================
 
-    // Добавить класс "has-error" к элементу форму
+    /**
+     * Добавить класс "has-error" к элементу форму.
+     *
+     * @methodOf DataCenter.NodeRoleEditCtrl
+     * @param name
+     * @returns {string}
+     */
     self.errorClass = function (name) {
       return (self.form[name].$invalid) ? 'has-error': ''
     };
 
-    // Добавить сообщение об ошибках валидации к элементу формы
+    /**
+     * Добавить сообщение об ошибках валидации к элементу формы.
+     *
+     * @methodOf DataCenter.NodeRoleEditCtrl
+     * @param name
+     * @returns {string}
+     */
     self.errorMessage = function (name) {
       var message = [];
 
@@ -226,7 +334,11 @@
       return message.join(', ');
     };
 
-    // Отправить данные формы на сервер
+    /**
+     * Отправить данные формы на сервер.
+     *
+     * @methodOf DataCenter.NodeRoleEditCtrl
+     */
     self.readyNodeRoleModal = function () {
       // Удалить все предыдущие ошибки валидаций, если таковые имеются
       if (errors) {
@@ -271,7 +383,11 @@
       }
     };
 
-    // Закрыть модальное окно по кнопке "Отмена"
+    /**
+     * Закрыть модальное окно по кнопке "Отмена".
+     *
+     * @methodOf DataCenter.NodeRoleEditCtrl
+     */
     self.closeNodeRoleModal = function () {
       self.nodeRoleModal = false;
       clearForm();

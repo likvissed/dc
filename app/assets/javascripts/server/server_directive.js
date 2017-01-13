@@ -1,7 +1,7 @@
 (function() {
   'use strict';
 
-  // Чтобы директивы скомпилировались, необходимо их добавить в функцию линковки в файле service_directive.js
+  // Чтобы директивы скомпилировались, необходимо их добавить в функцию линковки в файле main_directive.js
 
   app
     .directive('serverStatusFilter', serverStatusFilter)

@@ -12,6 +12,22 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление общей таблицей серверов
+   *
+   * @class DataCenter.ServerTypeIndexCtrl
+   * @param $controller
+   * @param $scope
+   * @param $rootScope
+   * @param $location
+   * @param $compile
+   * @param DTOptionsBuilder
+   * @param DTColumnBuilder
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Error - описание: {@link DataCenter.Error}
+   * @param Ability - описание: {@link DataCenter.Ability}
+   */
   function ServerTypeIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
@@ -20,7 +36,8 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
-    self.previewModal   = false;  // Флаг, скрывающий модальное окно
+    // Флаг, скрывающий модальное окно
+    self.previewModal   = false;
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
@@ -42,7 +59,8 @@
         '<"col-md-6"i>' +
         '<"col-md-6"p>>'
     );
-    self.serverTypes  = {}; // Объекты серверов (id => data)
+    // Объекты серверов (id => data)
+    self.serverTypes  = {};
     self.dtColumns    = [
       DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-sm-1').renderWith(renderIndex),
       DTColumnBuilder.newColumn('name').withTitle('Типы оборудования'),
@@ -53,12 +71,29 @@
 
 // =============================================== Приватные функции ===================================================
 
-    // Показать номер строки
+    /**
+     * Показать номер строки.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {*}
+     * @private
+     */
     function renderIndex(data, type, full, meta) {
       self.serverTypes[data.id] = data;
       return meta.row + 1;
     }
 
+    /**
+     * Callback после инициализации таблицы, получения данных (не ajax, т.к. ajax происходит асинхронно) и
+     * построения таблицы.
+     * 
+     * @param settings
+     * @param json
+     * @private
+     */
     function initComplete(settings, json) {
       var api = new $.fn.dataTable.Api(settings);
 
@@ -79,6 +114,14 @@
           });
     }
 
+    /**
+     * Callback после создания каждой строки.
+     *
+     * @param row
+     * @param data
+     * @param dataIndex
+     * @private
+     */
     function createdRow(row, data, dataIndex) {
       // Событие click для просмотра информации об оборудовании
       $(row).off().on('click', function (event) {
@@ -92,7 +135,12 @@
       $compile(angular.element(row))($scope);
     }
 
-    // Показать данные сервера
+    /**
+     * Показать данные сервера.
+     *
+     * @param id
+     * @private
+     */
     function showServerTypeData(id) {
       Server.ServerType.get({ id: id },
         // Success
@@ -108,14 +156,29 @@
         });
     }
 
-    // Отрендерить ссылку на удаление сервера
+    /**
+     * Отрендерить ссылку на удаление сервера.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="serverType.destroyServerType(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
 // =============================================== Публичные функции ===================================================
 
-    // Удалить тип сервера
+    /**
+     * Удалить тип сервера.
+     *
+     * @methodOf DataCenter.ServerTypeIndexCtrl
+     * @param num
+     * @returns {boolean}
+     */
     self.destroyServerType = function (num) {
       var confirm_str = "Вы действительно хотите удалить тип оборудования \"" + self.serverTypes[num].name + "\"?";
 
@@ -141,12 +204,20 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление предпросмотром типа сервера
+   *
+   * @class DataCenter.ServerTypePreviewCtrl
+   * @param $scope
+   */
   function ServerTypePreviewCtrl($scope) {
     var self = this;
 
     $scope.$on('server_type:show', function (event, data) {
-      self.name    = data.name; // Заголовок модального окна
-      self.details = [];        // Состав типа оборудования
+      // Заголовок модального окна
+      self.name    = data.name;
+      // Состав типа оборудования
+      self.details = [];
 
       $.each(data.template_server_details, function (index, value) {
         self.details.push({
@@ -160,16 +231,28 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление формой добавления/редактирования типа сервера
+   *
+   * @class DataCenter.ServerEditTypeCtrl
+   * @param GetDataFromServer - описание: {@link DataCenter.GetDataFromServer}
+   */
   function ServerEditTypeCtrl(GetDataFromServer) {
     var self = this;
 
-    self.presenceCount  = {}; // Объект вида { Имя => Кол-во комплектующих }
-    var lastIndex       = 0;  // Индекс последнего элемента формы. Используется для того, чтобы знать, какой индекс
-                              // указывать для следующего элемента.
+    // Объект вида { Имя => Кол-во комплектующих }
+    self.presenceCount  = {};
+    // Индекс последнего элемента формы. Используется для того, чтобы знать, какой индекс указывать для следующего
+    // элемента.
+    var lastIndex       = 0;
 
 // =============================================== Приватные функции ===================================================
 
-    // Получить текущее кол-во комплектующих для кжадого типа комплектующей
+    /**
+     * Получить текущее кол-во комплектующих для каждого типа комплектующей
+     *
+     * @private
+     */
     function getDeatilsCount() {
       $.each(self.detailTypes, function (index, value) {
         self.presenceCount[value.name] = 0;
@@ -187,11 +270,20 @@
 
 // =============================================== Инициализация =======================================================
 
+    /**
+     * Инициализация
+     *
+     * @methodOf DataCenter.ServerEditTypeCtrl
+     * @param id
+     * @param name
+     */
     self.init = function (id, name) {
       GetDataFromServer.ajax('server_types', id, name)
         .then(function (data) {
-          self.data         = data.template_server_details || {}; // Данные о сервере (состояние, тип, состав)
-          self.detailTypes  = data.detail_types;                  // Все существующие типы запчастей с самими запчастями
+          // Данные о сервере (состояние, тип, состав)
+          self.data         = data.template_server_details || {};
+          // Все существующие типы запчастей с самими запчастями
+          self.detailTypes  = data.detail_types;
 
           getDeatilsCount();
         });
@@ -199,8 +291,13 @@
 
 // =============================================== Публичные функции ===================================================
 
-    // Добавить комплектующую
-    // index - индекс типа детали в массиве detailTypes
+    /**
+     * Добавить комплектующую
+     *
+     * @methodOf DataCenter.ServerEditTypeCtrl
+     * @param index - индекс типа детали в массиве detailTypes
+     * @returns {boolean}
+     */
     self.addDetail = function (index) {
       var type = self.detailTypes[index];
 
@@ -225,9 +322,13 @@
       });
     };
 
-    // Удалить комплектующую
-    // typeName - имя комплектующей
-    // detail - объект-деталь
+    /**
+     * Удалить комплектующую
+     *
+     * @methodOf DataCenter.ServerEditTypeCtrl
+     * @param typeName - имя комплектующей
+     * @param detail - объект-деталь
+     */
     self.delDetail = function (typeName, detail) {
       if (detail.id)
         detail.destroy = 1;

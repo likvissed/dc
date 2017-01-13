@@ -13,6 +13,22 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление общей таблицей оборудования.
+   *
+   * @class DataCenter.ServerIndexCtrl
+   * @param $controller
+   * @param $scope
+   * @param $rootScope
+   * @param $location
+   * @param $compile
+   * @param DTOptionsBuilder
+   * @param DTColumnBuilder
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Error - описание: {@link DataCenter.Error}
+   * @param Ability - описание: {@link DataCenter.Ability}
+   */
   function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
@@ -21,7 +37,8 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
-    self.statusOptions = [ // Массив фильтра по статусу оборудования
+    // Массив фильтра по статусу оборудования
+    self.statusOptions = [
       {
         value:  'all',
         string: 'Все статусы'
@@ -39,15 +56,19 @@
         string: 'В простое'
       }
     ];
-    self.typeOptions    = [ // Массив фильтра по типу оборудования (данные берутся с сервера)
+    // Массив фильтра по типу оборудования (данные берутся с сервера)
+    self.typeOptions    = [
       {
         id:   0,
         name: 'Все типы'
       }
     ];
+    // Выбранный статус оборудования
     self.selectedStatusOption = self.statusOptions[0];
+    // Выбранный тип оборудования
     self.selectedTypeOption   = self.typeOptions[0];
-    self.previewModal   = false;  // Флаг, скрывающий модальное окно
+    // Флаг, скрывающий модальное окно
+    self.previewModal   = false;
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
@@ -78,7 +99,8 @@
           '<"col-md-6"i>' +
           '<"col-md-6"p>>'
       );
-    self.servers    = {}; // Объекты оборудования (id => data)
+    // Объекты оборудования (id => data)
+    self.servers    = {};
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-sm-1').renderWith(renderIndex),
       DTColumnBuilder.newColumn('name').withTitle('Оборудование'),
@@ -98,12 +120,29 @@
 
 // =============================================== Приватные функции ===================================================
 
-    // Показать номер строки
+    /**
+     * Показать номер строки.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {*}
+     * @private
+     */
     function renderIndex(data, type, full, meta) {
       self.servers[data.id] = data;
       return meta.row + 1;
     }
 
+    /**
+     * Callback после инициализации таблицы, получения данных (не ajax, т.к. ajax происходит асинхронно) и
+     * построения таблицы.
+     *
+     * @param settings
+     * @param json
+     * @private
+     */
     function initComplete(settings, json) {
       var api = new $.fn.dataTable.Api(settings);
 
@@ -133,6 +172,14 @@
       }
     }
 
+    /**
+     * Callback после создания каждой строки.
+     *
+     * @param row
+     * @param data
+     * @param dataIndex
+     * @private
+     */
     function createdRow(row, data, dataIndex) {
       // Событие click для просмотра информации об оборудовании
       $(row).off().on('click', function (event) {
@@ -146,7 +193,12 @@
       $compile(angular.element(row))($scope);
     }
 
-    // Показать данные оборудования
+    /**
+     * Показать данные оборудования.
+     *
+     * @param id - id оборудования
+     * @private
+     */
     function showServerData(id) {
       Server.Server.get({ id: id },
         // Success
@@ -162,12 +214,26 @@
         });
     }
 
-    // Отрендерить ссылку на удаление оборудования
+    /**
+     * Отрендерить ссылку на удаление оборудования.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="serverPage.destroyServer(' + data.id + ')"' +
+        ' tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
-    // Выполнить запрос на сервер с учетом выбранных фильтров
+    /**
+     * Выполнить запрос на сервер с учетом выбранных фильтров.
+     *
+     * @private
+     */
     function newQuery() {
       self.dtInstance.changeData({
         url:  '/servers.json',
@@ -186,12 +252,22 @@
 
 // =============================================== Публичные функции ===================================================
 
-    // Выполнить запрос на сервер с учетом фильтра
+    /**
+     * Выполнить запрос на сервер после изменения фильтра.
+     *
+     * @methodOf DataCenter.ServerIndexCtrl
+     */
     self.changeFilter = function () {
       newQuery();
     };
 
-    // Удалить оборудование
+    /**
+     * Удалить оборудование.
+     *
+     * @methodOf DataCenter.ServerIndexCtrl
+     * @param num - id оборудования
+     * @returns {boolean}
+     */
     self.destroyServer = function (num) {
       var confirm_str = "Вы действительно хотите удалить оборудование \"" + self.servers[num].name + "\"?";
 
@@ -220,22 +296,37 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление предпросмотром оборудования.
+   *
+   * @class DataCenter.ServerPreviewCtrl
+   * @param $scope
+   */
   function ServerPreviewCtrl($scope) {
     var self = this;
 
     $scope.$on('server:show', function (event, data) {
-      self.name           = data.name;              // Имя оборудования
-      self.status         = data.status;            // Статус
-      self.location       = data.location;          // Расположение
+      // Имя оборудования
+      self.name           = data.name;
+      // Статус
+      self.status         = data.status;
+      // Расположение
+      self.location       = data.location;
       if (data.server_type)
-        self.type         = data.server_type.name;  // Тип оборудования
+        // Тип оборудования
+        self.type         = data.server_type.name;
       if (data.clusters[0])
-        self.cluster      = data.clusters[0].name;  // В состав какого сервера входит
-      self.inventory_num  = data.inventory_num;     // Инвентарный номер
-      self.serial_num     = data.serial_num;        // Серийный номер
-      self.presenceCount = 0;                       // Количество комплектующих
+        // В состав какого сервера входит
+        self.cluster      = data.clusters[0].name;
+      // Инвентарный номер
+      self.inventory_num  = data.inventory_num;
+      // Серийный номер
+      self.serial_num     = data.serial_num;
+      // Количество комплектующих
+      self.presenceCount = 0;
 
-      self.details = [];                            // Список комплектующих оборудования
+      // Список комплектующих оборудования
+      self.details = [];
       $.each(data.real_server_details, function (index, value) {
         self.details.push({
           name:   value.server_part.name,
@@ -250,12 +341,22 @@
 
 // =====================================================================================================================
 
+  /**
+   * Форма добавления/редактирования оборудования.
+   *
+   * @class DataCenter.ServerEditCtrl
+   * @param $http
+   * @param GetDataFromServer - описание: {@link DataCenter.GetDataFromServer}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function ServerEditCtrl($http, GetDataFromServer, Error) {
     var self = this;
 
-    self.presenceCount  = {}; // Объект вида { Имя => Кол-во комплектующих }
-    var lastIndex       = 0;  // Индекс последнего элемента формы. Используется для того, чтобы знать, какой индекс
-                              // указывать для следующего элемента.
+    // Объект вида { Имя => Кол-во комплектующих }
+    self.presenceCount  = {};
+    // Индекс последнего элемента формы. Используется для того, чтобы знать, какой индекс указывать для следующего
+    // элемента.
+    var lastIndex       = 0;
 
     // Получить текущее кол-во комплектующих для кжадого типа комплектующей
     function getDeatilsCount() {
@@ -275,13 +376,23 @@
 
 // =============================================== Инициализация =======================================================
 
+    /**
+     * Инициализация.
+     *
+     * @methodOf DataCenter.ServerEditCtrl
+     * @param id - id оборудования
+     * @param name - имя оборудования
+     */
     self.init = function (id, name) {
       GetDataFromServer.ajax('servers', id, name)
         .then(
           function (data) {
-            self.data         = data.server || null;  // Данные об оборудовании (состояние, тип, состав)
-            self.serverTypes  = data.server_types;    // Все существующие типы оборудования
-            self.detailTypes  = data.detail_types;    // Все существующие типы запчастей с самими запчастями
+            // Данные об оборудовании (состояние, тип, состав)
+            self.data         = data.server || null;
+            // Все существующие типы оборудования
+            self.serverTypes  = data.server_types;
+            // Все существующие типы запчастей с самими запчастями
+            self.detailTypes  = data.detail_types;
 
             if (self.data && self.data.real_server_details)
               getDeatilsCount();
@@ -293,7 +404,12 @@
 
 // =============================================== Публичные функции ===================================================
 
-    // Изменить тип оборудования
+    /**
+     * Изменить тип оборудования.
+     *
+     * @methodOf DataCenter.ServerEditCtrl
+     * @returns {boolean}
+     */
     self.changeType = function () {
       if (!self.data.server_type) {
         self.data = null;
@@ -302,12 +418,13 @@
 
       $http.get('/server_types/' + self.data.server_type.name + '/edit.json')
         .success(function(data, status, header, config) {
-          self.data.real_server_details = data.template_server_details;  // Запчасти выбранного типа оборудования (в БД template_server_details)
+          // Запчасти выбранного типа оборудования (в БД template_server_details)
+          self.data.real_server_details = data.template_server_details;
 
           // Внутри self.data.real_server_details массивы сгруппированны по типам комплектующих (диски, памят и т.д.)
           $.each(self.data.real_server_details, function (key, arr) {
             $.each(arr, function() {
-              // Сбросить id для всех комплектующих шаблонного оборудования
+              // Сбросить id для всех комплектующих шаблонного оборудования.
               // Это необходимо, так как изначально мы получаем данные от состава шаблонного оборудования.
               // Далее эти данные запишутся в состав реального оборудования (в другую таблица) и получат новый id.
               this.id = null;
@@ -326,8 +443,13 @@
         });
     };
 
-    // Добавить комплектующую
-    // index - индекс типа детали в массиве detailTypes
+    /**
+     * Добавить комплектующую.
+     *
+     * @methodOf DataCenter.ServerEditCtrl
+     * @param index - индекс типа детали в массиве detailTypes.
+     * @returns {boolean}
+     */
     self.addDetail = function (index) {
       var type = self.detailTypes[index];
 
@@ -353,9 +475,13 @@
       });
     };
 
-    // Удалить комплектующую
-    // typeName - имя комплектующей
-    // detail - объект-деталь
+    /**
+     * Удалить комплектующую.
+     *
+     * @methodOf DataCenter.ServerEditCtrl
+     * @param typeName - имя комплектующей
+     * @param detail - объект-деталь
+     */
     self.delDetail = function (typeName, detail) {
       if (detail.id)
         detail.destroy = 1;
