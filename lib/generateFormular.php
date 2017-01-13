@@ -314,8 +314,6 @@ $arrSecColumn = array(
   $data['internet'],
   $ports['local'],
   $ports['inet'],
-  '',
-  '',
   $data['type_mon'],
   $data['service_mon'],
   $data['hardware_mon'],
