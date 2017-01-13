@@ -1,7 +1,7 @@
 .navbar.navbar-inverse{ role: "navigation-top" }
   .container
     .row
-      .col-md-8.col-md-offset-2
+      .col-md-12
         .navbar-header
           = button_tag "", class: "navbar-toggle", "data-toggle": "collapse", "data-target": ".navbar-collapse-head" do
             %span.sr-only Toggle navigation
@@ -10,10 +10,13 @@
             %span.icon-bar
 
           = image_tag "Logo.png"
-          = "Пользователь #{session[:user_fullname]}"
+          Система учета оборудования и сервисов ЦОД
+
         .collapse.navbar-collapse.navbar-collapse-head
           .navbar-text.pull-right
-            = link_to "Выход", destroy_user_session_path, method: :delete, class: "navbar-link"
+            = "#{session[:user_fullname]} | "
+            = link_to destroy_user_session_path, method: :delete, class: "navbar-link" do
+              Выход
 
 - if current_user.has_role? :admin
   = render partial: "layouts/headers/admin_header"
