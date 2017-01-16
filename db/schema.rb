@@ -11,7 +11,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 20161201090110) do
+ActiveRecord::Schema.define(version: 20170113083549) do
 
   create_table "cluster_details", force: :cascade do |t|
     t.integer  "cluster_id",   limit: 4
@@ -224,12 +224,12 @@ ActiveRecord::Schema.define(version: 20161201090110) do
     t.integer  "act_file_size",          limit: 4
     t.string   "act_content_type",       limit: 255
     t.string   "act_file_name",          limit: 255
-    t.boolean  "has_instr_rec"
+    t.boolean  "has_instr_rec",                        default: false
     t.datetime "instr_rec_updated_at"
     t.integer  "instr_rec_file_size",    limit: 4
     t.string   "instr_rec_content_type", limit: 255
     t.string   "instr_rec_file_name",    limit: 255
-    t.boolean  "has_instr_off"
+    t.boolean  "has_instr_off",                        default: false
     t.datetime "instr_off_updated_at"
     t.integer  "instr_off_file_size",    limit: 4
     t.string   "instr_off_content_type", limit: 255
@@ -237,8 +237,8 @@ ActiveRecord::Schema.define(version: 20161201090110) do
     t.boolean  "exploitation"
     t.text     "comment",                limit: 65535
     t.string   "name_monitoring",        limit: 255
-    t.datetime "created_at",                           null: false
-    t.datetime "updated_at",                           null: false
+    t.datetime "created_at",                                           null: false
+    t.datetime "updated_at",                                           null: false
   end
 
   add_index "services", ["dept"], name: "index_services_on_dept", using: :btree

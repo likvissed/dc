@@ -507,22 +507,32 @@
         .then(
           function (data) {
             Service.init(id, name, data);
-
             // Объект вида { selected: Выбранный объект в поле select "Приоритет функционирования", values: Массив
-            // всех видов приоритетов }
+            // всех видов приоритетов }.
             self.priority     = Service.getPriorities();
-            // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
+            // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к
+            // сети }.
             self.network      = Service.getNetworks();
             // Объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя +ы Список портов, доступных из
-            // Интернет }
+            // Интернет }.
             self.ports        = Service.getPorts();
-            // Массив с отстствующими флагами
+            // Массив, показывающий отсутствующие файлы.
             self.missing_file = Service.getMissingFiles();
-            // Массив с сервисами-родителями
+            // Массив с флагами наличия инструкций по восст./откл, а так же подготовленных для загрузки файлов.
+            self.file_flags   = Service.getFileFlags();
+            // Общий статус наличия файлов, который определяется из статусов missing_file и file_flags. Необходим.
+            // для того, чтобы знать, в какой цвет подкрашивать dropdown меню шапки.
+            self.total_file_status  = Service.getTotalFileStatus();
+            // Объект с флагами, скрывающих/показывающих надписи "Отсутствует"/"Присутствует" в dropdown меню шапки.
+            self.file_checkbox      = {
+              instr_rec: false,
+              instr_off: false
+            };
+            // Массив с сервисами-родителями.
             self.parents      = Service.getParents();
-            // Массив с подключениями к СХД
+            // Массив с подключениями к СХД.
             self.storages     = Service.getStorages();
-            // Необходим для исключения этого имени из списка родителей-сервисов
+            // Необходим для исключения этого имени из списка родителей-сервисов.
             self.current_name = name ? name : null;
             // Массив всех существующих сервисов для выбора сервисов-родителей.
             self.services     = Service.getServices();
@@ -627,6 +637,29 @@
     };
 
 // ================================================ Работа с файлами ===================================================
+
+    /**
+     * Изменить указанный ключ объекта missing_file после выбора (не загрузки) файла на значение false.
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param type - ключ массива missing_file (тип файла)
+     */
+    self.changeFileStatus = function (type) {
+      Service.changeFileFlagStatus(type);
+    };
+
+
+    /**
+     * Обработчик события после выбора файла соответствующего типа для загрузки на сервер.
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param type - ключ массива missing_file (тип файла)
+     */
+    self.prepareLoadFile = function (type) {
+      Service.changeFileFlagStatus(type, true); // Изменить цвет dropdown меню
+
+      self.file_checkbox[type] = true; // Спрятать записи "Отсутствует"/"Присутствует"
+    };
 
     /**
      * Удалить файл
