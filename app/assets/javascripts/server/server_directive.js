@@ -10,14 +10,18 @@
   function serverStatusFilter() {
     return {
       restrict: 'C',
-      template: '<select class="form-control" ng-change="serverPage.changeFilter()"  ng-model="serverPage.selectedStatusOption" ng-options="option as option.string for option in serverPage.statusOptions track by option.value"></select>'
+      template: '<select class="form-control" ng-change="serverPage.changeFilter()"' +
+      ' ng-model="serverPage.selectedStatusOption" ng-options="option as option.string for option in' +
+      ' serverPage.statusOptions track by option.value"></select>'
     }
   }
 
   function serverTypeFilter() {
     return {
       restrict: 'C',
-      template: '<select class="form-control" ng-change="serverPage.changeFilter()"  ng-model="serverPage.selectedTypeOption" ng-options="option as option.name for option in serverPage.typeOptions track by option.id"></select>'
+      template: '<select class="form-control" ng-change="serverPage.changeFilter()"' +
+      ' ng-model="serverPage.selectedTypeOption" ng-options="option as option.name for option in' +
+      ' serverPage.typeOptions track by option.id"></select>'
     }
   }
 })();

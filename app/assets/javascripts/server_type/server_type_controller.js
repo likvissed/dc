@@ -168,7 +168,8 @@
      * @private
      */
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverType.destroyServerType(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="serverType.destroyServerType(' + data.id +
+        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
 // =============================================== Публичные функции ===================================================

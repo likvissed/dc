@@ -132,7 +132,8 @@
   function newRecord() {
     return {
       restrict: 'C',
-      //template: '<button class="btn-sm btn btn-primary btn-block" ng-click="contactPage.showContactModal()">Добавить</button>'
+      //template: '<button class="btn-sm btn btn-primary btn-block"
+      // ng-click="contactPage.showContactModal()">Добавить</button>'
       templateUrl: function (element, attrs) {
         return '/' + attrs.id + '/link/new_record.json';
       }

@@ -262,7 +262,8 @@
      * @private
      */
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id +
+        ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
     /**
@@ -363,7 +364,8 @@
 
     // Флаг, скрывающий модальное окно
     self.previewModal           = false;
-    // Флаг, запрещающий просматривать информацию о сервере, т.к. предпросмотр формуляра и так открыт из режима предпросмотра сервера
+    // Флаг, запрещающий просматривать информацию о сервере, т.к. предпросмотр формуляра и так открыт из режима
+    // предпросмотра сервера
     self.disableClusterPreview  = false;
 
 // ================================================ Инициализация ======================================================

@@ -1,4 +1,5 @@
-.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "ServerPartEditCtrl as part", "modal-show": "part.serverPartModal" }
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "ServerPartEditCtrl as |
+part", "modal-show": "part.serverPartModal" } |
   .modal-dialog
     .modal-content
 
@@ -12,14 +13,19 @@
               %abbr{ title: "required" } *
               %b Наименование комплектующей
             = text_field_tag "server_part[name]", "", class: "form-control", "ng-model": "part.value.name"
-            %span.help-block{ "ng-show": "part.form['server_part[name]'].$invalid", "ng-bind": "part.errorMessage('server_part[name]')" }
+            %span.help-block{ "ng-show": "part.form['server_part[name]'].$invalid", "ng-bind": "part.errorMessage |
+            ('server_part[name]')" } |
 
           .form-group.required{ "ng-class": "part.errorClass('server_part[detail_type_id]')" }
             = label_tag :server_part_detail_type_id , class: "control-label" do
               %abbr{ title: "required" } *
               %b Тип
-            = select_tag "server_part[detail_type_id]", nil, class: "form-control", "ng-model": "part.value.detail_type_id", "ng-options": "type.id as type.name for type in part.detail_types", prompt: "Выберите тип комплектующей"
-            %span.help-block{ "ng-show": "part.form['server_part[detail_type_id]'].$invalid", "ng-bind": "part.errorMessage('server_part[detail_type_id]')" }
+            = select_tag "server_part[detail_type_id]", nil, class: "form-control", "ng-model": "part.value |
+            .detail_type_id", "ng-options": "type.id as type.name for type in part.detail_types", prompt: "Выберите |
+            тип комплектующей" |
+            -#
+            %span.help-block{ "ng-show": "part.form['server_part[detail_type_id]'].$invalid", "ng-bind": "part |
+            .errorMessage('server_part[detail_type_id]')" } |
 
           .form-group
             = label_tag :server_part_part_num , class: "control-label" do

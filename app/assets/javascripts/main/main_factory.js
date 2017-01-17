@@ -1,11 +1,14 @@
 (function() {
   app
-    .service('Flash', Flash)                          // Сервис уведомлений пользователя (как об успешных операциях, так и об ошибках)
+    .service('Flash', Flash)                          // Сервис уведомлений пользователя (как об успешных операциях,
+    // так и об ошибках)
     .service('Error', Error)                          // Сервис обработки ошибок
-    .service('Ability', Ability)                      // Хранит роль пользователя и проверяет права доступа к определенным объектам
+    .service('Ability', Ability)                      // Хранит роль пользователя и проверяет права доступа к
+    // определенным объектам
     .factory('Server', Server)                        // Фабрика для работы с CRUD действиями
     .factory('GetDataFromServer', GetDataFromServer)  // Фабрика для работы с new и edit действиями
-    .factory('myHttpInterceptor', myHttpInterceptor); // Фабрика для настройки параметрв для индикатора выполнения ajax запросов
+    .factory('myHttpInterceptor', myHttpInterceptor); // Фабрика для настройки параметрв для индикатора выполнения
+    // ajax запросов
 
 
   Flash.$inject             = ['$timeout'];
@@ -182,7 +185,8 @@
               deferred.resolve(role);
             },
             function () {
-              deferred.reject({ full_message: "Ошибка. Не удалось проверить роль. Попробуйте обновить страницу. Если ошибка не исчезнет, обратитесь к администратору (тел. ***REMOVED***)", status: 422 });
+              deferred.reject({ full_message: "Ошибка. Не удалось проверить роль. Попробуйте обновить страницу. Если" +
+              " ошибка не исчезнет, обратитесь к администратору (тел. ***REMOVED***)", status: 422 });
             });
 
           return deferred.promise;
@@ -234,7 +238,8 @@
     // Проверка прав доступа (сейчас не используется):
     // 1. Существует ли массив объектов с указанный правом (read, manage и т.д.)
     // 2. Имеется ли в найденном массиве указанный объект или объект 'all'. Если да - значит есть право доступа.
-    // return (abilities && abilities[ability] && ($.inArray(model, abilities[ability]) != -1 || $.inArray('all', abilities[ability]) != -1)) ? true : false;
+    // return (abilities && abilities[ability] && ($.inArray(model, abilities[ability]) != -1 || $.inArray('all',
+    // abilities[ability]) != -1)) ? true : false;
   }
 
 // =====================================================================================================================

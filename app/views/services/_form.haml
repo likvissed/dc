@@ -1,4 +1,5 @@
-.container{ "ng-controller": "ServiceEditCtrl as service", "ng-init": "service.init(#{@service.id || 0}, '#{params[:name]}')" }
+.container{ "ng-controller": "ServiceEditCtrl as service", "ng-init": "service.init(#{@service.id || 0}, |
+'#{params[:name]}')" } |
   .row
     .col-md-12
       .well

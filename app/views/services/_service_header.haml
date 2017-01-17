@@ -21,7 +21,8 @@
           -#.navbar-form{ role: "service-number" }
         %li.service-number
           .navbar-text № ***REMOVED***-Ф-
-          = s.input :number, label: false, placeholder: "xxx-#{DateTime.now.strftime('%y')}-#{Service.get_next_service_number}"
+          = s.input :number, label: false, placeholder: "xxx-#{DateTime.now.strftime('%y')}-#{Service |
+          .get_next_service_number}" |
 
         %li.dropdown
           = link_to "#", class: "dropdown-toggle", "data-toggle": "dropdown" do

@@ -78,7 +78,8 @@ class ServersController < ApplicationController
       format.json do
         render json: {
                  server_types: ServerType.select(:id, :name).order(:id),
-                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: {
+                   server_parts: { only: [:id, :name] } })
                }
       end
     end
@@ -140,7 +141,8 @@ class ServersController < ApplicationController
             real_server_details:  hash
           },
           server_types: ServerType.select(:id, :name).order(:id),
-          detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+          detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: {
+            server_parts: { only: [:id, :name] } })
         }
       end
     end
@@ -163,7 +165,8 @@ class ServersController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @server.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @server.errors.full_messages.join(", ") }" }, status:
+          :unprocessable_entity }
       end
     end
   end

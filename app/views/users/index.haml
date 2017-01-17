@@ -20,8 +20,11 @@
                 %td= user.info
                 %td= role
                 %td
-                  = link_to icon("fa fa-pencil-square-o fa-1g"), "/users/#{user.id}/edit", class: "default-color", title: "Редактировать"
+                  = link_to icon("fa fa-pencil-square-o fa-1g"), "/users/#{user.id}/edit", class: "default-color",
+                  title: "Редактировать"
                 %td
-                  = link_to icon("fa fa-trash-o fa-1g"), user_path(user.id), method: :delete, data: { confirm: "Вы действительно хотите удалить пользователя\"#{ user.info }\"?" }, class: "text-danger", title: "Удалить"
+                  = link_to icon("fa fa-trash-o fa-1g"), user_path(user.id), method: :delete, data: { confirm: "Вы |
+                  действительно хотите удалить пользователя\"#{ user.info }\"?" }, class: "text-danger", title: |
+                  "Удалить" |
 
           = paginate @users, window: 2

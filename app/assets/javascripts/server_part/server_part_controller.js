@@ -192,7 +192,9 @@
      * @private
      */
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' +
+        data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g' +
+        ' pointer"></a>';
     }
 
     /**
@@ -206,7 +208,8 @@
      * @private
      */
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverPartPage.destroyServerPart(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="serverPartPage.destroyServerPart(' + data.id +
+        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
     /**
@@ -233,7 +236,8 @@
     // data.flag - флаг, определяющий, удалять, изменять или добавлять элементы в фильтра
     // add - добавить
     // delete - удалить
-    // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
+    // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в
+    // самое таблице.
     $rootScope.$on('table:server_part:filter:detail_type', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {

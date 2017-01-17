@@ -13,7 +13,8 @@
               %abbr{ title: "required" } *
               %b Табельный номер
             = text_field_tag "department_head[tn]", "", class: "form-control", "ng-model": "depHeadPage.value.tn"
-            %span.help-block{ "ng-show": "depHeadPage.form['department_head[tn]'].$invalid", "ng-bind": "depHeadPage.errorMessage('department_head[tn]')" }
+            %span.help-block{ "ng-show": "depHeadPage.form['department_head[tn]'].$invalid", "ng-bind": "depHeadPage |
+            .errorMessage('department_head[tn]')" } |
 
         .modal-footer
           = button_tag "Готово", type: "button", class: "btn btn-success", "ng-click": "depHeadPage.readyHeadModal()"

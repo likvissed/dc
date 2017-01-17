@@ -538,7 +538,8 @@
      * @private
      */
     function _addParent() {
-      // Проход по циклу для проверки, какой сервис поставить первым в тэге select (нужно для того, что исключить случай, когда сервис-родитель = текущему сервису)
+      // Проход по циклу для проверки, какой сервис поставить первым в тэге select (нужно для того, что исключить
+      // случай, когда сервис-родитель = текущему сервису)
       $.each(service.old_data.services, function (index, value) {
         if (value.name != current_name) {
           var data = {
@@ -875,7 +876,8 @@
           service.network.values[index].value   = null;
         }
         else
-          service.network.values.splice(index, 1); // Если элемента в базе нет (элемент был только что создан), то удалить элемент из массива
+          service.network.values.splice(index, 1); // Если элемента в базе нет (элемент был только что создан), то
+        // удалить элемент из массива
 
         visible_network_count--;
       }
@@ -1061,7 +1063,8 @@
     self.setFlag = function (name, value) {
       additional.flags[name] = value;
 
-      // Для модального окна "Открытые порты" каждый раз, когда окно закрывается, устанавливать первый элемент списка подключений к сети выбранным в select.
+      // Для модального окна "Открытые порты" каждый раз, когда окно закрывается, устанавливать первый элемент
+      // списка подключений к сети выбранным в select.
       if (name == 'portModal' && !value)
         _setFirstNetworkElement();
     };
@@ -1142,23 +1145,27 @@
       if (flag.exploitation)
         switch (flag.priority) {
           case 'Критическая производственная задача':
-            str = '<i class="fa fa-star" tooltip-placement="top" uib-tooltip="Критическая производственная задача"></i>';
+            str = '<i class="fa fa-star" tooltip-placement="top" uib-tooltip="Критическая производственная' +
+              ' задача"></i>';
             break;
           case 'Вторичная производственная задача':
-            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная задача"></i>';
+            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная' +
+              ' задача"></i>';
             break;
           case 'Тестирование и отладка':
             str = '<i class="fa fa-star-o" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
             break;
           default:
-            str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не определен"></i>';
+            str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не' +
+              ' определен"></i>';
             break;
         }
       else
         str = '<i class="fa fa-cogs" tooltip-placement="top" uib-tooltip="Сервис не в эксплуатации"></i>';
 
       if (flag.deadline)
-        str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования сервиса окончен"></i>';
+        str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования' +
+          ' сервиса окончен"></i>';
 
       return str;
     }

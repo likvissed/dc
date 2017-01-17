@@ -4,7 +4,8 @@
       .modal-header
         .pull-right
           - if can? :manage, ServerType
-            = link_to icon("fa fa-cog fa-fw pointer"), "", class: "default-color", "ng-href": "/server_types/{{ preview.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать тип"
+            = link_to icon("fa fa-cog fa-fw pointer"), "", class: "default-color", "ng-href": "/server_types/{{ |
+            preview.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать тип" |
         %h4.modal-title{ "ng-bind": "preview.name" }
       .modal-body
         %h4{ "ng-class": "{ 'text-muted': preview.details == 0 }" }

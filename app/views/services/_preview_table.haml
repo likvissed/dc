@@ -2,7 +2,9 @@
   %tbody
     %tr
       %td.col-md-3 Хостинг сервиса
-      %td= icon("fa fa-eye fa-1g pointer", "tooltip-placement": "top", "uib-tooltip": "{{ preview.tooltip }}", "ng-click": "preview.showCluster()", "ng-class": "{ 'disabled-icon': !preview.hosting.name || preview.disableClusterPreview }")
+      %td= icon("fa fa-eye fa-1g pointer", "tooltip-placement": "top", "uib-tooltip": "{{ preview.tooltip }}", |
+      "ng-click": "preview.showCluster()", "ng-class": "{ 'disabled-icon': !preview.hosting.name || preview |
+      .disableClusterPreview }") |
       %td.col-md-9{ "ng-bind": "preview.hosting.name || 'Отсутствует'" }
     %tr
       %td.col-md-3 Зависимости сервиса

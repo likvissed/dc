@@ -1,4 +1,5 @@
-.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "NodeRoleEditCtrl as node", "modal-show": "node.nodeRoleModal" }
+.modal.fade{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "NodeRoleEditCtrl as node",
+"modal-show": "node.nodeRoleModal" }
   .modal-dialog
     .modal-content
 
@@ -12,7 +13,8 @@
               %abbr{ title: "required" } *
               %b Наименование типа
             = text_field_tag "node_role[name]", "", class: "form-control", "ng-model": "node.value.name"
-            %span.help-block{ "ng-show": "node.form['node_role[name]'].$invalid", "ng-bind": "node.errorMessage('node_role[name]')" }
+            %span.help-block{ "ng-show": "node.form['node_role[name]'].$invalid", "ng-bind": "node.errorMessage |
+            ('node_role[name]')" } |
 
         .modal-footer
           = button_tag "Готово", type: "button", class: "btn btn-success", "ng-click": "node.readyNodeRoleModal()"

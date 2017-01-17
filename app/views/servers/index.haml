@@ -12,7 +12,8 @@
       .well
         .content-body{ "ng-controller": "ServerIndexCtrl as serverPage" }
           %datatable-wrapper
-            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPage.dtOptions", "dt-columns": "serverPage.dtColumns", "dt-instance": "serverPage.dtInstance", width: "100%" }
+            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverPage |
+            .dtOptions", "dt-columns": "serverPage.dtColumns", "dt-instance": "serverPage.dtInstance", width: "100%" } |
 
           = render partial: "preview"
 
@@ -21,6 +22,8 @@
         .well
           .content-body{ "ng-controller": "ServerTypeIndexCtrl as serverType" }
             %datatable-wrapper
-              %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverType.dtOptions", "dt-columns": "serverType.dtColumns", "dt-instance": "serverType.dtInstance", width: "100%" }
+              %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverType |
+              .dtOptions", "dt-columns": "serverType.dtColumns", "dt-instance": "serverType.dtInstance", width: |
+              "100%" } |
 
             = render partial: "server_types/preview"

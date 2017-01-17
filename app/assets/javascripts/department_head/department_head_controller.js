@@ -90,7 +90,8 @@
      * @private
      */
     function renderIndex(data, type, full, meta) {
-      self.heads[data.tn] = data; // Сохранить данные контакта (нужны для вывода пользователю информации об удаляемом элементе)
+      self.heads[data.tn] = data; // Сохранить данные контакта (нужны для вывода пользователю информации об
+      // удаляемом элементе)
       return meta.row + 1;
     }
 
@@ -173,7 +174,9 @@
      * @private
      */
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="depHeadPage.showHeadModal(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="depHeadPage.showHeadModal(' + data.tn +
+        ')" tooltip-placement="top" uib-tooltip="Редактировать контакт"><i class="fa fa-pencil-square-o fa-1g' +
+        ' pointer"></a>';
     }
 
     /**
@@ -187,7 +190,8 @@
      * @private
      */
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="depHeadPage.destroyHead(' + data.tn + ')" tooltip-placement="top" uib-tooltip="Удалить контакт"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="depHeadPage.destroyHead(' + data.tn + ')"' +
+        ' tooltip-placement="top" uib-tooltip="Удалить контакт"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
   // =============================================== Публичные функции ===================================================

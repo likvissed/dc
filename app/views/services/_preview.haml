@@ -1,4 +1,5 @@
-.modal.fade.vertical-scroll{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": "ServicePreviewCtrl as preview", "modal-show": "preview.previewModal" }
+.modal.fade.vertical-scroll{ "tabindex": "-1", "role": "document", "aria-hidden": true, "ng-controller": |
+"ServicePreviewCtrl as preview", "modal-show": "preview.previewModal" } |
   .modal-dialog.preview-service-table
     .modal-content
       .modal-header
@@ -13,10 +14,17 @@
               %li{ "ng-class": "{ disabled: preview.missing_file.act }", "disable-link": "preview.missing_file.act" }
                 = link_to "Акт", "", "ng-href": "/services/{{ preview.service.id }}/download/act"
               - if current_user.has_any_role? :admin, :head
-                %li{ "ng-class": "{ disabled: preview.missing_file.instr_rec }", "disable-link": "preview.missing_file.instr_rec" }
-                  = link_to "Инструкцию по восст.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_rec"
-                %li{ "ng-class": "{ disabled: preview.missing_file.instr_off }", "disable-link": "preview.missing_file.instr_off" }
-                  = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_off"
+                %li{ "ng-class": "{ disabled: preview.missing_file.instr_rec }", "disable-link": "preview |
+                .missing_file.instr_rec" } |
+                  -#
+                  = link_to "Инструкцию по восст.", "", "ng-href": "/services/{{ preview.service.id |
+                  }}/download/instr_rec" |
+                  -#
+                %li{ "ng-class": "{ disabled: preview.missing_file.instr_off }", "disable-link": "preview |
+                .missing_file.instr_off" } |
+                  -#
+                  = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{ preview.service.id |
+                  }}/download/instr_off" |
           - if can? :manage, Service
             .btn-group
               = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do
@@ -26,7 +34,8 @@
                 %li= link_to "Формуляр", "#", "ng-href": "/services/{{ preview.service.id }}/generate/formular"
                 %li= link_to "Акт", "#", "ng-href": "/services/{{ preview.service.id }}/generate/act"
           - if can? :manage, Service
-            = link_to icon("fa fa-cog fa-fw"), "", class: "btn btn-default default-color", "ng-href": "/services/{{ preview.service.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать сервис"
+            = link_to icon("fa fa-cog fa-fw"), "", class: "btn btn-default default-color", "ng-href": "/services/{{ |
+            preview.service.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать сервис" |
 
         .pull-left
           %h3.modal-title
@@ -35,7 +44,8 @@
             .pull-left
               &nbsp;&nbsp;
             .pull-left
-              = icon("fa {{ preview.flag.icon }} fa-1x", "tooltip-placement": "bottom", "uib-tooltip": "{{ preview.flag.text }}" )
+              = icon("fa {{ preview.flag.icon }} fa-1x", "tooltip-placement": "bottom", "uib-tooltip": "{{ preview |
+              .flag.text }}") |
 
       .modal-body
         = render partial: "/services/preview_table"

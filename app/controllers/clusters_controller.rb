@@ -16,14 +16,17 @@ class ClustersController < ApplicationController
         @services   = Service.select(:dept).where.not(dept: nil).uniq if params[:clusterDepts] == 'true'
 
         # Фильтр по типу сервера
-        @clusters = @clusters.joins(:cluster_details).where(cluster_details: { node_role_id: params[:typeFilter] }).uniq unless params[:typeFilter].to_i.zero?
+        @clusters = @clusters.joins(:cluster_details).where(cluster_details: { node_role_id: params[:typeFilter] })
+                      .uniq unless params[:typeFilter].to_i.zero?
         # Фильтр по отделу
-        if params[:deptFilter] != 'Все отделы' && params[:deptFilter] != 'Без отделов' && params[:clusterTypes] != 'true'
+        if params[:deptFilter] != 'Все отделы' && params[:deptFilter] != 'Без отделов' && params[:clusterTypes] !='true'
           # Получаем список серверов, которые имеют сервисы с выбранным номером отдела.
-          # Внимание! В выборке будут отсутствовать сервисы других отделов, даже если они расположены на серверах, попавших в выборку.
+          # Внимание! В выборке будут отсутствовать сервисы других отделов, даже если они расположены на серверах,
+          # попавших в выборку.
           @clusters_filtered = @clusters.where(services: { dept: params[:deptFilter] })
           # Сделать новый запрос к базе для получения списка серверов и ВСЕХ ассоциированных сервисов.
-          @clusters = Cluster.select(:id, :name).order(:id).includes(:services).where(id: @clusters_filtered.each{ |c| c.id })
+          @clusters = Cluster.select(:id, :name).order(:id).includes(:services).where(id: @clusters_filtered.each{
+            |c| c.id })
         elsif params[:deptFilter] == 'Без отделов' && params[:clusterTypes] != 'true'
           @clusters = @clusters.where(services: { dept: nil })
         end
@@ -75,7 +78,8 @@ class ClustersController < ApplicationController
 
           render json: { servers: @servers, node_roles: @node_roles }, status: :ok
         else
-          render json: { full_message: "Перед созданием сервера необходимо создать \"Оборудование\" и \"Типы серверов\"" }, status: :unprocessable_entity
+          render json: { full_message: "Перед созданием сервера необходимо создать \"Оборудование\" и \"Типы
+серверов\"" }, status: :unprocessable_entity
         end
       end
     end
@@ -89,7 +93,9 @@ class ClustersController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @cluster.errors, full_message: "Ошибка. #{ @cluster.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @cluster.errors, full_message: "Ошибка. #{ @cluster.errors.full_messages
+                                                                                          .join(", ") }" }, status:
+                               :unprocessable_entity }
       end
     end
   end
@@ -121,7 +127,9 @@ class ClustersController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @cluster.errors, full_message: "Ошибка. #{ @cluster.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @cluster.errors, full_message: "Ошибка. #{ @cluster.errors.full_messages
+                                                                                          .join(", ") }" }, status:
+                               :unprocessable_entity }
       end
     end
   end
@@ -133,7 +141,8 @@ class ClustersController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @cluster.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @cluster.errors.full_messages.join(", ") }" }, status:
+          :unprocessable_entity }
       end
     end
   end
@@ -151,7 +160,8 @@ class ClustersController < ApplicationController
 
   # Разрешение изменения strong params
   def cluster_params
-    params.require(:cluster).permit(:name, cluster_details_attributes: [:id, :cluster_id, :server_id, :node_role_id, :_destroy])
+    params.require(:cluster).permit(:name, cluster_details_attributes: [:id, :cluster_id, :server_id, :node_role_id,
+                                                                        :_destroy])
   end
 
   # Поиск данных о типе запчасти по name
