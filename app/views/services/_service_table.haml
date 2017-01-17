@@ -246,13 +246,13 @@
           %td= s.input :internet, label: false
         %tr
           %td Сетевые порты, доступные из ЛС
-          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.local" }
+          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.local || 'Нет'" }
         %tr
           %td
           %td{ "ng-click": "service.showPortsModal($event)" }
         %tr
           %td Сетевые порты, доступные из Интернет
-          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.inet" }
+          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.inet || 'Нет'" }
         %tr
           %td
           %td{ "ng-click": "service.showPortsModal($event)" }

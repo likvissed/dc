@@ -224,13 +224,13 @@
           %td{ "ng-bind": "preview.service.internet" }
         %tr
           %td Сетевые порты, доступные из ЛС
-          %td{ "ng-bind": "preview.ports.local" }
+          %td{ "ng-bind": "preview.ports.local || 'Нет'" }
         %tr
           %td
           %td
         %tr
           %td Сетевые порты, доступные из Интернет
-          %td{ "ng-bind": "preview.ports.inet" }
+          %td{ "ng-bind": "preview.ports.inet || 'Нет'" }
         %tr
           %td
           %td
