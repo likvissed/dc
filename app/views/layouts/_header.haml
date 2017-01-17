@@ -9,11 +9,13 @@
             %span.icon-bar
             %span.icon-bar
 
+        = link_to root_path, class: "navbar-brand" do
           = image_tag "Logo.png"
+        .navbar-text
           Система учета оборудования и сервисов ЦОД
 
         .collapse.navbar-collapse.navbar-collapse-head
-          .navbar-text.pull-right
+          .navbar-text.navbar-right.pull-right
             = "#{session[:user_fullname]} | "
             = link_to destroy_user_session_path, method: :delete, class: "navbar-link" do
               Выход
