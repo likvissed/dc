@@ -261,7 +261,7 @@
      * Добавить сообщение об ошибках валидации к элементу формы.
      *
      * @methodOf DataCenter.ContactCtrl
-     * @param name
+     * @param name - имя элемента
      * @returns {string}
      */
     self.errorMessage = function (name) {
