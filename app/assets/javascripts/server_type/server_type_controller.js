@@ -41,6 +41,7 @@
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
+      .withOption('stateSave', true)
       .withOption('ajax', {
         url: '/server_types.json',
         error: function (response) {

@@ -75,7 +75,7 @@
       },
       {
         value:  'notUivt',
-        string: 'Сервисы других подразделений (не ***REMOVED***)'
+        string: 'Сервисы других подразделений (не УИВТ)'
       },
       {
         value:  'virt***REMOVED***',
@@ -103,6 +103,7 @@
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
+      .withOption('stateSave', true)
       .withOption('ajax', {
         url:  '/services.json',
         data: {

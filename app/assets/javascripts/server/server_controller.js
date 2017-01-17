@@ -72,6 +72,7 @@
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
+      .withOption('stateSave', true)
       .withDataProp('data')
       .withOption('ajax', {
         url:  '/servers.json',
