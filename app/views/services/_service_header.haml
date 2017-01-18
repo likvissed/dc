@@ -78,18 +78,18 @@
               Инстр. восст.
               %b.caret
           %ul.dropdown-menu
-            %li
-              = label_tag :has_instr_rec, "tooltip-placement": "top", "uib-tooltip": "Указать наличие инструкции по |
-              восстановлению без загрузки файла", "ng-click": "service.changeFileStatus('instr_rec')" do |
+            %li{ "ng-hide": "service.file_checkbox.instr_rec || !service.missing_file.instr_rec" }
+              = label_tag :has_instr_rec, "tooltip-placement": "top", "uib-tooltip": "Указать {{ service |
+              .total_file_status.instr_rec ? 'отсутствие инструкции по восстановлению' : 'наличие инструкции по |
+              восстановлению без загрузки файла' }}", "ng-click": "service.changeFileStatus('instr_rec')" do |
                 -#
-                %div{ "ng-class": "service.total_file_status.instr_rec ? 'text-success' : 'text-danger'", "ng-hide": |
-                "service.file_checkbox.instr_rec || !service.missing_file.instr_rec" } |
+                %div{ "ng-class": "service.total_file_status.instr_rec ? 'text-danger' : 'text-success'" }
                   %div.ng-hide{ "ng-show": "service.total_file_status.instr_rec" }
-                    = icon("fa fa-thumbs-up fa-fw")
-                    &nbsp;Присутствует
-                  %div.ng-hide{ "ng-show": "!service.total_file_status.instr_rec" }
                     = icon("fa fa-thumbs-down fa-fw")
                     &nbsp;Отсутствует
+                  %div.ng-hide{ "ng-show": "!service.total_file_status.instr_rec" }
+                    = icon("fa fa-thumbs-up fa-fw")
+                    &nbsp;Присутствует
               = s.input :has_instr_rec, as: :hidden, input_html: { "ng-value": "service.file_flags.instr_rec" }
             %li
               = label_tag :service_instr_rec do
@@ -115,18 +115,18 @@
               Инстр. выкл.
               %b.caret
           %ul.dropdown-menu
-            %li
-              = label_tag :has_instr_off, "tooltip-placement": "top", "uib-tooltip": "Указать наличие инструкции по |
-              выключению без загрузки файла", "ng-click": "service.changeFileStatus('instr_off')" do |
+            %li{ "ng-hide": "service.file_checkbox.instr_off || !service.missing_file.instr_off" }
+              = label_tag :has_instr_off, "tooltip-placement": "top", "uib-tooltip": "Указать {{ service |
+              .total_file_status.instr_off ? 'отсутствие инструкции по выключению' : 'наличие инструкции по |
+              выключению без загрузки файла' }}", "ng-click": "service.changeFileStatus('instr_off')" do |
                 -#
-                %div{ "ng-class": "service.total_file_status.instr_off ? 'text-success' : 'text-danger'", "ng-hide": |
-                "service.file_checkbox.instr_off || !service.missing_file.instr_off" } |
+                %div{ "ng-class": "service.total_file_status.instr_off ? 'text-danger' : 'text-success'" }
                   %div.ng-hide{ "ng-show": "service.total_file_status.instr_off" }
-                    = icon("fa fa-thumbs-up fa-fw")
-                    &nbsp;Присутствует
-                  %div.ng-hide{ "ng-show": "!service.total_file_status.instr_off" }
                     = icon("fa fa-thumbs-down fa-fw")
                     &nbsp;Отсутствует
+                  %div.ng-hide{ "ng-show": "!service.total_file_status.instr_off" }
+                    = icon("fa fa-thumbs-up fa-fw")
+                    &nbsp;Присутствует
               = s.input :has_instr_off, as: :hidden, input_html: { "ng-value": "service.file_flags.instr_off" }
             %li
               = label_tag :service_instr_off do
