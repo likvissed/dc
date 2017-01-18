@@ -195,7 +195,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице серверов.
-          $rootScope.$emit('table:server:filter:server_type:delete', num);
+          // $rootScope.$emit('table:server:filter:server_type:delete', num);
         },
         // Error
         function (response) {

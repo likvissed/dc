@@ -2,7 +2,7 @@ class ServerTypesController < ApplicationController
 
   load_and_authorize_resource
 
-  before_action { |ctrl| ctrl.check_for_cancel servers_path }
+  before_action { |ctrl| ctrl.check_for_cancel main_settings_path }
   before_action :find_server_type_by_name,  only: [:edit, :update]
   before_action :find_server_type_by_id,    only: [:show, :destroy]
 

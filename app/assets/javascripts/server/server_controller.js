@@ -88,12 +88,12 @@
       .withOption('createdRow', createdRow)
       .withDOM(
         '<"row"' +
-          '<"col-sm-2 col-md-2 col-lg-2"' +
+          '<"col-sm-2 col-md-2 col-lg-1"' +
             '<"#servers.new-record">>' +
-          '<"col-sm-3 col-md-3 col-lg-3">' +
-          '<"col-sm-3 col-md-3 col-lg-3"' +
+          '<"col-sm-2 col-md-2 col-lg-5">' +
+          '<"col-sm-3 col-md-3 col-lg-2"' +
             '<"server-type-filter">>' +
-          '<"col-sm-2 col-md-2 col-lg-2"' +
+          '<"col-sm-3 col-md-3 col-lg-2"' +
             '<"server-status-filter">>' +
           '<"col-sm-2 col-md-2 col-lg-2"f>>' +
         't<"row"' +
@@ -103,12 +103,12 @@
     // Объекты оборудования (id => data)
     self.servers    = {};
     self.dtColumns  = [
-      DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-sm-1').renderWith(renderIndex),
+      DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-lg-1').renderWith(renderIndex),
       DTColumnBuilder.newColumn('name').withTitle('Оборудование'),
-      DTColumnBuilder.newColumn('server_type.name').withTitle('Тип').withOption('className', 'col-sm-2'),
-      DTColumnBuilder.newColumn('status').withTitle('Статус').withOption('className', 'col-sm-2'),
-      DTColumnBuilder.newColumn('location').withTitle('Расположение').withOption('className', 'col-sm-1'),
-      DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center col-sm-1').renderWith(delRecord)
+      DTColumnBuilder.newColumn('server_type.name').withTitle('Тип').withOption('className', 'col-lg-3'),
+      DTColumnBuilder.newColumn('status').withTitle('Статус').withOption('className', 'col-lg-1'),
+      DTColumnBuilder.newColumn('location').withTitle('Расположение').withOption('className', 'col-lg-2'),
+      DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center col-lg-1').renderWith(delRecord)
     ];
 
     var reloadPaging = false;
@@ -245,11 +245,13 @@
       });
     }
 
+    /*
     $rootScope.$on('table:server:filter:server_type:delete', function (event, data) {
       // Удалить тип оборудования из фильтра таблицы оборудования
       var obj = $.grep(self.typeOptions, function (elem) { return elem.id == data });
       self.typeOptions.splice($.inArray(obj[0], self.typeOptions), 1);
     });
+    */
 
 // =============================================== Публичные функции ===================================================
 

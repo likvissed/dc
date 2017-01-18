@@ -189,7 +189,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице комплектующих.
-          $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'delete', id: id });
+          // $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'delete', id: id });
         },
         // Error
         function (response) {
@@ -360,7 +360,7 @@
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('table:detail_type:reload', { reload: true });
             // Добавить в фильтр таблицы комплектуюших созданный тип
-            $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'add', value: response.detail_type });
+            // $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'add', value: response.detail_type });
           },
           // Error
           function (response) {
@@ -377,7 +377,7 @@
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('table:detail_type:reload', { reload: true });
             // Изменить имя типа в фильтре таблицы комплектуюших
-            $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'update', value: response.detail_type });
+            // $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'update', value: response.detail_type });
           },
           // Error
           function (response) {

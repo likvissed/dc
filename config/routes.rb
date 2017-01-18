@@ -80,6 +80,9 @@ Rails.application.routes.draw do
     end
   end
 
+  # get 'main_settings/index'
+  resources :main_settings, only: [:index]
+
   get '*unmatched_route', to: 'application#render_404'
 
 end

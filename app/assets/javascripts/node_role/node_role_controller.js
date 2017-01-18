@@ -189,7 +189,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице серверов.
-          $rootScope.$emit('table:cluster:filter:node_role', { flag: 'delete', id: id });
+          // $rootScope.$emit('table:cluster:filter:node_role', { flag: 'delete', id: id });
         },
         // Error
         function (response) {
@@ -359,7 +359,7 @@
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('table:node_role:reload', { reload: true });
             // Добавить в фильтр таблицы серверов созданный тип
-            $rootScope.$emit('table:cluster:filter:node_role', { flag: 'add', value: response.node_role });
+            // $rootScope.$emit('table:cluster:filter:node_role', { flag: 'add', value: response.node_role });
           },
           // Error
           function (response) {
@@ -376,7 +376,7 @@
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('table:node_role:reload', { reload: true });
             // Изменить имя типа в фильтре таблицы серверов
-            $rootScope.$emit('table:cluster:filter:node_role', { flag: 'update', value: response.node_role });
+            // $rootScope.$emit('table:cluster:filter:node_role', { flag: 'update', value: response.node_role });
           },
           // Error
           function (response) {

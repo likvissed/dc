@@ -62,9 +62,9 @@
       .withOption('createdRow', createdRow)
       .withDOM(
       '<"row"' +
-        '<"col-sm-2 col-md-2 col-lg-2"' +
+        '<"col-sm-2 col-md-2 col-lg-1"' +
           '<"#server_parts.new-record">>' +
-        '<"col-sm-6 col-md-6 col-lg-6">' +
+        '<"col-sm-6 col-md-6 col-lg-7">' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
           '<"detail-type-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"f>>' +
@@ -238,6 +238,7 @@
     // delete - удалить
     // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в
     // самое таблице.
+    /*
     $rootScope.$on('table:server_part:filter:detail_type', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {
@@ -260,6 +261,7 @@
         self.dtInstance.reloadData(null, reloadPaging);
       }
     });
+    */
 
 // =============================================== Публичные функции ===================================================
 
