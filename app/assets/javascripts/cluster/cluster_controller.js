@@ -504,7 +504,7 @@
 
       if (data.method == 'POST') {
         self.config.title   = 'Новый сервер/кластер';
-        self.value          = value_template;
+        self.value          = angular.copy(value_template);
         self.presenceCount  = 0;
       }
       else {
@@ -545,6 +545,7 @@
      * @private
      */
     function clearForm() {
+      console.log('clearForm');
       self.value = angular.copy(value_template);
       if (errors) {
         setValidations(errors, true);
@@ -690,7 +691,6 @@
     self.closeClusterModal = function () {
       self.clusterModal = false;
 
-      self.value.cluster_details_attributes = []; // Очищаем список оборудования
       clearForm();
     };
   }
