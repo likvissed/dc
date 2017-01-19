@@ -6,7 +6,7 @@
 
   FlashMessageCtrl.$inject      = ['$scope', '$attrs', 'Flash'];
   DefaultDataTableCtrl.$inject  = ['DTDefaultOptions'];
-  AjaxLoadingCtrl.$inject       = ['myHttpInterceptor'];
+  AjaxLoadingCtrl.$inject       = ['$scope', 'myHttpInterceptor'];
 
 // =====================================================================================================================
 
@@ -74,22 +74,25 @@
    * Контроллер для управления индикатором выполнения ajax запросов.
    *
    * @class DataCenter.AjaxLoadingCtrl
+   * @param $scope
    * @param myHttpInterceptor
    */
-  function AjaxLoadingCtrl(myHttpInterceptor) {
+  function AjaxLoadingCtrl($scope, myHttpInterceptor) {
     var self = this;
 
     self.requests = myHttpInterceptor.getRequestsCount; // Число запросов
 
     // Настройка ajax запросов, посланных с помощью jQuery (например, в datatables).
     $.ajaxSetup({
-      beforeSend: function() {
+      beforeSend: function () {
         myHttpInterceptor.incCount();
       },
-      complete: function() {
+      complete: function () {
         myHttpInterceptor.decCount();
 
         self.requests = myHttpInterceptor.getRequestsCount;
+
+        $scope.$apply();
       }
     });
   }
