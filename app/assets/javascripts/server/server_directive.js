@@ -11,8 +11,8 @@
     return {
       restrict: 'C',
       template: '<select class="form-control" ng-change="serverPage.changeFilter()"' +
-      ' ng-model="serverPage.selectedStatusOption" ng-options="option as option.string for option in' +
-      ' serverPage.statusOptions track by option.value"></select>'
+      ' ng-model="serverPage.selectedStatusOption" ng-options="option.value as option.string for option in' +
+      ' serverPage.statusOptions"></select>'
     }
   }
 
@@ -20,8 +20,8 @@
     return {
       restrict: 'C',
       template: '<select class="form-control" ng-change="serverPage.changeFilter()"' +
-      ' ng-model="serverPage.selectedTypeOption" ng-options="option as option.name for option in' +
-      ' serverPage.typeOptions track by option.id"></select>'
+      ' ng-model="serverPage.selectedTypeOption" ng-options="option.id as option.name for option in' +
+      ' serverPage.typeOptions"></select>'
     }
   }
 })();

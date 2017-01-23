@@ -9,7 +9,7 @@
     .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)       // Работа с открытыми портами
     .controller('DependenceCtrl', DependenceCtrl);                // Устанавливает зависимости сервиса
 
-  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc', 'Error', 'Ability'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Cookies', 'ServiceShareFunc', 'Error', 'Ability'];
   ServicePreviewCtrl.$inject      = ['$scope', '$rootScope', 'Server', 'Ability', 'Error'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer', 'Error'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
@@ -30,18 +30,20 @@
    * @param DTColumnBuilder
    * @param Server - описание: {@link DataCenter.Server}
    * @param Flash - описание: {@link DataCenter.Flash}
-   * @param ServiceCookies - описание: {@link DataCenter.ServiceCookies}
+   * @param Cookies - описание: {@link DataCenter.Cookies}
    * @param ServiceShareFunc - описание: {@link DataCenter.ServiceShareFunc}
    * @param Error - описание: {@link DataCenter.Error}
    * @param Ability - описание: {@link DataCenter.Ability}
    */
-  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc, Error, Ability) {
+  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Cookies, ServiceShareFunc, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
+    // Инициализация cookies.
+    Cookies.Service.init();
 
     // Массив фильтров таблицы сервисов
     self.options = [
@@ -75,7 +77,7 @@
       },
       {
         value:  'notUivt',
-        string: 'Сервисы других подразделений (не УИВТ)'
+        string: 'Сервисы других подразделений (не ***REMOVED***)'
       },
       {
         value:  'virt***REMOVED***',
@@ -95,9 +97,9 @@
       }
     ];
     // Выбранный элемент фильтра таблицы сервисов
-    self.selectedOption = !ServiceCookies.get('mainServiceFilter') ? self.options[0].value : ServiceCookies.get('mainServiceFilter');
+    self.selectedOption = !Cookies.Service.get('mainServiceFilter') ? self.options[0].value : Cookies.Service.get('mainServiceFilter');
     // Флаг, скрывающий сервисы, которые не введены в эксплуатацию
-    self.exploitation   = ServiceCookies.get('showOnlyExploitationServices');
+    self.exploitation   = Cookies.Service.get('showOnlyExploitationServices');
     // Объекты сервисов (id => data)
     self.services       = {};
     self.dtInstance     = {};
@@ -303,7 +305,7 @@
      * @methodOf DataCenter.ServiceIndexCtrl
      */
     self.changeFilter = function () {
-      ServiceCookies.set('mainServiceFilter', self.selectedOption);
+      Cookies.Service.set('mainServiceFilter', self.selectedOption);
 
       newQuery();
     };
@@ -315,7 +317,7 @@
      */
     self.showProjects = function () {
       self.exploitation = self.exploitation == 'true' ? 'false' : 'true';
-      ServiceCookies.set('showOnlyExploitationServices', self.exploitation);
+      Cookies.Service.set('showOnlyExploitationServices', self.exploitation);
 
       newQuery();
     };

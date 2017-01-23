@@ -7,9 +7,9 @@
     // определенным объектам
     .factory('Server', Server)                        // Фабрика для работы с CRUD действиями
     .factory('GetDataFromServer', GetDataFromServer)  // Фабрика для работы с new и edit действиями
-    .factory('myHttpInterceptor', myHttpInterceptor); // Фабрика для настройки параметрв для индикатора выполнения
+    .factory('myHttpInterceptor', myHttpInterceptor)  // Фабрика для настройки параметрв для индикатора выполнения
     // ajax запросов
-
+    .factory('Cookies', Cookies);                     // Фабрика для работы с куками.
 
   Flash.$inject             = ['$timeout'];
   Error.$inject             = ['Flash'];
@@ -17,6 +17,7 @@
   Server.$inject            = ['$resource'];
   GetDataFromServer.$inject = ['$http', '$q'];
   myHttpInterceptor.$inject = ['$q'];
+  Cookies.$inject           = ['$cookies'];
 
 // =====================================================================================================================
 
@@ -427,4 +428,111 @@
       }
     };
   }
+
+  /**
+   * Сервис для работы с cookies.
+   *
+   * @class DataCenter.Cookies
+   * @param $cookies
+   */
+  function Cookies($cookies) {
+    var obj;
+
+    /**
+     * Инициализация объектов.
+     *
+     * @param name
+     * @private
+     */
+    function init(name) {
+      switch (name) {
+        case 'service':
+          obj = {
+            // Показать только сервисы в эксплуатации
+            showOnlyExploitationServices: 'true',
+            // Фильтр сервисов
+            mainServiceFilter: 'all'
+          };
+          break;
+        case 'server':
+          obj = {
+            // Фильтр оборудования по типу
+            serverTypeFilter: '0',
+            // Фильтр оборудования по статусу
+            serverStatusFilter: 'all'
+          };
+          break;
+      }
+
+      if (angular.isUndefined($cookies.getObject(name)))
+        $cookies.putObject(name, obj); // Установить начальные значения переменных куки
+      else
+        obj = $cookies.getObject(name); // Получить актуальные значения переменных куки.
+    }
+
+    /**
+     * Получить объект cookies с указанным именем.
+     * @param name - имя объекта
+     * @param key - имя свойства объекта
+     * @returns {*}
+     * @private
+     */
+    function getCookie(name, key) {
+      if (angular.isUndefined(key))
+        return $cookies.getObject(name);
+
+      return angular.isUndefined($cookies.getObject(name)) ? 'Cookies отсутсвуют' : $cookies.getObject(name)[key];
+    }
+
+    /**
+     * Установить объект cookies с указанным именем.
+     *
+     * @param name - имя объекта
+     * @param key - имя свойства объекта
+     * @param value - устанавливаемое значение
+     * @private
+     */
+    function setCookie(name, key, value) {
+      obj[key] = value;
+
+      $cookies.putObject(name, obj);
+    }
+
+    return {
+      /**
+       * Объект для работы с cookies страницы сервисов.
+       *
+       * @methodOf DataCenter.Cookies
+       */
+      Service: {
+        init: function () {
+          init('service')
+        },
+        get: function (key) {
+          return getCookie('service', key);
+        },
+        set: function (key, value) {
+          setCookie('service', key, value);
+        }
+      },
+      /**
+       * Объект для работы с cookies страницы серверов.
+       *
+       * @methodOf DataCenter.Cookies
+       */
+      Server: {
+        init: function () {
+          init('server')
+        },
+        get: function (key) {
+          return getCookie('server', key);
+        },
+        set: function (key, value) {
+          setCookie('server', key, value);
+        }
+      }
+    }
+
+  }
+
 })();

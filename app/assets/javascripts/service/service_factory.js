@@ -3,11 +3,9 @@
 
   app
     .service('Service', Service)                    // Создание/редактирование сервиса
-    .service('ServiceCookies', ServiceCookies)      // Куки для фильтра таблицы сервисов
     .service('ServiceShareFunc', ServiceShareFunc); // Функции, которые вызываются не только на странице сервисов
 
-  Service.$inject         = ['$http', 'Flash'];
-  ServiceCookies.$inject  = ['$cookies'];
+  Service.$inject = ['$http', 'Flash'];
 
 // =====================================================================================================================
 
@@ -1067,58 +1065,6 @@
       // списка подключений к сети выбранным в select.
       if (name == 'portModal' && !value)
         _setFirstNetworkElement();
-    };
-  }
-
-// =====================================================================================================================
-
-  /**
-   * Сервис для работы с куками таблицы формуляров
-   *
-   * @class DataCenter.ServiceCookies
-   * @param $cookies
-   */
-  function ServiceCookies($cookies) {
-    var self = this;
-
-    // Объект куки
-    var service = {
-      showOnlyExploitationServices: 'true',
-      mainServiceFilter: 'all'
-    };
-
-// =============================================== Инициализация =======================================================
-
-    if (angular.isUndefined($cookies.getObject('service')))
-      $cookies.putObject('service', service);
-
-// =============================================== Публичные функции ===================================================
-
-    /**
-     * Получить cookies
-     *
-     * @methodOf DataCenter.ServiceCookies
-     * @param key
-     * @returns {*}
-     */
-    self.get = function (key) {
-      if (angular.isUndefined(key))
-        return $cookies.getObject('service');
-
-      return angular.isUndefined($cookies.getObject('service')) ? 'Куки отсутсвуют' : $cookies.getObject('service')[key];
-    };
-
-    /**
-     * Установить cookies
-     *
-     * @methodOf DataCenter.ServiceCookies
-     * @param key - имя куки
-     * @param value - устанавливаемое значение
-     */
-    self.set = function (key, value) {
-      service[key] = value;
-
-      $cookies.putObject('service', service);
     };
   }
 

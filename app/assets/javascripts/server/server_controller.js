@@ -7,7 +7,7 @@
     .controller('ServerPreviewCtrl', ServerPreviewCtrl)     // Предпросмотр оборудования
     .controller('ServerEditCtrl', ServerEditCtrl);          // Форма добавления/редактирования оборудования
 
-  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
+  ServerIndexCtrl.$inject   = ['$controller', '$scope', '$rootScope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Cookies', 'Error', 'Ability'];
   ServerPreviewCtrl.$inject = ['$scope'];
   ServerEditCtrl.$inject    = ['$http', 'GetDataFromServer', 'Error'];
 
@@ -26,16 +26,19 @@
    * @param DTColumnBuilder
    * @param Server - описание: {@link DataCenter.Server}
    * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Cookies - описание: {@link DataCenter.Cookies}
    * @param Error - описание: {@link DataCenter.Error}
    * @param Ability - описание: {@link DataCenter.Ability}
    */
-  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
+  function ServerIndexCtrl($controller, $scope, $rootScope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Cookies, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
+    // Инициализация cookies
+    Cookies.Server.init();
 
     // Массив фильтра по статусу оборудования
     self.statusOptions = [
@@ -64,9 +67,10 @@
       }
     ];
     // Выбранный статус оборудования
-    self.selectedStatusOption = self.statusOptions[0];
+    // self.selectedStatusOption = self.statusOptions[0];
+    self.selectedStatusOption = !Cookies.Server.get('serverStatusFilter') ? self.statusOptions[0].value : Cookies.Server.get('serverStatusFilter');
     // Выбранный тип оборудования
-    self.selectedTypeOption   = self.typeOptions[0];
+    self.selectedTypeOption = !Cookies.Server.get('serverTypeFilter') ? self.typeOptions[0].id : Cookies.Server.get('serverTypeFilter');
     // Флаг, скрывающий модальное окно
     self.previewModal   = false;
     self.dtInstance     = {};
@@ -78,7 +82,8 @@
         url:  '/servers.json',
         data: {
           serverTypes:  true,
-          statusFilter: self.selectedStatusOption.value
+          statusFilter: self.selectedStatusOption,
+          typeFilter: self.selectedTypeOption
         },
         error: function (response) {
           Error.response(response);
@@ -169,7 +174,7 @@
       // Заполнить список фильтра типов оборудования
       if (json.server_types) {
         self.typeOptions        = self.typeOptions.concat(json.server_types);
-        self.selectedTypeOption = self.typeOptions[0];
+        self.selectedTypeOption = !Cookies.Server.get('serverTypeFilter') ? self.typeOptions[0].id : Cookies.Server.get('serverTypeFilter');
       }
     }
 
@@ -239,8 +244,8 @@
       self.dtInstance.changeData({
         url:  '/servers.json',
         data: {
-          statusFilter: self.selectedStatusOption.value,
-          typeFilter:   self.selectedTypeOption.id
+          statusFilter: self.selectedStatusOption,
+          typeFilter:   self.selectedTypeOption
         }
       });
     }
@@ -261,6 +266,9 @@
      * @methodOf DataCenter.ServerIndexCtrl
      */
     self.changeFilter = function () {
+      Cookies.Server.set('serverStatusFilter', self.selectedStatusOption);
+      Cookies.Server.set('serverTypeFilter', self.selectedTypeOption);
+
       newQuery();
     };
 
