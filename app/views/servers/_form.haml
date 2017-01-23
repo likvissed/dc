@@ -3,7 +3,7 @@
     .col-md-12.col-lg-10.col-lg-offset-1
       .well
         %div{ "ng-controller": "ServerEditCtrl as server", "ng-init": "server.init(#{@server.id || 0}, |
-        '#{params[:name]}')" } |
+        '#{params[:inventory_num]}')" } |
           -#
           = simple_form_for @server, url: url do |s|
             .content-body
@@ -11,12 +11,15 @@
                 .col-md-5.col-lg-6
                   %h3.bottom-line Общая информация об оборудовании
                   .col-lg-12
-                    = s.input :name, label: "Наименование", autofocus: true
-                    = s.input :inventory_num, label: "Инвентарный номер"
+                    = s.input :inventory_num, label: "Инвентарный номер", autofocus: true
                     = s.input :serial_num, label: "Серийный номер"
-                    = s.input :location, label: "Расположение"
-                    = s.input :status, label: "Статус", collection: Server.statuses.keys.to_a, as: :select, prompt: |
-                    "Выберите статус" |
+                    .row
+                      .col-lg-4
+                        = s.input :loc_area, label: "Площадка"
+                      .col-lg-4
+                        = s.input :loc_stand, label: "Стойка"
+                      .col-lg-4
+                        = s.input :loc_place, label: "Место в стойке"
 
                     - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
                     %div{ class: error_class }
@@ -27,6 +30,8 @@
                       .server_type", "ng-options": "type.name for type in server.serverTypes track by type.id", |
                       "ng-change": "server.changeType()", prompt: "Выберите тип оборудования" |
                       %span.help-block= get_errors @server.errors[:server_type_id]
+
+                    = s.input :comment, as: :text, label: "Комментарий", input_html: { rows: 3 }
 
                 .col-md-7.col-lg-6
                   %h3.bottom-line
@@ -49,6 +54,7 @@
                       %table.internal-table
                         %tbody.animate-repeat.animate-show{ "ng-repeat": "detail in server.data |
                         .real_server_details[detail_type.name]", "ng-hide": "detail.destroy" } |
+                          -#
                           %tr
                             %td.col-sm-9.col-md-7.col-lg-8.no-left-padding
                               .form-group

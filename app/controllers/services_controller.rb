@@ -144,6 +144,7 @@ class ServicesController < ApplicationController
                    else
                      Time.now.to_date > service['deadline']
                    end
+
         # Установить дедлайн для приоритета "Тестирование и отладка"
         service[:deadline] = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 

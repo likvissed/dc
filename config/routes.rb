@@ -10,8 +10,8 @@ Rails.application.routes.draw do
   end
 
   constraints name: /[^\/]+/ do
-    get   '/servers/:name/edit',      to: 'servers#edit'
-    patch '/servers/:name',           to: 'servers#update'
+    get   '/servers/:inventory_num/edit',  to: 'servers#edit'
+    patch '/servers/:inventory_num',       to: 'servers#update'
 
     get   '/server_types/:name/edit', to: 'server_types#edit'
     patch '/server_types/:name',      to: 'server_types#update'

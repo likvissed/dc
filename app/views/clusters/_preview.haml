@@ -36,7 +36,7 @@ preview", "modal-show": "preview.previewModal" } |
           %tbody
             %tr{ "ng-repeat": "detail in preview.details" }
               %td.col-md-3{ "ng-bind": "detail.node_role.name" }
-              %td{ "ng-bind": "detail.server.name" }
+              %td{ "ng-bind": "detail.server.inventory_num" }
 
       .modal-footer
         = button_tag "Закрыть", "data-dismiss": "modal"

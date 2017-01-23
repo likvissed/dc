@@ -44,16 +44,16 @@
         string: 'Все статусы'
       },
       {
-        value:  'atWork',
+        value:  'work',
         string: 'В работе'
       },
       {
         value:  'test',
-        string: 'Тестовые'
+        string: 'В тесте'
       },
       {
         value:  'inactive',
-        string: 'В простое'
+        string: 'Не используется'
       }
     ];
     // Массив фильтра по типу оборудования (данные берутся с сервера)
@@ -104,10 +104,10 @@
     self.servers    = {};
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-lg-1').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Оборудование'),
+      DTColumnBuilder.newColumn('inventory_num').withTitle('Инвентарный номер'),
       DTColumnBuilder.newColumn('server_type.name').withTitle('Тип').withOption('className', 'col-lg-3'),
-      DTColumnBuilder.newColumn('status').withTitle('Статус').withOption('className', 'col-lg-1'),
-      DTColumnBuilder.newColumn('location').withTitle('Расположение').withOption('className', 'col-lg-2'),
+      DTColumnBuilder.newColumn('status').withTitle('Статус').withOption('className', 'col-lg-2'),
+       DTColumnBuilder.newColumn('location').withTitle('Расположение').withOption('className', 'col-lg-2'),
       DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center col-lg-1').renderWith(delRecord)
     ];
 
@@ -309,8 +309,6 @@
     var self = this;
 
     $scope.$on('server:show', function (event, data) {
-      // Имя оборудования
-      self.name           = data.name;
       // Статус
       self.status         = data.status;
       // Расположение
@@ -318,15 +316,33 @@
       if (data.server_type)
         // Тип оборудования
         self.type         = data.server_type.name;
-      if (data.clusters[0])
-        // В состав какого сервера входит
-        self.cluster      = data.clusters[0].name;
+
+      // В состав какого сервера входит
+      self.cluster = data.clusters;
       // Инвентарный номер
       self.inventory_num  = data.inventory_num;
       // Серийный номер
       self.serial_num     = data.serial_num;
+      // Комментарий
+      self.comment        = data.comment;
       // Количество комплектующих
       self.presenceCount = 0;
+
+      self.title = self.inventory_num;
+      switch (self.status) {
+        case 'В работе':
+          self.title += ' <span class="label label-success">В работе</span>';
+          break;
+        case 'В тесте':
+          self.title += ' <span class="label label-warning">В тесте</span>';
+          break;
+        case 'Не используется':
+          self.title += ' <span class="label label-default">Не используется</span>';
+          break;
+        default:
+          break;
+      }
+
 
       // Список комплектующих оборудования
       self.details = [];
@@ -384,10 +400,10 @@
      *
      * @methodOf DataCenter.ServerEditCtrl
      * @param id - id оборудования
-     * @param name - имя оборудования
+     * @param inv - инвентарный номер оборудования
      */
-    self.init = function (id, name) {
-      GetDataFromServer.ajax('servers', id, name)
+    self.init = function (id, inv) {
+      GetDataFromServer.ajax('servers', id, inv)
         .then(
           function (data) {
             // Данные об оборудовании (состояние, тип, состав)

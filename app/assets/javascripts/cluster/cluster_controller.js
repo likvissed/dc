@@ -403,7 +403,6 @@
 
       // Данные, полученные с сервера
       var data = json.response;
-
       // Имя сервера
       self.name           = data.name;
       // Состав сервера
@@ -545,7 +544,6 @@
      * @private
      */
     function clearForm() {
-      console.log('clearForm');
       self.value = angular.copy(value_template);
       if (errors) {
         setValidations(errors, true);

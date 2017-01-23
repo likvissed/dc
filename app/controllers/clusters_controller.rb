@@ -53,7 +53,7 @@ class ClustersController < ApplicationController
             cluster_details: {
               only: [],
               include: {
-                server:     { only: :name },
+                server:     { only: :inventory_num },
                 node_role:  { only: :name }
               }
             },
@@ -64,6 +64,7 @@ class ClustersController < ApplicationController
           except: [:id, :created_at, :updated_at])
 
         @cluster[:depts] = @cluster['services'].map{ |s| s['dept']  }.uniq.join(', ')
+
         render json: @cluster
       end
     end
@@ -73,7 +74,7 @@ class ClustersController < ApplicationController
     respond_to do |format|
       format.json do
         if Server.exists? && NodeRole.exists?
-          @servers    = Server.select(:id, :name).order(:id)
+          @servers    = Server.select(:id, :inventory_num).order(:id)
           @node_roles = NodeRole.select(:id, :name).order(:id)
 
           render json: { servers: @servers, node_roles: @node_roles }, status: :ok
@@ -104,7 +105,7 @@ class ClustersController < ApplicationController
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        @servers    = Server.select(:id, :name).order(:id)
+        @servers    = Server.select(:id, :inventory_num).order(:id)
         @node_roles = NodeRole.select(:id, :name).order(:id)
         render json: {
           data:       @cluster.as_json(
