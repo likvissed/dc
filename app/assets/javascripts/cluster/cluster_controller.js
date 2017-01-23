@@ -6,7 +6,7 @@
     .controller('ClusterPreviewCtrl', ClusterPreviewCtrl) // Предпросмотр сервера
     .controller('ClusterEditCtrl', ClusterEditCtrl);      // Добавление/редактирование сервера
 
-  ClusterIndexCtrl.$inject    = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Error', 'Ability'];
+  ClusterIndexCtrl.$inject    = ['$controller', '$scope', '$rootScope', '$http', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Cookies', 'Error', 'Ability'];
   ClusterPreviewCtrl.$inject  = ['$scope', '$rootScope', 'Server', 'ServiceShareFunc', 'Error'];
   ClusterEditCtrl.$inject     = ['$scope', 'Flash', 'Server', 'Error'];
 
@@ -25,16 +25,19 @@
    * @param DTColumnBuilder
    * @param Server - описание: {@link DataCenter.Server}
    * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Cookies - описание: {@link DataCenter.Cookies}
    * @param Error - описание: {@link DataCenter.Error}
    * @param Ability - описание: {@link DataCenter.Ability}
    */
-  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
+  function ClusterIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Cookies, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
+    // Инициализация cookies
+    Cookies.Cluster.init();
 
     // Массив фильтра по отделам (данные берутся с сервера)
     self.deptOptions    = [
@@ -49,12 +52,13 @@
       }
     ];
     // Выбранный фильтр по отделам
-    self.selectedDeptOption   = self.deptOptions[0];
+    self.selectedDeptOption = !Cookies.Cluster.get('clusterDeptFilter') ? self.deptOptions[0].dept : Cookies.Cluster.get('clusterDeptFilter');
     // Выбранный фильтр по типу сервера
-    self.selectedTypeOption   = self.typeOptions[0];
+    self.selectedTypeOption = !Cookies.Cluster.get('clusterTypeFilter') ? self.typeOptions[0].id : Cookies.Cluster.get('clusterTypeFilter');
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
+      .withOption('stateSave', true)
       .withDataProp('data')
       .withOption('ajax', {
         url:  '/clusters.json',
@@ -62,7 +66,9 @@
           // Флаг, необходимый, чтобы получить с сервера все типы серверов
           clusterTypes: true,
           // Флаг, необходимый, чтобы получить с сервера все отделы
-          clusterDepts: true
+          clusterDepts: true,
+          deptFilter: self.selectedDeptOption,
+          typeFilter: self.selectedTypeOption
         },
         error: function (response) {
           Error.response(response);
@@ -147,13 +153,13 @@
       // Заполнить список фильтра по типам оборудования
       if (json.node_roles) {
         self.typeOptions        = self.typeOptions.concat(json.node_roles);
-        self.selectedTypeOption = self.typeOptions[0];
+        self.selectedTypeOption = !Cookies.Cluster.get('clusterTypeFilter') ? self.typeOptions[0].id : Cookies.Cluster.get('clusterTypeFilter');
       }
 
       // Заполнить список фильтра по отделам
       if (json.depts) {
         self.deptOptions        = self.deptOptions.concat(json.depts);
-        self.selectedDeptOption = self.deptOptions[0];
+        self.selectedDeptOption = !Cookies.Cluster.get('clusterDeptFilter') ? self.deptOptions[0].dept : Cookies.Cluster.get('clusterDeptFilter');
       }
     }
 
@@ -242,7 +248,7 @@
       self.dtInstance.changeData({
         url:  '/clusters.json',
         data: {
-          deptFilter: self.selectedDeptOption.dept,
+          deptFilter: self.selectedDeptOption,
           typeFilter: self.selectedTypeOption.id
         }
       });
@@ -293,6 +299,9 @@
      * @methodOf DataCenter.ClusterIndexCtrl
      */
     self.changeFilter = function () {
+      Cookies.Cluster.set('clusterDeptFilter', self.selectedDeptOption);
+      Cookies.Cluster.set('clusterTypeFilter', self.selectedTypeOption);
+
       newQuery();
     };
 

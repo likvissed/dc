@@ -462,6 +462,14 @@
             serverStatusFilter: 'all'
           };
           break;
+        case 'cluster':
+          obj = {
+            // Фильтр серверов по типу
+            clusterTypeFilter: '0',
+            // Фильтр серверов по отделу
+            clusterDeptFilter: 'Все отделы'
+          };
+          break;
       }
 
       if (angular.isUndefined($cookies.getObject(name)))
@@ -505,14 +513,68 @@
        * @methodOf DataCenter.Cookies
        */
       Service: {
+        /**
+         * Инициализация cookies объекта Service.
+         *
+         * @methodOf DataCenter.Cookies.Service
+         */
         init: function () {
           init('service')
         },
+        /**
+         * Получить cookies объекта Service.
+         *
+         * @methodOf DataCenter.Cookies.Service
+         * @param key - необязательный параметр. Ключ объекта
+         * @returns {*}
+         */
         get: function (key) {
           return getCookie('service', key);
         },
+        /**
+         * Установить cookies в объект Service.
+         *
+         * @methodOf DataCenter.Cookies.Service
+         * @param key - ключ объекта
+         * @param value - значение
+         */
         set: function (key, value) {
           setCookie('service', key, value);
+        }
+      },
+      /**
+       * Объект для работы с cookies страницы оборудования.
+       *
+       * @methodOf DataCenter.Cookies
+       */
+      Server: {
+        /**
+         * Инициализация cookies объекта Server.
+         *
+         * @methodOf DataCenter.Cookies.Server
+         */
+        init: function () {
+          init('server')
+        },
+        /**
+         * Получить cookies объекта Server.
+         *
+         * @methodOf DataCenter.Cookies.Server
+         * @param key - необязательный параметр. Ключ объекта
+         * @returns {*}
+         */
+        get: function (key) {
+          return getCookie('server', key);
+        },
+        /**
+         * Установить cookies в объект Server.
+         *
+         * @methodOf DataCenter.Cookies.Server
+         * @param key - ключ объекта
+         * @param value - значение
+         */
+        set: function (key, value) {
+          setCookie('server', key, value);
         }
       },
       /**
@@ -520,15 +582,34 @@
        *
        * @methodOf DataCenter.Cookies
        */
-      Server: {
+      Cluster: {
+        /**
+         * Инициализация cookies объекта Cluster.
+         *
+         * @methodOf DataCenter.Cookies.Cluster
+         */
         init: function () {
-          init('server')
+          init('cluster')
         },
+        /**
+         * Получить cookies объекта Cluster.
+         *
+         * @methodOf DataCenter.Cookies.Cluster
+         * @param key - необязательный параметр. Ключ объекта
+         * @returns {*}
+         */
         get: function (key) {
-          return getCookie('server', key);
+          return getCookie('cluster', key);
         },
+        /**
+         * Установить cookies в объект Cluster.
+         *
+         * @methodOf DataCenter.Cookies.Cluster
+         * @param key - ключ объекта
+         * @param value - значение
+         */
         set: function (key, value) {
-          setCookie('server', key, value);
+          setCookie('cluster', key, value);
         }
       }
     }

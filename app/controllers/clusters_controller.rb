@@ -19,7 +19,7 @@ class ClustersController < ApplicationController
         @clusters = @clusters.joins(:cluster_details).where(cluster_details: { node_role_id: params[:typeFilter] })
                       .uniq unless params[:typeFilter].to_i.zero?
         # Фильтр по отделу
-        if params[:deptFilter] != 'Все отделы' && params[:deptFilter] != 'Без отделов' && params[:clusterTypes] !='true'
+        if params[:deptFilter] != 'Все отделы' && params[:deptFilter] != 'Без отделов'
           # Получаем список серверов, которые имеют сервисы с выбранным номером отдела.
           # Внимание! В выборке будут отсутствовать сервисы других отделов, даже если они расположены на серверах,
           # попавших в выборку.
