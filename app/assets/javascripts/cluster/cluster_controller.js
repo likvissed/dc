@@ -435,6 +435,9 @@
 
       // Данные, полученные с сервера
       var data = json.response;
+
+      // Статус
+      self.status         = data.status;
       // Имя сервера
       self.name           = data.name;
       // Состав сервера
@@ -447,6 +450,20 @@
       self.presenceCount  = data.cluster_details.length;
       // Показывает, вызвана ли функция из режима просмотра формуляра (наличие имени - флаг)
       self.fromService    = json.fromService;
+
+      switch (self.status) {
+        case 'В работе':
+          self.name += ' <span class="label label-success">В работе</span>';
+          break;
+        case 'В тесте':
+          self.name += ' <span class="label label-warning">В тесте</span>';
+          break;
+        case 'Не используется':
+          self.name += ' <span class="label label-default">Не используется</span>';
+          break;
+        default:
+          break;
+      }
 
       // Установить флаги приоритетов для полученных сервисов
       $.each(self.services, function (index, value) {

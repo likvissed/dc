@@ -70,6 +70,7 @@ class ClustersController < ApplicationController
             }
           },
           except: [:id, :created_at, :updated_at])
+            .merge({ status: @cluster.get_status })
 
         @cluster[:depts] = @cluster['services'].map{ |s| s['dept']  }.uniq.join(', ')
 
