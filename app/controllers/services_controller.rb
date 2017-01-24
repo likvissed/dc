@@ -75,11 +75,12 @@ class ServicesController < ApplicationController
             # Приоритет функционирования сервиса
             s[:flags][:priority] = s['priority']
             # Для тестовых затач проверить дату дедлайна (true - если now > deadline)
-            s[:flags][:deadline] = if s['deadline'].nil?
-                                     false
-                                   else
-                                     now > s['deadline']
-                                   end
+            # s[:flags][:deadline] = if s['deadline'].nil?
+            #                          false
+            #                        else
+            #                          now > s['deadline']
+            #                        end
+            s[:flags][:deadline] = check_service_deadline s
             s[:flags][:exploitation] = s['exploitation']
 
             # Передать только фамилию у ответственных
@@ -132,21 +133,15 @@ class ServicesController < ApplicationController
     respond_to do |format|
       format.json do
         # Массив с флагами отсутствия файлов скана/акта/инструкций
-        missing_file = get_missing_files(@service)
-
-        service = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
+        missing_file  = get_missing_files(@service)
+        service       = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
 
         # Установить номер формуляра
-        service[:number] = @service.get_service_number
+        service[:number]    = @service.get_service_number
         # Проверить, прошел ли дедлайн для тестового сервиса
-        deadline = if service['deadline'].nil?
-                     false
-                   else
-                     Time.now.to_date > service['deadline']
-                   end
-
-        # Установить дедлайн для приоритета "Тестирование и отладка"
-        service[:deadline] = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
+        deadline            = check_service_deadline service
+        # Установить время дедлайна для приоритета "Тестирование и отладка"
+        service[:deadline]  = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 
         render json: {
           service:      service,

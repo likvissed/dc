@@ -73,6 +73,7 @@ class ClustersController < ApplicationController
             .merge({ status: @cluster.get_status })
 
         @cluster[:depts] = @cluster['services'].map{ |s| s['dept']  }.uniq.join(', ')
+        @cluster['services'] = @cluster['services'].each { |c| c['deadline'] = check_service_deadline c }
 
         render json: @cluster
       end

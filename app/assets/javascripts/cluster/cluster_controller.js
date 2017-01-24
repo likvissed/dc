@@ -436,6 +436,7 @@
       // Данные, полученные с сервера
       var data = json.response;
 
+      console.log(json);
       // Статус
       self.status         = data.status;
       // Имя сервера

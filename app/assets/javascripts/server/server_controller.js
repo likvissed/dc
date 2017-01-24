@@ -322,7 +322,7 @@
         self.type         = data.server_type.name;
 
       // В состав какого сервера входит
-      self.cluster = data.clusters;
+      self.cluster        = data.clusters;
       // Инвентарный номер
       self.inventory_num  = data.inventory_num;
       // Серийный номер
