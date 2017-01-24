@@ -45,18 +45,6 @@
       {
         value:  'all',
         string: 'Все статусы'
-      },
-      {
-        value:  'work',
-        string: 'В работе'
-      },
-      {
-        value:  'test',
-        string: 'В тесте'
-      },
-      {
-        value:  'inactive',
-        string: 'Не используется'
       }
     ];
     // Массив фильтра по типу оборудования (данные берутся с сервера)
@@ -81,7 +69,10 @@
       .withOption('ajax', {
         url:  '/servers.json',
         data: {
+          // Флаг, необходимый, чтобы получить с сервера все типы оборудования
           serverTypes:  true,
+          // Флаг, необходимый, чтобы получить с сервера все статусы оборудования
+          serverStatuses:  true,
           statusFilter: self.selectedStatusOption,
           typeFilter:   self.selectedTypeOption
         },
@@ -175,6 +166,11 @@
       if (json.server_types) {
         self.typeOptions        = self.typeOptions.concat(json.server_types);
         self.selectedTypeOption = !Cookies.Server.get('serverTypeFilter') ? self.typeOptions[0].id : Cookies.Server.get('serverTypeFilter');
+      }
+
+      if (json.statuses) {
+        self.statusOptions        = self.statusOptions.concat(json.statuses);
+        self.selectedStatusOption = !Cookies.Server.get('serverStatusFilter') ? self.statusOptions[0].value : Cookies.Server.get('serverStatusFilter');
       }
     }
 

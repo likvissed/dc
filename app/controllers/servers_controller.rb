@@ -16,6 +16,9 @@ class ServersController < ApplicationController
                           .includes(:server_type)
         # Получить список типов серверов при построении таблицы
         @server_types = ServerType.select(:id, :name).order(:id) if params[:serverTypes] == 'true'
+        # Получить список статусов серверов
+        statuses = Service::STATUSES.inject([]) { |arr, (key, val)| arr.push({ string: val, value: key }) } if
+          params[:serverStatuses] == 'true'
 
         # Применить фильтры к полученным данным, если это необходимо
         @servers = @servers.where(server_type_id: params[:typeFilter]) unless params[:typeFilter].to_i.zero?
@@ -31,7 +34,7 @@ class ServersController < ApplicationController
             .merge({ status: s.get_status })
             .merge({ location: s.get_location })
         end
-        render json: { data: data, server_types: @server_types }
+        render json: { data: data, server_types: @server_types, statuses: statuses }
       end
     end
   end
