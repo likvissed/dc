@@ -467,7 +467,9 @@
             // Фильтр серверов по типу
             clusterTypeFilter: '0',
             // Фильтр серверов по отделу
-            clusterDeptFilter: 'Все отделы'
+            clusterDeptFilter: 'Все отделы',
+            // Фильтр серверов по статусу
+            clusterStatusFilter: 'all'
           };
           break;
       }

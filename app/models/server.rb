@@ -21,7 +21,7 @@ class Server < ActiveRecord::Base
   validates :inventory_num, uniqueness: { case_sensitive: false }
   validates :server_type_id, numericality: { greater_than: 0 }
 
-  # Получить список оборудования с указанным статусом.
+  # Получить список серверов с указанным статусом.
   def self.where_status_is(status)
     all.reject { |s| s.get_status != Service::STATUSES[status.to_sym] }
   end
@@ -42,9 +42,7 @@ class Server < ActiveRecord::Base
           break
         end
 
-        if s.priority == "Тестирование и отладка"
-          level = 2
-        end
+        level = 2 if s.priority == "Тестирование и отладка"
       end
       break if level == 1
     end

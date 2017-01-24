@@ -14,6 +14,9 @@ class ClustersController < ApplicationController
         @node_roles = NodeRole.select(:id, :name).order(:id) if params[:clusterTypes] == 'true'
         # Список известных отделов
         @services   = Service.select(:dept).where.not(dept: nil).uniq if params[:clusterDepts] == 'true'
+        # Список статусов серверов
+        statuses = Service::STATUSES.inject([]) { |arr, (key, val)| arr.push({ string: val, value: key }) } if
+          params[:clusterStatuses] == 'true'
 
         # Фильтр по типу сервера
         @clusters = @clusters.joins(:cluster_details).where(cluster_details: { node_role_id: params[:typeFilter] })
@@ -27,20 +30,25 @@ class ClustersController < ApplicationController
           # Сделать новый запрос к базе для получения списка серверов и ВСЕХ ассоциированных сервисов.
           @clusters = Cluster.select(:id, :name).order(:id).includes(:services).where(id: @clusters_filtered.each{
             |c| c.id })
-        elsif params[:deptFilter] == 'Без отделов' && params[:clusterTypes] != 'true'
+        elsif params[:deptFilter] == 'Без отделов'
           @clusters = @clusters.where(services: { dept: nil })
         end
 
-        # Объединить отделы со всех сервисов каждого кластера в соответствующие массивы
-        @clusters = @clusters.as_json(
-          include: {
-           services: { only: :dept }
-          }
-        ).each do |c|
-          c['services'] = c['services'].uniq.map{ |s| s['dept'] }.join(', ')
-        end
+        # Фильтр по статусу сервера
+        @clusters = @clusters.where_status_is params[:statusFilter] unless params[:statusFilter] == 'all'
 
-        render json: { data: @clusters, node_roles: @node_roles, depts: @services }
+        @clusters = @clusters.map { |c|
+          c.as_json(
+            include: {
+              services: { only: :dept }
+            },
+            except: :server_type_id
+          )
+            .merge({ status: c.get_status })
+
+        }.each { |c| c['services'] = c['services'].uniq.map{ |s| s['dept'] }.join(', ') }
+
+        render json: { data: @clusters, node_roles: @node_roles, depts: @services, statuses: statuses}
       end
     end
   end

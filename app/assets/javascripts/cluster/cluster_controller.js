@@ -51,10 +51,20 @@
         name: 'Все типы'
       }
     ];
+    // Массив фильтра по статусу сервера (данные берутся с сервера)
+    self.statusOptions = [
+      {
+        value:  'all',
+        string: 'Все статусы'
+      }
+    ];
     // Выбранный фильтр по отделам
-    self.selectedDeptOption = !Cookies.Cluster.get('clusterDeptFilter') ? self.deptOptions[0].dept : Cookies.Cluster.get('clusterDeptFilter');
+    self.selectedDeptOption   = !Cookies.Cluster.get('clusterDeptFilter') ? self.deptOptions[0].dept : Cookies.Cluster.get('clusterDeptFilter');
     // Выбранный фильтр по типу сервера
-    self.selectedTypeOption = !Cookies.Cluster.get('clusterTypeFilter') ? self.typeOptions[0].id : Cookies.Cluster.get('clusterTypeFilter');
+    self.selectedTypeOption   = !Cookies.Cluster.get('clusterTypeFilter') ? self.typeOptions[0].id : Cookies.Cluster.get('clusterTypeFilter');
+    // Выбранный фильтр по статусу сервера
+    self.selectedStatusOption = !Cookies.Cluster.get('clusterStatusFilter') ? self.statusOptions[0].value : Cookies.Cluster.get('clusterStatusFilter');
+    // self.selectedStatusOption = self.statusOptions[0].value;
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
@@ -64,11 +74,14 @@
         url:  '/clusters.json',
         data: {
           // Флаг, необходимый, чтобы получить с сервера все типы серверов
-          clusterTypes: true,
+          clusterTypes:     true,
           // Флаг, необходимый, чтобы получить с сервера все отделы
-          clusterDepts: true,
-          deptFilter: self.selectedDeptOption,
-          typeFilter: self.selectedTypeOption
+          clusterDepts:     true,
+          // Флаг, необходимый, чтобы получить с сервера все статусы
+          clusterStatuses:  true,
+          deptFilter:       self.selectedDeptOption,
+          typeFilter:       self.selectedTypeOption,
+          statusFilter:     self.selectedStatusOption
         },
         error: function (response) {
           Error.response(response);
@@ -80,11 +93,13 @@
       '<"row"' +
         '<"col-sm-2 col-md-2 col-lg-1"' +
           '<"#clusters.new-record">>' +
-        '<"col-sm-4 col-md-4 col-lg-5">' +
+        '<"col-sm-2 col-md-2 col-lg-3">' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
           '<"cluster-dept-filter">>' +
         '<"col-sm-2 col-md-2s col-lg-2"' +
           '<"cluster-type-filter">>' +
+        '<"col-sm-2 col-md-2 col-lg-2"' +
+          '<"cluster-status-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"f>>' +
       't<"row"' +
         '<"col-md-6"i>' +
@@ -93,9 +108,10 @@
 
     self.dtColumns      = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
-      DTColumnBuilder.newColumn('name').withTitle('Серверы').withOption('className', 'col-lg-9'),
-      DTColumnBuilder.newColumn('services').withTitle('Отделы').notSortable().withOption('className', 'col-lg-2' +
+      DTColumnBuilder.newColumn('name').withTitle('Сервер').withOption('className', 'col-lg-7'),
+      DTColumnBuilder.newColumn('services').withTitle('Отдел').notSortable().withOption('className', 'col-lg-2' +
         ' text-center'),
+      DTColumnBuilder.newColumn('status').withTitle('Статус').notSortable().withOption('className', 'col-lg-2'),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
@@ -160,6 +176,11 @@
       if (json.depts) {
         self.deptOptions        = self.deptOptions.concat(json.depts);
         self.selectedDeptOption = !Cookies.Cluster.get('clusterDeptFilter') ? self.deptOptions[0].dept : Cookies.Cluster.get('clusterDeptFilter');
+      }
+
+      if (json.statuses) {
+        self.statusOptions        = self.statusOptions.concat(json.statuses);
+        self.selectedStatusOption = !Cookies.Cluster.get('clusterStatusFilter') ? self.statusOptions[0].value : Cookies.Cluster.get('clusterStatusFilter');
       }
     }
 
@@ -248,8 +269,9 @@
       self.dtInstance.changeData({
         url:  '/clusters.json',
         data: {
-          deptFilter: self.selectedDeptOption,
-          typeFilter: self.selectedTypeOption.id
+          deptFilter:   self.selectedDeptOption,
+          typeFilter:   self.selectedTypeOption,
+          statusFilter: self.selectedStatusOption
         }
       });
     }
@@ -301,6 +323,7 @@
     self.changeFilter = function () {
       Cookies.Cluster.set('clusterDeptFilter', self.selectedDeptOption);
       Cookies.Cluster.set('clusterTypeFilter', self.selectedTypeOption);
+      Cookies.Cluster.set('clusterStatusFilter', self.selectedStatusOption);
 
       newQuery();
     };

@@ -5,8 +5,10 @@
 
   app
     .directive('clusterDeptFilter', clusterDeptFilter)
-    .directive('clusterTypeFilter', clusterTypeFilter);
+    .directive('clusterTypeFilter', clusterTypeFilter)
+    .directive('clusterStatusFilter', clusterStatusFilter);
 
+  // Фильтр по отделам
   function clusterDeptFilter() {
     return {
       restrict: 'C',
@@ -16,12 +18,23 @@
     }
   }
 
+  // Фильтр по типу сервера
   function clusterTypeFilter() {
     return {
       restrict: 'C',
       template: '<select class="form-control" ng-change="clusterPage.changeFilter()"' +
       ' ng-model="clusterPage.selectedTypeOption" ng-options="option.id as option.name for option in' +
       ' clusterPage.typeOptions"></select>'
+    }
+  }
+
+  // Фильтр по статусу сервера
+  function clusterStatusFilter() {
+    return {
+      restrict: 'C',
+      template: '<select class="form-control" ng-change="clusterPage.changeFilter()"' +
+      ' ng-model="clusterPage.selectedStatusOption" ng-options="option.value as option.string for option in' +
+      ' clusterPage.statusOptions"></select>'
     }
   }
 })();

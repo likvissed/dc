@@ -79,6 +79,7 @@
 
             $compile(element.find('.cluster-dept-filter'))(scope);
             $compile(element.find('.cluster-type-filter'))(scope);
+            $compile(element.find('.cluster-status-filter'))(scope);
 
             $compile(element.find('.server-status-filter'))(scope);
             $compile(element.find('.server-type-filter'))(scope);
@@ -102,7 +103,8 @@
             if (scope.clusterPage)
               return [
                 scope.clusterPage.selectedDeptOption,
-                scope.clusterPage.selectedTypeOption
+                scope.clusterPage.selectedTypeOption,
+                scope.clusterPage.selectedStatusOption
               ];
 
             // Для таблицы серверов

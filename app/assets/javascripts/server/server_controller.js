@@ -83,7 +83,7 @@
         data: {
           serverTypes:  true,
           statusFilter: self.selectedStatusOption,
-          typeFilter: self.selectedTypeOption
+          typeFilter:   self.selectedTypeOption
         },
         error: function (response) {
           Error.response(response);
