@@ -62,7 +62,7 @@
 
 #require 'capistrano/rails'
 
-set :deploy_to, '/var/www/html/dc_app'
+set :deploy_to, '/var/www/dc'
 server 'dc', user: 'deployer', roles: %w{web app dc}
 
 =begin
