@@ -60,3 +60,5 @@ config/redis.yml
 #/spec/views
 /specifications
 /cached_pages/*
+.env
+config/server.yml

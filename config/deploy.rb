@@ -48,6 +48,7 @@ lock '3.5.0'
 
 #end
 
+server 'dc', user: 'deployer', roles: %w[web app db]
 set :ssh_options, forward_agent: false, user: 'deployer'
 # keys: %w(/home/ravil/.ssh/id_rsa)
 
@@ -66,7 +67,7 @@ set :deploy_via, :remote_cache
 set :use_sudo, false
 set :passenger_restart_with_touch, true
 
-set :linked_files, %w[config/database.yml .env]
+set :linked_files, %w[config/database.yml config/server.yml .env]
 set :linked_dirs, %w[log tmp/pids tmp/cache vendor/bundle public/system]
 
 # role :web, 'dc'
