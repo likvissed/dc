@@ -39,7 +39,8 @@ class ServerPartsController < ApplicationController
         if DetailType.exists?
           render json: { detail_types: DetailType.select(:id, :name).order(:id) }, status: :ok
         else
-          render json: { full_message: "Перед созданием комплектующих необходимо создать \"Типы комплектующих\"" }, status: :unprocessable_entity
+          render json: { full_message: "Перед созданием комплектующих необходимо создать \"Типы комплектующих\"" },
+                 status: :unprocessable_entity
         end
       end
     end
@@ -53,14 +54,17 @@ class ServerPartsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @server_part.errors, full_message: "Ошибка. #{ @server_part.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @server_part.errors, full_message: "Ошибка. #{ @server_part.errors
+                                                                                              .full_messages.join(",
+") }" }, status: :unprocessable_entity }
       end
     end
   end
 
   def edit
     respond_to do |format|
-      format.json { render json: { data: @server_part, detail_types: DetailType.select(:id, :name).order(:id) }, status: :ok }
+      format.json { render json: { data: @server_part, detail_types: DetailType.select(:id, :name).order(:id) },
+                           status: :ok }
     end
   end
 
@@ -71,7 +75,9 @@ class ServerPartsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @server_part.errors, full_message: "Ошибка. #{ @server_part.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @server_part.errors, full_message: "Ошибка. #{ @server_part.errors
+                                                                                              .full_messages.join(",
+") }" }, status: :unprocessable_entity }
       end
     end
   end
@@ -83,7 +89,8 @@ class ServerPartsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @server_part.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @server_part.errors.full_messages.join(", ") }" },
+                             status: :unprocessable_entity }
       end
     end
   end

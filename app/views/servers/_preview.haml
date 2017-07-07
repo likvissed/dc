@@ -4,27 +4,33 @@
       .modal-header
         .pull-right
           - if can? :manage, Server
-            = link_to icon("fa fa-cog fa-fw pointer"), "", class: "default-color", "ng-href": "/servers/{{ preview.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать оборудование"
-        %h4.modal-title{ "ng-bind": "preview.name + ' (' + preview.status + ')'" }
+            = link_to icon("fa fa-cog fa-fw pointer"), "", class: "default-color", "ng-href": "/servers/{{ preview |
+            .inventory_num }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать оборудование" |
+        %h4.modal-title
+          %div{ "ng-bind-html": "preview.title" }
       .modal-body
         %h4 Описание
         %table.table.table-striped
           %tbody
             %tr
-              %td.col-md-4 Расположение
+              %td.col-md-3 Расположение
               %td{ "ng-bind": "preview.location" }
             %tr
               %td Тип сервера
               %td{ "ng-bind": "preview.type" }
             %tr
-              %td Кластер/Сервер
-              %td{ "ng-bind": "preview.cluster" }
-            %tr
-              %td Инвентарный номер
-              %td{ "ng-bind": "preview.inventory_num" }
-            %tr
               %td Серийный номер
               %td{ "ng-bind": "preview.serial_num" }
+            %tr
+              %td Кластер/Сервер
+              %td
+                %table.table.table-condensed
+                  %tr{ "ng-repeat": "server in preview.cluster" }
+                    %td{ "ng-bind": "server.name" }
+            %tr
+              %td Комментарий
+              %td{"ng-bind": "preview.comment"}
+
         .inline-block
           %h4.ng-hide{ "ng-hide": "preview.presenceCount == 0" } Состав
           %h4.text-muted.ng-hide{ "ng-hide": "preview.presenceCount != 0" } Состав отсутствует

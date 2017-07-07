@@ -10,39 +10,39 @@ class ServersController < ApplicationController
     respond_to do |format|
       format.html
       format.json do
-        @servers      = Server.select(:id, :name, :server_type_id, :status, :location).order(:id).includes(:server_type)
+        @servers      = Server
+                          .select(:id, :inventory_num, :server_type_id, :loc_area, :loc_stand, :loc_place, :comment)
+                          .order(:id)
+                          .includes(:server_type)
         # Получить список типов серверов при построении таблицы
         @server_types = ServerType.select(:id, :name).order(:id) if params[:serverTypes] == 'true'
-
-        status_filter = case params[:statusFilter]
-                          when 'atWork'
-                            Server.statuses["В работе"]
-                          when 'test'
-                            Server.statuses["Тест"]
-                          when 'inactive'
-                            Server.statuses["Простой"]
-                          else
-                            nil
-                        end
+        # Получить список статусов серверов
+        statuses = Service::STATUSES.inject([]) { |arr, (key, val)| arr.push({ string: val, value: key }) } if
+          params[:serverStatuses] == 'true'
 
         # Применить фильтры к полученным данным, если это необходимо
-        @servers = @servers.where(status: status_filter) unless status_filter.nil?
         @servers = @servers.where(server_type_id: params[:typeFilter]) unless params[:typeFilter].to_i.zero?
+        @servers = @servers.where_status_is params[:statusFilter] unless params[:statusFilter] == 'all'
 
-        data = @servers.as_json(
-          include: {
-            server_type: { only: :name }
-          },
-          except: :server_type_id
-        )
-        render json: { data: data, server_types: @server_types }
+        data = @servers.map do |s|
+          s.as_json(
+            include: {
+              server_type: { only: :name }
+            },
+            except: :server_type_id
+          )
+            .merge({ status: s.get_status })
+            .merge({ location: s.get_location })
+        end
+        render json: { data: data, server_types: @server_types, statuses: statuses }
       end
     end
   end
 
   def show
     respond_to do |format|
-      format.json { render json: @server.as_json(include: {
+      format.json do
+        render json: @server.as_json( include: {
           server_type: { only: :name },
           clusters: { only: :name },
           real_server_details: {
@@ -60,7 +60,9 @@ class ServersController < ApplicationController
           },
         },
         except: [:id, :created_at, :updated_at, :server_type_id, :cluster_id])
-      }
+          .merge({ status: @server.get_status })
+          .merge({ location: @server.get_location })
+      end
     end
   end
 
@@ -78,7 +80,8 @@ class ServersController < ApplicationController
       format.json do
         render json: {
                  server_types: ServerType.select(:id, :name).order(:id),
-                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: {
+                   server_parts: { only: [:id, :name] } })
                }
       end
     end
@@ -140,7 +143,8 @@ class ServersController < ApplicationController
             real_server_details:  hash
           },
           server_types: ServerType.select(:id, :name).order(:id),
-          detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+          detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: {
+            server_parts: { only: [:id, :name] } })
         }
       end
     end
@@ -163,7 +167,8 @@ class ServersController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @server.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @server.errors.full_messages.join(", ") }" }, status:
+          :unprocessable_entity }
       end
     end
   end
@@ -184,17 +189,18 @@ class ServersController < ApplicationController
     params.require(:server).permit(
       :cluster_id,
       :server_type_id,
-      :name,
-      :status,
       :inventory_num,
       :serial_num,
-      :location,
+      :loc_area,
+      :loc_stand,
+      :loc_place,
+      :comment,
       real_server_details_attributes: [:id, :server_id, :server_part_id, :count, :_destroy])
   end
 
   # Поиск данных о типе запчасти по name
   def find_server_by_name
-    @server = Server.find_by(name: params[:name])
+    @server = Server.find_by(inventory_num: params[:inventory_num])
   end
 
   # Поиск данных о типе запчасти по id

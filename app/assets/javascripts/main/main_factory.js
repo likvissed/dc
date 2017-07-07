@@ -1,12 +1,15 @@
 (function() {
   app
-    .service('Flash', Flash)                          // Сервис уведомлений пользователя (как об успешных операциях, так и об ошибках)
+    .service('Flash', Flash)                          // Сервис уведомлений пользователя (как об успешных операциях,
+    // так и об ошибках)
     .service('Error', Error)                          // Сервис обработки ошибок
-    .service('Ability', Ability)                      // Хранит роль пользователя и проверяет права доступа к определенным объектам
+    .service('Ability', Ability)                      // Хранит роль пользователя и проверяет права доступа к
+    // определенным объектам
     .factory('Server', Server)                        // Фабрика для работы с CRUD действиями
     .factory('GetDataFromServer', GetDataFromServer)  // Фабрика для работы с new и edit действиями
-    .factory('myHttpInterceptor', myHttpInterceptor); // Фабрика для настройки параметрв для индикатора выполнения ajax запросов
-
+    .factory('myHttpInterceptor', myHttpInterceptor)  // Фабрика для настройки параметрв для индикатора выполнения
+    // ajax запросов
+    .factory('Cookies', Cookies);                     // Фабрика для работы с куками.
 
   Flash.$inject             = ['$timeout'];
   Error.$inject             = ['Flash'];
@@ -14,9 +17,16 @@
   Server.$inject            = ['$resource'];
   GetDataFromServer.$inject = ['$http', '$q'];
   myHttpInterceptor.$inject = ['$q'];
+  Cookies.$inject           = ['$cookies'];
 
 // =====================================================================================================================
 
+  /**
+   * Сервис уведомления пользователей как об успешных операциях, так и об ошибочных.
+   *
+   * @class DataCenter.Flash
+   * @param $timeout
+   */
   function Flash($timeout) {
     var self = this;
 
@@ -25,6 +35,12 @@
       alert:  ''
     };
 
+    /**
+     * Показать notice уведомление и скрыть его через 2 секунды.
+     *
+     * @methodOf DataCenter.Flash
+     * @param message - сообщение, которое необходимо вывести
+     */
     self.notice = function (message) {
       self.flash.alert  = null;
       self.flash.notice = message;
@@ -34,6 +50,12 @@
       }, 2000);
     };
 
+    /**
+     * Показать alert уведомление.
+     *
+     * @methodOf DataCenter.Flash
+     * @param message - сообщение, которое необходимо вывести
+     */
     self.alert = function (message) {
       self.flash.notice = null;
       self.flash.alert  = message;
@@ -42,15 +64,32 @@
 
 // =====================================================================================================================
 
+  /**
+   * Сервис обработки ошибок, полученных с сервера.
+   *
+   * @class DataCenter.Error
+   * @param Flash
+   */
   function Error(Flash) {
     var self = this;
 
+    /**
+     * Обработать ответ сервера, содержащий ошибку и вывести сообщение об ошибке пользователю.
+     *
+     * @methodOf DataCenter.Error
+     * @param response - объект, содержащий ответ сервера
+     * @param status - статус ответа (необязательный параметр, используется, если не удается найти статус в
+     * параметре "response")
+     */
     self.response = function (response, status) {
       var code; // код ответа
 
       code = (response && response.status) ? parseInt(response.status): parseInt(status);
 
       switch(code) {
+        case 401:
+          Flash.alert('Ваш сеанс закончился. Пожалуйста, войдите в систему снова.');
+          break;
         case 403:
           Flash.alert('Доступ запрещен.');
           break;
@@ -70,19 +109,33 @@
 
 // =====================================================================================================================
 
+  /**
+   * Сервис для хранения роли пользователя и проверки права доступа к определенным объектам.
+   *
+   * @class DataCenter.Ability
+   * @param $q
+   * @param $timeout
+   * @param Server
+   */
   function Ability($q, $timeout, Server) {
     var self = this;
 
-    var
-      role          = null, // Роль пользователя
-      requestsCount = 0,    // Счетчик запросов (не делать новый запрос, если != 0, т.к. кто-то его уже сделал)
-      count         = 0,    // Счетчик прохода цикла функции timeout (если == limit, остановить цикл)
-      limit         = 400;  // Лимит, при котором необходимо остановить цикл проверки роли - 20 секунд (400 циклов).
+    // Роль пользователя
+    var role          = null;
+    // Счетчик запросов (не делать новый запрос, если != 0, т.к. кто-то его уже сделал)
+    var requestsCount = 0;
+    // Счетчик прохода цикла функции timeout (если == limit, остановить цикл)
+    var count         = 0;
+    // Лимит, при котором необходимо остановить цикл проверки роли = 20 секунд (400 циклов).
+    var limit         = 400;
 
-// =============================================== Приватные функции ===================================================
-
-    // Установить таймаут на случай, если счетчик requestsCount != 0, а role = null. Это значит, что кто-то уже выполнил
-    // запрос на сервер для того, чтобы получить роль пользователя, но ответ еще не успел прийти.
+    /**
+     * Функция, устанавливающая таймаут на случай, если счетчик requestsCount != 0, а role = null. Это значит, что
+     * запрос на получение роли пользователя уже ушел, но ответ еще не успел прийти.
+     *
+     * @returns promise
+     * @private
+     */
     function waitingRole() {
       var deferred = $q.defer();
 
@@ -91,8 +144,14 @@
       return deferred.promise;
     }
 
-    // Функция ожидания роли. Выполнять таймаут до тех пор, пока не изменится значение переменной role или не пройдет.
-    function timeout (deferred) {
+    /**
+     * Функция ожидания роли. Выполнять таймаут до тех пор, пока не изменится значение переменной role или счетчик
+     * не дойдет до лимита.
+     *
+     * @param deferred
+     * @private
+     */
+    function timeout(deferred) {
       $timeout(function () {
         // Если подошел лимит, но роль так и не получили
         if (count == limit) {
@@ -111,9 +170,12 @@
       }, 50);
     }
 
-// =============================================== Публичные функции ===================================================
-
-    // Инициализация (проверка наличия роли, запрос на сервер)
+    /**
+     * Инициализация: проверка наличия роли; запрос на сервер, если роль отсутвтует.
+     *
+     * @methodOf DataCenter.Ability
+     * @returns promise
+     */
     self.init = function () {
       if (requestsCount != 0) {
         if (!role) {
@@ -124,7 +186,8 @@
               deferred.resolve(role);
             },
             function () {
-              deferred.reject({ full_message: "Ошибка. Не удалось проверить роль. Попробуйте обновить страницу. Если ошибка не исчезнет, обратитесь к администратору (тел. ***REMOVED***)", status: 422 });
+              deferred.reject({ full_message: "Ошибка. Не удалось проверить роль. Попробуйте обновить страницу. Если" +
+              " ошибка не исчезнет, обратитесь к администратору (тел. ***REMOVED***)", status: 422 });
             });
 
           return deferred.promise;
@@ -137,17 +200,33 @@
       return Server.UserRole.get({}).$promise;
     };
 
-    // Установить роль
+    /**
+     * Установить роль.
+     *
+     * @methodOf DataCenter.Ability
+     * @param new_role - роль, которую необходимо установить пользователю
+     */
     self.setRole = function (new_role) {
       role = new_role;
     };
 
-    // Получить роль
+    /**
+     * Получить текущую роль пользователя
+     *
+     * @methodOf DataCenter.Ability
+     * @returns role
+     */
     self.getRole = function () {
       return role;
     };
 
-    // Проверка прав доступа
+    /**
+     * Проверка прав доступа к объекту.
+     *
+     * @methodOf DataCenter.Ability
+     * @param type - тип объекта, к которому запрашивается доступ
+     * @returns {boolean}
+     */
     self.canView = function (type) {
       switch (type) {
         case 'instr':
@@ -160,37 +239,107 @@
     // Проверка прав доступа (сейчас не используется):
     // 1. Существует ли массив объектов с указанный правом (read, manage и т.д.)
     // 2. Имеется ли в найденном массиве указанный объект или объект 'all'. Если да - значит есть право доступа.
-    // return (abilities && abilities[ability] && ($.inArray(model, abilities[ability]) != -1 || $.inArray('all', abilities[ability]) != -1)) ? true : false;
+    // return (abilities && abilities[ability] && ($.inArray(model, abilities[ability]) != -1 || $.inArray('all',
+    // abilities[ability]) != -1)) ? true : false;
   }
 
 // =====================================================================================================================
 
+  /**
+   * Фабрика для работы с CRUD действиями
+   *
+   * @class DataCenter.Server
+   * @param $resource
+   */
   function Server($resource) {
     return {
+      /**
+       * Ресурс модели сервисов (формуляров)
+       *
+       * @memberOf DataCenter.Server
+       */
       Service:        $resource('/services/:id.json'),
+      /**
+       * Ресурс модели контактов
+       *
+       * @memberOf DataCenter.Server
+       */
       Contact:        $resource('/contacts/:tn.json', {}, { update: { method: 'PATCH' } }),
+      /**
+       * Ресурс модели руководителей
+       *
+       * @memberOf DataCenter.Server
+       */
       DepartmentHead: $resource('/department_heads/:tn.json', {}, { update: { method: 'PATCH' } }),
 
+      /**
+       * Ресурс модели кластеров
+       *
+       * @memberOf DataCenter.Server
+       */
       Cluster:        $resource('/clusters/:id.json', {}, { update: { method: 'PATCH' } }),
+      /**
+       * Ресурс модели типов кластеров
+       *
+       * @memberOf DataCenter.Server
+       */
       NodeRole:       $resource('/node_roles/:id.json', {}, { update: { method: 'PATCH' } }),
 
+      /**
+       * Ресурс модели серверов
+       *
+       * @memberOf DataCenter.Server
+       */
       Server:         $resource('/servers/:id.json'),
+      /**
+       * Ресурс модели типов серверов
+       *
+       * @memberOf DataCenter.Server
+       */
       ServerType:     $resource('/server_types/:id.json'),
+      /**
+       * Ресурс модели комплектующих
+       *
+       * @memberOf DataCenter.Server
+       */
       ServerPart:     $resource('/server_parts/:id.json', {}, { update: { method: 'PATCH' } }),
+      /**
+       * Ресурс модели типов комплектующих
+       *
+       * @memberOf DataCenter.Server
+       */
       DetailType:     $resource('/detail_types/:id.json', {}, { update: { method: 'PATCH' } }),
 
+      /**
+       * Ресурс модели ролей пользователей
+       *
+       * @memberOf DataCenter.Server
+       */
       UserRole:       $resource('/users/role.json')
     }
   }
 
 // =====================================================================================================================
 
-  // Фабрика для запросов на сервер на new и edit actions
-  // ctrl_name - имя контроллера, на который отправляется запрос
-  // id - id записи, определяющий, создается новая запись или редактируется существующая (0 - новая запись, id не существует)
-  // name - имя записи, данные к оторой необходимо найти
+  /**
+   * Фабрика для обработки запросов на сервер для действий new и edit.
+   *
+   * @class DataCenter.GetDataFromServer
+   * @param $http
+   * @param $q
+   */
   function GetDataFromServer($http, $q) {
     return {
+      /**
+       * Выполняет ajax запрос на сервер
+       *
+       * @memberOf DataCenter.GetDataFromServer
+       * @param ctrl_name - имя контроллера, на который отправляется запрос
+       * @param id - id записи, определяющий, создается новая запись или редактируется существующая (0 - новая запись,
+       * id не существует)
+       * @param name - имя записи, данные к оторой необходимо найти
+       * @returns {Promise}
+       */
       ajax: function (ctrl_name, id, name) {
         var deferred = $q.defer(); // создаем экземпляр должника
 
@@ -218,6 +367,12 @@
 
 // =====================================================================================================================
 
+  /**
+   * Фабрика для настройки параметрв для индикатора выполнения ajax запросов
+   *
+   * @class DataCenter.myHttpInterceptor
+   * @param $q
+   */
   function myHttpInterceptor($q) {
     var self = this;
 
@@ -225,19 +380,23 @@
       count: 0
     };
 
-// =============================================== Приватные функции ===================================================
-
-    // Увеличить счетчик запросов
+    /**
+     * Увеличить счетчик запросов
+     *
+     * @private
+     */
     function incCount() {
       self.requests.count ++;
     }
 
-    // Уменьшить счетчик запросов
+    /**
+     * Уменьшить счетчик запросов
+     *
+     * @private
+     */
     function decCount() {
       self.requests.count --;
     }
-
-// =============================================== Публичные функции ===================================================
 
     return {
       getRequestsCount: self.requests,
@@ -269,4 +428,194 @@
       }
     };
   }
+
+  /**
+   * Сервис для работы с cookies.
+   *
+   * @class DataCenter.Cookies
+   * @param $cookies
+   */
+  function Cookies($cookies) {
+    var obj;
+
+    /**
+     * Инициализация объектов.
+     *
+     * @param name
+     * @private
+     */
+    function init(name) {
+      switch (name) {
+        case 'service':
+          obj = {
+            // Показать только сервисы в эксплуатации
+            showOnlyExploitationServices: 'true',
+            // Фильтр сервисов
+            mainServiceFilter: 'all'
+          };
+          break;
+        case 'server':
+          obj = {
+            // Фильтр оборудования по типу
+            serverTypeFilter: 0,
+            // Фильтр оборудования по статусу
+            serverStatusFilter: 'all'
+          };
+          break;
+        case 'cluster':
+          obj = {
+            // Фильтр серверов по типу
+            clusterTypeFilter: 0,
+            // Фильтр серверов по отделу
+            clusterDeptFilter: 'Все отделы',
+            // Фильтр серверов по статусу
+            clusterStatusFilter: 'all'
+          };
+          break;
+      }
+
+      if (angular.isUndefined($cookies.getObject(name)))
+        $cookies.putObject(name, obj); // Установить начальные значения переменных куки
+      else
+        obj = $cookies.getObject(name); // Получить актуальные значения переменных куки.
+    }
+
+    /**
+     * Получить объект cookies с указанным именем.
+     * @param name - имя объекта
+     * @param key - имя свойства объекта
+     * @returns {*}
+     * @private
+     */
+    function getCookie(name, key) {
+      if (angular.isUndefined(key))
+        return $cookies.getObject(name);
+
+      return angular.isUndefined($cookies.getObject(name)) ? 'Cookies отсутсвуют' : $cookies.getObject(name)[key];
+    }
+
+    /**
+     * Установить объект cookies с указанным именем.
+     *
+     * @param name - имя объекта
+     * @param key - имя свойства объекта
+     * @param value - устанавливаемое значение
+     * @private
+     */
+    function setCookie(name, key, value) {
+      obj[key] = value;
+
+      $cookies.putObject(name, obj);
+    }
+
+    return {
+      /**
+       * Объект для работы с cookies страницы сервисов.
+       *
+       * @methodOf DataCenter.Cookies
+       */
+      Service: {
+        /**
+         * Инициализация cookies объекта Service.
+         *
+         * @methodOf DataCenter.Cookies.Service
+         */
+        init: function () {
+          init('service')
+        },
+        /**
+         * Получить cookies объекта Service.
+         *
+         * @methodOf DataCenter.Cookies.Service
+         * @param key - необязательный параметр. Ключ объекта
+         * @returns {*}
+         */
+        get: function (key) {
+          return getCookie('service', key);
+        },
+        /**
+         * Установить cookies в объект Service.
+         *
+         * @methodOf DataCenter.Cookies.Service
+         * @param key - ключ объекта
+         * @param value - значение
+         */
+        set: function (key, value) {
+          setCookie('service', key, value);
+        }
+      },
+      /**
+       * Объект для работы с cookies страницы оборудования.
+       *
+       * @methodOf DataCenter.Cookies
+       */
+      Server: {
+        /**
+         * Инициализация cookies объекта Server.
+         *
+         * @methodOf DataCenter.Cookies.Server
+         */
+        init: function () {
+          init('server')
+        },
+        /**
+         * Получить cookies объекта Server.
+         *
+         * @methodOf DataCenter.Cookies.Server
+         * @param key - необязательный параметр. Ключ объекта
+         * @returns {*}
+         */
+        get: function (key) {
+          return getCookie('server', key);
+        },
+        /**
+         * Установить cookies в объект Server.
+         *
+         * @methodOf DataCenter.Cookies.Server
+         * @param key - ключ объекта
+         * @param value - значение
+         */
+        set: function (key, value) {
+          setCookie('server', key, value);
+        }
+      },
+      /**
+       * Объект для работы с cookies страницы серверов.
+       *
+       * @methodOf DataCenter.Cookies
+       */
+      Cluster: {
+        /**
+         * Инициализация cookies объекта Cluster.
+         *
+         * @methodOf DataCenter.Cookies.Cluster
+         */
+        init: function () {
+          init('cluster')
+        },
+        /**
+         * Получить cookies объекта Cluster.
+         *
+         * @methodOf DataCenter.Cookies.Cluster
+         * @param key - необязательный параметр. Ключ объекта
+         * @returns {*}
+         */
+        get: function (key) {
+          return getCookie('cluster', key);
+        },
+        /**
+         * Установить cookies в объект Cluster.
+         *
+         * @methodOf DataCenter.Cookies.Cluster
+         * @param key - ключ объекта
+         * @param value - значение
+         */
+        set: function (key, value) {
+          setCookie('cluster', key, value);
+        }
+      }
+    }
+
+  }
+
 })();

@@ -603,7 +603,7 @@ if (typeof module !== "undefined" && typeof exports !== "undefined" && module.ex
 
     function dtDefaultOptions() {
         var options = {
-            loadingTemplate: '<h3>Loading...</h3>',
+            loadingTemplate: '<h3>Загрузка...</h3>',
             bootstrapOptions: {},
             setLoadingTemplate: setLoadingTemplate,
             setLanguageSource: setLanguageSource,

@@ -306,6 +306,14 @@ for ($k = 0; $k < 25; $k++) {
 //Данные для заполнения изменяющейся части таблицы
 //$localPorts = insertPorts($result['tcp_ports'], $result['udp_ports']);
 //$inetPorts = insertPorts($result['internet_tcp'], $result['internet_udp']);
+
+// Если нет открытых портов, доступных из ЛС
+if (empty($ports['local']))
+    $ports['local'] = 'Нет';
+// Если нет открытых портов, доступных и сети "Интернет"
+if (empty($ports['inet']))
+    $ports['inet'] = 'Нет';
+
 $arrSecColumn = array(
   $data['antivirus'],
   $data['firewall'],
@@ -314,8 +322,6 @@ $arrSecColumn = array(
   $data['internet'],
   $ports['local'],
   $ports['inet'],
-  '',
-  '',
   $data['type_mon'],
   $data['service_mon'],
   $data['hardware_mon'],

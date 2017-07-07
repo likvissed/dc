@@ -19,7 +19,9 @@ class NodeRolesController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @node_role.errors, full_message: "Ошибка. #{ @node_role.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @node_role.errors, full_message: "Ошибка. #{ @node_role.errors
+                                                                                            .full_messages.join(", ")
+        }" }, status: :unprocessable_entity }
       end
     end
   end
@@ -37,7 +39,9 @@ class NodeRolesController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @node_role.errors, full_message: "Ошибка. #{ @node_role.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @node_role.errors, full_message: "Ошибка. #{ @node_role.errors
+                                                                                            .full_messages.join(", ")
+        }" }, status: :unprocessable_entity }
       end
     end
   end
@@ -49,7 +53,8 @@ class NodeRolesController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @node_role.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @node_role.errors.full_messages.join(", ") }" },
+                             status: :unprocessable_entity }
       end
     end
   end

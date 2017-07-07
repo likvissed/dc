@@ -9,7 +9,7 @@
     .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)       // Работа с открытыми портами
     .controller('DependenceCtrl', DependenceCtrl);                // Устанавливает зависимости сервиса
 
-  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'ServiceCookies', 'ServiceShareFunc', 'Error', 'Ability'];
+  ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Cookies', 'ServiceShareFunc', 'Error', 'Ability'];
   ServicePreviewCtrl.$inject      = ['$scope', '$rootScope', 'Server', 'Ability', 'Error'];
   ServiceEditCtrl.$inject         = ['$scope', 'Service', 'GetDataFromServer', 'Error'];
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
@@ -18,14 +18,34 @@
 
 // =====================================================================================================================
 
-  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, ServiceCookies, ServiceShareFunc, Error, Ability) {
+  /**
+   * Управление общей таблицей сервисов.
+   *
+   * @class DataCenter.ServiceIndexCtrl
+   * @param $controller
+   * @param $scope
+   * @param $location
+   * @param $compile
+   * @param DTOptionsBuilder
+   * @param DTColumnBuilder
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Cookies - описание: {@link DataCenter.Cookies}
+   * @param ServiceShareFunc - описание: {@link DataCenter.ServiceShareFunc}
+   * @param Error - описание: {@link DataCenter.Error}
+   * @param Ability - описание: {@link DataCenter.Ability}
+   */
+  function ServiceIndexCtrl($controller, $scope, $location, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Cookies, ServiceShareFunc, Error, Ability) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
+    // Инициализация cookies.
+    Cookies.Service.init();
 
+    // Массив фильтров таблицы сервисов
     self.options = [
       {
         value:  'all',
@@ -57,7 +77,7 @@
       },
       {
         value:  'notUivt',
-        string: 'Сервисы других подразделений (не УИВТ)'
+        string: 'Сервисы других подразделений (не ***REMOVED***)'
       },
       {
         value:  'virt***REMOVED***',
@@ -76,16 +96,20 @@
         string: 'Система виртуализации ДМЗ сетевой службы'
       }
     ];
-    self.selectedOption = self.options[0];
-    self.exploitation   = ServiceCookies.get('showOnlyExploitationServices'); // Установить флаг, скрывающий сервисы, которые не введены в эксплуатацию
-    self.services       = {};     // Объекты сервисов (id => data)
+    // Выбранный элемент фильтра таблицы сервисов
+    self.selectedOption = !Cookies.Service.get('mainServiceFilter') ? self.options[0].value : Cookies.Service.get('mainServiceFilter');
+    // Флаг, скрывающий сервисы, которые не введены в эксплуатацию
+    self.exploitation   = Cookies.Service.get('showOnlyExploitationServices');
+    // Объекты сервисов (id => data)
+    self.services       = {};
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
+      .withOption('stateSave', true)
       .withOption('ajax', {
         url:  '/services.json',
         data: {
-          filter:       self.selectedOption.value,
+          filter:       self.selectedOption,
           exploitation: self.exploitation
         },
         error: function (response) {
@@ -128,18 +152,38 @@
 
 // =============================================== Сразу же включить режим предпросмотра ===============================
 
-    var params = $location.absUrl().match(/services\?id=(\d+)/);
+    var reg     = new RegExp('(services|' + $location.host() + ')/?\\?id=(\\d+)');
+    var params  = $location.absUrl().match(reg);
+
     if (params)
-      showServiceData(params[1]);
+      showServiceData(params[2]);
 
 // =============================================== Приватные функции ===================================================
 
-    // Показать номер строки
+    /**
+     * Показать номер строки.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {*}
+     * @private
+     */
     function renderIndex(data, type, full, meta) {
-      self.services[data.id] = data; // Сохранить данные сервиса (нужны для вывода пользователю информации об удаляемом элементе)
+      // Сохранить данные сервиса (нужны для вывода пользователю информации об удаляемом элементе)
+      self.services[data.id] = data;
       return meta.row + 1;
     }
 
+    /**
+     * Callback после инициализации таблицы, получения данных (не ajax, т.к. ajax происходит асинхронно) и
+     * построения таблицы.
+     *
+     * @param settings
+     * @param json
+     * @private
+     */
     function initComplete(settings, json) {
       var api = new $.fn.dataTable.Api(settings);
 
@@ -162,7 +206,14 @@
             });
     }
 
-    // Компиляция строк
+    /**
+     * Callback после создания каждой строки.
+     *
+     * @param row
+     * @param data
+     * @param dataIndex
+     * @private
+     */
     function createdRow(row, data, dataIndex) {
       // Создание события просмотра данных о формуляре
       $(row).off().on('click', function (event) {
@@ -176,13 +227,20 @@
       $compile(angular.element(row))($scope);
     }
 
-    // Показать данные сервера
+    /**
+     * Показать данные сервиса.
+     *
+     * @param id
+     * @private
+     */
     function showServiceData(id) {
       Server.Service.get({ id: id },
         // Success
         function (response) {
           var data = {
+            // Объект-ответ с сервера
             response:     response,
+            // Флаг, определяющий, было ли вызвано событие "service:show" из кластера (false - не из кластера)
             fromCluster:  false
           };
 
@@ -195,17 +253,31 @@
         });
     }
 
-    // Отрендерить ссылку на удаление сервиса
+    /**
+     * Отрендерить ссылку на удаление сервиса.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id +
+        ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
-    // Выполнить запрос на сервер с учетом выбранных фильтров
+    /**
+     * Выполнить запрос на сервер с учетом выбранных фильтров.
+     *
+     * @private
+     */
     function newQuery() {
       self.dtInstance.changeData({
         url:  '/services.json',
         data: {
-          filter:       self.selectedOption.value,
+          filter:       self.selectedOption,
           exploitation: self.exploitation
         },
         error: function (response) {
@@ -214,27 +286,49 @@
       });
     }
 
-    // Установить флаг приоритета функционирования для сервиса
+    /**
+     * Установить флаг приоритета функционирования для сервиса.
+     *
+     * @param flag - приоритет функционирования
+     * @returns {*}
+     * @private
+     */
     function priority(flag) {
       return ServiceShareFunc.priority(flag);
     }
 
 // =============================================== Публичные функции ===================================================
 
-    // Выполнить запрос на сервер с учетом фильтра
+    /**
+     * Выполнить запрос на сервер после изменения фильтра.
+     *
+     * @methodOf DataCenter.ServiceIndexCtrl
+     */
     self.changeFilter = function () {
+      Cookies.Service.set('mainServiceFilter', self.selectedOption);
+
       newQuery();
     };
 
-    // Выполнить запрос на сервер с учетом необходимости показать/скрыть сервисы, которые не введены в эксплуатацию
+    /**
+     * Выполнить запрос на сервер после изменения фильтра показать/скрыть сервисы, которые не введены в эксплуатацию.
+     *
+     * @methodOf DataCenter.ServiceIndexCtrl
+     */
     self.showProjects = function () {
       self.exploitation = self.exploitation == 'true' ? 'false' : 'true';
-      ServiceCookies.set('showOnlyExploitationServices', self.exploitation);
+      Cookies.Service.set('showOnlyExploitationServices', self.exploitation);
 
       newQuery();
     };
 
-    // Удалить сервис
+    /**
+     * Удалить сервис
+     *
+     * @methodOf DataCenter.ServiceIndexCtrl
+     * @param num - id сервиса
+     * @returns {boolean}
+     */
     self.destroyService = function (num) {
       var confirm_str = "Вы действительно хотите удалить формуляр \"" + self.services[num].name + "\"?";
 
@@ -257,38 +351,68 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление предпросмотром сервиса
+   *
+   * @class DataCenter.ServicePreviewCtrl
+   * @param $scope
+   * @param $rootScope
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Ability - описание: {@link DataCenter.Ability}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function ServicePreviewCtrl($scope, $rootScope, Server, Ability, Error) {
     var self = this;
 
-    self.previewModal           = false; // Флаг, скрывающий модальное окно
-    self.disableClusterPreview  = false; // Флаг, запрещающий просматривать информацию о сервере, т.к. предпросмотр формуляра и так открыт из режима предпросмотра сервера
+    // Флаг, скрывающий модальное окно
+    self.previewModal           = false;
+    // Флаг, запрещающий просматривать информацию о сервере, т.к. предпросмотр формуляра и так открыт из режима
+    // предпросмотра сервера
+    self.disableClusterPreview  = false;
 
 // ================================================ Инициализация ======================================================
 
+    // "Слушатель" события service:show
     $scope.$on('service:show', function (event, json) {
-      self.previewModal = true;                             // Показать модальное окно
-      self.showInstr    = Ability.canView('instr');         // Определяет, есть ли права на показ инструкций
+      // Показать модальное окно
+      self.previewModal = true;
+      // Определяет, есть ли права на показ инструкций
+      self.showInstr    = Ability.canView('instr');
 
-      self.disableClusterPreview = json.fromCluster;        // Флаг. Если режим просмотра сервиса открывается из режима просмотра сервера - true
+      // Флаг. Если режим просмотра сервиса открывается из режима просмотра сервера - true
+      self.disableClusterPreview = json.fromCluster;
 
-      var data = json.response;                             // Данные, полученные с сервера
+      // Данные, полученные с сервера
+      var data = json.response;
 
-      self.service      = angular.copy(data.service);       // Данные сервиса
-      self.deadline     = angular.copy(data.deadline);      // Дедлайн для тестового сервиса
-      self.missing_file = angular.copy(data.missing_file);  // Флаги, определяющие, имеются ли загруженные файлы
-      self.contacts     = angular.copy(data.contacts);      // Ответственные
-      self.ports        = angular.copy(data.ports);         // Список открытых портов
-      self.networks     = [];                               // Подключения к сети
-      self.storages     = [];                               // Подключения к СХД
-      self.flag         = {                                 // Установка флага взависимости от того, введен ли сервис в эксплуатацию и приоритета функционирования
+      // Данные сервиса
+      self.service      = angular.copy(data.service);
+      // Дедлайн для тестового сервиса
+      self.deadline     = angular.copy(data.deadline);
+      // Флаги, определяющие, имеются ли загруженные файлы
+      self.missing_file = angular.copy(data.missing_file);
+      // Ответственные
+      self.contacts     = angular.copy(data.contacts);
+      // Список открытых портов
+      self.ports        = angular.copy(data.ports);
+      // Массив подключений к сети
+      self.networks     = [];
+      // Массив подключений к СХД
+      self.storages     = [];
+      // Установка флага взависимости от того, введен ли сервис в эксплуатацию и приоритета функционирования
+      self.flag         = {
         icon: '',
         text: ''
       };
-      self.hosting      = angular.copy(data.hosting[0]);    // Хостинг сервиса
-      self.parents      = angular.copy(data.parents);       // Массив сервисов-родителей
+      // Хостинг сервиса
+      self.hosting      = angular.copy(data.hosting[0]);
+      // Массив сервисов-родителей
+      self.parents      = angular.copy(data.parents);
 
+      // Всплывающее сообщение иконки хостинга
       self.tooltip = self.hosting ? 'Просмотреть информацию о сервере' : 'Хостинг сервиса отсутствует';
 
+      // Если сервис введен в эксплуатацию
       if (self.service.exploitation) {
         self.flag.icon = 'fa-toggle-on text-success';
         self.flag.text = 'Сервис введен в эксплуатацию';
@@ -327,7 +451,12 @@
 
 // =============================================== Публичные функции ===================================================
 
-    // Показать информацию о сервере
+    /**
+     * Показать информацию о сервере
+     *
+     * @methodOf DataCenter.ServicePreviewCtrl
+     * @returns {boolean}
+     */
     self.showCluster = function () {
       if (!self.hosting || self.disableClusterPreview)
         return false;
@@ -336,7 +465,9 @@
         // Success
         function (response) {
           var data = {
+            // Объект-ответ с сервера
             response:     response,
+            // Флаг, определяющий, было ли вызвано событие "service:show" из сервиса (false - не из сервиса)
             fromService:  self.service.name
           };
 
@@ -352,38 +483,76 @@
 
 // =====================================================================================================================
 
+  /**
+   * Форма добавления/редактирования сервиса
+   *
+   * @class DataCenter.ServiceEditCtrl
+   * @param $scope
+   * @param Service - описание: {@link DataCenter.Service}
+   * @param GetDataFromServer - описание: {@link DataCenter.GetDataFromServer}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function ServiceEditCtrl($scope, Service, GetDataFromServer, Error) {
     var self = this;
 
 // ================================================ Инициализация ======================================================
 
-    // Для директивы modalShow
+    // Флаг для директивы modalShow
     self.flags = Service.getFlags();
 
-    // Инициализация начальных данных
-    // id - id формуляра
-    // name - имя формуляра
+    /**
+     * Инициализация начальных данных
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param id - id формуляра
+     * @param name - имя формуляра
+     */
     self.init = function (id, name) {
       GetDataFromServer.ajax('services', id, name)
         .then(
           function (data) {
             Service.init(id, name, data);
-
-            self.priority         = Service.getPriorities();    // Объект вида { selected: Выбранный объект в поле select "Приоритет функционирования", values: Массив всех видов приоритетов }
-            self.network          = Service.getNetworks();      // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к сети }
-            self.ports            = Service.getPorts();         // Объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя +ы Список портов, доступных из Интернет }
-            self.missing_file     = Service.getMissingFiles();  // Массив с отстствующими флагами
-            self.parents          = Service.getParents();       // Массив с сервисами-родителями
-            self.storages         = Service.getStorages();      // Массив с подключениями к СХД
-            self.current_name     = name ? name : null;         // Необходим для исключения этого имени из списка родителей-сервисов
-            self.services         = Service.getServices();      // Массив всех существующих сервисов для выбора сервисов-родителей.
+            // Объект вида { selected: Выбранный объект в поле select "Приоритет функционирования", values: Массив
+            // всех видов приоритетов }.
+            self.priority     = Service.getPriorities();
+            // Объект вида { selected: Выбранный объект в модальном окне Порты, values: Массив всех подключений к
+            // сети }.
+            self.network      = Service.getNetworks();
+            // Объект вида { local: Имя + Список портов, доступных в ЛС, inet: Имя +ы Список портов, доступных из
+            // Интернет }.
+            self.ports        = Service.getPorts();
+            // Массив, показывающий отсутствующие файлы.
+            self.missing_file = Service.getMissingFiles();
+            // Массив с флагами наличия инструкций по восст./откл, а так же подготовленных для загрузки файлов.
+            self.file_flags   = Service.getFileFlags();
+            // Общий статус наличия файлов, который определяется из статусов missing_file и file_flags. Необходим.
+            // для того, чтобы знать, в какой цвет подкрашивать dropdown меню шапки.
+            self.total_file_status  = Service.getTotalFileStatus();
+            // Объект с флагами, скрывающих/показывающих надписи "Отсутствует"/"Присутствует" в dropdown меню шапки.
+            self.file_checkbox      = {
+              instr_rec: false,
+              instr_off: false
+            };
+            // Массив с сервисами-родителями.
+            self.parents      = Service.getParents();
+            // Массив с подключениями к СХД.
+            self.storages     = Service.getStorages();
+            // Необходим для исключения этого имени из списка родителей-сервисов.
+            self.current_name = name ? name : null;
+            // Массив всех существующих сервисов для выбора сервисов-родителей.
+            self.services     = Service.getServices();
           },
           function (response, data) {
             Error.response(response, data);
           }
         )
         .then(function () {
-          // Фильтр, определяющий, показывать ли надпись "Отсутствует" в поле родителей-сервисов
+          /**
+           * Фильтр, определяющий, показывать ли надпись "Отсутствует" в поле родителей-сервисов
+           *
+           * @methodOf DataCenter.ServiceEditCtrl
+           * @returns {boolean}
+           */
           self.showParents = function () {
             return Service.showParents();
           };
@@ -392,12 +561,19 @@
 
 // ================================================ "Срок тестирования" ================================================
 
+    // Объект, содержащий данные для библиотеки DatePicker
     self.deadline = {
-      openDatePicker: false, // Переменная определяющая начальное состояние календаря (false - скрыть, true - показать)
-      format:         'dd-MMMM-yyyy' // Формат времени, который видит пользователь
+      // Переменная определяющая начальное состояние календаря (false - скрыть, true - показать)
+      openDatePicker: false,
+      // Формат времени, который видит пользователь
+      format:         'dd-MMMM-yyyy'
     };
 
-    // Показать календарь
+    /**
+     * Показать календарь.
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     */
     self.openDatePicker = function() {
       self.deadline.openDatePicker = true;
     };
@@ -412,7 +588,12 @@
 
 // ================================================ "Подключения к сети" ===============================================
 
-    // Открыть модальное окно "Подключение к сети"
+    /**
+     * Открыть модальное окно "Подключение к сети"
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param $index
+     */
     self.showNetworkModal = function ($index) {
       var obj = {
         index:    $index, // Запоминаем индекс строки, данные о которой необходимо изменить
@@ -422,12 +603,21 @@
       $scope.$broadcast('service:network:show', obj);
     };
 
-    // Добавить строку "Подключения к сети"
+    /**
+     * Добавить строку "Подключения к сети"
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     */
     self.addNetwork = function () {
       Service.addNetwork();
     };
 
-    // Удалить строку "Подключения к сети"
+    /**
+     * Удалить строку "Подключения к сети"
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param network - удаляемый объект
+     */
     self.delNetwork = function (network) {
       Service.delNetwork(network);
     };
@@ -435,7 +625,12 @@
 
 // ================================================ "Открытые порты" ===================================================
 
-    // Открыть модальное окно "Открытые порты"
+    /**
+     * Открыть модальное окно "Открытые порты"
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param $event
+     */
     self.showPortsModal = function ($event) {
       var obj = {
         network:  self.network,
@@ -448,7 +643,35 @@
 
 // ================================================ Работа с файлами ===================================================
 
-    // Удалить файл
+    /**
+     * Изменить указанный ключ объекта missing_file после выбора (не загрузки) файла на значение false.
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param type - ключ массива missing_file (тип файла)
+     */
+    self.changeFileStatus = function (type) {
+      Service.changeFileFlagStatus(type);
+    };
+
+
+    /**
+     * Обработчик события после выбора файла соответствующего типа для загрузки на сервер.
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param type - ключ массива missing_file (тип файла)
+     */
+    self.prepareLoadFile = function (type) {
+      Service.changeFileFlagStatus(type, true); // Изменить цвет dropdown меню
+
+      self.file_checkbox[type] = true; // Спрятать записи "Отсутствует"/"Присутствует"
+    };
+
+    /**
+     * Удалить файл
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     * @param $event
+     */
     self.removeFile = function ($event) {
       if (!self.missing_file[$event.target.attributes['data-type'].value])
         Service.removeFile($event);
@@ -457,19 +680,34 @@
 
 // =====================================================================================================================
 
+  /**
+   * Работа с подключениями к сети
+   *
+   * @class DataCenter.ServiceEditNetworkCtrl
+   * @param $scope
+   * @param Service - описание: {@link DataCenter.Service}
+   */
   function ServiceEditNetworkCtrl($scope, Service) {
     var self = this;
 
-    var standart = null; // Переменная, содержащая объект "подключение к сети" до внесения в него изменений
+    // Переменная, содержащая объект "подключение к сети" до внесения в него изменений
+    var standart = null;
     $scope.$on('service:network:show', function (event, data) {
-      self.index  = data.index;                 // Индекс в массиве
-      self.value  = angular.copy(data.network); // Объект, содержащий значения полей
-      standart    = angular.copy(self.value);   // Данные на момент открытия модального окна
+      // Индекс в массиве
+      self.index  = data.index;
+      // Объект, содержащий значения полей
+      self.value  = angular.copy(data.network);
+      // Данные на момент открытия модального окна
+      standart    = angular.copy(self.value);
 
       Service.setFlag('networkModal', true);
     });
 
-    // Закрыть модальное окно по нажатии "Отмена"
+    /**
+     * Закрыть модальное окно по нажатии "Отмена"
+     *
+     * @methodOf DataCenter.ServiceEditNetworkCtrl
+     */
     self.closeNetworkModal = function () {
       Service.setFlag('networkModal', false);
 
@@ -482,7 +720,11 @@
         Service.setNetwork(self.index, standart); // Записали изначальные данные
     };
 
-    // Закрыть модальное окно по нажатии "Готово"
+    /**
+     * Закрыть модальное окно по нажатии "Готово"
+     *
+     * @methodOf DataCenter.ServiceEditNetworkCtrl
+     */
     self.readyNetworkModal = function () {
       // Для новых данных
       if (standart.segment == '' && standart.vlan == '' && standart.dns_name == '')
@@ -494,6 +736,13 @@
 
 // =====================================================================================================================
 
+  /**
+   * Работа с открытыми портами
+   *
+   * @class DataCenter.ServiceEditPortCtrl
+   * @param $scope
+   * @param Service
+   */
   function ServiceEditPortCtrl($scope, Service) {
     var self = this;
 
@@ -511,7 +760,11 @@
       }
     });
 
-    // Событие после выбора "Подключения к сети" в модальном окне "Открытые порты"
+    /**
+     * Событие после выбора "Подключения к сети" в модальном окне "Открытые порты"
+     *
+     * @methodOf DataCenter.ServiceEditPortCtrl
+     */
     self.changeNetwork = function () {
       // Получаем новый индекс массива портов (используется в паршиале _ports в качестве индекса массива template_ports)
       $.each(self.template_value, function (index, value) {
@@ -523,7 +776,11 @@
       });
     };
 
-    // Закрыть модальное окно по кнопке "Готово"
+    /**
+     * Закрыть модальное окно по кнопке "Готово"
+     *
+     * @methodOf DataCenter.ServiceEditPortCtrl
+     */
     self.readyPortsModal = function () {
       Service.setFlag('portModal', false);
 
@@ -531,12 +788,21 @@
       Service.setPorts(self.template_value);
     };
 
-    // Закрыть модальное окно по кнопке "Отмена"
+    /**
+     * Закрыть модальное окно по кнопке "Отмена"
+     *
+     * @methodOf DataCenter.ServiceEditPortCtrl
+     */
     self.closePortsModal = function () {
       Service.setFlag('portModal', false);
     };
 
-    // Фильтр для отображения подключений к сети в модальном окне "Открытые порты"
+    /**
+     * Фильтр для отображения подключений к сети в модальном окне "Открытые порты"
+     *
+     * @methodOf DataCenter.ServiceEditPortCtrl
+     * @returns {Function}
+     */
     self.networksFilter = function () {
       return function (network) {
         return network.value != null;
@@ -546,14 +812,29 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление зависимостями сервиса
+   *
+   * @class DataCenter.DependenceCtrl
+   * @param Service
+   */
   function DependenceCtrl(Service) {
 
-    // Добавить сервис-родитель
+    /**
+     * Добавить сервис-родитель
+     *
+     * @methodOf DataCenter.DependenceCtrl
+     */
     this.addParent = function () {
       Service.addParent();
     };
 
-    // Удалить сервис-родитель
+    /**
+     * Удалить сервис-родитель
+     *
+     * @methodOf DataCenter.DependenceCtrl
+     * @param parent
+     */
     this.delParent = function (parent) {
       Service.delParent(parent);
     };

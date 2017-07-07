@@ -12,6 +12,22 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление таблицей комплектующих.
+   *
+   * @class DataCenter.ServerPartIndexCtrl
+   * @param $controller
+   * @param $scope
+   * @param $rootScope
+   * @param $http
+   * @param $compile
+   * @param DTOptionsBuilder
+   * @param DTColumnBuilder
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Error - описание: {@link DataCenter.Error}
+   * @param Ability - описание: {@link DataCenter.Ability}
+   */
   function ServerPartIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error, Ability) {
     var self = this;
 
@@ -20,14 +36,17 @@
     // Подключаем основные параметры таблицы
     $controller('DefaultDataTableCtrl', {});
 
-    self.typeOptions    = [ // Массив фильтра по типу комплектующих (данные берутся с сервера)
+    // Массив фильтра по типу комплектующих (данные берутся с сервера)
+    self.typeOptions    = [
       {
         id:   0,
         name: 'Все типы'
       }
     ];
+    // Выбранное значение фильтра типа комплектующей
     self.selectedTypeOption = self.typeOptions[0];
-    self.previewModal   = false; // Флаг, скрывающий модальное окно
+    // Флаг, скрывающий модальное окно
+    self.previewModal   = false;
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
       .newOptions()
@@ -43,9 +62,9 @@
       .withOption('createdRow', createdRow)
       .withDOM(
       '<"row"' +
-        '<"col-sm-2 col-md-2 col-lg-2"' +
+        '<"col-sm-2 col-md-2 col-lg-1"' +
           '<"#server_parts.new-record">>' +
-        '<"col-sm-6 col-md-6 col-lg-6">' +
+        '<"col-sm-6 col-md-6 col-lg-7">' +
         '<"col-sm-2 col-md-2 col-lg-2"' +
           '<"detail-type-filter">>' +
         '<"col-sm-2 col-md-2 col-lg-2"f>>' +
@@ -63,18 +82,36 @@
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];
 
-    var
-      serverParts   = {},     // Объекты комплектующих серверов (id => data)
-      reloadPaging  = false;  // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
+    // Объекты комплектующих серверов (id => data)
+    var serverParts   = {};
+    // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
+    var reloadPaging  = false;
 
 // =============================================== Приватные функции ===================================================
 
-    // Показать номер строки
+    /**
+     * Показать номер строки.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {*}
+     * @private
+     */
     function renderIndex(data, type, full, meta) {
       serverParts[data.id] = data;
       return meta.row + 1;
     }
 
+    /**
+     * Callback после инициализации таблицы, получения данных (не ajax, т.к. ajax происходит асинхронно) и
+     * построения таблицы.
+     *
+     * @param settings
+     * @param json
+     * @private
+     */
     function initComplete(settings, json) {
       var api = new $.fn.dataTable.Api(settings);
 
@@ -102,6 +139,14 @@
       }
     }
 
+    /**
+     * Callback после создания каждой строки.
+     *
+     * @param row
+     * @param data
+     * @param dataIndex
+     * @private
+     */
     function createdRow(row, data, dataIndex) {
       // Создание события просмотра данных о формуляре
       $(row).off().on('click', function (event) {
@@ -115,7 +160,12 @@
       $compile(angular.element(row))($scope);
     }
 
-    // Показать данные комплектующей
+    /**
+     * Показать данные комплектующей.
+     *
+     * @param row_data
+     * @private
+     */
     function showServerPartData(row_data) {
       Server.ServerPart.get({ id: row_data.id },
         // Success
@@ -131,17 +181,42 @@
         });
     }
 
-    // Отрендерить ссылку на изменение комплектующей
+    /**
+     * Отрендерить ссылку на изменение комплектующей.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' +
+        data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g' +
+        ' pointer"></a>';
     }
 
-    // Отрендерить ссылку на удаление комплектующей
+    /**
+     * Отрендерить ссылку на удаление комплектующей.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="serverPartPage.destroyServerPart(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="serverPartPage.destroyServerPart(' + data.id +
+        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
-    // Выполнить запрос на сервер с учетом выбранных фильтров
+    /**
+     * Выполнить запрос на сервер с учетом выбранных фильтров.
+     *
+     * @private
+     */
     function newQuery() {
       self.dtInstance.changeData({
         url:  '/server_parts.json',
@@ -161,7 +236,9 @@
     // data.flag - флаг, определяющий, удалять, изменять или добавлять элементы в фильтра
     // add - добавить
     // delete - удалить
-    // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в самое таблице.
+    // update - изменить. После изменения необходимо обновить таблицу для того, чтобы новое имя типа отобразилось в
+    // самое таблице.
+    /*
     $rootScope.$on('table:server_part:filter:detail_type', function (event, data) {
       // Удалить тип сервера из фильтра таблицы комплектующих
       if (data.flag == 'delete') {
@@ -184,21 +261,33 @@
         self.dtInstance.reloadData(null, reloadPaging);
       }
     });
+    */
 
 // =============================================== Публичные функции ===================================================
 
-    // Выполнить запрос на сервер с учетом фильтра
+    /**
+     * Выполнить запрос на сервер после изменения фильтра.
+     *
+     * @methodOf DataCenter.ServerPartIndexCtrl
+     */
     self.changeFilter = function () {
       newQuery();
     };
 
-    // Открыть модальное окно для создания/редактирования комплектующей
-    // name - имя комплектующей
+    /**
+     * Открыть модальное окно для создания/редактирования комплектующей.
+     *
+     * @methodOf DataCenter.ServerPartIndexCtrl
+     * @param name - имя комплектующей
+     */
     self.showServerPartModal = function (name) {
       var data = {
-        method:       '',   // Протокол отправки сообщения (POST, PATCH)
-        detail_types: null, // Все типы комплектующих
-        value:        null  // Данные выбранной комплектующей
+        // Протокол отправки сообщения (POST, PATCH)
+        method:       '',
+        // Все типы комплектующих
+        detail_types: null,
+        // Данные выбранной комплектующей
+        value:        null
       };
 
       // Если запись редактируется
@@ -230,7 +319,13 @@
       }
     };
 
-    // Удалить сервис
+    /**
+     * Удалить комплектующую.
+     *
+     * @methodOf DataCenter.ServerPartIndexCtrl
+     * @param num - id комплектующей
+     * @returns {boolean}
+     */
     self.destroyServerPart = function (num) {
       var confirm_str = "Вы действительно хотите удалить комплектующую \"" + serverParts[num].name + "\"?";
 
@@ -253,6 +348,13 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление режимом предпросмотра комплектующей.
+   *
+   * @class DataCenter.ServerPartPreviewCtrl
+   * @param $scope
+   * @constructor
+   */
   function ServerPartPreviewCtrl($scope) {
     var self = this;
 
@@ -266,22 +368,36 @@
 
 // =====================================================================================================================
 
+  /**
+   * Добавление/редактирование комплектующих.
+   *
+   * @class DataCenter.ServerPartEditCtrl
+   * @param $scope
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function ServerPartEditCtrl($scope, Flash, Server, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
-    self.serverPartModal  = false;  // Флаг состояния модального окна (false - скрыто, true - открыто)
+    // Флаг состояния модального окна (false - скрыто, true - открыто)
+    self.serverPartModal  = false;
     self.config           = {
-      title:  '',                   // Шапка модального окна
-      method: ''                    // Метод отправки запрос (POST, PATCH)
+      // Шапка модального окна
+      title:  '',
+      // Метод отправки запрос (POST, PATCH)
+      method: ''
     };
     self.value = null;
 
-    var
-      id              = null,   // Id изменяемой комплектующей
-      errors          = null,   // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
-      value_template  = {       // Шаблон данных (вызывается при создании нового контакта)
+    // Id изменяемой комплектующей
+    var id              = null;
+    // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
+    var errors          = null;
+    // Шаблон данных (вызывается при создании нового контакта)
+    var value_template  = {
         name:     '',
         part_num: '',
         comment:  ''
@@ -306,8 +422,14 @@
 
 // =============================================== Приватные функции ===================================================
 
-    // array - объект, содержащий ошибки
-    // flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
+    /**
+     * Установить валидаторы на поля формы. В случае ошибок валидации пользователю будет предоставлено сообщение об
+     * ошибке.
+     *
+     * @param array - объект, содержащий ошибки
+     * @param flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
+     * @private
+     */
     function setValidations(array, flag) {
       $.each(array, function (key, value) {
         $.each(value, function (index, message) {
@@ -317,7 +439,11 @@
       });
     }
 
-    // Очистить модальное окно
+    /**
+     * Очистить модальное окно.
+     *
+     * @private
+     */
     function clearForm() {
       self.value = angular.copy(value_template);
       if (errors) {
@@ -326,7 +452,12 @@
       }
     }
 
-    // Действия в случае успешного создания/изменения контакта
+    /**
+     * Действия в случае успешного создания/изменения контакта.
+     *
+     * @param response
+     * @private
+     */
     function successResponse(response) {
       self.serverPartModal = false;
       clearForm();
@@ -334,7 +465,12 @@
       Flash.notice(response.full_message);
     }
 
-    // Действия в случае ошибки создания/изменения комплектующей
+    /**
+     * Действия в случае ошибки создания/изменения комплектующей.
+     *
+     * @param response
+     * @private
+     */
     function errorResponse(response) {
       Error.response(response);
 
@@ -344,12 +480,24 @@
 
 // =============================================== Публичные функции ===================================================
 
-    // Добавить класс "has-error" к элементу форму
+    /**
+     * Добавить класс "has-error" к элементу форму.
+     *
+     * @methodOf DataCenter.ServerPartEditCtrl
+     * @param name
+     * @returns {string}
+     */
     self.errorClass = function (name) {
       return (self.form[name].$invalid) ? 'has-error': ''
     };
 
-    // Добавить сообщение об ошибках валидации к элементу формы
+    /**
+     * Добавить сообщение об ошибках валидации к элементу формы.
+     *
+     * @methodOf DataCenter.ServerPartEditCtrl
+     * @param name
+     * @returns {string}
+     */
     self.errorMessage = function (name) {
       var message = [];
 
@@ -360,7 +508,11 @@
       return message.join(', ');
     };
 
-    // Отправить данные формы на сервер
+    /**
+     * Отправить данные формы на сервер.
+     *
+     * @methodOf DataCenter.ServerPartEditCtrl
+     */
     self.readyServerPartModal = function () {
       // Удалить все предыдущие ошибки валидаций, если таковые имеются
       if (errors) {
@@ -401,7 +553,11 @@
       }
     };
 
-    // Закрыть модальное окно по кнопке "Отмена"
+    /**
+     * Закрыть модальное окно по кнопке "Отмена".
+     *
+     * @methodOf DataCenter.ServerPartEditCtrl
+     */
     self.closeServerPartModal = function () {
       self.serverPartModal = false;
       clearForm();

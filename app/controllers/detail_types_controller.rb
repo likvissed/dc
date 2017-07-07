@@ -15,11 +15,14 @@ class DetailTypesController < ApplicationController
     @detail_type = DetailType.new(detail_type_params)
     if @detail_type.save
       respond_to do |format|
-        format.json { render json: { detail_type: @detail_type, full_message: "Тип комплектующей добавлен" }, status: :created }
+        format.json { render json: { detail_type: @detail_type, full_message: "Тип комплектующей добавлен" }, status:
+          :created }
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @detail_type.errors, full_message: "Ошибка. #{ @detail_type.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @detail_type.errors, full_message: "Ошибка. #{ @detail_type.errors
+                                                                                              .full_messages.join(",
+") }" }, status: :unprocessable_entity }
       end
     end
   end
@@ -33,11 +36,14 @@ class DetailTypesController < ApplicationController
   def update
     if @detail_type.update_attributes(detail_type_params)
       respond_to do |format|
-        format.json { render json: { detail_type: @detail_type, full_message: "Тип комплектующей изменен" }, status: :ok }
+        format.json { render json: { detail_type: @detail_type, full_message: "Тип комплектующей изменен" }, status:
+          :ok }
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @detail_type.errors, full_message: "Ошибка. #{ @detail_type.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @detail_type.errors, full_message: "Ошибка. #{ @detail_type.errors
+                                                                                              .full_messages.join(",
+") }" }, status: :unprocessable_entity }
       end
     end
   end
@@ -49,7 +55,8 @@ class DetailTypesController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @detail_type.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @detail_type.errors.full_messages.join(", ") }" },
+                             status: :unprocessable_entity }
       end
     end
   end

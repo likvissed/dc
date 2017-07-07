@@ -10,6 +10,21 @@
 
 // =====================================================================================================================
 
+  /**
+   * Управление таблицей типов комплектующих.
+   *
+   * @class DataCenter.DetailTypeIndexCtrl
+   * @param $controller
+   * @param $scope
+   * @param $rootScope
+   * @param $http
+   * @param $compile
+   * @param DTOptionsBuilder
+   * @param DTColumnBuilder
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function DetailTypeIndexCtrl($controller, $scope, $rootScope, $http, $compile, DTOptionsBuilder, DTColumnBuilder, Server, Flash, Error) {
     var self = this;
 
@@ -46,18 +61,37 @@
       DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center col-lg-1').renderWith(delRecord)
     ];
 
-    var
-      detailTypes   = {},     // Объекты типов комплектующих (id => data)
-      reloadPaging  = false;  // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
+    // Объекты типов комплектующих (id => data)
+    var detailTypes   = {};
+    // Флаг, указывающий, нужно ли сбрасывать нумерацию или оставлять пользователя на текущей странице
+    var reloadPaging  = false;
 
 // =============================================== Приватные функции ===================================================
 
-    // Показать номер строки
+    /**
+     * Показать номер строки.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {*}
+     * @private
+     */
     function renderIndex(data, type, full, meta) {
-      detailTypes[data.id] = data; // Сохранить данные контакта (нужны для вывода пользователю информации об удаляемом элементе)
+      // Сохранить данные типа комплектующей (нужны для вывода пользователю информации об удаляемом элементе)
+      detailTypes[data.id] = data;
       return meta.row + 1;
     }
 
+    /**
+     * Callback после создания каждой строки.
+     *
+     * @param row
+     * @param data
+     * @param dataIndex
+     * @private
+     */
     function createdRow(row, data, dataIndex) {
       // Компиляция строки
       $compile(angular.element(row))($scope);
@@ -69,20 +103,45 @@
         self.dtInstance.reloadData(null, reloadPaging);
     });
 
-    // Отрендерить ссылку на изменение контакта
+    /**
+     * Отрендерить ссылку на изменение типа комплектующей.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="detailTypePage.showDetailTypeModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g pointer"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="detailTypePage.showDetailTypeModal(\'' +
+        data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g' +
+        ' pointer"></a>';
     }
 
-    // Отрендерить ссылку на удаление контакта
+    /**
+     * Отрендерить ссылку на удаление типа комплектующей.
+     *
+     * @param data
+     * @param type
+     * @param full
+     * @param meta
+     * @returns {string}
+     * @private
+     */
     function delRecord(data, type, full, meta) {
-      return '<a href="" class="text-danger" disable-link=true ng-click="detailTypePage.destroyDetailType(' + data.id + ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+      return '<a href="" class="text-danger" disable-link=true ng-click="detailTypePage.destroyDetailType(' + data.id +
+        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
     }
 
 // =============================================== Публичные функции ===================================================
 
-    // Открыть модальное окно
-    // name - имя типа комплектующей
+    /**
+     * Открыть модальное окно.
+     *
+     * @methodOf DataCenter.DetailTypeIndexCtrl
+     * @param name - имя типа комплектующей
+     */
     self.showDetailTypeModal = function (name) {
       var data = {
         method: '',
@@ -109,7 +168,13 @@
       }
     };
 
-    // Удалить тип детали
+    /**
+     * Удалить тип детали.
+     *
+     * @methodOf DataCenter.DetailTypeIndexCtrl
+     * @param id
+     * @returns {boolean}
+     */
     self.destroyDetailType = function (id) {
       var confirm_str = "Вы действительно хотите удалить тип комплектующей \"" + detailTypes[id].name + "\"?";
 
@@ -124,7 +189,7 @@
           self.dtInstance.reloadData(null, reloadPaging);
 
           // В случае успешного удаления из базы необходимо удалить тип из фильтра в таблице комплектующих.
-          $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'delete', id: id });
+          // $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'delete', id: id });
         },
         // Error
         function (response) {
@@ -135,24 +200,38 @@
 
 // =====================================================================================================================
 
+  /**
+   * Добавление/редактирование типа комплектующей.
+   *
+   * @class DataCenter.DetailTypeEditCtrl
+   * @param $scope
+   * @param $rootScope
+   * @param Flash - описание: {@link DataCenter.Flash}
+   * @param Server - описание: {@link DataCenter.Server}
+   * @param Error - описание: {@link DataCenter.Error}
+   */
   function DetailTypeEditCtrl ($scope, $rootScope, Flash, Server, Error) {
     var self = this;
 
 // =============================================== Инициализация =======================================================
 
-    self.detailTypeModal  = false;  // Флаг состояния модального окна (false - скрыто, true - открыто)
+    // Флаг состояния модального окна (false - скрыто, true - открыто)
+    self.detailTypeModal  = false;
     self.config           = {
-      title:  '',                   // Шапка модального окна
-      method: ''                    // Метод отправки запрос (POST, PATCH)
+      // Шапка модального окна
+      title:  '',
+      // Метод отправки запрос (POST, PATCH)
+      method: ''
     };
-    self.value            = null;   // Данные поля name в форме form
+    // Данные поля name в форме form
+    self.value            = null;
 
-    var
-      id              = null,   // Id изменяемого типа детали
-      errors          = null,   // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
-      value_template  = {       // Шаблон данных (вызывается при создании нового контакта)
-        name: ''
-      };
+    // Id изменяемого типа детали
+    var id              = null;
+    // Массив, содержащий объекты ошибок (имя поля => описание ошибки)
+    var errors          = null;
+    // Шаблон данных (вызывается при создании нового типа комплектующей)
+    var value_template  = { name: '' };
 
     $scope.$on('detail_type:edit', function (event, data) {
       self.detailTypeModal = true;
@@ -173,8 +252,14 @@
 
 // =============================================== Приватные функции ===================================================
 
-    // array - объект, содержащий ошибки
-    // flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
+    /**
+     * Установить валидаторы на поля формы. В случае ошибок валидации пользователю будет предоставлено сообщение об
+     * ошибке.
+     *
+     * @param array - объект, содержащий ошибки
+     * @param flag - флаг, устанавливаемый в объект form (false - валидация не пройдена, true - пройдена)
+     * @private
+     */
     function setValidations(array, flag) {
       $.each(array, function (key, value) {
         $.each(value, function (index, message) {
@@ -184,7 +269,11 @@
       });
     }
 
-    // Очистить модальное окно
+    /**
+     * Очистить модальное окно.
+     *
+     * @private
+     */
     function clearForm() {
       self.value = angular.copy(value_template);
       if (errors) {
@@ -193,7 +282,12 @@
       }
     }
 
-    // Действия в случае успешного создания/изменения контакта
+    /**
+     * Действия в случае успешного создания/изменения типа комплектующей.
+     *
+     * @param response
+     * @private
+     */
     function successResponse(response) {
       self.detailTypeModal = false;
       clearForm();
@@ -201,7 +295,12 @@
       Flash.notice(response.full_message);
     }
 
-    // Действия в случае ошибки создания/изменения типа детали
+    /**
+     * Действия в случае ошибки создания/изменения типа комплектующей.
+     *
+     * @param response
+     * @private
+     */
     function errorResponse(response) {
       Error.response(response);
 
@@ -211,12 +310,24 @@
 
 // =============================================== Публичные функции ===================================================
 
-    // Добавить класс "has-error" к элементу форму
+    /**
+     * Добавить класс "has-error" к элементу форму.
+     *
+     * @methodOf DataCenter.DetailTypeEditCtrl
+     * @param name
+     * @returns {string}
+     */
     self.errorClass = function (name) {
       return (self.form[name].$invalid) ? 'has-error': ''
     };
 
-    // Добавить сообщение об ошибках валидации к элементу формы
+    /**
+     * Добавить сообщение об ошибках валидации к элементу формы.
+     *
+     * @methodOf DataCenter.DetailTypeEditCtrl
+     * @param name
+     * @returns {string}
+     */
     self.errorMessage = function (name) {
       var message = [];
 
@@ -227,7 +338,11 @@
       return message.join(', ');
     };
 
-    // Отправить данные формы на сервер
+    /**
+     * Отправить данные формы на сервер.
+     *
+     * @methodOf DataCenter.DetailTypeEditCtrl
+     */
     self.readyDetailTypeModal = function () {
       // Удалить все предыдущие ошибки валидаций, если таковые имеются
       if (errors) {
@@ -245,7 +360,7 @@
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('table:detail_type:reload', { reload: true });
             // Добавить в фильтр таблицы комплектуюших созданный тип
-            $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'add', value: response.detail_type });
+            // $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'add', value: response.detail_type });
           },
           // Error
           function (response) {
@@ -262,7 +377,7 @@
             // Послать флаг родительскому контроллеру на обновление таблицы
             $scope.$emit('table:detail_type:reload', { reload: true });
             // Изменить имя типа в фильтре таблицы комплектуюших
-            $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'update', value: response.detail_type });
+            // $rootScope.$emit('table:server_part:filter:detail_type', { flag: 'update', value: response.detail_type });
           },
           // Error
           function (response) {
@@ -272,7 +387,11 @@
       }
     };
 
-    // Закрыть модальное окно по кнопке "Отмена"
+    /**
+     * Закрыть модальное окно по кнопке "Отмена".
+     *
+     * @methodOf DataCenter.DetailTypeEditCtrl
+     */
     self.closeDetailTypeModal = function () {
       self.detailTypeModal = false;
       clearForm();

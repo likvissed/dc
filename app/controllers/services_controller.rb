@@ -25,7 +25,9 @@ class ServicesController < ApplicationController
           :scan_file_name,
           :act_file_name,
           :instr_rec_file_name,
-          :instr_off_file_name
+          :has_instr_rec,
+          :instr_off_file_name,
+          :has_instr_off
         ]
 
         filter = case params[:filter]
@@ -73,11 +75,12 @@ class ServicesController < ApplicationController
             # Приоритет функционирования сервиса
             s[:flags][:priority] = s['priority']
             # Для тестовых затач проверить дату дедлайна (true - если now > deadline)
-            s[:flags][:deadline] = if s['deadline'].nil?
-                                     false
-                                   else
-                                     now > s['deadline']
-                                   end
+            # s[:flags][:deadline] = if s['deadline'].nil?
+            #                          false
+            #                        else
+            #                          now > s['deadline']
+            #                        end
+            s[:flags][:deadline] = check_service_deadline s
             s[:flags][:exploitation] = s['exploitation']
 
             # Передать только фамилию у ответственных
@@ -105,13 +108,13 @@ class ServicesController < ApplicationController
                               '<i class="fa fa-check"></i>'
                             end
 
-            s[:instr_rec] = if s[:missing_file][:instr_rec]
+            s[:instr_rec] = if s[:missing_file][:instr_rec] && !s['has_instr_rec']
                               '<i class="fa fa-times"></i>'
                             else
                               '<i class="fa fa-check"></i>'
                             end
 
-            s[:instr_off] = if s[:missing_file][:instr_off]
+            s[:instr_off] = if s[:missing_file][:instr_off] && !s['has_instr_off']
                               '<i class="fa fa-times"></i>'
                             else
                               '<i class="fa fa-check"></i>'
@@ -130,20 +133,15 @@ class ServicesController < ApplicationController
     respond_to do |format|
       format.json do
         # Массив с флагами отсутствия файлов скана/акта/инструкций
-        missing_file = get_missing_files(@service)
-
-        service = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
+        missing_file  = get_missing_files(@service)
+        service       = @service.as_json(except: [:contact_1_id, :contact_2_id, :created_at, :updated_at])
 
         # Установить номер формуляра
-        service[:number] = @service.get_service_number
+        service[:number]    = @service.get_service_number
         # Проверить, прошел ли дедлайн для тестового сервиса
-        deadline = if service['deadline'].nil?
-                     false
-                   else
-                     Time.now.to_date > service['deadline']
-                   end
-        # Установить дедлайн для приоритета "Тестирование и отладка"
-        service[:deadline] = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
+        deadline            = check_service_deadline service
+        # Установить время дедлайна для приоритета "Тестирование и отладка"
+        service[:deadline]  = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 
         render json: {
           service:      service,
@@ -195,14 +193,9 @@ class ServicesController < ApplicationController
       format.json do
         get_services
 
-        missing_file              = {}
-        missing_file[:scan]       = !@service.scan.exists?
-        missing_file[:act]        = !@service.act.exists?
-        missing_file[:instr_rec]  = !@service.instr_rec.exists?
-        missing_file[:instr_off]  = !@service.instr_off.exists?
-
         render json: {
-          missing_file: missing_file,
+          missing_file: get_missing_files(@service),
+          file_flags: get_file_flags(@service),
           service_networks: @service.service_networks.as_json(
             include: {
               service_port: {
@@ -257,7 +250,8 @@ class ServicesController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @service.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @service.errors.full_messages.join(", ") }" }, status:
+          :unprocessable_entity }
       end
     end
   end
@@ -267,18 +261,24 @@ class ServicesController < ApplicationController
   def download_file
     case params[:file]
       when 'scan'
-        send_file @service.scan.path, filename: @service.scan_file_name, type: @service.scan_content_type, disposition: 'attachment'
+        send_file @service.scan.path, filename: @service.scan_file_name, type: @service.scan_content_type,
+                  disposition: 'attachment'
       when 'act'
-        send_file @service.act.path, filename: @service.act_file_name, type: @service.act_content_type, disposition: 'attachment'
+        send_file @service.act.path, filename: @service.act_file_name, type: @service.act_content_type, disposition:
+          'attachment'
       when 'instr_rec'
         if current_user.has_any_role? :admin, :head
-          send_file @service.instr_rec.path, filename: @service.instr_rec_file_name, type: @service.instr_rec_content_type, disposition: 'attachment'
+          send_file @service.instr_rec.path, filename: @service.instr_rec_file_name, type: @service
+                                                                                             .instr_rec_content_type,
+                    disposition: 'attachment'
         else
           render_404
         end
       when 'instr_off'
         if current_user.has_any_role? :admin, :head
-          send_file @service.instr_off.path, filename: @service.instr_off_file_name, type: @service.instr_off_content_type, disposition: 'attachment'
+          send_file @service.instr_off.path, filename: @service.instr_off_file_name, type: @service
+                                                                                             .instr_off_content_type,
+                    disposition: 'attachment'
         else
           render_404
         end
@@ -289,7 +289,8 @@ class ServicesController < ApplicationController
 
   # Создать файл (формуляр/акт)
   def generate_file
-    send_data @service.generate_rtf(params[:type]), filename: "#{@service.name}.rtf", type: "application/rtf", disposition: "attachment"
+    send_data @service.generate_rtf(params[:type]), filename: "#{@service.name}.rtf", type: "application/rtf",
+              disposition: "attachment"
   end
 
   # Удалить файл (формуляр/акт/инструкцию по отключению/инструкцию по восстановлению)
@@ -304,8 +305,10 @@ class ServicesController < ApplicationController
       when 'act'
         @service.act.clear
       when 'instr_rec'
+        @service.has_instr_rec = false
         @service.instr_rec.clear
       when 'instr_off'
+        @service.has_instr_off = false
         @service.instr_off.clear
       else
         status  = :not_found
@@ -319,7 +322,8 @@ class ServicesController < ApplicationController
 
     respond_to do |format|
       format.json do
-        render json: { status: status, message: message, missing_file: get_missing_files(@service, true) }
+        render json: { status: status, message: message, missing_file: get_missing_files(@service, true), file_flags:
+          get_file_flags(@service) }
       end
     end
   end
@@ -405,7 +409,8 @@ class ServicesController < ApplicationController
         :vlan,
         :dns_name,
         :_destroy,
-        service_port_attributes: [:id, :service_network_id, :local_tcp_ports, :local_udp_ports, :inet_tcp_ports, :inet_udp_ports, :host_class, :tcp_ports_2, :udp_ports_2, :_destroy]],
+        service_port_attributes: [:id, :service_network_id, :local_tcp_ports, :local_udp_ports, :inet_tcp_ports,
+                                  :inet_udp_ports, :host_class, :tcp_ports_2, :udp_ports_2, :_destroy]],
       storage_systems_attributes: [:id, :service_id, :name, :_destroy],
       service_dep_parents_attributes: [:id, :parent_id, :child_id, :_destroy]
     )
@@ -471,6 +476,17 @@ class ServicesController < ApplicationController
     end
 
     missing_file
+  end
+
+  def get_file_flags(service)
+    flag = {}
+
+    flag[:scan]      = false
+    flag[:act]       = false
+    flag[:instr_rec] = service.has_instr_rec
+    flag[:instr_off] = service.has_instr_off
+
+    flag
   end
 
   # Заменить названия месяцев для корректной работы ActiveRecord

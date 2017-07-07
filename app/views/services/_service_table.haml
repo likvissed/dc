@@ -20,14 +20,18 @@
         %b Приоритет функционирования
       %td
         .form-group
-          = select_tag "service[priority]", nil, class: "form-control", "ng-model": "service.priority.selected", "ng-options": "priority for priority in service.priority.values track by priority"
+          = select_tag "service[priority]", nil, class: "form-control", "ng-model": "service.priority.selected",
+          "ng-options": "priority for priority in service.priority.values track by priority"
     %tr.ng-hide{ "ng-show": "service.priority.selected == 'Тестирование и отладка'" }
       %td Срок тестирования
       %td
         .form-group
           .row
             .col-md-12
-              = text_field_tag "service[deadline]", "", class: "form-control", "ng-model": "service.priority.deadline", "uib-datepicker-popup": "{{ service.deadline.format }}", "ng-focus": "service.openDatePicker()", "datepicker-options": "service.dateOptions", "is-open": "service.deadline.openDatePicker", "popup-placement": "bottom-left", "show-button-bar": false
+              = text_field_tag "service[deadline]", "", class: "form-control", "ng-model": "service.priority |
+              .deadline", "uib-datepicker-popup": "{{ service.deadline.format }}", "ng-focus": "service |
+              .openDatePicker()", "datepicker-options": "service.dateOptions", "is-open": "service.deadline |
+              .openDatePicker", "popup-placement": "bottom-left", "show-button-bar": false |
     %tr
       %td
         %b Режим гарантированной доступности
@@ -185,33 +189,56 @@
                 %td
                   %b{ "ng-bind": "network.name" }
                 %td.min-td
-                  = icon("fa fa-plus-circle fa-lg font-internal pointer", "ng-click": "service.addNetwork()", "tooltip-placement": "right", "uib-tooltip": "Добавить подключение к сети")
+                  = icon("fa fa-plus-circle fa-lg font-internal pointer", "ng-click": "service.addNetwork()",
+                  "tooltip-placement": "right", "uib-tooltip": "Добавить подключение к сети")
           %td
             %table.internal-table
               %tr
                 %td.form-group
-                  = text_field_tag "template_service[network][{{ $index }}]", "", "ng-value": "network.view", "ng-focus": "service.showNetworkModal($index)"
+                  = text_field_tag "template_service[network][{{ $index }}]", "", "ng-value": "network.view",
+                  "ng-focus": "service.showNetworkModal($index)"
 
                   = hidden_field_tag "service[service_networks_attributes][{{ $index }}][id]", "{{ network.id }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][_destroy]", "{{ network.destroy }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][segment]", "{{ network.value.segment }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][vlan]", "{{ network.value.vlan }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][dns_name]", "{{ network.value.dns_name }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][_destroy]", "{{ network |
+                  .destroy }}" |
+                  -#
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][segment]", "{{ network.value |
+                  .segment }}" |
+                  -#
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][vlan]", "{{ network.value |
+                  .vlan }}" |
+                  -#
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][dns_name]", "{{ network |
+                  .value.dns_name }}" |
+                  -#
 
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][id]", "{{ network.ports.id }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][_destroy]", "{{ network.ports.destroy }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][local_tcp_ports]", "{{ network.ports.local_tcp_ports }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][local_udp_ports]", "{{ network.ports.local_udp_ports }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][inet_tcp_ports]", "{{ network.ports.inet_tcp_ports }}"
-                  = hidden_field_tag "service[service_networks_attributes][{{ $index }}][service_port_attributes][inet_udp_ports]", "{{ network.ports.inet_udp_ports }}"
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index |
+                  }}][service_port_attributes][id]", "{{ network.ports.id }}" |
+                  -#
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index |
+                  }}][service_port_attributes][_destroy]", "{{ network.ports.destroy }}" |
+                  -#
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index |
+                  }}][service_port_attributes][local_tcp_ports]", "{{ network.ports.local_tcp_ports }}" |
+                  -#
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index |
+                  }}][service_port_attributes][local_udp_ports]", "{{ network.ports.local_udp_ports }}" |
+                  -#
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index |
+                  }}][service_port_attributes][inet_tcp_ports]", "{{ network.ports.inet_tcp_ports }}" |
+                  -#
+                  = hidden_field_tag "service[service_networks_attributes][{{ $index |
+                  }}][service_port_attributes][inet_udp_ports]", "{{ network.ports.inet_udp_ports }}" |
                 %td.min-td
-                  = icon("fa fa-minus-circle fa-lg font-internal pointer", "ng-click": "service.delNetwork(network)", "tooltip-placement": "right", "uib-tooltip": "Удалить подключение к сети")
+                  = icon("fa fa-minus-circle fa-lg font-internal pointer", "ng-click": "service.delNetwork(network)",
+                   "tooltip-placement": "right", "uib-tooltip": "Удалить подключение к сети")
 
         %tr{ "ng-repeat": "storage in service.storages" }
           %td
             %b{ "ng-bind": "storage.name" }
           %td.form-group
-            = text_field_tag "service[storage_systems_attributes][{{ $index }}][name]", "", "ng-value": "storage.value.name"
+            = text_field_tag "service[storage_systems_attributes][{{ $index }}][name]", "", "ng-value": "storage |
+            .value.name" |
 
             = hidden_field_tag "service[storage_systems_attributes][{{ $index }}][id]", "{{ storage.id }}"
             = hidden_field_tag "service[storage_systems_attributes][{{ $index }}][_destroy]", "{{ storage.destroy }}"
@@ -246,13 +273,13 @@
           %td= s.input :internet, label: false
         %tr
           %td Сетевые порты, доступные из ЛС
-          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.local" }
+          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.local || 'Нет'" }
         %tr
           %td
           %td{ "ng-click": "service.showPortsModal($event)" }
         %tr
           %td Сетевые порты, доступные из Интернет
-          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.inet" }
+          %td{ "ng-click": "service.showPortsModal($event)", "ng-bind": "service.ports.inet || 'Нет'" }
         %tr
           %td
           %td{ "ng-click": "service.showPortsModal($event)" }

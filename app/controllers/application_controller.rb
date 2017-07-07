@@ -60,6 +60,11 @@ class ApplicationController < ActionController::Base
     cookies['XSRF-TOKEN'] = form_authenticity_token if protect_against_forgery?
   end
 
+  # Проверить, прошел ли дедлайн для тестового сервиса
+  def check_service_deadline(service)
+    service['deadline'].nil? ? false : Time.now.to_date > service['deadline']
+  end
+
   protected
 
   # XSRF for angularjs

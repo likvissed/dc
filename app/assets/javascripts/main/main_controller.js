@@ -6,11 +6,19 @@
 
   FlashMessageCtrl.$inject      = ['$scope', '$attrs', 'Flash'];
   DefaultDataTableCtrl.$inject  = ['DTDefaultOptions'];
-  AjaxLoadingCtrl.$inject       = ['myHttpInterceptor'];
+  AjaxLoadingCtrl.$inject       = ['$scope', 'myHttpInterceptor'];
 
 // =====================================================================================================================
 
-  // После того, как страница отрендерится, контроллер запустит Flash уведомления, полученные от сервера
+  /**
+   * Контроллер для управления уведомлениями. После того, как страница отрендерится, контроллер запустит Flash
+   * уведомления, полученные от сервера.
+   *
+   * @class DataCenter.FlashMessageCtrl
+   * @param $scope
+   * @param $attrs
+   * @param Flash - описание: {@link DataCenter.Flash}
+   */
   function FlashMessageCtrl($scope, $attrs, Flash) {
     $scope.flash = Flash.flash;
 
@@ -20,6 +28,9 @@
     if ($attrs.alert)
       Flash.alert($attrs.alert);
 
+    /**
+     * Убрать alert уведомление.
+     */
     $scope.disableAlert = function () {
       Flash.alert(null);
     };
@@ -27,6 +38,12 @@
 
 // =====================================================================================================================
 
+  /**
+   * Контроллер, содержащий основные настройки таблиц angular-datatable.
+   *
+   * @class DataCenter.DefaultDataTableCtrl
+   * @param DTDefaultOptions
+   */
   function DefaultDataTableCtrl(DTDefaultOptions) {
     DTDefaultOptions
       .setLanguage({
@@ -53,20 +70,29 @@
 
 // =====================================================================================================================
 
-  function AjaxLoadingCtrl(myHttpInterceptor) {
+  /**
+   * Контроллер для управления индикатором выполнения ajax запросов.
+   *
+   * @class DataCenter.AjaxLoadingCtrl
+   * @param $scope
+   * @param myHttpInterceptor
+   */
+  function AjaxLoadingCtrl($scope, myHttpInterceptor) {
     var self = this;
 
     self.requests = myHttpInterceptor.getRequestsCount; // Число запросов
 
     // Настройка ajax запросов, посланных с помощью jQuery (например, в datatables).
     $.ajaxSetup({
-      beforeSend: function() {
+      beforeSend: function () {
         myHttpInterceptor.incCount();
       },
-      complete: function() {
+      complete: function () {
         myHttpInterceptor.decCount();
 
         self.requests = myHttpInterceptor.getRequestsCount;
+
+        $scope.$apply();
       }
     });
   }

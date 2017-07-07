@@ -19,7 +19,10 @@ class DepartmentHeadsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @department_head.errors, full_message: "Ошибка. #{ @department_head.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @department_head.errors, full_message: "Ошибка. #{ @department_head
+                                                                                                  .errors
+                                                                                                  .full_messages.join
+        (", ") }" }, status: :unprocessable_entity }
       end
     end
   end
@@ -37,7 +40,10 @@ class DepartmentHeadsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @department_head.errors, full_message: "Ошибка. #{ @department_head.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @department_head.errors, full_message: "Ошибка. #{ @department_head
+                                                                                                  .errors
+                                                                                                  .full_messages.join
+        (", ") }" }, status: :unprocessable_entity }
       end
     end
   end
@@ -49,7 +55,8 @@ class DepartmentHeadsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @department_head.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @department_head.errors.full_messages.join(", ") }" },
+                             status: :unprocessable_entity }
       end
     end
   end

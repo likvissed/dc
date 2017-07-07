@@ -2,7 +2,7 @@ class ServerTypesController < ApplicationController
 
   load_and_authorize_resource
 
-  before_action { |ctrl| ctrl.check_for_cancel servers_path }
+  before_action { |ctrl| ctrl.check_for_cancel main_settings_path }
   before_action :find_server_type_by_name,  only: [:edit, :update]
   before_action :find_server_type_by_id,    only: [:show, :destroy]
 
@@ -112,7 +112,8 @@ class ServerTypesController < ApplicationController
 
         render json: {
                  template_server_details: hash,
-                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: { server_parts: { only: [:id, :name] } })
+                 detail_types: DetailType.select(:id, :name).order(:id).includes(:server_parts).as_json(include: {
+                   server_parts: { only: [:id, :name] } })
                }
       end
     end
@@ -135,7 +136,8 @@ class ServerTypesController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @server_type.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @server_type.errors.full_messages.join(", ") }" },
+                             status: :unprocessable_entity }
       end
     end
   end

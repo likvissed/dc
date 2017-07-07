@@ -2,6 +2,12 @@ class Service < ActiveRecord::Base
 
   resourcify
 
+  STATUSES = {
+    work:     "В работе",
+    test:     "В тесте",
+    inactive: "Не используется"
+  }.freeze
+
   before_save :set_deadline
 
   has_many :service_networks, dependent: :destroy
@@ -198,7 +204,7 @@ class Service < ActiveRecord::Base
     if self.number.empty?
       "Номер формуляра отсутствует"
     else
-      "Формуляр № ***REMOVED***-Ф-#{self.number}"
+      "Формуляр № УИВТ-Ф-#{self.number}"
     end
   end
 
