@@ -570,7 +570,7 @@
     };
 
     /**
-     * Показать календарь
+     * Показать календарь.
      *
      * @methodOf DataCenter.ServiceEditCtrl
      */

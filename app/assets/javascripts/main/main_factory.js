@@ -457,7 +457,7 @@
         case 'server':
           obj = {
             // Фильтр оборудования по типу
-            serverTypeFilter: '0',
+            serverTypeFilter: 0,
             // Фильтр оборудования по статусу
             serverStatusFilter: 'all'
           };
@@ -465,7 +465,7 @@
         case 'cluster':
           obj = {
             // Фильтр серверов по типу
-            clusterTypeFilter: '0',
+            clusterTypeFilter: 0,
             // Фильтр серверов по отделу
             clusterDeptFilter: 'Все отделы',
             // Фильтр серверов по статусу

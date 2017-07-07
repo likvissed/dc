@@ -5,7 +5,7 @@
         %div{ "ng-controller": "ServerEditCtrl as server", "ng-init": "server.init(#{@server.id || 0}, |
         '#{params[:inventory_num]}')" } |
           -#
-          = simple_form_for @server, url: url do |s|
+          = simple_form_for @server, url: url, remote: true do |s|
             .content-body
               .row
                 .col-md-5.col-lg-6

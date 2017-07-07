@@ -111,7 +111,8 @@
       DTColumnBuilder.newColumn('name').withTitle('Сервер').withOption('className', 'col-lg-7'),
       DTColumnBuilder.newColumn('services').withTitle('Отдел').notSortable().withOption('className', 'col-lg-2' +
         ' text-center'),
-      DTColumnBuilder.newColumn('status').withTitle('Статус').notSortable().withOption('className', 'col-lg-2'),
+      DTColumnBuilder.newColumn('status').withTitle('Статус').notSortable().withOption('className', 'col-lg-2' +
+        ' text-center'),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(editRecord),
       DTColumnBuilder.newColumn(null).notSortable().withOption('className', 'text-center').renderWith(delRecord)
     ];

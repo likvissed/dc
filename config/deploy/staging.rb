@@ -59,3 +59,6 @@
 #     auth_methods: %w(publickey password)
 #     # password: 'please use keys'
 #   }
+
+set :application, 'staging-dc'
+set :deploy_to, "/var/www/#{fetch(:application)}"

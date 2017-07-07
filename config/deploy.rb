@@ -48,53 +48,46 @@ lock '3.5.0'
 
 #end
 
-set :application,     'dc_app'
-#set :user, 'deployer'
-
-set :ssh_options, {
-  keys:               %w(/home/ravil/.ssh/id_rsa),
-  forward_agent:      false,
-  user:               'deployer'
-}
+set :ssh_options, forward_agent: false, user: 'deployer'
+# keys: %w(/home/ravil/.ssh/id_rsa)
 
 # Repo details
-set :rbenv_ruby,      '2.2.1'
-set :repo_url,        '/var/repos/dc_app.git'
-set :scm,             :git
-set :branch,          'master'
-set :rbenv_map_bins,  %w{rake gem bundle ruby rails}
+set :rbenv_ruby, '2.2.1'
+set :repo_url, '/var/repos/dc_app.git'
+set :branch, 'master'
+set :rbenv_map_bins, %w[rake gem bundle ruby rails]
 
-set :keep_releases,   20
-
-#set :local_user, 'deployer'
-#set :rails_env, 'production'
-set :deploy_via,      :remote_cache
-set :use_sudo,        false
+set :deploy_via, :remote_cache
+set :use_sudo, false
 set :passenger_restart_with_touch, true
 #set :default_stage, 'staging'
 
-set :linked_files,    %w{config/database.yml}
-set :linked_dirs,     %w{log tmp/pids tmp/cache vendor/bundle public/system}
-
-role :web,  'dc'
-role :app,  'dc'
-role :db,   'dc'
-
-SSHKit.config.command_map[:rake]  = "bundle exec rake" #8
-SSHKit.config.command_map[:rails] = "bundle exec rails"
-
+set :deploy_via, :remote_cache
+set :use_sudo, false
 set :passenger_restart_with_touch, true
 
+set :linked_files,    %w[config/database.yml]
+set :linked_dirs,     %w[log tmp/pids tmp/cache vendor/bundle public/system]
+
+# role :web, 'dc'
+# role :app, 'dc'
+# role :db, 'dc'
+
+SSHKit.config.command_map[:rake]  = 'bundle exec rake'
+SSHKit.config.command_map[:rails] = 'bundle exec rails'
+
+# set :passenger_restart_with_touch, true
+
 namespace :deploy do
-  desc "Restart Passenger app"
+  desc 'Restart Passenger app'
   task :restart do
     on roles(:app), in: :sequence, wait: 5 do
-      execute :touch, release_path.join("tmp/restart.txt")
+      execute :touch, release_path.join('tmp/restart.txt')
     end
   end
 end
 
-desc "Reset database and add default data"
+desc 'Reset database and add default data'
 task :seed do
   on primary fetch(:migration_role) do
     within release_path do

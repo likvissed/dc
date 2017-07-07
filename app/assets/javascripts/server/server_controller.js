@@ -102,9 +102,9 @@
       DTColumnBuilder.newColumn(null).withTitle('#').withOption('className', 'col-lg-1').renderWith(renderIndex),
       DTColumnBuilder.newColumn('inventory_num').withTitle('Инвентарный номер'),
       DTColumnBuilder.newColumn('server_type.name').withTitle('Тип').withOption('className', 'col-lg-3'),
-      DTColumnBuilder.newColumn('status').withTitle('Статус').withOption('className', 'col-lg-2'),
-       DTColumnBuilder.newColumn('location').withTitle('Расположение').withOption('className', 'col-lg-2'),
-      DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'text-center col-lg-1').renderWith(delRecord)
+      DTColumnBuilder.newColumn('status').withTitle('Статус').withOption('className', 'col-lg-2 text-center'),
+      DTColumnBuilder.newColumn('location').withTitle('Расположение').withOption('className', 'col-lg-2 text-center'),
+      DTColumnBuilder.newColumn(null).withTitle('').notSortable().withOption('className', 'col-lg-1 text-center').renderWith(delRecord)
     ];
 
     var reloadPaging = false;
