@@ -9,6 +9,7 @@ gem 'devise'
 gem 'omniauth'
 # Access manager
 gem 'cancancan'
+gem 'dotenv-rails'
 # Roles
 gem 'rolify'
 # Strip attributes for input data
@@ -87,11 +88,11 @@ group :development do
   gem 'quiet_assets'
 
   # Capistrano
-  gem 'capistrano'
-  gem 'capistrano-rails'
-  gem 'capistrano-bundler'
-  gem 'capistrano-rbenv'
-  gem 'capistrano-passenger'
+  gem 'capistrano', require: false
+  gem 'capistrano-rails', require: false
+  gem 'capistrano-bundler', require: false
+  gem 'capistrano-rbenv', require: false
+  gem 'capistrano-passenger', require: false
   #gem 'unicorn'
 
   # For console

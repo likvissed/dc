@@ -66,8 +66,8 @@ set :deploy_via, :remote_cache
 set :use_sudo, false
 set :passenger_restart_with_touch, true
 
-set :linked_files,    %w[config/database.yml]
-set :linked_dirs,     %w[log tmp/pids tmp/cache vendor/bundle public/system]
+set :linked_files, %w[config/database.yml .env]
+set :linked_dirs, %w[log tmp/pids tmp/cache vendor/bundle public/system]
 
 # role :web, 'dc'
 # role :app, 'dc'
