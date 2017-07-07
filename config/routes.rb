@@ -10,8 +10,8 @@ Rails.application.routes.draw do
   end
 
   constraints name: /[^\/]+/ do
-    get   '/servers/:name/edit',      to: 'servers#edit'
-    patch '/servers/:name',           to: 'servers#update'
+    get   '/servers/:inventory_num/edit',  to: 'servers#edit'
+    patch '/servers/:inventory_num',       to: 'servers#update'
 
     get   '/server_types/:name/edit', to: 'server_types#edit'
     patch '/server_types/:name',      to: 'server_types#update'
@@ -79,6 +79,9 @@ Rails.application.routes.draw do
       get 'link/new_record', to: 'services#link_to_new_record'   # Отрендерить ссылку на новую запись, если у пользователя есть права (через json)
     end
   end
+
+  # get 'main_settings/index'
+  resources :main_settings, only: [:index]
 
   get '*unmatched_route', to: 'application#render_404'
 

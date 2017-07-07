@@ -1,0 +1,29 @@
+= title "Основные настройки"
+
+.container
+  .row
+    .col-lg-4
+      .well
+        .content-body{ "ng-controller": "NodeRoleIndexCtrl as nodeRolePage" }
+          %datatable-wrapper
+            %table.table.center-header.table-striped{ datatable: "", "dt-options": "nodeRolePage.dtOptions",
+                "dt-columns": "nodeRolePage.dtColumns", "dt-instance": "nodeRolePage.dtInstance", width: "100%" }
+
+          = render partial: "node_roles/modal_form"
+    .col-lg-4
+      .well
+        .content-body{ "ng-controller": "ServerTypeIndexCtrl as serverType" }
+          %datatable-wrapper
+            %table.table.center-header.table-hover.table-striped{ datatable: "", "dt-options": "serverType |
+            .dtOptions", "dt-columns": "serverType.dtColumns", "dt-instance": "serverType.dtInstance", width: |
+            "100%" } |
+
+          = render partial: "server_types/preview"
+    .col-lg-4
+      .well
+        .content-body{ "ng-controller": "DetailTypeIndexCtrl as detailTypePage" }
+          %datatable-wrapper
+            %table.table.center-header.table-striped{ datatable: "", "dt-options": "detailTypePage.dtOptions",
+                "dt-columns": "detailTypePage.dtColumns", "dt-instance": "detailTypePage.dtInstance", width: "100%" }
+
+          = render partial: "detail_types/modal_form"

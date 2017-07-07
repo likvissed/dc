@@ -1,3 +1,6 @@
+/**
+ * @namespace DataCenter
+ */
 var app = angular
   .module('DataCenter', [
     'ngResource',

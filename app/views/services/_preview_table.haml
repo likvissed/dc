@@ -2,7 +2,9 @@
   %tbody
     %tr
       %td.col-md-3 Хостинг сервиса
-      %td= icon("fa fa-eye fa-1g pointer", "tooltip-placement": "top", "uib-tooltip": "{{ preview.tooltip }}", "ng-click": "preview.showCluster()", "ng-class": "{ 'disabled-icon': !preview.hosting.name || preview.disableClusterPreview }")
+      %td= icon("fa fa-eye fa-1g pointer", "tooltip-placement": "top", "uib-tooltip": "{{ preview.tooltip }}", |
+      "ng-click": "preview.showCluster()", "ng-class": "{ 'disabled-icon': !preview.hosting.name || preview |
+      .disableClusterPreview }") |
       %td.col-md-9{ "ng-bind": "preview.hosting.name || 'Отсутствует'" }
     %tr
       %td.col-md-3 Зависимости сервиса
@@ -224,13 +226,13 @@
           %td{ "ng-bind": "preview.service.internet" }
         %tr
           %td Сетевые порты, доступные из ЛС
-          %td{ "ng-bind": "preview.ports.local" }
+          %td{ "ng-bind": "preview.ports.local || 'Нет'" }
         %tr
           %td
           %td
         %tr
           %td Сетевые порты, доступные из Интернет
-          %td{ "ng-bind": "preview.ports.inet" }
+          %td{ "ng-bind": "preview.ports.inet || 'Нет'" }
         %tr
           %td
           %td

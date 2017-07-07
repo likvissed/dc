@@ -6,13 +6,15 @@
       .modal-body
         .form-group.string
           = label_tag :template_network_segment, "Сегмент сети", class: "control-label"
-          = text_field_tag "template_network[segment]", nil, autofocus: true, class: "form-control", "ng-model": "networkModal.value.segment"
+          = text_field_tag "template_network[segment]", nil, autofocus: true, class: "form-control", "ng-model": |
+          "networkModal.value.segment" |
         .form-group.string
           = label_tag :template_network_vlan, "VLAN", class: "control-label"
           = text_field_tag "template_network[vlan]", nil, class: "form-control", "ng-model": "networkModal.value.vlan"
         .form-group.string
           = label_tag :template_network_dns_name, "DNS имя", class: "control-label"
-          = text_field_tag "template_network[dns_name]", nil, class: "form-control", "ng-model": "networkModal.value.dns_name"
+          = text_field_tag "template_network[dns_name]", nil, class: "form-control", "ng-model": "networkModal.value |
+          .dns_name" |
       .modal-footer
         = button_tag "Готово", class: "btn-success", "ng-click": "networkModal.readyNetworkModal()"
         = button_tag "Отмена", class: "btn-default", "ng-click": "networkModal.closeNetworkModal()"

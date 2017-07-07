@@ -60,9 +60,9 @@ class CreateServices < ActiveRecord::Migration
       # t.string link_scan # Ссылка на скан
       # t.string link_act # Ссылка на акт
       # t.string link_inst_rec # Ссылка на инструкцию
-      t.boolean :has_instr_rec                                       # Наличие инструкции по восстановлению
+      t.boolean :has_instr_rec, default: false                       # Наличие инструкции по восстановлению
       # t.string link_instr_off
-      t.boolean :has_instr_off                                       # Наличие инструкции по отключению
+      t.boolean :has_instr_off, default: false                       # Наличие инструкции по отключению
       t.boolean :exploitation
 
       t.text    :comment                                             # Комментарий

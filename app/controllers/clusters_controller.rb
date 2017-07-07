@@ -14,30 +14,41 @@ class ClustersController < ApplicationController
         @node_roles = NodeRole.select(:id, :name).order(:id) if params[:clusterTypes] == 'true'
         # Список известных отделов
         @services   = Service.select(:dept).where.not(dept: nil).uniq if params[:clusterDepts] == 'true'
+        # Список статусов серверов
+        statuses = Service::STATUSES.inject([]) { |arr, (key, val)| arr.push({ string: val, value: key }) } if
+          params[:clusterStatuses] == 'true'
 
         # Фильтр по типу сервера
-        @clusters = @clusters.joins(:cluster_details).where(cluster_details: { node_role_id: params[:typeFilter] }).uniq unless params[:typeFilter].to_i.zero?
+        @clusters = @clusters.joins(:cluster_details).where(cluster_details: { node_role_id: params[:typeFilter] })
+                      .uniq unless params[:typeFilter].to_i.zero?
         # Фильтр по отделу
-        if params[:deptFilter] != 'Все отделы' && params[:deptFilter] != 'Без отделов' && params[:clusterTypes] != 'true'
+        if params[:deptFilter] != 'Все отделы' && params[:deptFilter] != 'Без отделов'
           # Получаем список серверов, которые имеют сервисы с выбранным номером отдела.
-          # Внимание! В выборке будут отсутствовать сервисы других отделов, даже если они расположены на серверах, попавших в выборку.
+          # Внимание! В выборке будут отсутствовать сервисы других отделов, даже если они расположены на серверах,
+          # попавших в выборку.
           @clusters_filtered = @clusters.where(services: { dept: params[:deptFilter] })
           # Сделать новый запрос к базе для получения списка серверов и ВСЕХ ассоциированных сервисов.
-          @clusters = Cluster.select(:id, :name).order(:id).includes(:services).where(id: @clusters_filtered.each{ |c| c.id })
-        elsif params[:deptFilter] == 'Без отделов' && params[:clusterTypes] != 'true'
+          @clusters = Cluster.select(:id, :name).order(:id).includes(:services).where(id: @clusters_filtered.each{
+            |c| c.id })
+        elsif params[:deptFilter] == 'Без отделов'
           @clusters = @clusters.where(services: { dept: nil })
         end
 
-        # Объединить отделы со всех сервисов каждого кластера в соответствующие массивы
-        @clusters = @clusters.as_json(
-          include: {
-           services: { only: :dept }
-          }
-        ).each do |c|
-          c['services'] = c['services'].uniq.map{ |s| s['dept'] }.join(', ')
-        end
+        # Фильтр по статусу сервера
+        @clusters = @clusters.where_status_is params[:statusFilter] unless params[:statusFilter] == 'all'
 
-        render json: { data: @clusters, node_roles: @node_roles, depts: @services }
+        @clusters = @clusters.map { |c|
+          c.as_json(
+            include: {
+              services: { only: :dept }
+            },
+            except: :server_type_id
+          )
+            .merge({ status: c.get_status })
+
+        }.each { |c| c['services'] = c['services'].uniq.map{ |s| s['dept'] }.join(', ') }
+
+        render json: { data: @clusters, node_roles: @node_roles, depts: @services, statuses: statuses}
       end
     end
   end
@@ -50,7 +61,7 @@ class ClustersController < ApplicationController
             cluster_details: {
               only: [],
               include: {
-                server:     { only: :name },
+                server:     { only: :inventory_num },
                 node_role:  { only: :name }
               }
             },
@@ -59,8 +70,11 @@ class ClustersController < ApplicationController
             }
           },
           except: [:id, :created_at, :updated_at])
+            .merge({ status: @cluster.get_status })
 
         @cluster[:depts] = @cluster['services'].map{ |s| s['dept']  }.uniq.join(', ')
+        @cluster['services'] = @cluster['services'].each { |c| c['deadline'] = check_service_deadline c }
+
         render json: @cluster
       end
     end
@@ -70,12 +84,13 @@ class ClustersController < ApplicationController
     respond_to do |format|
       format.json do
         if Server.exists? && NodeRole.exists?
-          @servers    = Server.select(:id, :name).order(:id)
+          @servers    = Server.select(:id, :inventory_num).order(:id)
           @node_roles = NodeRole.select(:id, :name).order(:id)
 
           render json: { servers: @servers, node_roles: @node_roles }, status: :ok
         else
-          render json: { full_message: "Перед созданием сервера необходимо создать \"Оборудование\" и \"Типы серверов\"" }, status: :unprocessable_entity
+          render json: { full_message: "Перед созданием сервера необходимо создать \"Оборудование\" и \"Типы
+серверов\"" }, status: :unprocessable_entity
         end
       end
     end
@@ -89,7 +104,9 @@ class ClustersController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @cluster.errors, full_message: "Ошибка. #{ @cluster.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @cluster.errors, full_message: "Ошибка. #{ @cluster.errors.full_messages
+                                                                                          .join(", ") }" }, status:
+                               :unprocessable_entity }
       end
     end
   end
@@ -98,7 +115,7 @@ class ClustersController < ApplicationController
     respond_to do |format|
       format.html { render :edit }
       format.json do
-        @servers    = Server.select(:id, :name).order(:id)
+        @servers    = Server.select(:id, :inventory_num).order(:id)
         @node_roles = NodeRole.select(:id, :name).order(:id)
         render json: {
           data:       @cluster.as_json(
@@ -121,7 +138,9 @@ class ClustersController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @cluster.errors, full_message: "Ошибка. #{ @cluster.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @cluster.errors, full_message: "Ошибка. #{ @cluster.errors.full_messages
+                                                                                          .join(", ") }" }, status:
+                               :unprocessable_entity }
       end
     end
   end
@@ -133,7 +152,8 @@ class ClustersController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @cluster.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @cluster.errors.full_messages.join(", ") }" }, status:
+          :unprocessable_entity }
       end
     end
   end
@@ -151,7 +171,8 @@ class ClustersController < ApplicationController
 
   # Разрешение изменения strong params
   def cluster_params
-    params.require(:cluster).permit(:name, cluster_details_attributes: [:id, :cluster_id, :server_id, :node_role_id, :_destroy])
+    params.require(:cluster).permit(:name, cluster_details_attributes: [:id, :cluster_id, :server_id, :node_role_id,
+                                                                        :_destroy])
   end
 
   # Поиск данных о типе запчасти по name

@@ -61,8 +61,7 @@ ru:
       cluster:
         name: "Имя кластера"
       server:
-        name: "Имя сервера"
-        status: "Статус"
+        inventory_num: "Инвентарный номер"
         server_type_id: "Тип сервера"
       server/real_server_details:
         server_part_id: "Комплектующая"

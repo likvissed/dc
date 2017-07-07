@@ -19,7 +19,9 @@ class ContactsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @contact.errors, full_message: "Ошибка. #{ @contact.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @contact.errors, full_message: "Ошибка. #{ @contact.errors.full_messages
+                                                                                          .join(", ") }" }, status:
+                               :unprocessable_entity }
       end
     end
   end
@@ -37,7 +39,9 @@ class ContactsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { object: @contact.errors, full_message: "Ошибка. #{ @contact.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { object: @contact.errors, full_message: "Ошибка. #{ @contact.errors.full_messages
+                                                                                          .join(", ") }" }, status:
+                               :unprocessable_entity }
       end
     end
   end
@@ -49,7 +53,8 @@ class ContactsController < ApplicationController
       end
     else
       respond_to do |format|
-        format.json { render json: { full_message: "Ошибка. #{ @contact.errors.full_messages.join(", ") }" }, status: :unprocessable_entity }
+        format.json { render json: { full_message: "Ошибка. #{ @contact.errors.full_messages.join(", ") }" }, status:
+          :unprocessable_entity }
       end
     end
   end

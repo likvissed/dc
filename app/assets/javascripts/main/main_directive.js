@@ -79,6 +79,7 @@
 
             $compile(element.find('.cluster-dept-filter'))(scope);
             $compile(element.find('.cluster-type-filter'))(scope);
+            $compile(element.find('.cluster-status-filter'))(scope);
 
             $compile(element.find('.server-status-filter'))(scope);
             $compile(element.find('.server-type-filter'))(scope);
@@ -102,7 +103,8 @@
             if (scope.clusterPage)
               return [
                 scope.clusterPage.selectedDeptOption,
-                scope.clusterPage.selectedTypeOption
+                scope.clusterPage.selectedTypeOption,
+                scope.clusterPage.selectedStatusOption
               ];
 
             // Для таблицы серверов
@@ -132,7 +134,8 @@
   function newRecord() {
     return {
       restrict: 'C',
-      //template: '<button class="btn-sm btn btn-primary btn-block" ng-click="contactPage.showContactModal()">Добавить</button>'
+      //template: '<button class="btn-sm btn btn-primary btn-block"
+      // ng-click="contactPage.showContactModal()">Добавить</button>'
       templateUrl: function (element, attrs) {
         return '/' + attrs.id + '/link/new_record.json';
       }

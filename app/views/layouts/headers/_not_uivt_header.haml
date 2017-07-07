@@ -10,9 +10,7 @@
     .collapse.navbar-collapse.navbar-collapse-main
       %ul.nav.navbar-nav
         %li
-          = link_to "Сервисы", services_path
+          = link_to "Сервисы", services_path, class: "#{'corp-color' if [services_path, root_path].include? request |
+          .env['PATH_INFO'] }" |
         %li
-          = link_to "Серверы", clusters_path
-
-      %ul.nav.navbar-nav.pull-right
-        %p.navbar-text.corp-color{ "tooltip-placement": "bottom", "uib-tooltip": "Текущая страница" }= yield(:title)
+          = link_to "Серверы", clusters_path, class: "#{'corp-color' if current_page? clusters_path}"

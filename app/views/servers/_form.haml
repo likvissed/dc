@@ -2,55 +2,79 @@
   .row
     .col-md-12.col-lg-10.col-lg-offset-1
       .well
-        %div{ "ng-controller": "ServerEditCtrl as server", "ng-init": "server.init(#{@server.id || 0}, '#{params[:name]}')" }
-          = simple_form_for @server, url: url do |s|
+        %div{ "ng-controller": "ServerEditCtrl as server", "ng-init": "server.init(#{@server.id || 0}, |
+        '#{params[:inventory_num]}')" } |
+          -#
+          = simple_form_for @server, url: url, remote: true do |s|
             .content-body
               .row
                 .col-md-5.col-lg-6
                   %h3.bottom-line Общая информация об оборудовании
                   .col-lg-12
-                    = s.input :name, label: "Наименование", autofocus: true
-                    = s.input :inventory_num, label: "Инвентарный номер"
+                    = s.input :inventory_num, label: "Инвентарный номер", autofocus: true
                     = s.input :serial_num, label: "Серийный номер"
-                    = s.input :location, label: "Расположение"
-                    = s.input :status, label: "Статус", collection: Server.statuses.keys.to_a, as: :select, prompt: "Выберите статус"
+                    .row
+                      .col-lg-4
+                        = s.input :loc_area, label: "Площадка"
+                      .col-lg-4
+                        = s.input :loc_stand, label: "Стойка"
+                      .col-lg-4
+                        = s.input :loc_place, label: "Место в стойке"
 
                     - error_class = @server.errors[:server_type_id].empty? ? "" : "has-error"
                     %div{ class: error_class }
                       = label_tag :server_server_type_id , class: "control-label" do
                         %abbr{ title: "required" } *
                         %b Тип Оборудования
-                      = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.data.server_type",
-                      "ng-options": "type.name for type in server.serverTypes track by type.id", "ng-change": "server.changeType()", prompt: "Выберите тип оборудования"
+                      = select_tag "server[server_type_id]", nil, class: "form-control", "ng-model": "server.data |
+                      .server_type", "ng-options": "type.name for type in server.serverTypes track by type.id", |
+                      "ng-change": "server.changeType()", prompt: "Выберите тип оборудования" |
                       %span.help-block= get_errors @server.errors[:server_type_id]
+
+                    = s.input :comment, as: :text, label: "Комментарий", input_html: { rows: 3 }
 
                 .col-md-7.col-lg-6
                   %h3.bottom-line
                     Состав оборудования
                     %small.ng-hide.animate-show{ "ng-show": "!server.data" } - Необходимо выбрать тип оборудования
                   .col-lg-12
-                    %div.form-group.animate-repeat.animate-show{ "ng-repeat": "detail_type in server.detailTypes", "ng-show": "server.data" }
-                      %label{ "ng-bind": "detail_type.name", "ng-class": "{ 'text-muted': server.presenceCount[detail_type.name] == 0 }" }
+                    %div.form-group.animate-repeat.animate-show{ "ng-repeat": "detail_type in server.detailTypes",
+                    "ng-show": "server.data" }
+                      %label{ "ng-bind": "detail_type.name", "ng-class": "{ 'text-muted': server |
+                      .presenceCount[detail_type.name] == 0 }" } |
                       %span.text-muted.ng-hide.animate-show{ "ng-hide": "server.presenceCount[detail_type.name] != 0" }
                         %b отсутствует
                       &nbsp;
-                      = icon("fa fa-plus-circle fa-lg pointer", "tooltip-placement": "right", "uib-tooltip": "Добавить коплектующую", "ng-click": "server.addDetail($index)", "ng-class": "{ 'disabled-icon': detail_type.server_parts.length == 0 }")
+                      = icon("fa fa-plus-circle fa-lg pointer", "tooltip-placement": "right", "uib-tooltip": |
+                      "Добавить коплектующую", "ng-click": "server.addDetail($index)", "ng-class": "{ |
+                      'disabled-icon': detail_type.server_parts.length == 0 }") |
                       %span.text-muted{ "ng-show": "detail_type.server_parts.length == 0" }
                         &nbsp;
                         %b (комплектующие отсутствуют)
                       %table.internal-table
-                        %tbody.animate-repeat.animate-show{ "ng-repeat": "detail in server.data.real_server_details[detail_type.name]", "ng-hide": "detail.destroy" }
+                        %tbody.animate-repeat.animate-show{ "ng-repeat": "detail in server.data |
+                        .real_server_details[detail_type.name]", "ng-hide": "detail.destroy" } |
+                          -#
                           %tr
                             %td.col-sm-9.col-md-7.col-lg-8.no-left-padding
                               .form-group
-                                = select_tag "server[real_server_details_attributes][{{ detail.index }}][server_part_id]", nil, class: "form-control", "ng-model": "detail.server_part", "ng-options": "part.name for part in detail_type.server_parts track by part.id"
-                                = hidden_field_tag "server[real_server_details_attributes][{{ detail.index }}][id]", "{{ detail.id }}"
-                                = hidden_field_tag "server[real_server_details_attributes][{{ detail.index }}][_destroy]", "{{ detail.destroy }}"
+                                = select_tag "server[real_server_details_attributes][{{ detail.index |
+                                }}][server_part_id]", nil, class: "form-control", "ng-model": "detail.server_part", |
+                                "ng-options": "part.name for part in detail_type.server_parts track by part.id" |
+                                -#
+                                = hidden_field_tag "server[real_server_details_attributes][{{ detail.index }}][id]", |
+                                "{{ detail.id }}" |
+                                -#
+                                = hidden_field_tag "server[real_server_details_attributes][{{ detail.index |
+                                }}][_destroy]", "{{ detail.destroy }}" |
                             %td.col-sm-3.col-md-5.col-lg-4
                               .col-sm-10.col-md-10.col-lg-10.no-left-padding.no-right-padding
-                                = text_field_tag "server[real_server_details_attributes][{{ detail.index }}][count]", "{{ detail.count }}", class: "form-control", "ng-model": "detail.count"
+                                = text_field_tag "server[real_server_details_attributes][{{ detail.index }}][count]", |
+                                 "{{ detail.count }}", class: "form-control", "ng-model": "detail.count" |
                               .col-sm-2.col-md-2.col-lg-2.no-right-padding
-                                = icon("fa fa-minus-circle fa-lg icon-padding pointer", "tooltip-placement": "left", "uib-tooltip": "Удалить комплектующую", "ng-click": "server.delDetail(detail_type.name, detail)")
+                                = icon("fa fa-minus-circle fa-lg icon-padding pointer", "tooltip-placement": "left", |
+                                "uib-tooltip": "Удалить комплектующую", "ng-click": "server.delDetail(detail_type |
+                                .name, detail)") |
                           %tr.empty.animate-show{ "ng-show": "!detail.$last" }
                       .bottom-line
 

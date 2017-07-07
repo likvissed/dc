@@ -9,7 +9,9 @@
   function detailTypeFilter() {
     return {
       restrict: 'C',
-      template: '<select class="form-control" ng-change="serverPartPage.changeFilter()"  ng-model="serverPartPage.selectedTypeOption" ng-options="option as option.name for option in serverPartPage.typeOptions track by option.id"></select>'
+      template: '<select class="form-control" ng-change="serverPartPage.changeFilter()"' +
+      ' ng-model="serverPartPage.selectedTypeOption" ng-options="option as option.name for option in' +
+      ' serverPartPage.typeOptions track by option.id"></select>'
     }
   }
 })();
