@@ -62,8 +62,8 @@
 
 #require 'capistrano/rails'
 
-set :deploy_to, '/var/www/dc'
-server 'dc', user: 'deployer', roles: %w{web app dc}
+set :application, 'dc'
+set :deploy_to, "/var/www/#{fetch(:application)}"
 
 =begin
 namespace :deploy do
