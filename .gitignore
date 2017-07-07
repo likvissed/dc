@@ -61,4 +61,4 @@ config/redis.yml
 /specifications
 /cached_pages/*
 .env
-config/server.yml
+config/secrets.yml
