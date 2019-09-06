@@ -1,3 +1,4 @@
 .absolute{ "ng-controller": "AjaxLoadingCtrl as ajax" }
   .alert.alert-loading.text-center.ng-show.animate-show{ "ng-show": "ajax.requests.count != 0" }
-    = icon("fa fa-circle-o-notch fa-spin fa-3x fa-fw")
+    %i.fa-circle-o-notch
+    -#  icon("fa fa-circle-o-notch fa-spin fa-3x fa-fw")

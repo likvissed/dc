@@ -220,7 +220,7 @@ class ServicesController < ApplicationController
 
   def update
     # В случае, если приходит пустая строка "Подключения СХД" и существует id записи, установить флаг на удаление = 1
-    params[:service][:storage_systems_attributes].map do |attr|
+    params[:service][:storage_systems_attributes].to_unsafe_h.map do |attr|
       if !attr[1][:id].to_i.zero? && attr[1][:name].empty?
         attr[1][:_destroy] = 1
       end

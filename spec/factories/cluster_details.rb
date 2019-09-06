@@ -1,8 +1,8 @@
-FactoryGirl.define do
+FactoryBot.define do
 
   factory :cluster_detail do
-    server
-    node_role
+    # server
+    # node_role
   end
 
 end

@@ -1,4 +1,4 @@
-//= require jquery
+// = require jquery
 //= require jquery_ujs
 //= require lib/dataTables/jquery
 //= require lib/dataTables/jquery.dataTables

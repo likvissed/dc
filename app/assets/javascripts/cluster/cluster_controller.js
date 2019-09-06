@@ -157,8 +157,8 @@
             Ability.setRole(data.role);
 
             // Показать иконки управления только для определенных ролей
-            api.column(3).visible(Ability.canView('admin_tools'));
-            api.column(4).visible(Ability.canView('admin_tools'));
+            api.column(4).visible(Ability.canView('admin_tools')); // редактирование
+            api.column(5).visible(Ability.canView('admin_tools')); // удаление
           },
           function (response, status) {
             Error.response(response, status);
@@ -241,9 +241,7 @@
      * @private
      */
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="clusterPage.showClusterModal(\'' +
-        data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g' +
-        ' pointer"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="clusterPage.showClusterModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="glyphicon glyphicon-pencil"></a>';
     }
 
     /**
@@ -258,7 +256,7 @@
      */
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="clusterPage.destroyCluster(' + data.id +
-        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="glyphicon glyphicon-trash"></a>';
     }
 
     /**
@@ -431,13 +429,16 @@
 // =============================================== Инициализация =======================================================
 
     $scope.$on('cluster:show', function (event, json) {
+      self.previewModal = true; // Показать модальное окно
+
+      var data = json.response;                           // Данные, полученные с сервера
+
       // Показать модальное окно
       self.previewModal = true;
 
       // Данные, полученные с сервера
       var data = json.response;
 
-      console.log(json);
       // Статус
       self.status         = data.status;
       // Имя сервера

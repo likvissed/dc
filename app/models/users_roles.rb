@@ -10,7 +10,7 @@ class UsersRoles < ActiveRecord::Base
       raise "cannot delete nonexisting role on subject"
     end
 
-    self.delete_all(user_id: subject.id, role_id: role.id)
+    self.delete(user_id: subject.id, role_id: role.id)
   end
 
 end

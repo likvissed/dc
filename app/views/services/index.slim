@@ -1,0 +1,12 @@
+= title "Просмотр сервисов"
+
+.container{ ng-controller="ServiceIndexCtrl as servicePage" }
+  .row
+    .col-md-12
+      .well
+        .content-body
+          datatable-wrapper
+            table.table.center-header.table-hover.table-striped{ datatable="" dt-options="servicePage.dtOptions" dt-columns="servicePage.dtColumns" dt-instance="servicePage.dtInstance" width="100%" }
+
+  = render partial: "preview"
+  = render partial: "clusters/preview"

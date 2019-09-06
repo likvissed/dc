@@ -42,6 +42,8 @@ ru:
         number: "Указанный номер"
         priority: "Приоритет функционирования"
         time_work: "Режим гарантированной доступности"
+        # dependency:
+        service_dep_childs: 'сервис'
       service/service_dep_parents:
         parent_id: "Сервис"
       service_network:
@@ -52,6 +54,9 @@ ru:
         tn: "Табельный номер"
         info: "ФИО"
         dept: "Номер отдела"
+        # dependency:
+        first_contacts: 'основной ответственный' 
+        second_contacts: 'вторичный контакт'
       department_head:
         tn: "Табельный номер"
       storage_system:
@@ -60,15 +65,33 @@ ru:
         parent_id: "Сервис-родитель"
       cluster:
         name: "Имя кластера"
+        # dependency:
+        service_hostings: 'хостинг сервиса'
       server:
         inventory_num: "Инвентарный номер"
         server_type_id: "Тип сервера"
+        # dependency:
+        cluster_details: "данные сервера"
       server/real_server_details:
         server_part_id: "Комплектующая"
       server_type/template_server_details:
         server_part_id: "Комплектующая"
       server_type:
         name: "Имя типа сервера"
+        # dependency:
+        servers: 'оборудование'
       server_part:
         name: "Имя комплектующей"
         detail_type_id: "Тип комплектующей"
+        # dependency:
+        template_server_details: "состав оборудования"
+        real_server_details: "данные об оборудовании"
+      detail_type: 
+        # dependency:
+        server_parts: 'комплектующие'
+      node_role:
+        # dependency:
+        cluster_details: 'серверы'
+
+
+
