@@ -106,7 +106,7 @@ group :development do
   #gem 'unicorn'
 
   gem 'ed25519'
-  gem 'bcrypt_pbkdf'
+  gem 'bcrypt_pbkdf' 
 
   # rule
   gem 'rubocop', require: false

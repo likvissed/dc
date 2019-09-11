@@ -3,26 +3,26 @@
 # version gem capistrano
 lock '3.11.1'
 
-set :rbenv_ruby, '2.2.1'
+set :rbenv_ruby, '2.5.1'
 
-set :application, 'dc'
 server 'dc', user: 'deployer', roles: %w[web app db]
+
+set :keep_releases, 7
 
 # configuration git
 set :repo_url, '***REMOVED***'
 
 set :linked_files, %w[config/database.yml config/secrets.yml .env]
-set :linked_dirs, %w[log tmp/pids tmp/cache public/system]
-append :linked_dirs, '.bundle'
+set :linked_dirs, %w[log tmp/pids tmp/cache vendor/bundle public/system]
 
 set :use_sudo, false
 set :deploy_via, :remote_cache
 set :passenger_restart_with_touch, true
 
-# set :rbenv_map_bins, %w[rake gem bundle ruby rails]
+set :rbenv_map_bins, %w[rake gem bundle ruby rails]
 
-# SSHKit.config.command_map[:rake]  = 'bundle exec rake'
-# SSHKit.config.command_map[:rails] = 'bundle exec rails'
+SSHKit.config.command_map[:rake]  = 'bundle exec rake'
+SSHKit.config.command_map[:rails] = 'bundle exec rails'
 
 # namespace :deploy do
 #   desc 'Restart Passenger app'
@@ -44,4 +44,4 @@ task :seed do
   end
 end
 
-after 'deploy:publishing', 'deploy:restart'
+after 'deploy:publishing', 'deploy:restart' 
