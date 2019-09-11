@@ -77,8 +77,8 @@ group :development, :test do
   gem 'factory_bot_rails'
   # Formatting rspec
   gem 'fuubar'
-  gem 'capybara'
-  gem 'capybara-webkit'
+  # gem 'capybara'
+  # gem 'capybara-webkit'
 end
 
 group :test do
@@ -106,7 +106,7 @@ group :development do
   #gem 'unicorn'
 
   gem 'ed25519'
-  gem 'bcrypt_pbkdf' 
+  gem 'bcrypt_pbkdf'
 
   # rule
   gem 'rubocop', require: false
