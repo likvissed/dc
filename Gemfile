@@ -41,6 +41,9 @@ gem 'rails', '5.2.0'
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
+# For color console
+gem 'awesome_print'
+
 # Use CoffeeScript for .coffee assets and views
 # gem 'coffee-rails', '~> 4.1.0'
 # See https://github.com/rails/execjs#readme for more supported runtimes
@@ -88,7 +91,7 @@ group :development do
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-  # Rails panel
+  # Rails panel (for Chrome inspector)
   gem 'meta_request'
   # View errors
   gem 'better_errors'
@@ -102,10 +105,9 @@ group :development do
   gem 'capistrano-passenger', require: false
   #gem 'unicorn'
 
-  # For console
-  gem 'awesome_print'
+  gem 'ed25519'
+  gem 'bcrypt_pbkdf' 
 
   # rule
   gem 'rubocop', require: false
-
 end
