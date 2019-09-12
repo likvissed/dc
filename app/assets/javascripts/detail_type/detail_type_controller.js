@@ -115,8 +115,9 @@
      */
     function editRecord(data, type, full, meta) {
       return '<a href="" class="default-color" disable-link=true ng-click="detailTypePage.showDetailTypeModal(\'' +
-        data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fa fa-pencil-square-o fa-1g' +
+        data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="glyphicon glyphicon-pencil' +
         ' pointer"></a>';
+
     }
 
     /**
@@ -131,7 +132,7 @@
      */
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="detailTypePage.destroyDetailType(' + data.id +
-        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="fa fa-trash-o fa-1g"></a>';
+        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="glyphicon glyphicon-trash"></a>';
     }
 
 // =============================================== Публичные функции ===================================================

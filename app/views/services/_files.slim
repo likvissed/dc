@@ -1,0 +1,48 @@
+.file-module
+  .file-block
+    .file-header Формуляр
+    .file-content
+      .icon-content
+        .button-block{ title: "Добавить формуляр" }
+          = s.label :scan, icon("fa fa-plus fa-1g")
+          = s.input :scan, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false
+        .button-block{ title: "Скачать формуляр" }
+          = link_to icon("fa fa-download fa-1g"), "/services/#{@service.id}/download/scan", "ng-disabled": "missing_file.scan"
+        .button-block{ title: "Удалить формуляр" }
+          = link_to icon("fa fa-trash fa-1g"), "#", data: { confirm: "Вы действительно хотите удалить формуляр?", "ng-disabled": "missing_file.scan" }
+
+  .file-block
+    .file-header Акт
+    .file-content
+      .icon-content
+        .button-block{ title: "Добавить акт" }
+          = s.label :act, icon("fa fa-plus fa-1g")
+          = s.input :act, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false
+        .button-block{ title: "Скачать акт" }
+          = link_to icon("fa fa-download fa-1g"), "/services/#{@service.id}/download/act", "ng-disabled": "missing_file.act"
+        .button-block{ title: "Удалить акт" }
+          = link_to icon("fa fa-trash fa-1g"), "#", data: { confirm: "Вы действительно хотите удалить акт?", "ng-disabled": "missing_file.act" }
+
+  .file-block
+    .file-header Инстр. восст.
+    .file-content
+      .icon-content
+        .button-block{ title: "Добавить инструкцию по восстановлению" }
+          = s.label :instr_rec, icon("fa fa-plus fa-1g")
+          = s.input :instr_rec, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false
+        .button-block{ title: "Скачать инструкцию по восстановлению" }
+          = link_to icon("fa fa-download fa-1g"), "/services/#{@service.id}/download/instr_rec", "ng-disabled": "missing_file.instr_rec"
+        .button-block{ title: "Удалить инструкцию по восстановлению" }
+          = link_to icon("fa fa-trash fa-1g"), "#", data: { confirm: "Вы действительно хотите удалить инструкцию по восстановлению?", "ng-disabled": "missing_file.instr_rec" }
+
+  .file-block
+    .file-header Инстр. выкл.
+    .file-content
+      .icon-content
+        .button-block{ title: "Добавить инструкцию по отключению" }
+          = s.label :instr_off, icon("fa fa-plus fa-1g")
+          = s.input :instr_off, label: false, as: :file, input_html: { class: "add-service-file" }, wrapper: false
+        .button-block{ title: "Скачать инструкцию по отключению" }
+          = link_to icon("fa fa-download fa-1g"), "/services/#{@service.id}/download/instr_off", "ng-disabled": "missing_file.instr_off"
+        .button-block{ title: "Удалить инструкцию по отключению" }
+          = link_to icon("fa fa-trash fa-1g"), "#", data: { confirm: "Вы действительно хотите удалить инструкцию по отключению?", "ng-disabled": "missing_file.instr_off" }

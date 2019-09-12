@@ -1,0 +1,24 @@
+.modal.fade{ tabindex="-1" role="document" aria-hidden=true modal-show="serverPartPage.previewModal" }
+  .modal-dialog
+    .modal-content{ ng-controller="ServerPartPreviewCtrl as preview" }
+      .modal-header
+        / - if can? :manage, ServerPart
+          = link_to icon("fa fa-cog fa-fw"), "#", "ng-href": "/server_parts/{{ preview.name }}/edit", class: |
+          "pull-right default-color", "tooltip-placement": "left", "uib-tooltip": "Редактировать комплектующую" |
+        h4.modal-title{ ng-bind="preview.name" }
+      .modal-body
+        h4 Описание
+        table.table.table-striped
+          tbody
+            tr
+              td.col-md-3 Тип
+              td{ ng-bind="preview.type" }
+            tr
+              td Номер
+              td{ ng-bind="preview.number" }
+
+        h4 Комментарий
+        div{ ng-bind="preview.comment" }
+
+      .modal-footer
+        = button_tag "Закрыть", "data-dismiss": "modal"

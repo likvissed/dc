@@ -1,8 +1,8 @@
-FactoryGirl.define do
+FactoryBot.define do
 
-  factory :template_server_detail do
-    server_part
-    count 2
-  end
+  # factory :template_server_detail do
+  #   server_part
+  #   count 2
+  # end
 
 end

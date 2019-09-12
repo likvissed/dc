@@ -1,4 +1,5 @@
 class ServiceNetwork < ActiveRecord::Base
+  require 'resolv'
 
   after_validation :get_ip
 

@@ -1,4 +1,4 @@
-FactoryGirl.define do
+FactoryBot.define do
   factory :storage_system do
     
   end

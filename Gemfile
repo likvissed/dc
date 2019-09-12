@@ -1,4 +1,10 @@
 source 'https://rubygems.org'
+
+git_source(:github) do |repo_name|
+  repo_name = "#{repo_name}/#{repo_name}" unless repo_name.include?("/")
+  "https://github.com/#{repo_name}.git"
+end
+gem 'listen'
 gem 'paperclip'
 gem 'paperclip-i18n'
 # Paginator
@@ -24,18 +30,22 @@ gem 'font-awesome-sass'
 gem 'bootstrap-sass'
 # Simple form
 gem 'simple_form'
-# haml
+# haml slim
 gem 'haml-rails'
+gem 'slim'
 # i18n
 gem 'rails-i18n'
 # Bundle edge Rails instead: gem 'rails', github: 'rails/rails'
-gem 'rails', '4.2.6'
+gem 'rails', '5.2.0'
 # Use SCSS for stylesheets
 gem 'sass-rails', '~> 5.0'
 # Use Uglifier as compressor for JavaScript assets
 gem 'uglifier', '>= 1.3.0'
+# For color console
+gem 'awesome_print'
+
 # Use CoffeeScript for .coffee assets and views
-gem 'coffee-rails', '~> 4.1.0'
+# gem 'coffee-rails', '~> 4.1.0'
 # See https://github.com/rails/execjs#readme for more supported runtimes
 # gem 'therubyracer', platforms: :ruby
 
@@ -63,11 +73,12 @@ group :development, :test do
   # Testing
   gem 'rspec-rails'
   # Factory
-  gem 'factory_girl_rails'
+  # gem 'factory_girl_rails'
+  gem 'factory_bot_rails'
   # Formatting rspec
   gem 'fuubar'
-  gem 'capybara'
-  gem 'capybara-webkit'
+  # gem 'capybara'
+  # gem 'capybara-webkit'
 end
 
 group :test do
@@ -80,12 +91,11 @@ group :development do
 
   # Spring speeds up development by keeping your application running in the background. Read more: https://github.com/rails/spring
   gem 'spring'
-  # Rails panel
+  # Rails panel (for Chrome inspector)
   gem 'meta_request'
   # View errors
   gem 'better_errors'
   # Quiet assets
-  gem 'quiet_assets'
 
   # Capistrano
   gem 'capistrano', require: false
@@ -95,7 +105,9 @@ group :development do
   gem 'capistrano-passenger', require: false
   #gem 'unicorn'
 
-  # For console
-  gem 'awesome_print'
+  gem 'ed25519'
+  gem 'bcrypt_pbkdf' 
 
+  # rule
+  gem 'rubocop', require: false
 end

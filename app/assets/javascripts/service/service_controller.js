@@ -265,7 +265,7 @@
      */
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="servicePage.destroyService(' + data.id +
-        ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="fa fa-trash-o fa-1g"></a>';
+        ')" tooltip-placement="top" uib-tooltip="Удалить сервис"><i class="glyphicon glyphicon-trash"></a>';
     }
 
     /**

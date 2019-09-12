@@ -1,0 +1,16 @@
+= title "Просмотр оборудования"
+
+.container
+  / .row
+    .col-sm-12.col-md-12.col-lg-8
+      .well
+        .content-body{ ng-controller="ServerTotalInfoCtrl as serverlnfo" }
+          = render partial: "info"
+  .row
+    .col-lg-12
+      .well
+        .content-body{ ng-controller="ServerIndexCtrl as serverPage" }
+          datatable-wrapper
+            table.table.center-header.table-hover.table-striped{ datatable="" dt-options="serverPage.dtOptions" dt-columns="serverPage.dtColumns" dt-instance="serverPage.dtInstance" width="100%" }
+
+          = render partial: "preview"

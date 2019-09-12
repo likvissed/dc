@@ -1,11 +1,11 @@
-FactoryGirl.define do
+FactoryBot.define do
 
-  factory :node_role do
-    sequence(:name) { |i| "Node_#{i}" }
-  end
+  # factory :node_role do
+  #   sequence(:name) { |i| "Node_#{i}" }
+  # end
 
-  factory :invalid_node_role, parent: :node_role do
-    name ""
-  end
+  # factory :invalid_node_role, parent: :node_role do
+  #   name ""
+  # end
 
 end

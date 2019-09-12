@@ -3,9 +3,9 @@ class Service < ActiveRecord::Base
   resourcify
 
   STATUSES = {
-    work:     "В работе",
-    test:     "В тесте",
-    inactive: "Не используется"
+    work:     'В работе',
+    test:     'В тесте',
+    inactive: 'Не используется'
   }.freeze
 
   before_save :set_deadline
@@ -37,8 +37,8 @@ class Service < ActiveRecord::Base
   accepts_nested_attributes_for :storage_systems, allow_destroy: true, reject_if: proc { |attr| attr['name'].blank? }
   accepts_nested_attributes_for :service_dep_parents, allow_destroy: true, reject_if: proc { |attr| attr['parent_id'].blank? }
 
-  enum priority:  ["Критическая производственная задача", "Вторичная производственная задача", "Тестирование и отладка"]
-  enum time_work: ["Круглосуточно (24/7)", "Рабочее время (8/5)", "По запросу"]
+  enum priority:  ['Критическая производственная задача', 'Вторичная производственная задача', 'Тестирование и отладка']
+  enum time_work: ['Круглосуточно (24/7)', 'Рабочее время (8/5)', 'По запросу']
 
   has_attached_file :scan
   has_attached_file :act
@@ -54,7 +54,7 @@ class Service < ActiveRecord::Base
                                       # 'application/force-download',
                                       # 'application/x-file-download'
                                     ],
-                                    message: "Скан формуляра имеет неверный тип данных"
+                                    message: 'Скан формуляра имеет неверный тип данных'
 
   validates_attachment_content_type :act,
                                     content_type: [
@@ -67,7 +67,7 @@ class Service < ActiveRecord::Base
                                       # 'application/force-download',
                                       # 'application/x-file-download'
                                     ],
-                                    message: "Скан акта имеет неверный тип данных"
+                                    message: 'Скан акта имеет неверный тип данных'
 
   validates_attachment_content_type :instr_rec,
                                     content_type: [
@@ -80,7 +80,7 @@ class Service < ActiveRecord::Base
                                       # 'application/force-download',
                                       # 'application/x-file-download'
                                     ],
-                                    message: "Инструкция по посстановлению имеет неверный тип данных"
+                                    message: 'Инструкция по посстановлению имеет неверный тип данных'
 
   validates_attachment_content_type :instr_off,
                                     content_type: [
@@ -93,7 +93,7 @@ class Service < ActiveRecord::Base
                                       # 'application/force-download',
                                       # 'application/x-file-download'
                                     ],
-                                    message: "Инструкция по отключению имеет неверный тип данных"
+                                    message: 'Инструкция по отключению имеет неверный тип данных'
 
   # Получает последний номер формуляра и возвращает следующий за ним номер.
   def self.get_next_service_number
