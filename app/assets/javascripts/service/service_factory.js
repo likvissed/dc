@@ -1095,11 +1095,11 @@
               ' задача"></i>';
             break;
           case 'Вторичная производственная задача':
-            str = '<i class="fa fa-star-half-o" tooltip-placement="top" uib-tooltip="Вторичная производственная' +
+            str = '<i class="fas fa-star-half-alt" tooltip-placement="top" uib-tooltip="Вторичная производственная' +
               ' задача"></i>';
             break;
           case 'Тестирование и отладка':
-            str = '<i class="fa fa-star-o" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
+            str = '<i class="far fa-star" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
             break;
           default:
             str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не' +
