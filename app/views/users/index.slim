@@ -20,9 +20,9 @@
                 td= user.info
                 td= role
                 td
-                  =link_to icon("glyphicon glyphicon-pencil", ""),'', href:"/users/#{user.id}/edit", class: "default-color", title: "Редактировать"
+                  =link_to icon("fas fa-edit", ""),'', href:"/users/#{user.id}/edit", class: "default-color", title: "Редактировать"
                 td
-                  = link_to icon("glyphicon glyphicon-trash", ""),'', href: user_path(user.id), method: :delete, class: "text-danger", title: "Удалить", data: { confirm: "Вы действительно хотите удалить пользователя \"#{ user.info }\"?" }
+                  = link_to icon("far fa-trash-alt", ""),'', href: user_path(user.id), method: :delete, class: "text-danger", title: "Удалить", data: { confirm: "Вы действительно хотите удалить пользователя \"#{ user.info }\"?" }
 
 
 

@@ -66,5 +66,7 @@
                       .bottom-line
 
             .content-footer
-              = s.button :submit, "Готово", class: "btn-success"
-              = button_tag "Отмена", type: "submit", name: "cancel", value: true
+              span.margin-right-5
+                = s.button :submit, "Готово", class: "btn-success"
+              span.margin-right-5
+                = button_tag "Отмена", type: "submit", name: "cancel", value: true
