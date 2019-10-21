@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   layout :layout
   protect_from_forgery with: :exception
-
+  
   before_action :authenticate_user!
   after_action :set_csrf_cookie_for_ng
 
@@ -81,7 +81,7 @@ class ApplicationController < ActionController::Base
 
   # Куда перенаправлять после авторизации
   def after_sign_in_path_for(resource_or_scope)
-    services_path
+    session["user_return_to"] || services_path
   end
 
   # Определяем, какой layout выводить: для входа в систему или основной

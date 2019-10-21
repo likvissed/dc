@@ -43,6 +43,8 @@ gem 'sass-rails', '~> 5.0'
 gem 'uglifier', '>= 1.3.0'
 # For color console
 gem 'awesome_print'
+# For authorization
+gem 'oauth2'
 
 # Use CoffeeScript for .coffee assets and views
 # gem 'coffee-rails', '~> 4.1.0'
