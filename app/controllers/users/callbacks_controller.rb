@@ -36,7 +36,7 @@ class Users::CallbacksController <  DeviseController
   end
 
   def user_oauth
-    @redirect_url = 'https://dc.***REMOVED***.ru/users/callbacks/authorize_user'
+    @redirect_url = "https://#{ENV['APPNAME']}.***REMOVED***.ru/users/callbacks/authorize_user"
 
     @client = OAuth2::Client.new(ENV['CLIENT_ID'], ENV['CLIENT_SECRET'], site: 'https://auth-center.***REMOVED***.ru/')
   end
