@@ -5,8 +5,7 @@ class User < ActiveRecord::Base
   after_validation :get_user_iss_data
   rolify before_add: :delete_roles
 
-  # :database_authenticatable, :confirmable, :lockable, :timeoutable, :omniauthable and :registerable
-  devise :database_authenticatable, :trackable, :timeoutable, :omniauthable, omniauth_providers: [:open_id_***REMOVED***], authentication_keys: [:login]
+  devise :database_authenticatable, :trackable
 
   strip_attributes allow_empty: true, collapse_spaces: true
 

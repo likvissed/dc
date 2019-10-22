@@ -10,16 +10,17 @@ class Users::CallbacksController <  DeviseController
   end 
 
   def authorize_user
-    user_oauth
-    token = @client.auth_code.get_token("#{params[:code]}", redirect_uri: @redirect_url, headers: {'Authorization' => 'Basic some_password'})     
-
-    response = token.get('/api/module/main/login_info')
-    response.class.name
 
     if params[:error] || session[:state] != params[:state]
       set_flash_message(:alert, :error)
       redirect_to new_user_session_path
     else
+
+    user_oauth
+    token = @client.auth_code.get_token("#{params[:code]}", redirect_uri: @redirect_url, headers: {'Authorization' => 'Basic some_password'})     
+
+    response = token.get('/api/module/main/login_info')
+    response.class.name
 
     user = JSON.parse(response.body)
     @user = User.find_by(tn: user['tn'] )
