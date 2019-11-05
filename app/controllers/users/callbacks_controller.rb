@@ -8,7 +8,8 @@ class Users::CallbacksController < DeviseController
                                       client_id=#{@user_info[:client_id]}&
                                       client_secret=#{@user_info[:client_secret]}&
                                       response_type=#{@user_info[:response_type]}&
-                                      redirect_uri=#{@user_info[:redirect_uri]}"
+                                      redirect_uri=#{@user_info[:redirect_uri]}&
+                                      state=#{session[:state]}"
   end
 
   def authorize_user
