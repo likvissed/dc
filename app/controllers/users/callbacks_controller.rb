@@ -1,24 +1,37 @@
-require 'oauth2'
+require 'rest-client'
 
 class Users::CallbacksController < DeviseController
-
   def registration_user
     session[:state] ||= Digest::MD5.hexdigest(rand.to_s)
-    client_oauth
-    redirect_to @client.auth_code.authorize_url(redirect_uri: @redirect_url, state: session[:state])
+    user_oauth
+    redirect_to "#{@user_info[:authorization_uri]}?
+                                      client_id=#{@user_info[:client_id]}&
+                                      client_secret=#{@user_info[:client_secret]}&
+                                      response_type=#{@user_info[:response_type]}&
+                                      redirect_uri=#{@user_info[:redirect_uri]}"
   end
 
   def authorize_user
-    client_oauth
-    token = @client.auth_code.get_token(params[:code], redirect_uri: @redirect_url, headers: { 'Authorization' => 'Basic some_password' })
-    response = token.get('/api/module/main/login_info')
-    response.class.name
-
     if params[:error] || session[:state] != params[:state]
+
       set_flash_message(:alert, :error)
       redirect_to new_user_session_path
     else
-      user = JSON.parse(response.body)
+      user_oauth
+      RestClient.proxy = ''
+      token = JSON.parse(RestClient::Request.execute(method: :post,
+                                                     url: @user_info[:token_credential_uri],
+                                                     payload: {
+                                                       client_id: @user_info[:client_id],
+                                                       client_secret: @user_info[:client_secret],
+                                                       grant_type: @user_info[:grant_type],
+                                                       redirect_uri: @user_info[:redirect_uri],
+                                                       code: params[:code]
+                                                     }))
+
+      user = JSON.parse(RestClient::Request.execute(method: :post,
+                                                    url: 'https://auth-center.***REMOVED***.ru/api/module/main/login_info',
+                                                    headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{token['access_token']}" }))
       @user = User.find_by(tn: user['tn'])
 
       if @user.nil?
@@ -34,8 +47,15 @@ class Users::CallbacksController < DeviseController
 
   private
 
-  def client_oauth
-    @redirect_url = "https://#{ENV['APPNAME']}.***REMOVED***.ru/users/callbacks/authorize_user"
-    @client = OAuth2::Client.new(ENV['CLIENT_ID'], ENV['CLIENT_SECRET'], site: 'https://auth-center.***REMOVED***.ru/', connection_opts: { proxy: { uri: '', user: '', password: '' } })
+  def user_oauth
+    @user_info = {
+      client_id: ENV['CLIENT_ID'],
+      client_secret: ENV['CLIENT_SECRET'],
+      authorization_uri: 'https://auth-center.***REMOVED***.ru/oauth/authorize',
+      token_credential_uri: 'https://auth-center.***REMOVED***.ru/oauth/token',
+      response_type: 'code',
+      grant_type: 'authorization_code',
+      redirect_uri: "https://#{ENV['APPNAME']}.***REMOVED***.ru/users/callbacks/authorize_user"
+    }
   end
 end

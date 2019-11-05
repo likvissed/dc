@@ -44,8 +44,7 @@ gem 'uglifier', '>= 1.3.0'
 # For color console
 gem 'awesome_print'
 # For authorization
-gem 'signet'
-gem 'oauth2'
+gem 'rest-client'
 
 # Use CoffeeScript for .coffee assets and views
 # gem 'coffee-rails', '~> 4.1.0'
