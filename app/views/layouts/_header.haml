@@ -16,7 +16,7 @@
 
         .collapse.navbar-collapse.navbar-collapse-head
           .navbar-text.navbar-right.pull-right
-            = "#{session[:user_fullname]} | "
+            = "#{session[:user]['fio']} | "
             = link_to destroy_user_session_path, method: :delete, class: "navbar-link" do
               Выход
 

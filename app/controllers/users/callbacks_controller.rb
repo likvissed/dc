@@ -1,62 +1,45 @@
-require 'rest-client'
-
 class Users::CallbacksController < DeviseController
   def registration_user
     session[:state] ||= Digest::MD5.hexdigest(rand.to_s)
-    user_oauth
-    redirect_to "#{@user_info[:authorization_uri]}?
-                                      client_id=#{@user_info[:client_id]}&
-                                      client_secret=#{@user_info[:client_secret]}&
-                                      response_type=#{@user_info[:response_type]}&
-                                      redirect_uri=#{@user_info[:redirect_uri]}&
-                                      state=#{session[:state]}"
+
+    redirect_to Authorize.get_url(session[:state])
   end
 
   def authorize_user
-    if params[:error] || session[:state] != params[:state]
+    return authorize_error if params[:error] || session[:state] != params[:state]
+    session.delete(:state)
 
-      set_flash_message(:alert, :error)
-      redirect_to new_user_session_path
-    else
-      user_oauth
-      RestClient.proxy = ''
-      token = JSON.parse(RestClient::Request.execute(method: :post,
-                                                     url: @user_info[:token_credential_uri],
-                                                     payload: {
-                                                       client_id: @user_info[:client_id],
-                                                       client_secret: @user_info[:client_secret],
-                                                       grant_type: @user_info[:grant_type],
-                                                       redirect_uri: @user_info[:redirect_uri],
-                                                       code: params[:code]
-                                                     }))
+    token = Authorize.get_token(params[:code])
+    return authorize_error unless token['access_token']
 
-      user = JSON.parse(RestClient::Request.execute(method: :post,
-                                                    url: 'https://auth-center.***REMOVED***.ru/api/module/main/login_info',
-                                                    headers: { 'Content-Type' => 'application/json', 'Authorization' => "Bearer #{token['access_token']}" }))
-      @user = User.find_by(tn: user['tn'])
+    user_info = Authorize.get_user(token['access_token'])
+    return authorize_error unless user_info['tn']
 
-      if @user.nil?
-        flash[:alert] = "Доступ запрещен"
-        redirect_to new_user_session_path
-      else
-        session[:user_fullname] = user['fio']
-        set_flash_message(:notice, :success)
-        sign_in_and_redirect @user
-      end
-    end
+    @user = User.find_by(tn: user_info['tn'])
+
+    session['user'] = user_info
+    session['session_id'] = token['access_token']
+    session['refresh_token'] = token['refresh_token']
+
+    set_flash_message(:notice, :success)
+    sign_in_and_redirect @user
   end
 
-  private
+  def authorize_error
+    flash[:alert] = 'Доступ запрещен'
+    redirect_to new_user_session_path
+  end
 
-  def user_oauth
-    @user_info = {
-      client_id: ENV['CLIENT_ID'],
-      client_secret: ENV['CLIENT_SECRET'],
-      authorization_uri: 'https://auth-center.***REMOVED***.ru/oauth/authorize',
-      token_credential_uri: 'https://auth-center.***REMOVED***.ru/oauth/token',
-      response_type: 'code',
-      grant_type: 'authorization_code',
-      redirect_uri: "https://#{ENV['APPNAME']}.***REMOVED***.ru/users/callbacks/authorize_user"
-    }
+  def refresh_token
+    new_token = Authorize.get_new_token(session['refresh_token'])
+    user_info = Authorize.get_user(new_token['access_token'])
+
+    @user = User.find_by(tn: user_info['tn'])
+
+    session['user'] = user_info
+    session['session_id'] = new_token['access_token']
+    session['refresh_token'] = new_token['refresh_token']
+
+    sign_in_and_redirect @user
   end
 end
