@@ -1,11 +1,10 @@
 Rails.application.routes.draw do
-  devise_for :users, controllers: { omniauth_callbacks: "users/callbacks" }
-
-  authenticated :user do
-    root 'services#index', as: :authenticated_root
-  end
-
+  devise_for :users
+  
   devise_scope :user do
+    get 'users/callbacks/registration_user', to: 'users/callbacks#registration_user'
+    get 'users/callbacks/authorize_user', to: 'users/callbacks#authorize_user'
+
     root 'devise/sessions#new'
   end
 

@@ -1,26 +1,45 @@
-class Users::CallbacksController < Devise::OmniauthCallbacksController
+class Users::CallbacksController < DeviseController
+  def registration_user
+    session[:state] ||= Digest::MD5.hexdigest(rand.to_s)
 
-  skip_before_action :verify_authenticity_token
-
-  def open_id_***REMOVED***
-    user_params = request.env["omniauth.auth"].info
-
-    @user = User.find_by(tn: user_params.tn)
-    if @user.nil?
-      flash[:alert] = "Доступ запрещен"
-      redirect_to new_user_session_path
-    else
-      fio_arr = user_params.fullname.split(' ')
-      session[:user_fullname] = "#{fio_arr[0]} #{fio_arr[1][0]}. #{fio_arr[2][0]}."
-
-      sign_in_and_redirect @user, event: :authentication
-      set_flash_message(:notice, :success)
-    end
+    redirect_to Authorize.get_url(session[:state])
   end
 
-  def failure
-    flash[:alert] = "Ошибка авторизации. Обратитесь к администратору по тел. ***REMOVED***"
+  def authorize_user
+    return authorize_error if params[:error] || session[:state] != params[:state]
+    session.delete(:state)
+
+    token = Authorize.get_token(params[:code])
+    return authorize_error unless token['access_token']
+
+    user_info = Authorize.get_user(token['access_token'])
+    return authorize_error unless user_info['tn']
+
+    @user = User.find_by(tn: user_info['tn'])
+
+    session['user'] = user_info
+    session['session_id'] = token['access_token']
+    session['refresh_token'] = token['refresh_token']
+
+    set_flash_message(:notice, :success)
+    sign_in_and_redirect @user
+  end
+
+  def authorize_error
+    flash[:alert] = 'Доступ запрещен'
     redirect_to new_user_session_path
   end
 
+  def refresh_token
+    new_token = Authorize.get_new_token(session['refresh_token'])
+    user_info = Authorize.get_user(new_token['access_token'])
+
+    @user = User.find_by(tn: user_info['tn'])
+
+    session['user'] = user_info
+    session['session_id'] = new_token['access_token']
+    session['refresh_token'] = new_token['refresh_token']
+
+    sign_in_and_redirect @user
+  end
 end
