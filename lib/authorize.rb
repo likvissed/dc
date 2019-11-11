@@ -11,6 +11,7 @@ class Authorize
     end
 
     def get_token(code)
+      RestClient.proxy = ''
       JSON.parse(RestClient::Request.execute(method: :post,
                                              url: url_oauth[:token_credential_uri],
                                              payload: {
