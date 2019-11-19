@@ -241,7 +241,7 @@
      * @private
      */
     function editRecord(data, type, full, meta) {
-      return '<a href="" class="default-color" disable-link=true ng-click="clusterPage.showClusterModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="glyphicon glyphicon-pencil"></a>';
+      return '<a href="" class="default-color" disable-link=true ng-click="clusterPage.showClusterModal(\'' + data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fas fa-edit"></a>';
     }
 
     /**
@@ -256,7 +256,7 @@
      */
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="clusterPage.destroyCluster(' + data.id +
-        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="glyphicon glyphicon-trash"></a>';
+        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="far fa-trash-alt"></a>';
     }
 
     /**

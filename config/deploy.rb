@@ -1,13 +1,13 @@
 # config valid only for current version of Capistrano
 
 # version gem capistrano
-lock '3.11.1'
+lock '3.11.2'
 
 set :rbenv_ruby, '2.5.1'
 
 server 'dc', user: 'deployer', roles: %w[web app db]
 
-set :keep_releases, 7
+set :keep_releases, 5
 
 # configuration git
 set :repo_url, '***REMOVED***'

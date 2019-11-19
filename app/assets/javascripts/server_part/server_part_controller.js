@@ -193,7 +193,7 @@
      */
     function editRecord(data, type, full, meta) {
       return '<a href="" class="default-color" disable-link=true ng-click="serverPartPage.showServerPartModal(\'' +
-        data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="glyphicon glyphicon-pencil' +
+        data.name + '\')" tooltip-placement="top" uib-tooltip="Редактировать"><i class="fas fa-edit' +
         ' pointer"></a>';
     }
 
@@ -209,7 +209,7 @@
      */
     function delRecord(data, type, full, meta) {
       return '<a href="" class="text-danger" disable-link=true ng-click="serverPartPage.destroyServerPart(' + data.id +
-        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="glyphicon glyphicon-trash"></a>';
+        ')" tooltip-placement="top" uib-tooltip="Удалить"><i class="far fa-trash-alt"></a>';
     }
 
     /**

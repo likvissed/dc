@@ -3,7 +3,7 @@
     .modal-content
       .modal-header
         .pull-right
-          .btn-group
+          .btn-group.margin-right-5
             = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do
               | Скачать
               span.caret
@@ -21,7 +21,7 @@
 
                   = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_off"
           - if can? :manage, Service
-            .btn-group
+            .btn-group.margin-right-5
               = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do
                 | Создать
                 span.caret
