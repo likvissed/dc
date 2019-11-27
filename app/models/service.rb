@@ -287,8 +287,8 @@ class Service < ActiveRecord::Base
     row += ", отд. #{dept}"
 
     if type == :formular
-      row += ", р.т. #{work_num}" unless work_num.empty?
-      row += ", c.т. #{mobile_num}" unless mobile_num.empty?
+      row += ", р.т. #{work_num}" unless work_num.blank?
+      row += ", c.т. #{mobile_num}" unless mobile_num.blank?
     else
       row += contact_type
     end

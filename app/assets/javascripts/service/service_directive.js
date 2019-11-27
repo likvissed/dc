@@ -6,6 +6,7 @@
   app
     .directive('serviceFilter', serviceFilter)
     .directive('serviceExploitation', serviceExploitation)
+    .directive('ngValueBlank', ngValueBlank)
     .directive('fileServiceEvent', fileServiceEvent);
 
   function serviceFilter() {
@@ -24,6 +25,16 @@
       ' ng-click="servicePage.showProjects()"><label class="btn btn-default" ng-class="{ active:' +
       ' servicePage.exploitation == \'false\' }"><input type="checkbox" ng-model="servicePage.exploitation">Показать' +
       ' с проектами</label></div>'
+    }
+  }
+
+  function ngValueBlank() {
+    return {
+      restrict: 'A',
+      scope: {
+        value : "=ngValueBlank"
+      },
+      template: "<div ng-class=\"{ 'text-danger': !value }\"> {{ value || 'Не указано' }} </div>"
     }
   }
 

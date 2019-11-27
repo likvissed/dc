@@ -28,7 +28,7 @@ table.table.table-striped.table-bordered.table-edit-service
       td{ colspan=2 }
         b Краткое описание сервиса
     tr
-      td{ colspan=2 ng-bind="preview.service.descr" }
+      td colspan=2 ng-value-blank="preview.service.descr" 
     tr
       td
         b Приоритет функционирования
@@ -43,7 +43,7 @@ table.table.table-striped.table-bordered.table-edit-service
     tr
       td
         b Максимальное время восстановления
-      td{ ng-bind="preview.service.max_time_rec" }
+      td{ ng-value-blank="preview.service.max_time_rec" }
     tr
       td{ colspan=2 }
         b Ответственные за исполнение сервиса
@@ -65,41 +65,41 @@ table.table.table-striped.table-bordered.table-edit-service
         td{ colspan=2 }
           b Среда исполнения
       tr
-        td{ colspan=2 ng-bind="preview.service.environment" }
+        td{ colspan=2 ng-value-blank="preview.service.environment" }
       tr
         td
           b Операционная система
-        td{ ng-bind="preview.service.os" }
+        td{ ng-value-blank="preview.service.os" }
       tr
         td
           b Ключевой программный компонент
-        td{ ng-bind="preview.service.component_key" }
+        td{ ng-value-blank="preview.service.component_key" }
       tr
         td{ colspan=2 }
           b Требования к вычислительным ресурсам
       tr
         td Количество ядер процессора
-        td{ ng-bind="preview.service.kernel_count" }
+        td{ ng-value-blank="preview.service.kernel_count" }
       tr
         td Тактовая частота процессора
-        td{ ng-bind="preview.service.frequency" }
+        td{ ng-value-blank="preview.service.frequency" }
       tr
         td Объем оперативной памяти
-        td{ ng-bind="preview.service.memory" }
+        td{ ng-value-blank="preview.service.memory" }
       tr
         td Объем дискового пространства
-        td{ ng-bind="preview.service.disk_space" }
+        td{ ng-value-blank="preview.service.disk_space" }
       tr
         td Скорость обмена с жестким диском
-        td{ ng-bind="preview.service.hdd_speed" }
+        td{ ng-value-blank="preview.service.hdd_speed" }
       tr
         td Скорость сетевого соединения
-        td{ ng-bind="preview.service.network_speed" }
+        td{ ng-value-blank="preview.service.network_speed" }
       tr
         td{ colspan=2 }
           b Дополнительные требования к среде исполнения
       tr
-        td{ colspan=2 ng-bind="preview.service.additional_require" }
+        td{ colspan=2 ng-value-blank="preview.service.additional_require" }
       tr
 
       -# =============================================== Резервное копирование и восстановление ====================
@@ -112,33 +112,33 @@ table.table.table-striped.table-bordered.table-edit-service
           td{ colspan=2 }
             b Краткое описание процедуры резервного копирования
         tr
-          td{ colspan=2 ng-bind="preview.service.backup_manual" }
+          td{ colspan=2 ng-value-blank="preview.service.backup_manual" }
         tr
           td{ colspan=2 }
             b Краткое описание процедуры восстановления данных
         tr
-          td{ colspan=2 ng-bind="preview.service.recovery_manual" }
+          td{ colspan=2 ng-value-blank="preview.service.recovery_manual" }
         tr
           td{ colspan=2 }
             b Параметры резервного копирования
         tr
           td Оценка объемов данных для копирования
-          td{ ng-bind="preview.service.value_backup_data" }
+          td{ ng-value-blank="preview.service.value_backup_data" }
         tr
           td Срок хранения старейшей копии
-          td{ ng-bind="preview.service.storage_time" }
+          td{ ng-value-blank="preview.service.storage_time" }
         tr
           td Хранилище резервных копий
-          td{ ng-bind="preview.service.store_copies" }
+          td{ ng-value-blank="preview.service.store_copies" }
         tr
           td Оценка объема резервной копии
-          td{ ng-bind="preview.service.backup_volume" }
+          td{ ng-value-blank="preview.service.backup_volume" }
         tr
           td Окно резервного копирования
-          td{ ng-bind="preview.service.backup_window" }
+          td{ ng-value-blank="preview.service.backup_window" }
         tr
           td Время восстановления данных
-          td{ ng-bind="preview.service.time_recovery" }
+          td{ ng-value-blank="preview.service.time_recovery" }
         tr
 
       -# =============================================== Отказоустойчивость ========================================
@@ -152,32 +152,32 @@ table.table.table-striped.table-bordered.table-edit-service
             b Обеспечение надежности
         tr
           td Дублирование блоков питания
-          td{ ng-bind="preview.service.duplicate_ps" }
+          td{ ng-value-blank="preview.service.duplicate_ps" }
         tr
           td RAID-массив
-          td{ ng-bind="preview.service.raid" }
+          td{ ng-value-blank="preview.service.raid" }
         tr
           td Агрегация сетевых портов
-          td{ ng-bind="preview.service.bonding" }
+          td{ ng-value-blank="preview.service.bonding" }
         tr
           td Другое
-          td{ ng-bind="preview.service.other" }
+          td{ ng-value-blank="preview.service.other" }
         tr
           td
             b Обеспечение отказоустойчивости
-          td{ ng-bind="preview.service.resiliency" }
+          td{ ng-value-blank="preview.service.resiliency" }
         tr
           td
             b Время восстановления после отказа
-          td{ ng-bind="preview.service.time_after_failure" }
+          td{ ng-value-blank="preview.service.time_after_failure" }
         tr
           td
             b Обеспечение катастрофоустойчивости
-          td{ ng-bind="preview.service.disaster_rec" }
+          td{ ng-value-blank="preview.service.disaster_rec" }
         tr
           td
             b Время возобновления после катастрофы
-          td{ ng-bind="preview.service.time_after_disaster" }
+          td{ ng-value-blank="preview.service.time_after_disaster" }
         tr
 
       -# =============================================== Подключение к сетям передачи и хранения данных ============
@@ -207,22 +207,22 @@ table.table.table-striped.table-bordered.table-edit-service
             b Меры обеспечения информационной безопасности
         tr
           td Антивирусные средства
-          td{ ng-bind="preview.service.antivirus" }
+          td{ ng-value-blank="preview.service.antivirus" }
         tr
           td Межсетевое экранирование
-          td{ ng-bind="preview.service.firewall" }
+          td{ ng-value-blank="preview.service.firewall" }
         tr
           td UAC/AppArmor/SELinux
-          td{ ng-bind="preview.service.uac_app_selinux" }
+          td{ ng-value-blank="preview.service.uac_app_selinux" }
         tr
           td Сертифицированные СЗИ НСД
-          td{ ng-bind="preview.service.szi" }
+          td{ ng-value-blank="preview.service.szi" }
         tr
           td{ colspan=2 }
             b Разграничение доступа
         tr
           td Доступ в интернет
-          td{ ng-bind="preview.service.internet" }
+          td{ ng-value-blank="preview.service.internet" }
         tr
           td Сетевые порты, доступные из ЛС
           td{ ng-bind="preview.ports.local || 'Нет'" }
@@ -246,19 +246,19 @@ table.table.table-striped.table-bordered.table-edit-service
         tr
           td
             b Метод мониторинга доступности сервиса
-          td{ ng-bind="preview.service.type_mon" }
+          td{ ng-value-blank="preview.service.type_mon" }
         tr
           td
             b Мониторинг доступности сервиса
-          td{ ng-bind="preview.service.service_mon" }
+          td{ ng-value-blank="preview.service.service_mon" }
         tr
           td
             b Мониторинг работы аппаратных средств
-          td{ ng-bind="preview.service.hardware_mon" }
+          td{ ng-value-blank="preview.service.hardware_mon" }
         tr
           td
             b Мониторинг безопасности
-          td{ ng-bind="preview.service.security_mon" }
+          td{ ng-value-blank="preview.service.security_mon" }
         tr
 
       -# =============================================== Дополнительные данные =====================================
@@ -268,7 +268,7 @@ table.table.table-striped.table-bordered.table-edit-service
           th{ colspan=2 } Дополнительные данные
       tbody
         tr
-          td{ colspan=2 ng-bind="preview.service.additional_data" }
+          td{ colspan=2 ng-value-blank="preview.service.additional_data" }
         tr
 
       thead
@@ -276,7 +276,7 @@ table.table.table-striped.table-bordered.table-edit-service
           th{ colspan=2 } Комментарий
       tbody
         tr
-          td{ colspan=2 ng-bind="preview.service.comment" }
+          td{ colspan=2 ng-value-blank="preview.service.comment" }
         tr
           td Имя в системе мониторинга
-          td{ ng-bind="preview.service.name_monitoring" }
+          td{ ng-value-blank="preview.service.name_monitoring" }
