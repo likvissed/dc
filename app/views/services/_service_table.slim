@@ -292,6 +292,10 @@ table.table.table-striped.table-bordered.table-edit-service
             b Мониторинг безопасности
           td= s.input :security_mon, label: false
         tr
+          td
+            b Имя в системе мониторинга
+          td= s.input :name_monitoring, label: false
+        tr
 
       -# =============================================== Дополнительные данные =====================================
 
@@ -309,6 +313,3 @@ table.table.table-striped.table-bordered.table-edit-service
       tbody
         tr
           td{ colspan=2 }= s.input :comment, label: false, as: :text, input_html: { rows: 3 }
-        tr
-          td Имя в системе мониторинга
-          td= s.input :name_monitoring, label: false

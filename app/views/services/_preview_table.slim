@@ -260,6 +260,10 @@ table.table.table-striped.table-bordered.table-edit-service
             b Мониторинг безопасности
           td{ ng-value-blank="preview.service.security_mon" }
         tr
+          td
+            b Имя в системе мониторинга
+          td{ ng-value-blank="preview.service.name_monitoring" }
+        tr
 
       -# =============================================== Дополнительные данные =====================================
 
@@ -277,6 +281,3 @@ table.table.table-striped.table-bordered.table-edit-service
       tbody
         tr
           td{ colspan=2 ng-value-blank="preview.service.comment" }
-        tr
-          td Имя в системе мониторинга
-          td{ ng-value-blank="preview.service.name_monitoring" }
