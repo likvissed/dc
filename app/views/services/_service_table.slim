@@ -42,10 +42,10 @@ table.table.table-striped.table-bordered.table-edit-service
         b Ответственные за исполнение сервиса
     tr
       td Основной ответственный
-      td= s.association :contact_1, label_method: :info, value_method: :id, label: false, include_blank: "Отсутствует"
+      td= s.association :contact_1, label_method: :info, value_method: :id, label: false, include_blank: "Отсутствует", collection: Contact.order('info ASC')
     tr
       td Вторичный контакт
-      td= s.association :contact_2, label_method: :info, value_method: :id, label: false, include_blank: "Отсутствует"
+      td= s.association :contact_2, label_method: :info, value_method: :id, label: false, include_blank: "Отсутствует", collection: Contact.order('info ASC')
     tr
 
     -# =============================================== Характеристики среды исполнения =============================
