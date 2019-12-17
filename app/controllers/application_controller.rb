@@ -1,7 +1,7 @@
 class ApplicationController < ActionController::Base
   layout :layout
   protect_from_forgery with: :exception
-  
+
   before_action :authenticate_user!
   after_action :set_csrf_cookie_for_ng
 
@@ -21,7 +21,7 @@ class ApplicationController < ActionController::Base
   def check_for_cancel(path)
     redirect_to path if params[:cancel]
   end
-
+  
   def render_404
     render file: "#{Rails.root}/public/404.html", status: 404, layout: false
   end
@@ -42,7 +42,7 @@ class ApplicationController < ActionController::Base
   # object  - модель
   # params  - строка, содержащая атрибуты, необходиые для html тега (для разных типо разные атрибуты)
   def create_link_to_new_record(type, object, params)
-    if can? :manage, object
+    if can? :create, object
       if type == :modal
         "<button class='btn btn-primary btn-block' #{params}'>Добавить</button>"
       elsif type == :page

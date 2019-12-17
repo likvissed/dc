@@ -1,7 +1,7 @@
 class ServicesController < ApplicationController
-
+  
   load_and_authorize_resource
-
+  
   before_action { |ctrl| ctrl.check_for_cancel services_path }
   before_action :find_service_by_name,  only: [:edit, :update]
   before_action :find_service_by_id,    only: [:show, :destroy, :download_file, :generate_file, :destroy_file]
@@ -169,11 +169,31 @@ class ServicesController < ApplicationController
   end
 
   def create
+    user = UserIss.find_by(tn: current_user.tn)
+    contact = Contact.find_by(tn: current_user.tn)
+
+    if contact.blank?
+      contact = Contact.new(
+        tn: user.tn,
+        info: user.fio,
+        dept: user.dept,
+        work_num: user.tel
+      )
+      contact.save
+    end
+
     # Заменить названия месяцев для корректной работы ActiveRecord
     params[:service][:deadline] = regexp_date(params[:service][:deadline])
 
     @service = Service.new(service_params)
     if @service.save
+
+      #  Если Основной ответственный и Вторичный контакт не задан, то добавить в основного - текущего пользователя
+      unless @service.contact_1 || @service.contact_2
+        Contact.find(contact.id).first_contacts << @service
+        @service.update(dept: user.dept)
+      end
+
       flash[:notice] = "Данные добавлены."
       redirect_to action: :index, id: @service.id
     else
@@ -188,6 +208,8 @@ class ServicesController < ApplicationController
   end
 
   def edit
+    authorize! :edit, @service
+
     respond_to do |format|
       format.html
       format.json do
@@ -219,6 +241,7 @@ class ServicesController < ApplicationController
   end
 
   def update
+    authorize! :update, @service
     # В случае, если приходит пустая строка "Подключения СХД" и существует id записи, установить флаг на удаление = 1
     params[:service][:storage_systems_attributes].to_unsafe_h.map do |attr|
       if !attr[1][:id].to_i.zero? && attr[1][:name].empty?

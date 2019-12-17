@@ -39,7 +39,12 @@ class Ability
       can :manage, :all
     # Для пользователей, входящих в состав ***REMOVED***
     elsif user.has_role? :uivt
-      can :read, [Service, Cluster, Server]
+      can :read, [Cluster, Server]
+
+      # Доступ к сервисам на редактирование только для своего отдела      
+      can [:update, :generate_file], Service, dept: UserIss.find_by(tn: user.tn).dept
+      can [:read, :create], Service
+
     # Для пользователей, не входящих в состав ***REMOVED***
     elsif user.has_role? :not_uivt
       can :read, [Service, Cluster]
