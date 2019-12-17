@@ -20,7 +20,7 @@
                 li{ ng-class="{ disabled: preview.missing_file.instr_off }" disable-link="preview.missing_file.instr_off" }
 
                   = link_to "Инструкцию по откл.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_off"
-          - if can? :manage, Service
+          - if can? :update, Service
             .btn-group.margin-right-5
               = button_tag class: "dropdown-toggle", "data-toggle": "dropdown" do
                 | Создать
@@ -28,7 +28,7 @@
               ul.dropdown-menu
                 li= link_to "Формуляр", "#", "ng-href": "/services/{{ preview.service.id }}/generate/formular"
                 li= link_to "Акт", "#", "ng-href": "/services/{{ preview.service.id }}/generate/act"
-          - if can? :manage, Service
+          - if can? :update, Service
             -# = link_to class: "btn btn-default default-color", "ng-href": "/services/{{ |
             -# preview.service.name }}/edit", "tooltip-placement": "left", "uib-tooltip": "Редактировать сервис" |
             = link_to icon("fa fa-cog", ""),'', href:"/services/{{ preview.service.name }}/edit", class: "btn btn-default default-color", "tooltip-placement": "left", "uib-tooltip": "Редактировать сервис"
