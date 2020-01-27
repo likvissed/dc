@@ -655,7 +655,7 @@
      * @returns {{local: string, inet: string}}
      */
     self.getPorts = function () {
-      // Получить список портов, доступных из ЛС для vlan 500
+      // Получить список портов, доступных из ЛС для vlan от 1 до 4094
       function get_local_ports(value) {
         // Проверка на существование подключения к сети
         if (value.value == null)
@@ -665,11 +665,13 @@
           tmp   = [],
           flag  = 0;
 
-        if (value.ports.local_tcp_ports && /500/.test(value.value.vlan)) {
+        let vlan = isNaN(value.value.vlan) ? 0 : parseInt(value.value.vlan);
+
+        if (value.ports.local_tcp_ports && (vlan >= 1 && vlan <= 4094)) {
           tmp.push(_setPortSuffix(value.ports.local_tcp_ports, 'tcp'));
           flag = 1
         }
-        if (value.ports.local_udp_ports && /500/.test(value.value.vlan)) {
+        if (value.ports.local_udp_ports && (vlan >= 1 && vlan <= 4094)) {
           tmp.push(_setPortSuffix(value.ports.local_udp_ports, 'udp'));
           flag = 1
         }
