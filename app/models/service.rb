@@ -218,8 +218,8 @@ class Service < ActiveRecord::Base
     self.service_networks.each do |net|
       next if net.service_port.nil?
 
-      # Если 500 vlan, получить список открытых портов, доступных из ЛС
-      if net.vlan =~ /500/
+      # Если VLAN в диапазоне от 1 до 4094, получить список открытых портов, доступных из ЛС.
+      if net.vlan.to_i >= 1 && net.vlan.to_i <= 4094
         local = get_local_ports(net.service_port)
         ports[:local] += "#{net.dns_name}: #{local}; " unless local.empty?
       end
