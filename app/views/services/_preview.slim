@@ -12,7 +12,7 @@
                 = link_to "Формуляр", "", "ng-href": "/services/{{preview.service.id}}/download/scan"
               li{ ng-class="{ disabled: preview.missing_file.act }" disable-link="preview.missing_file.act" }
                 = link_to "Акт", "", "ng-href": "/services/{{ preview.service.id }}/download/act"
-              - if current_user.has_any_role? :admin, :head
+              - if current_user.has_any_role? :admin, :head, :uivt
                 li{ ng-class="{ disabled: preview.missing_file.instr_rec }" disable-link="preview .missing_file.instr_rec" }
 
                   = link_to "Инструкцию по восст.", "", "ng-href": "/services/{{ preview.service.id }}/download/instr_rec"

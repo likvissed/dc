@@ -290,7 +290,7 @@ class ServicesController < ApplicationController
         send_file @service.act.path, filename: @service.act_file_name, type: @service.act_content_type, disposition:
           'attachment'
       when 'instr_rec'
-        if current_user.has_any_role? :admin, :head
+        if current_user.has_any_role? :admin, :head, :uivt
           send_file @service.instr_rec.path, filename: @service.instr_rec_file_name, type: @service
                                                                                              .instr_rec_content_type,
                     disposition: 'attachment'
@@ -298,7 +298,7 @@ class ServicesController < ApplicationController
           render_404
         end
       when 'instr_off'
-        if current_user.has_any_role? :admin, :head
+        if current_user.has_any_role? :admin, :head, :uivt
           send_file @service.instr_off.path, filename: @service.instr_off_file_name, type: @service
                                                                                              .instr_off_content_type,
                     disposition: 'attachment'
