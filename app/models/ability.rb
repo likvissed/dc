@@ -41,8 +41,8 @@ class Ability
     elsif user.has_role? :uivt
       can :read, [Cluster, Server]
 
-      # Доступ к сервисам на редактирование только для своего отдела      
-      can [:update, :generate_file], Service, dept: UserIss.find_by(tn: user.tn).dept
+      # Доступ к сервисам на редактирование только для своего отдела
+      can [:update, :generate_file, :download_file], Service, dept: UserIss.find_by(tn: user.tn).dept
       can [:read, :create], Service
 
     # Для пользователей, не входящих в состав ***REMOVED***
