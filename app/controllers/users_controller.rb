@@ -7,7 +7,8 @@ class UsersController < ApplicationController
   before_action :select_all_roles,  only: [:new, :edit]
 
   def index
-    @users = User.select(:id, :tn, :info).includes(:roles).page params[:page]
+    @q = User.ransack(params[:q])
+    @users = @q.result.select(:id, :tn, :info).includes(:roles).order(:info).page(params[:page])
   end
 
   def new
