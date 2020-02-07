@@ -4,7 +4,18 @@
     .col-md-8.col-md-offset-2.col-lg-6.col-lg-offset-3
       .well
         .content-body
-          = button_to "Добавить", new_user_path, method: :get, class: "btn btn-primary", form_class: "text-center"
+          .row
+            = search_form_for @q do |f|
+              .padding-left.padding-right-left.col-sm-3.col-md-3.col-lg-3
+                = f.search_field :tn_eq, options = { placeholder: 'Табельный номер', class: 'form-control' }
+              .padding-right-left.col-sm-5.col-md-5.col-lg-5
+                = f.search_field :info_cont, options = { placeholder: 'ФИО', class: 'form-control' }
+              .padding-right-left.col-sm-2.col-md-2.col-lg-2
+                = f.submit('Поиск', class: 'btn btn-primary btn-block')
+              .padding-right-left.col-sm-2.col-md-2.col-lg-2
+                = link_to 'Сброс', users_path, class: 'btn btn-default btn-block'
+          .padding-top
+            = button_to "Добавить", new_user_path, method: :get, class: "btn btn-primary", form_class: "text-center"
           table.table.table-striped
             th.col-md-1 #
             th.col-md-1 Табельный
@@ -12,6 +23,12 @@
             th.col-md-3 Роль
             th.col-md-1
             th.col-md-1
+              - if @users.count == 0
+                tr
+                  td= 
+                  td=
+                  td= 'Данные отсутсвуют' 
+                  td= 
             - @users.each_with_index do |user, index|
               - role = user.roles.first.name rescue "Отсутствует"
               tr
