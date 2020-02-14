@@ -115,7 +115,7 @@ table.table.table-striped.table-bordered.table-edit-service
           td{ colspan=2 }
             b Параметры резервного копирования
         tr
-          td Оценка объемов данных для копирования
+          td Оценка объемов 1 полной копии данных
           td= s.input :value_backup_data, label: false
         tr
           td Срок хранения старейшей копии
@@ -124,7 +124,7 @@ table.table.table-striped.table-bordered.table-edit-service
           td Хранилище резервных копий
           td= s.input :store_copies, label: false
         tr
-          td Оценка объема резервной копии
+          td Объем хранилища резервных копий
           td= s.input :backup_volume, label: false
         tr
           td Окно резервного копирования

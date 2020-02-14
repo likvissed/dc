@@ -24,10 +24,10 @@ class CreateServices < ActiveRecord::Migration
 
       t.text    :backup_manual                                       # Описание процедуры рез. копирования
       t.text    :recovery_manual                                     # Описание процедуры восст. данных
-      t.string  :value_backup_data                                   # Объем данных для копирования
+      t.string  :value_backup_data                                   # Оценка объемов 1 полной копии данных
       t.string  :storage_time                                        # Срок хранения старейшей копии
       t.string  :store_copies                                        # Хранилище резервных копий
-      t.string  :backup_volume                                       # Оценка объема резервной копии
+      t.string  :backup_volume                                       # Объем хранилища резервных копий
       t.string  :backup_window                                       # Окно резервного копирования
       t.string  :time_recovery                                       # Время восстановления данных
 
