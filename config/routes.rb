@@ -5,7 +5,7 @@ Rails.application.routes.draw do
     get 'users/callbacks/registration_user', to: 'users/callbacks#registration_user'
     get 'users/callbacks/authorize_user', to: 'users/callbacks#authorize_user'
 
-    root 'devise/sessions#new'
+    root 'services#index'
   end
 
   constraints name: /[^\/]+/ do

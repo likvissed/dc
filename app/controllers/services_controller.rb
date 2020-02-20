@@ -143,6 +143,12 @@ class ServicesController < ApplicationController
         # Установить время дедлайна для приоритета "Тестирование и отладка"
         service[:deadline]  = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 
+        fio = @service.consumer_fio.split
+        date = @service.updated_at || @service.created_at
+
+        last_update = fio.blank? ? date.strftime("%d.%m.%Y %H:%M") : "#{date.strftime("%d.%m.%Y %H:%M")} (#{fio[0]} #{fio[1][0]}.#{fio[2][0]}.)"
+        service[:last_update] = last_update
+
         render json: {
           service:      service,
           deadline:     deadline,
@@ -184,6 +190,7 @@ class ServicesController < ApplicationController
 
     # Заменить названия месяцев для корректной работы ActiveRecord
     params[:service][:deadline] = regexp_date(params[:service][:deadline])
+    params[:service][:consumer_fio] = current_user.info
 
     @service = Service.new(service_params)
     if @service.save
@@ -251,6 +258,7 @@ class ServicesController < ApplicationController
 
     # Заменить названия месяцев для корректной работы ActiveRecord
     params[:service][:deadline] = regexp_date(params[:service][:deadline])
+    params[:service][:consumer_fio] = current_user.info
 
     if @service.update_attributes(service_params)
       flash[:notice] = "Данные изменены"
@@ -268,6 +276,8 @@ class ServicesController < ApplicationController
 
   def destroy
     if @service.destroy
+      conclusion_of_all_connections_for_service
+
       respond_to do |format|
         format.json { render json: { full_message: "Формуляр удален" }, status: :ok }
       end
@@ -424,6 +434,7 @@ class ServicesController < ApplicationController
       :exploitation,
       :comment,
       :name_monitoring,
+      :consumer_fio,
       :cluster_ids,
       service_networks_attributes: [
         :id,
@@ -541,4 +552,19 @@ class ServicesController < ApplicationController
     end
   end
 
+  def conclusion_of_all_connections_for_service
+    service_all_data = {}
+    service_all_data['service'] = @service.inspect
+    service_all_data['service_networks'] = @service.service_networks.each(&:inspect)
+    service_all_data['storage_systems'] = @service.storage_systems.each(&:inspect)
+    service_all_data['service_dep_parents'] = @service.service_dep_parents.each(&:inspect)
+    service_all_data['parents'] = @service.parents.each(&:inspect)
+    service_all_data['service_dep_childs'] = @service.service_dep_childs.each(&:inspect)
+    service_all_data['childs'] = @service.childs.each(&:inspect)
+    service_all_data['service_hostings'] = @service.service_hostings.each(&:inspect)
+    service_all_data['contact_1'] = @service.contact_1
+    service_all_data['contact_2'] = @service.contact_2
+
+    Rails.logger.info "Формуляр удален: #{service_all_data}".red
+  end
 end

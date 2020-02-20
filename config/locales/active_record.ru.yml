@@ -46,7 +46,7 @@ ru:
         service_dep_childs: 'сервис'
       service/service_dep_parents:
         parent_id: "Сервис"
-      service_network:
+      service_networks:
         segment: "Сегмент сети"
         vlan: "Наименование виртуальносй сети"
         dns_name: "DNS имя"

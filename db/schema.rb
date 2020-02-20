@@ -10,7 +10,8 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2016_12_01_090110) do
+ActiveRecord::Schema.define(version: 2020_02_20_015749) do
+
   create_table "cluster_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "cluster_id"
     t.integer "server_id"
@@ -223,6 +224,7 @@ ActiveRecord::Schema.define(version: 2016_12_01_090110) do
     t.boolean "exploitation"
     t.text "comment"
     t.string "name_monitoring"
+    t.string "consumer_fio", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["dept"], name: "index_services_on_dept"
