@@ -16,6 +16,7 @@ class Users::CallbacksController < DeviseController
     return authorize_error unless user_info['tn']
 
     @user = User.find_by(tn: user_info['tn'])
+    return authorize_error(:user_not_found) if @user.nil?
 
     session['user'] = user_info
     session['session_id'] = token['access_token']
@@ -25,8 +26,8 @@ class Users::CallbacksController < DeviseController
     sign_in_and_redirect @user
   end
 
-  def authorize_error
-    flash[:alert] = 'Доступ запрещен'
+  def authorize_error(message = :failure)
+    set_flash_message(:alert, message)
     redirect_to new_user_session_path
   end
 

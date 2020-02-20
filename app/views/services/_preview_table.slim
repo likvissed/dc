@@ -281,3 +281,12 @@ table.table.table-striped.table-bordered.table-edit-service
       tbody
         tr
           td{ colspan=2 ng-value-blank="preview.service.comment" }
+
+      - if current_user.has_any_role? :admin
+        table
+          thead
+            tr
+              p
+                td 
+                  i Последнее изменение: 
+                td{ ng-value-blank="preview.service.last_update" }
