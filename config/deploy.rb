@@ -1,7 +1,7 @@
 # config valid only for current version of Capistrano
 
 # version gem capistrano
-lock '3.11.2'
+lock '3.12.0'
 
 set :rbenv_ruby, '2.5.1'
 
