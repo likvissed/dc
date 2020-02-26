@@ -47,6 +47,8 @@ gem 'awesome_print'
 gem 'rest-client'
 # search forms 
 gem 'ransack'
+# angular selected
+gem 'angular-ui-select-rails'
 
 # Use CoffeeScript for .coffee assets and views
 # gem 'coffee-rails', '~> 4.1.0'

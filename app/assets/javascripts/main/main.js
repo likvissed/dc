@@ -6,6 +6,7 @@ var app = angular
     'ngResource',
     'ngCookies',
     'ngSanitize',
+    'ui.select',
     'ngAnimate',
     'datatables',
     'ui.bootstrap'

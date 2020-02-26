@@ -57,8 +57,14 @@ class ServicesController < ApplicationController
                      ""
         end
 
-        @service = Service.select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
-        @service = @service.where(exploitation: true) if params[:exploitation] == 'true'
+        self_dept = UserIss.find_by(tn: current_user.tn).dept
+        contact = Contact.find_by(tn: current_user.tn)
+
+        @service = if current_user.has_any_role? :uivt, :not_uivt
+                     Service.where.not(dept: nil).where(dept: self_dept).or(Service.where.not(contact_2: nil).where(contact_2: contact)).select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
+                   else
+                     Service.select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
+                   end
 
         now   = Time.now.to_date
         data  = @service.as_json(
