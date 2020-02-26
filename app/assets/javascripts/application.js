@@ -14,6 +14,7 @@
 
 //= require lib/ui-bootstrap-tpls-2.2.0
 //= require lib/angular-locale_ru
+//= require angular-ui-select
 
 //= require bootstrap
 // require dataTables/angular-datatables.bootstrap

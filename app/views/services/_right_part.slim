@@ -21,7 +21,11 @@
         tr
           td
             .form-group.padding-right
-              = select_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", nil, class: "form-control", "ng-model": "parent.parent_service", "ng-options": "service.name for service in service.services | filter:{ name: '!' + service.current_name }:true track by service.id" 
+              ui-select ng-model="parent.parent_service" on-select="dependence.loadServices($item)" theme="bootstrap"
+                ui-select-match placeholder="Наименование сервиса" {{ $select.selected.name }}
+                ui-select-choices repeat="obj in service.services | filter: { name: '!' + service.current_name }:true | filter: $select.search track by obj.id"
+                  div ng-bind-html="obj.name | highlight: $select.search"
+              = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", "{{ parent.parent_service.id }}"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][id]", "{{ parent.id }}"
               = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"
           td.min-td
