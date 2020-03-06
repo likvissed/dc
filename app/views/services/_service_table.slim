@@ -92,7 +92,7 @@ table.table.table-striped.table-bordered.table-edit-service
         td{ colspan=2 }
           b Дополнительные требования к среде исполнения
       tr
-        td{ colspan=2 }= s.input :additional_require, label: false, as: :text, input_html: { rows: 2 }
+        td{ colspan=2 }= s.input :additional_require, label: false, as: :text, input_html: { rows: 2, value: s.object.additional_require || 'Требования отсутствуют' }
       tr
 
       -# =============================================== Резервное копирование и восстановление ====================
@@ -154,7 +154,7 @@ table.table.table-striped.table-bordered.table-edit-service
           td= s.input :bonding, label: false
         tr
           td Другое
-          td= s.input :other, label: false
+          td= s.input :other, label: false, input_html: { value: s.object.other || 'Требования отсутствуют' } 
         tr
           td
             b Обеспечение отказоустойчивости
@@ -304,7 +304,7 @@ table.table.table-striped.table-bordered.table-edit-service
           th{ colspan=2 } Дополнительные данные
       tbody
         tr
-          td{ colspan=2 }= s.input :additional_data, label: false, as: :text, input_html: { rows: 3 }
+          td{ colspan=2 }= s.input :additional_data, label: false, as: :text, input_html: { rows: 3, value: s.object.additional_data || 'Отсутствуют' }
         tr
 
       thead
