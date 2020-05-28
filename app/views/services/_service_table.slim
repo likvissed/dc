@@ -72,22 +72,22 @@ table.table.table-striped.table-bordered.table-edit-service
           b Требования к вычислительным ресурсам
       tr
         td Количество ядер процессора
-        td= s.input :kernel_count, label: false
+        td= s.input :kernel_count, label: false, as: :numeric
       tr
-        td Тактовая частота процессора
-        td= s.input :frequency, label: false
+        td Тактовая частота процессора, ГГц
+        td= s.input :frequency, label: false, as: :numeric, placeholder: "Требования отсутствуют"
       tr
-        td Объем оперативной памяти
-        td= s.input :memory, label: false
+        td Объем оперативной памяти, Гб
+        td= s.input :memory, label: false, as: :numeric, placeholder: "Требования отсутствуют"
       tr
-        td Объем дискового пространства
-        td= s.input :disk_space, label: false
+        td Объем дискового пространства, Гб
+        td= s.input :disk_space, label: false, as: :numeric, placeholder: "Требования отсутствуют"
       tr
         td Скорость обмена с жестким диском
         td= s.input :hdd_speed, label: false
       tr
-        td Скорость сетевого соединения
-        td= s.input :network_speed, label: false
+        td Скорость сетевого соединения, Мбит/сек
+        td= s.input :network_speed, label: false, as: :numeric, placeholder: "Требования отсутствуют"
       tr
         td{ colspan=2 }
           b Дополнительные требования к среде исполнения
@@ -115,17 +115,17 @@ table.table.table-striped.table-bordered.table-edit-service
           td{ colspan=2 }
             b Параметры резервного копирования
         tr
-          td Оценка объемов 1 полной копии данных
-          td= s.input :value_backup_data, label: false
+          td Оценка объемов 1 полной копии данных, Мб
+          td= s.input :value_backup_data, label: false, as: :numeric
         tr
-          td Срок хранения старейшей копии
-          td= s.input :storage_time, label: false
+          td Срок хранения старейшей копии, дни
+          td= s.input :storage_time, label: false, as: :numeric
         tr
           td Хранилище резервных копий
           td= s.input :store_copies, label: false
         tr
-          td Объем хранилища резервных копий
-          td= s.input :backup_volume, label: false
+          td Объем хранилища резервных копий, Мб
+          td= s.input :backup_volume, label: false, as: :numeric
         tr
           td Окно резервного копирования
           td= s.input :backup_window, label: false
@@ -248,7 +248,7 @@ table.table.table-striped.table-bordered.table-edit-service
           td= s.input :uac_app_selinux, label: false
         tr
           td Сертифицированные СЗИ НСД
-          td= s.input :szi, label: false
+          td= s.input :szi, label: false, input_html: { value: s.object.szi || 'Не требуются' }
         tr
           td{ colspan=2 }
             b Разграничение доступа
