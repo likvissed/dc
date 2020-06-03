@@ -447,9 +447,41 @@
 
         self.storages[index].value = value;
       });
+
+      // Максимальное время восстановления
+      self.service.max_time_rec = self.getStringTime(self.service.max_time_rec);
+      // Время восстановления данных
+      self.service.time_recovery = self.getStringTime(self.service.time_recovery);
+      // Время восстановления после отказа
+      self.service.time_after_failure = self.getStringTime(self.service.time_after_failure);
+      // Время возобновления после катастрофы
+      self.service.time_after_disaster = self.getStringTime(self.service.time_after_disaster);
     });
 
 // =============================================== Публичные функции ===================================================
+
+    /**
+     * Преобразовать минуты в строку "часы - минуты"
+     */
+    self.getStringTime = function (value) {
+      if (!value) { value = 0 }
+
+      let hours, minutes;
+      hours = parseInt(value)/60;
+
+      if (Number.isInteger(hours)) {
+        minutes = 0;
+      } else {
+        hours = parseInt(hours);
+        minutes = parseInt(value) - (hours*60);
+      }
+
+      if (hours == 0) {
+        return `${minutes} мин.`;
+      } else {
+        return `${hours} ч. ${minutes} мин.`;
+      }
+    };
 
     /**
      * Показать информацию о сервере
@@ -541,6 +573,27 @@
             self.current_name = name ? name : null;
             // Массив всех существующих сервисов для выбора сервисов-родителей.
             self.services     = Service.getServices();
+
+            // Объект значений <max_time_rec, time_recovery, time_after_failure, time_after_disaster> в часах и минутах
+            self.values_time = Service.getValueTime();
+
+            // Максимальное время восстановления
+            self.max_time_rec_hours = self.values_time.max_time_rec.hours || 0;
+            self.max_time_rec_minutes = self.values_time.max_time_rec.minutes || 0;
+
+            // Время восстановления данных
+            self.time_recovery_hours = self.values_time.time_recovery.hours || 0;
+            self.time_recovery_minutes = self.values_time.time_recovery.minutes || 0;
+
+            // Время восстановления после отказа
+            self.time_after_failure_hours = self.values_time.time_after_failure.hours || 0;
+            self.time_after_failure_minutes = self.values_time.time_after_failure.minutes || 0;
+
+            // Время возобновления после катастрофы
+            self.time_after_disaster_hours = self.values_time.time_after_disaster.hours || 0;
+            self.time_after_disaster_minutes = self.values_time.time_after_disaster.minutes || 0;
+
+            self.setMinutes();
           },
           function (response, data) {
             Error.response(response, data);
@@ -584,6 +637,15 @@
       minDate:    new Date(),
       showWeeks:  false,
       locale:     'ru'
+    };
+
+// ========================================= "Перевод из часы - минуты в = Минуты" =======================================
+
+    self.setMinutes = function () {     
+      self.max_time_rec = self.max_time_rec_hours*60 + self.max_time_rec_minutes;     
+      self.time_recovery = self.time_recovery_hours*60 + self.time_recovery_minutes;     
+      self.time_after_failure = self.time_after_failure_hours*60 + self.time_after_failure_minutes;     
+      self.time_after_disaster = self.time_after_disaster_hours*60 + self.time_after_disaster_minutes;     
     };
 
 // ================================================ "Подключения к сети" ===============================================

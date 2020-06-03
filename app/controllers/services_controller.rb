@@ -149,6 +149,8 @@ class ServicesController < ApplicationController
         # Установить время дедлайна для приоритета "Тестирование и отладка"
         service[:deadline]  = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 
+        service[:antivirus] = @service.antivirus.present? ? I18n.t("activerecord.attributes.service.antiviri.#{@service.antivirus}") : ''
+
         fio = @service.consumer_fio.split
         date = @service.updated_at || @service.created_at
 
@@ -247,7 +249,11 @@ class ServicesController < ApplicationController
           parents:          @service.service_dep_parents.as_json(
             include: { parent_service: { only: [:id, :name] } },
             only: :id
-          )
+          ),
+          max_time_rec: @service.max_time_rec,
+          time_recovery: @service.time_recovery,
+          time_after_failure: @service.time_after_failure,
+          time_after_disaster: @service.time_after_disaster
         }
       end
     end
@@ -295,7 +301,7 @@ class ServicesController < ApplicationController
     end
   end
 
-  # Скачать файл (формуляр/акт/инструкцию по отключению/инструкцию по восстановлению)
+  # Скачать загруженные файлы (формуляр/акт/инструкцию по отключению/инструкцию по восстановлению)
   # Для инструкций дополнительно проверяется роль пользователя. Разрешено только для :admin и :head
   def download_file
     case params[:file]

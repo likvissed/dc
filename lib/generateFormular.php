@@ -16,6 +16,7 @@ $contacts         = $par['contact_objects'];  // Объекты контакто
 $contact_strings  = $par['contact_strings'];  // Строки контактов для запись в таблицу
 $storages         = $par['storages'];         // Объекты подключений к сети
 $head             = $par['head'];             // Строка, содержащая начальника отдела ответственных
+$antiviri         = $par['antiviri'];         // Если антивирусное средство выбрано, то здесь перевод значения, иначе пустая стока
 
 // ===================================================== Инициализация страницы ========================================
 
@@ -151,6 +152,31 @@ for ($i = 1; $i <= $rows; $i++) {
   $table->getCell($i, 2)->setPaddingLeft(0.1);
 }
 
+//=============================================== Преобразование минут в "Часы-минуты"=================================
+
+function get_time($value) {
+  $hours = $value/60;
+
+  if (is_int($hours)) {
+    $minutes = 0;
+  } else {
+    $hours = intval($hours);
+    $minutes = intval($value) - ($hours*60);
+  }
+
+  if ($hours == 0) {
+    return $minutes . ' мин.';
+  } else {
+    return $hours . ' ч. ' . $minutes . ' мин.';
+  }  
+}
+
+$data['max_time_rec'] = get_time($data['max_time_rec']);
+$data['time_recovery'] = get_time($data['time_recovery']);
+$data['time_after_failure'] = get_time($data['time_after_failure']);
+$data['time_after_disaster'] = get_time($data['time_after_disaster']);
+
+// var_dump($data['max_time_rec']);
 
 // ===================================================== Основные данные================================================
 
@@ -183,15 +209,15 @@ $table->writeToCell(16, 2, $data['component_key'], $font);
 $table->writeToCell(17, 1, 'Требования к вычислительным ресурсам', $fontBold);
 $table->writeToCell(18, 1, 'Количество ядер процессора', $font);
 $table->writeToCell(18, 2, $data['kernel_count'], $font);
-$table->writeToCell(19, 1, 'Тактовая частота процессора', $font);
+$table->writeToCell(19, 1, 'Тактовая частота процессора, ГГц', $font);
 $table->writeToCell(19, 2, $data['frequency'], $font);
-$table->writeToCell(20, 1, 'Объем оперативной памяти', $font);
+$table->writeToCell(20, 1, 'Объем оперативной памяти, Гб', $font);
 $table->writeToCell(20, 2, $data['memory'], $font);
-$table->writeToCell(21, 1, 'Объем дискового пространства', $font);
+$table->writeToCell(21, 1, 'Объем дискового пространства, Гб', $font);
 $table->writeToCell(21, 2, $data['disk_space'], $font);
 $table->writeToCell(22, 1, 'Скорость обмена с жестким диском', $font);
 $table->writeToCell(22, 2, $data['hdd_speed'], $font);
-$table->writeToCell(23, 1, 'Скорость сетевого соединения', $font);
+$table->writeToCell(23, 1, 'Скорость сетевого соединения, Мбит/сек', $font);
 $table->writeToCell(23, 2, $data['network_speed'], $font);
 $table->writeToCell(24, 1, 'Дополнительные требования к среде исполнения', $fontBold);
 $table->writeToCell(25, 1, $data['additional_require'], $font);
@@ -204,13 +230,13 @@ $table->writeToCell(29, 1, $data['backup_manual'], $font);
 $table->writeToCell(30, 1, 'Краткое описание процедуры восстановления данных', $fontBold);
 $table->writeToCell(31, 1, $data['recovery_manual'], $font);
 $table->writeToCell(32, 1, 'Параметры резервного копирования', $fontBold);
-$table->writeToCell(33, 1, 'Оценка объемов 1 полной копии данных', $font);
+$table->writeToCell(33, 1, 'Оценка объемов 1 полной копии данных, Мб', $font);
 $table->writeToCell(33, 2, $data['value_backup_data'], $font);
-$table->writeToCell(34, 1, 'Срок хранения старейшей копии', $font);
+$table->writeToCell(34, 1, 'Срок хранения старейшей копии, дни', $font);
 $table->writeToCell(34, 2, $data['storage_time'], $font);
 $table->writeToCell(35, 1, 'Хранилище резервных копий', $font);
 $table->writeToCell(35, 2, $data['store_copies'], $font);
-$table->writeToCell(36, 1, 'Объем хранилища резервных копий', $font);
+$table->writeToCell(36, 1, 'Объем хранилища резервных копий, Мб', $font);
 $table->writeToCell(36, 2, $data['backup_volume'], $font);
 $table->writeToCell(37, 1, 'Окно резервного копирования', $font);
 $table->writeToCell(37, 2, $data['backup_window'], $font);
@@ -315,7 +341,7 @@ if (empty($ports['inet']))
     $ports['inet'] = 'Нет';
 
 $arrSecColumn = array(
-  $data['antivirus'],
+  $antiviri,
   $data['firewall'],
   $data['uac_app_selinux'],
   $data['szi'],

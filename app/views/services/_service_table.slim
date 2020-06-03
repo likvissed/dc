@@ -36,7 +36,22 @@ table.table.table-striped.table-bordered.table-edit-service
     tr
       td
         b Максимальное время восстановления
-      td= s.input :max_time_rec, label: false
+      td
+        .form-group
+          .col-xs-2.col-md-2.col-lg-2.no-left-padding
+            input type="number" class="form-control input-sm" ng-model="service.max_time_rec_hours" ng-change="service.setMinutes()" style="text-align:right;" min="0" oninput="validity.valid||(value='0');"
+          .col-xs-1.col-md-1.col-lg-1.no-left-padding.no-right-padding
+            = 'ч.'
+          .col-xs-2.col-md-2.col-lg-2.no-left-padding
+            input type="number" class="form-control input-sm" ng-model="service.max_time_rec_minutes" ng-change="service.setMinutes()" style="text-align:right;" min="0" max="59" oninput="validity.valid||(value='0');"
+          .col-md-2.no-left-padding.no-right-padding
+            = 'мин.' 
+          .ng-hide
+            = text_field_tag "service[max_time_rec]", "", type: :number, class: "form-control", "ng-model": "service.max_time_rec"
+        div ng-if="service.max_time_rec_hours > 8" class="text-danger"
+          .form-group.inline-block
+            abbr title="Присутствует возможность несогласования формуляра с указанным временем восстановления"
+              = 'Слишком долгое время восстановления'
     tr
       td{ colspan=2 }
         b Ответственные за исполнение сервиса
@@ -72,7 +87,7 @@ table.table.table-striped.table-bordered.table-edit-service
           b Требования к вычислительным ресурсам
       tr
         td Количество ядер процессора
-        td= s.input :kernel_count, label: false, as: :numeric
+        td= s.input :kernel_count, label: false, as: :numeric, input_html: { min: '0', step: '1' } 
       tr
         td Тактовая частота процессора, ГГц
         td= s.input :frequency, label: false, as: :numeric, placeholder: "Требования отсутствуют"
@@ -131,7 +146,22 @@ table.table.table-striped.table-bordered.table-edit-service
           td= s.input :backup_window, label: false
         tr
           td Время восстановления данных
-          td= s.input :time_recovery, label: false
+          td
+            .form-group
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding
+                input type="number" class="form-control input-sm" ng-model="service.time_recovery_hours" ng-change="service.setMinutes()" style="text-align:right;" min="0" oninput="validity.valid||(value='0');"
+              .col-xs-1.col-md-1.col-lg-1.no-left-padding.no-right-padding
+                = 'ч.'
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding
+                input type="number" class="form-control input-sm" ng-model="service.time_recovery_minutes" ng-change="service.setMinutes()" style="text-align:right;" min="0" max="59" oninput="validity.valid||(value='0');"
+              .col-md-2.no-left-padding.no-right-padding
+                = 'мин.' 
+              .ng-hide
+                = text_field_tag "service[time_recovery]", "", type: :number, class: "form-control", "ng-model": "service.time_recovery"
+            div ng-if="service.time_recovery_hours > 8" class="text-danger"
+              .form-group.inline-block
+                abbr title="Присутствует возможность несогласования формуляра с указанным временем восстановления"
+                  = 'Слишком долгое время восстановления'
         tr
 
       -# =============================================== Отказоустойчивость ========================================
@@ -162,7 +192,22 @@ table.table.table-striped.table-bordered.table-edit-service
         tr
           td
             b Время восстановления после отказа
-          td= s.input :time_after_failure, label: false
+          td
+            .form-group
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding
+                input type="number" class="form-control input-sm" ng-model="service.time_after_failure_hours" ng-change="service.setMinutes()" style="text-align:right;" min="0" oninput="validity.valid||(value='0');"
+              .col-xs-1.col-md-1.col-lg-1.no-left-padding.no-right-padding
+                = 'ч.'
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding
+                input type="number" class="form-control input-sm" ng-model="service.time_after_failure_minutes" ng-change="service.setMinutes()" style="text-align:right;" min="0" max="59" oninput="validity.valid||(value='0');"
+              .col-md-2.no-left-padding.no-right-padding
+                = 'мин.' 
+              .ng-hide
+                = text_field_tag "service[time_after_failure]", "", type: :number, class: "form-control", "ng-model": "service.time_after_failure"
+            div ng-if="service.time_after_failure_hours > 8" class="text-danger"
+              .form-group.inline-block
+                abbr title="Присутствует возможность несогласования формуляра с указанным временем восстановления"
+                  = 'Слишком долгое время восстановления'
         tr
           td
             b Обеспечение катастрофоустойчивости
@@ -170,7 +215,22 @@ table.table.table-striped.table-bordered.table-edit-service
         tr
           td
             b Время возобновления после катастрофы
-          td= s.input :time_after_disaster, label: false
+          td
+            .form-group
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding
+                input type="number" class="form-control input-sm" ng-model="service.time_after_disaster_hours" ng-change="service.setMinutes()" style="text-align:right;" min="0" oninput="validity.valid||(value='0');"
+              .col-xs-1.col-md-1.col-lg-1.no-left-padding.no-right-padding
+                = 'ч.'
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding
+                input type="number" class="form-control input-sm" ng-model="service.time_after_disaster_minutes" ng-change="service.setMinutes()" style="text-align:right;" min="0" max="59" oninput="validity.valid||(value='0');"
+              .col-md-2.no-left-padding.no-right-padding
+                = 'мин.' 
+              .ng-hide
+                = text_field_tag "service[time_after_disaster]", "", type: :number, class: "form-control", "ng-model": "service.time_after_disaster"
+            div ng-if="service.time_after_disaster_hours > 8" class="text-danger"
+              .form-group.inline-block
+                abbr title="Присутствует возможность несогласования формуляра с указанным временем восстановления"
+                  = 'Слишком долгое время восстановления'
         tr
 
       -# =============================================== Подключение к сетям передачи и хранения данных ============
@@ -239,7 +299,7 @@ table.table.table-striped.table-bordered.table-edit-service
             b Меры обеспечения информационной безопасности
         tr
           td Антивирусные средства
-          td= s.input :antivirus, label: false
+          td= s.input :antivirus, label: false, collection: Service.antiviri_attributes_for_select.to_a, as: :select, include_blank: false
         tr
           td Межсетевое экранирование
           td= s.input :firewall, label: false

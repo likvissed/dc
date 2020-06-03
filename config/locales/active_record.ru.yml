@@ -44,6 +44,12 @@ ru:
         time_work: "Режим гарантированной доступности"
         # dependency:
         service_dep_childs: 'сервис'
+        antiviri:
+          not_installed: 'Не установлен'
+          enterprise: 'Корпоративный антивирус'
+          another_manufacturer: 'Антивирус другого производителя'
+          incompatible_software: 'Несовместимо с ПО'
+          according_vm: 'См. формуляры соответствии с ВМ'
       service/service_dep_parents:
         parent_id: "Сервис"
       service_networks:

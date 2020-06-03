@@ -38,6 +38,17 @@
         inet:   ''
       };
 
+    let values_time = {
+      //Максимальное время восстановления
+      max_time_rec: null,
+      // Время восстановления данных
+      time_recovery: null,
+      // Время восстановления после отказа
+      time_after_failure: null,
+      // Время возобновления после катастрофы
+      time_after_disaster: null
+    }
+
     // Переменные, которые возвращаются контроллеру
     // Основные данные сервера
     var service = {
@@ -592,6 +603,11 @@
       current_name     = name;
       service.old_data = data;
 
+      values_time.max_time_rec = data.max_time_rec;
+      values_time.time_recovery = data.time_recovery;
+      values_time.time_after_failure = data.time_after_failure;
+      values_time.time_after_disaster = data.time_after_disaster;
+
       //Для нового сервиса
       if (current_id == 0) {
         _generatePriority();
@@ -772,6 +788,35 @@
      */
     self.getServices = function () {
       return service.old_data.services;
+    };
+
+    /**
+     * Получить значения времени в Часы - минуты
+     */
+    self.getValueTime = function () {
+      values_time.max_time_rec = get_time(values_time.max_time_rec);
+      values_time.time_recovery = get_time(values_time.time_recovery);
+      values_time.time_after_failure = get_time(values_time.time_after_failure);
+      values_time.time_after_disaster = get_time(values_time.time_after_disaster);
+
+      return  values_time
+    };
+
+    function get_time(value) {
+      let result = {
+        hours: 0,
+        minutes: 0 
+      }
+      result.hours = parseInt(value)/60;
+
+      if (Number.isInteger(result.hours)) {
+        result.minutes = 0;
+      } else {
+        result.hours = parseInt(result.hours);
+        result.minutes = parseInt(value) - (result.hours*60);
+      }
+
+      return result;   
     };
 
 // =============================================== Методы для работы контроллера =======================================
