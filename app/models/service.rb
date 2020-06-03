@@ -39,6 +39,7 @@ class Service < ActiveRecord::Base
 
   enum priority:  ['Критическая производственная задача', 'Вторичная производственная задача', 'Тестирование и отладка']
   enum time_work: ['Круглосуточно (24/7)', 'Рабочее время (8/5)', 'По запросу']
+  enum antivirus: { not_installed: 1, enterprise: 2, another_manufacturer: 3, incompatible_software: 4 }
 
   has_attached_file :scan
   has_attached_file :act
@@ -109,6 +110,22 @@ class Service < ActiveRecord::Base
     sprintf('%03d', last.to_i.next)
   end
 
+  def self.antiviri_attributes_for_select
+    antiviri.map do |antiviri, _|
+      [I18n.t("activerecord.attributes.service.antiviri.#{antiviri}"), antiviri]
+    end
+  end
+
+  def self.antiviri_attributes_for_select_for_VM
+    antivirus = []
+    antiviri.each do |antiviri, _|
+      unless antiviri == 'incompatible_software'
+        antivirus.push([I18n.t("activerecord.attributes.service.antiviri.#{antiviri}"), antiviri])
+      end
+    end
+    antivirus
+  end
+
   # Получить всех ответственных
   # type - передается функции get_contact (:formular - для таблицы формуляра в виде строки, :obj - в виде объектов)
   def get_contacts(type)
@@ -136,15 +153,18 @@ class Service < ActiveRecord::Base
              short_name self.contact_1.department_head.info, :act
            end
 
+    antiviri = antivirus.present? ? I18n.t("activerecord.attributes.service.antiviri.#{antivirus}") : ''
+
     if type == 'formular'
       data = {
-        data:             self,
-        contact_strings:  get_contacts(:formular),
-        contact_objects:  get_contacts(:obj),
-        networks:         self.service_networks,
-        ports:            self.get_ports,
-        storages:         self.storage_systems,
-        head:             head
+        data: self,
+        contact_strings: get_contacts(:formular),
+        contact_objects: get_contacts(:obj),
+        networks: self.service_networks,
+        ports: self.get_ports,
+        storages: self.storage_systems,
+        head: head,
+        antiviri: antiviri
       }.to_json
 
       file = IO.popen("php #{Rails.root}/lib/generateFormular.php '#{data}'")
