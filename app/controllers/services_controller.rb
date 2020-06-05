@@ -253,7 +253,8 @@ class ServicesController < ApplicationController
           max_time_rec: @service.max_time_rec,
           time_recovery: @service.time_recovery,
           time_after_failure: @service.time_after_failure,
-          time_after_disaster: @service.time_after_disaster
+          time_after_disaster: @service.time_after_disaster,
+          values_service: @service
         }
       end
     end

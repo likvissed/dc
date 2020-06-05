@@ -38,16 +38,16 @@ table.table.table-striped.table-bordered.table-edit-service
         b Максимальное время восстановления
       td
         .form-group
-          .col-xs-2.col-md-2.col-lg-2.no-left-padding
-            input type="number" class="form-control input-sm" ng-model="service.max_time_rec_hours" ng-change="service.setMinutes()" style="text-align:right;" min="0" oninput="validity.valid||(value='0');"
-          .col-xs-1.col-md-1.col-lg-1.no-left-padding.no-right-padding
+          .col-xs-2.col-md-2.col-lg-2.no-left-padding.no-right-padding
+            input type="text" class="form-control input-sm" ng-model="service.max_time_rec_hours" ng-change="service.setMinutes()" style="text-align:center;border: 1px solid #ccc" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+          .col-xs-1.col-md-1.col-lg-1.no-right-padding.padding-left-5
             = 'ч.'
-          .col-xs-2.col-md-2.col-lg-2.no-left-padding
-            input type="number" class="form-control input-sm" ng-model="service.max_time_rec_minutes" ng-change="service.setMinutes()" style="text-align:right;" min="0" max="59" oninput="validity.valid||(value='0');"
-          .col-md-2.no-left-padding.no-right-padding
+          .col-xs-2.col-md-2.col-lg-2.no-left-padding.no-right-padding
+            input type="text" class="form-control input-sm" ng-model="service.max_time_rec_minutes" ng-change="service.setMinutes()" style="text-align:center;border: 1px solid #ccc" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+          .col-md-2.no-right-padding.padding-left-5
             = 'мин.' 
           .ng-hide
-            = text_field_tag "service[max_time_rec]", "", type: :number, class: "form-control", "ng-model": "service.max_time_rec"
+            = text_field_tag "service[max_time_rec]", "", class: "form-control", "ng-model": "service.max_time_rec"
         div ng-if="service.max_time_rec_hours > 8" class="text-danger"
           .form-group.inline-block
             abbr title="Присутствует возможность несогласования формуляра с указанным временем восстановления"
@@ -87,22 +87,32 @@ table.table.table-striped.table-bordered.table-edit-service
           b Требования к вычислительным ресурсам
       tr
         td Количество ядер процессора
-        td= s.input :kernel_count, label: false, as: :numeric, input_html: { min: '0', step: '1' } 
+        td.form-group
+          = text_field_tag "service[kernel_count]", "", "ng-model": "service.values_service.kernel_count",
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
       tr
         td Тактовая частота процессора, ГГц
-        td= s.input :frequency, label: false, as: :numeric, placeholder: "Требования отсутствуют"
+        td.form-group
+          = text_field_tag "service[frequency]", "", "ng-model": "service.values_service.frequency", "placeholder": "Требования отсутствуют",
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
       tr
         td Объем оперативной памяти, Гб
-        td= s.input :memory, label: false, as: :numeric, placeholder: "Требования отсутствуют"
+        td.form-group
+          = text_field_tag "service[memory]", "", "ng-model": "service.values_service.memory", "placeholder": "Требования отсутствуют",
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
       tr
         td Объем дискового пространства, Гб
-        td= s.input :disk_space, label: false, as: :numeric, placeholder: "Требования отсутствуют"
+        td.form-group
+          = text_field_tag "service[disk_space]", "", "ng-model": "service.values_service.disk_space", "placeholder": "Требования отсутствуют",
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
       tr
         td Скорость обмена с жестким диском
         td= s.input :hdd_speed, label: false
       tr
         td Скорость сетевого соединения, Мбит/сек
-        td= s.input :network_speed, label: false, as: :numeric, placeholder: "Требования отсутствуют"
+        td.form-group
+          = text_field_tag "service[network_speed]", "", "ng-model": "service.values_service.network_speed", "placeholder": "Требования отсутствуют",
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
       tr
         td{ colspan=2 }
           b Дополнительные требования к среде исполнения
@@ -131,16 +141,22 @@ table.table.table-striped.table-bordered.table-edit-service
             b Параметры резервного копирования
         tr
           td Оценка объемов 1 полной копии данных, Мб
-          td= s.input :value_backup_data, label: false, as: :numeric
+          td.form-group
+            = text_field_tag "service[value_backup_data]", "", "ng-model": "service.values_service.value_backup_data", "placeholder": "Требования отсутствуют",
+            "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
         tr
           td Срок хранения старейшей копии, дни
-          td= s.input :storage_time, label: false, as: :numeric
+          td.form-group
+            = text_field_tag "service[storage_time]", "", "ng-model": "service.values_service.storage_time", "placeholder": "Требования отсутствуют",
+            "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(/[^0-9]/g, '');"
         tr
           td Хранилище резервных копий
           td= s.input :store_copies, label: false
         tr
           td Объем хранилища резервных копий, Мб
-          td= s.input :backup_volume, label: false, as: :numeric
+          td.form-group
+            = text_field_tag "service[backup_volume]", "", "ng-model": "service.values_service.backup_volume", "placeholder": "Требования отсутствуют",
+            "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
         tr
           td Окно резервного копирования
           td= s.input :backup_window, label: false
@@ -148,13 +164,13 @@ table.table.table-striped.table-bordered.table-edit-service
           td Время восстановления данных
           td
             .form-group
-              .col-xs-2.col-md-2.col-lg-2.no-left-padding
-                input type="number" class="form-control input-sm" ng-model="service.time_recovery_hours" ng-change="service.setMinutes()" style="text-align:right;" min="0" oninput="validity.valid||(value='0');"
-              .col-xs-1.col-md-1.col-lg-1.no-left-padding.no-right-padding
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding.no-right-padding
+                input type="text" class="form-control input-sm" ng-model="service.time_recovery_hours" ng-change="service.setMinutes()" style="text-align:center;border: 1px solid #ccc" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+              .col-xs-1.col-md-1.col-lg-1.no-right-padding.padding-left-5
                 = 'ч.'
-              .col-xs-2.col-md-2.col-lg-2.no-left-padding
-                input type="number" class="form-control input-sm" ng-model="service.time_recovery_minutes" ng-change="service.setMinutes()" style="text-align:right;" min="0" max="59" oninput="validity.valid||(value='0');"
-              .col-md-2.no-left-padding.no-right-padding
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding.no-right-padding
+                input type="text" class="form-control input-sm" ng-model="service.time_recovery_minutes" ng-change="service.setMinutes()" style="text-align:center;border: 1px solid #ccc" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+              .col-md-2.no-right-padding.padding-left-5
                 = 'мин.' 
               .ng-hide
                 = text_field_tag "service[time_recovery]", "", type: :number, class: "form-control", "ng-model": "service.time_recovery"
@@ -194,13 +210,13 @@ table.table.table-striped.table-bordered.table-edit-service
             b Время восстановления после отказа
           td
             .form-group
-              .col-xs-2.col-md-2.col-lg-2.no-left-padding
-                input type="number" class="form-control input-sm" ng-model="service.time_after_failure_hours" ng-change="service.setMinutes()" style="text-align:right;" min="0" oninput="validity.valid||(value='0');"
-              .col-xs-1.col-md-1.col-lg-1.no-left-padding.no-right-padding
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding.no-right-padding
+                input type="text" class="form-control input-sm" ng-model="service.time_after_failure_hours" ng-change="service.setMinutes()" style="text-align:center;border: 1px solid #ccc" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+              .col-xs-1.col-md-1.col-lg-1.no-right-padding.padding-left-5
                 = 'ч.'
-              .col-xs-2.col-md-2.col-lg-2.no-left-padding
-                input type="number" class="form-control input-sm" ng-model="service.time_after_failure_minutes" ng-change="service.setMinutes()" style="text-align:right;" min="0" max="59" oninput="validity.valid||(value='0');"
-              .col-md-2.no-left-padding.no-right-padding
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding.no-right-padding
+                input type="text" class="form-control input-sm" ng-model="service.time_after_failure_minutes" ng-change="service.setMinutes()" style="text-align:center;border: 1px solid #ccc" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+              .col-md-2.no-right-padding.padding-left-5
                 = 'мин.' 
               .ng-hide
                 = text_field_tag "service[time_after_failure]", "", type: :number, class: "form-control", "ng-model": "service.time_after_failure"
@@ -217,13 +233,13 @@ table.table.table-striped.table-bordered.table-edit-service
             b Время возобновления после катастрофы
           td
             .form-group
-              .col-xs-2.col-md-2.col-lg-2.no-left-padding
-                input type="number" class="form-control input-sm" ng-model="service.time_after_disaster_hours" ng-change="service.setMinutes()" style="text-align:right;" min="0" oninput="validity.valid||(value='0');"
-              .col-xs-1.col-md-1.col-lg-1.no-left-padding.no-right-padding
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding.no-right-padding
+                input type="text" class="form-control input-sm" ng-model="service.time_after_disaster_hours" ng-change="service.setMinutes()" style="text-align:center;border: 1px solid #ccc" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+              .col-xs-1.col-md-1.col-lg-1.no-right-padding.padding-left-5
                 = 'ч.'
-              .col-xs-2.col-md-2.col-lg-2.no-left-padding
-                input type="number" class="form-control input-sm" ng-model="service.time_after_disaster_minutes" ng-change="service.setMinutes()" style="text-align:right;" min="0" max="59" oninput="validity.valid||(value='0');"
-              .col-md-2.no-left-padding.no-right-padding
+              .col-xs-2.col-md-2.col-lg-2.no-left-padding.no-right-padding
+                input type="text" class="form-control input-sm" ng-model="service.time_after_disaster_minutes" ng-change="service.setMinutes()" style="text-align:center;border: 1px solid #ccc" oninput="this.value = this.value.replace(/[^0-9]/g, '');"
+              .col-md-2.no-right-padding.padding-left-5
                 = 'мин.' 
               .ng-hide
                 = text_field_tag "service[time_after_disaster]", "", type: :number, class: "form-control", "ng-model": "service.time_after_disaster"

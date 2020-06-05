@@ -574,6 +574,9 @@
             // Массив всех существующих сервисов для выбора сервисов-родителей.
             self.services     = Service.getServices();
 
+            // Все значения сервиса
+            self.values_service = Service.getValueService();
+                      
             // Объект значений <max_time_rec, time_recovery, time_after_failure, time_after_disaster> в часах и минутах
             self.values_time = Service.getValueTime();
 
@@ -641,11 +644,24 @@
 
 // ========================================= "Перевод из часы - минуты в = Минуты" =======================================
 
-    self.setMinutes = function () {     
-      self.max_time_rec = self.max_time_rec_hours*60 + self.max_time_rec_minutes;     
-      self.time_recovery = self.time_recovery_hours*60 + self.time_recovery_minutes;     
-      self.time_after_failure = self.time_after_failure_hours*60 + self.time_after_failure_minutes;     
-      self.time_after_disaster = self.time_after_disaster_hours*60 + self.time_after_disaster_minutes;     
+    self.setMinutes = function () { 
+      if (Number(self.max_time_rec_minutes) > 59) {
+        self.max_time_rec_minutes = 59;
+      }
+      if (Number(self.time_recovery_minutes) > 59) {
+        self.time_recovery_minutes = 59;
+      }
+      if (Number(self.time_after_failure_minutes) > 59) {
+        self.time_after_failure_minutes = 59;
+      }
+      if (Number(self.time_after_disaster_minutes) > 59) {
+        self.time_after_disaster_minutes = 59;
+      }
+
+      self.max_time_rec = Number(self.max_time_rec_hours*60) + Number(self.max_time_rec_minutes);     
+      self.time_recovery = Number(self.time_recovery_hours*60) + Number(self.time_recovery_minutes);     
+      self.time_after_failure = Number(self.time_after_failure_hours*60) + Number(self.time_after_failure_minutes);     
+      self.time_after_disaster = Number(self.time_after_disaster_hours*60) + Number(self.time_after_disaster_minutes);     
     };
 
 // ================================================ "Подключения к сети" ===============================================

@@ -49,6 +49,8 @@
       time_after_disaster: null
     }
 
+    let values_service;
+
     // Переменные, которые возвращаются контроллеру
     // Основные данные сервера
     var service = {
@@ -603,6 +605,9 @@
       current_name     = name;
       service.old_data = data;
 
+      // все данные сервиса
+      values_service = data.values_service;
+
       values_time.max_time_rec = data.max_time_rec;
       values_time.time_recovery = data.time_recovery;
       values_time.time_after_failure = data.time_after_failure;
@@ -788,6 +793,13 @@
      */
     self.getServices = function () {
       return service.old_data.services;
+    };
+
+    /**
+     * Получить все значения сервисв
+     */
+    self.getValueService = function () {
+      return  values_service;
     };
 
     /**
