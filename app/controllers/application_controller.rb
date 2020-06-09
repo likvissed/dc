@@ -3,6 +3,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :authenticate_user!
+  before_action :add_attrs_to_current_user
   after_action :set_csrf_cookie_for_ng
 
   # Обрабтка случаев, когда у пользователя нет доступа на выполнение запрашиваемых действий
@@ -20,6 +21,16 @@ class ApplicationController < ActionController::Base
   # Если да - редирект на указанный в переменной path путь
   def check_for_cancel(path)
     redirect_to path if params[:cancel]
+  end
+
+  def add_attrs_to_current_user
+    user = UsersReference.info_user(current_user.tn)
+
+    if user == 'Пользователь не найден'
+      flash.now[:alert] = 'Сервер штатной расстановки не работает. тел. ***REMOVED***'
+    else
+      current_user.division = user['departmentForAccounting']
+    end
   end
   
   def render_404

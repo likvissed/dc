@@ -49,6 +49,8 @@ gem 'rest-client'
 gem 'ransack'
 # angular selected
 gem 'angular-ui-select-rails'
+# cache_store db
+gem 'redis'
 
 # Use CoffeeScript for .coffee assets and views
 # gem 'coffee-rails', '~> 4.1.0'

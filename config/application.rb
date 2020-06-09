@@ -23,6 +23,7 @@ module ServerApp
     config.i18n.default_locale = :ru
 
     # Загрузка всех файлов из
+    config.autoload_paths << Rails.root.join('app', 'modules').to_s
     config.autoload_paths << Rails.root.join('lib', 'strategy').to_s
 
     # Do not swallow errors in after_commit/after_rollback callbacks.

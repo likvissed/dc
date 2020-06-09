@@ -21,14 +21,15 @@ class DepartmentHead < ActiveRecord::Base
 
   # Получить данные о руководителе из базы Netadmin
   def get_user_iss_data
-    @user = UserIss.find_by(tn: self.tn)
-    if @user.nil?
+    @user = UsersReference.user_find_by_tn(self.tn)
+
+    if @user.blank?
       self.errors.add(:base, "Информация по указанному табельному не найдена. Проверьте правильность введенного табельного номера и повторите попытку")
       return
     end
 
-    self.info = @user.fio
-    self.dept = @user.dept
+    self.info = @user['fullName']
+    self.dept = @user['departmentForAccounting']
 
     self.errors.add(:base, "Номер отдела не может пройти проверку (неверный тип данных). Обратитесь к администртору") unless self.dept.to_s =~ /\d+/
   end

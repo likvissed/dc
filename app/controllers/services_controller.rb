@@ -57,11 +57,10 @@ class ServicesController < ApplicationController
                      ""
         end
 
-        self_dept = UserIss.find_by(tn: current_user.tn).dept
         contact = Contact.find_by(tn: current_user.tn)
 
         @service = if current_user.has_any_role? :uivt, :not_uivt
-                     Service.where.not(dept: nil).where(dept: self_dept).or(Service.where.not(contact_2: nil).where(contact_2: contact)).select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
+                     Service.where.not(dept: nil).where(dept: current_user.division).or(Service.where.not(contact_2: nil).where(contact_2: contact)).select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
                    else
                      Service.select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
                    end
@@ -183,18 +182,8 @@ class ServicesController < ApplicationController
   end
 
   def create
-    user = UserIss.find_by(tn: current_user.tn)
     contact = Contact.find_by(tn: current_user.tn)
-
-    if contact.blank?
-      contact = Contact.new(
-        tn: user.tn,
-        info: user.fio,
-        dept: user.dept,
-        work_num: user.tel
-      )
-      contact.save
-    end
+    contact = Contact.create(tn: current_user.tn) if contact.blank?
 
     # Заменить названия месяцев для корректной работы ActiveRecord
     params[:service][:deadline] = regexp_date(params[:service][:deadline])
@@ -206,7 +195,7 @@ class ServicesController < ApplicationController
       #  Если Основной ответственный и Вторичный контакт не задан, то добавить в основного - текущего пользователя
       unless @service.contact_1 || @service.contact_2
         Contact.find(contact.id).first_contacts << @service
-        @service.update(dept: user.dept)
+        @service.update(dept: current_user.division)
       end
 
       flash[:notice] = "Данные добавлены."
