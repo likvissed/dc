@@ -13,6 +13,7 @@ class User < ActiveRecord::Base
   # validates :password, confirmation: true
 
   attr_accessor :login
+  attr_accessor :division
 
   def self.find_for_database_authentication(warden_conditions)
     conditions = warden_conditions.dup
@@ -56,16 +57,16 @@ class User < ActiveRecord::Base
     UsersRoles.delete_role self, role_symbol, target
   end
 
-  # Получить ФИО пользователя из БД Netadmin
+  # Получить ФИО пользователя из БД Штатной расстановки
   def get_user_iss_data
-    @user = UserIss.find_by(tn: self.tn)
+    @user = UsersReference.user_find_by_tn(self.tn)
 
-    if @user.nil?
+    if @user.blank?
       self.errors.add(:tn, "Информация по указанному табельному не найдена")
       return
     end
 
-    self.info = @user.fio
+    self.info = @user['fullName']
   end
 
 end

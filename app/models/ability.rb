@@ -42,7 +42,7 @@ class Ability
       can :read, [Cluster]
 
       # Доступ к сервисам на редактирование только для своего отдела и если ты ответственный (Вторичный контакт)
-      can [:update, :generate_file, :download_file], Service, dept: UserIss.find_by(tn: user.tn).dept
+      can [:update, :generate_file, :download_file], Service, dept: user.division
       can [:update, :generate_file, :download_file], Service, contact_2: { info: user.info }
 
       can [:read, :create], Service
@@ -50,7 +50,7 @@ class Ability
     # Для пользователей, не входящих в состав ***REMOVED***
     elsif user.has_role? :not_uivt
       # Доступ к сервисам на редактирование только для своего отдела и если ты ответственный (Вторичный контакт)
-      can [:update, :generate_file, :download_file], Service, dept: UserIss.find_by(tn: user.tn).dept
+      can [:update, :generate_file, :download_file], Service, dept: user.division
       can [:update, :generate_file, :download_file], Service, contact_2: { info: user.info }
 
       can [:read, :create], Service

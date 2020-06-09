@@ -10,7 +10,6 @@ class ServiceNetwork < ActiveRecord::Base
   belongs_to :service
 
   validates :segment, :vlan, :dns_name, presence: true
-  validates :vlan, numericality: { only_integer: true }
 
   strip_attributes allow_empty: true, collapse_spaces: true
 

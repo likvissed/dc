@@ -26,15 +26,17 @@ class Contact < ActiveRecord::Base
 
   # Получение данных из базы Netadmin
   def get_user_iss_data
-    @user = UserIss.find_by(tn: self.tn)
-    if @user.nil?
+    @user = UsersReference.user_find_by_tn(self.tn)
+
+    if @user.blank?
       self.errors.add(:tn, "Информация по указанному табельному не найдена")
       return
     end
 
-    self.info     = @user.fio
-    self.dept     = @user.dept
-    self.work_num = @user.tel
+    self.info     = @user['fullName']
+    self.dept     = @user['departmentForAccounting']
+    self.work_num = @user['phone'].first if @user['phone'].present?
+    self.mobile_num = @user['mobilePhone'].first if @user['mobilePhone'].present?
   end
 
   # Создание внешнего ключа на руководителя (если руководитель существует)

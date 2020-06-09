@@ -9,7 +9,7 @@
           = text_field_tag "template_network[segment]", nil, autofocus: true, class: "form-control", "ng-model": "networkModal.value.segment"
         .form-group.string
           = label_tag :template_network_vlan, "VLAN", class: "control-label"
-          = text_field_tag "template_network[vlan]", nil, class: "form-control", "ng-model": "networkModal.value.vlan"
+          = text_field_tag "template_network[vlan]", nil, class: "form-control", "ng-model": "networkModal.value.vlan", "oninput": "this.value = this.value.replace(/[^0-9]/g, '');"
         .form-group.string
           = label_tag :template_network_dns_name, "DNS имя", class: "control-label"
           = text_field_tag "template_network[dns_name]", nil, class: "form-control", "ng-model": "networkModal.value.dns_name"
