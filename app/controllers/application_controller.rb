@@ -3,7 +3,7 @@ class ApplicationController < ActionController::Base
   protect_from_forgery with: :exception
 
   before_action :authenticate_user!
-  before_action :add_attrs_to_current_user
+  before_action :add_attrs_to_current_user, if: -> { current_user }
   after_action :set_csrf_cookie_for_ng
 
   # Обрабтка случаев, когда у пользователя нет доступа на выполнение запрашиваемых действий

@@ -33,8 +33,6 @@ module UsersReference
   end
 
   def self.info_user(tab_num)
-    Rails.logger.info "token: #{Rails.cache.read('token_hr')}".white
-
     (0..1).each do |_|
       new_token_hr if Rails.cache.read('token_hr').blank?
       response = user_find_by_tn(tab_num)
