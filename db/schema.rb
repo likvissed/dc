@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_06_03_011249) do
+ActiveRecord::Schema.define(version: 2020_07_07_082503) do
 
   create_table "cluster_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "cluster_id"
@@ -160,6 +160,7 @@ ActiveRecord::Schema.define(version: 2020_06_03_011249) do
     t.string "number", limit: 20
     t.integer "dept"
     t.string "name"
+    t.boolean "formular_type", null: false
     t.text "descr"
     t.integer "priority"
     t.date "deadline"

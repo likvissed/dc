@@ -6,11 +6,22 @@ table.table
         i class="fa fa-eye" ng-click="preview.showCluster()" tooltip-placement="top" uib-tooltip="{{ preview.tooltip }}" ng-class="{ 'disabled-icon': !preview.hosting.name || preview.disableClusterPreview }"
       td.col-md-9{ ng-bind="preview.hosting.name || 'Отсутствует'" }
     tr
-      td.col-md-3 Зависимости сервиса
-      td{ colspan=2 }
-        div{ ng-show="preview.parents.length == 0" } Отсутствует
-        ul.list-unstyled{ ng-show="preview.parents.length != 0" }
-          li{ ng-repeat="parent in preview.parents" ng-bind="parent.name" }
+      td.col-md-3
+        | Зависимости
+        span<> ng-if="preview.service.formular_type == false"
+          | сервера
+        span<> ng-if="preview.service.formular_type == true"
+          | сервиса
+        td{ colspan=2 }
+          div ng-if="preview.service.formular_type == false"
+            div{ ng-show="preview.parents.length == 0" } Отсутствует
+            div { ng-show="preview.service.formular_type == false" }
+            ul.list-unstyled{ ng-show="preview.parents.length != 0" }
+              li{ ng-repeat="parent in preview.parents" ng-bind="parent.name" }
+          div ng-if="preview.service.formular_type == true"
+            div{ ng-show="preview.childs.length == 0" } Отсутствует
+            ul.list-unstyled{ ng-show="preview.childs.length != 0" }
+              li{ ng-repeat="child in preview.childs" ng-bind="child.name" }
 
 table.table.table-striped.table-bordered.table-edit-service
 

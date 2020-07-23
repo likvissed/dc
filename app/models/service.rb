@@ -9,14 +9,16 @@ class Service < ActiveRecord::Base
   }.freeze
 
   before_save :set_deadline
+  after_update :update_values_service_for_parents, if: -> { formular_type == false }
+  before_destroy :destroy_parents
 
   has_many :service_networks, dependent: :destroy
   has_many :storage_systems, dependent: :destroy
 
-  has_many :service_dep_parents, foreign_key: :child_id, class_name: 'ServiceDependency', dependent: :destroy
+  has_many :service_dep_parents, foreign_key: :child_id, class_name: 'ServiceDependency', dependent: :restrict_with_error
   has_many :parents, through: :service_dep_parents, source: :parent_service
 
-  has_many :service_dep_childs, foreign_key: :parent_id, class_name: 'ServiceDependency', dependent: :restrict_with_error
+  has_many :service_dep_childs, foreign_key: :parent_id, class_name: 'ServiceDependency', dependent: :destroy
   has_many :childs, through: :service_dep_childs, source: :child_service
 
   has_many :service_hostings
@@ -35,11 +37,12 @@ class Service < ActiveRecord::Base
 
   accepts_nested_attributes_for :service_networks, allow_destroy: true, reject_if: proc { |attr| attr['segment'].blank? || attr['vlan'].blank? || attr['dns_name'].blank? }
   accepts_nested_attributes_for :storage_systems, allow_destroy: true, reject_if: proc { |attr| attr['name'].blank? }
-  accepts_nested_attributes_for :service_dep_parents, allow_destroy: true, reject_if: proc { |attr| attr['parent_id'].blank? }
+  # accepts_nested_attributes_for :service_dep_parents, allow_destroy: true, reject_if: proc { |attr| attr['parent_id'].blank? }
+  accepts_nested_attributes_for :service_dep_childs, allow_destroy: true, reject_if: proc { |attr| attr['child_id'].blank? }
 
-  enum priority:  ['Критическая производственная задача', 'Вторичная производственная задача', 'Тестирование и отладка']
+  enum priority:  ['Критическая производственная задача', 'Вторичная производственная задача', 'Внедрение', 'Отладка']
   enum time_work: ['Круглосуточно (24/7)', 'Рабочее время (8/5)', 'По запросу']
-  enum antivirus: { not_installed: 1, enterprise: 2, another_manufacturer: 3, incompatible_software: 4 }
+  enum antivirus: { not_installed: 1, enterprise: 2, another_manufacturer: 3, incompatible_software: 4, according_vm: 5 }
 
   has_attached_file :scan
   has_attached_file :act
@@ -96,6 +99,45 @@ class Service < ActiveRecord::Base
                                     ],
                                     message: 'Инструкция по отключению имеет неверный тип данных'
 
+  def update_values_service_for_parents
+    parents.each do |parent|
+      # Обнуление значений для нового подсчета
+      # frequency должен выводить максимальное число, а не сумму всех значений
+      obj = {
+        kernel_count: 0,
+        frequency: 0,
+        memory: 0,
+        disk_space: 0
+      }
+
+      parent.childs.each do |child|
+        # Подсчет только для серверов (ВМ)
+        next if child.formular_type
+
+        obj[:kernel_count] += child.kernel_count.to_f
+        obj[:memory] += child.memory.to_f
+        obj[:disk_space] += child.disk_space.to_f
+
+        obj[:frequency] = child.frequency.to_f if obj[:frequency] < child.frequency.to_f
+      end
+
+      # Применить обновленный подсчет
+      parent.update(
+        kernel_count: obj[:kernel_count],
+        frequency: obj[:frequency],
+        memory: obj[:memory],
+        disk_space: obj[:disk_space]
+      )
+    end
+  end
+
+  def destroy_parents
+    if parents.present?
+      errors.add(:base, :service_dep_parents, parents: parents.map(&:name).join(','))
+      throw(:abort)
+    end
+  end
+
   # Получает последний номер формуляра и возвращает следующий за ним номер.
   def self.get_next_service_number
     last = 000
@@ -110,20 +152,34 @@ class Service < ActiveRecord::Base
     sprintf('%03d', last.to_i.next)
   end
 
-  def self.antiviri_attributes_for_select
-    antiviri.map do |antiviri, _|
-      [I18n.t("activerecord.attributes.service.antiviri.#{antiviri}"), antiviri]
+  def self.antiviri_attributes_for_select(flag_type)
+    if flag_type
+      [[I18n.t('activerecord.attributes.service.antiviri.according_vm'), 'according_vm']]
+    else
+      antivirus = []
+      antiviri.each do |antiviri, _|
+        unless antiviri == 'according_vm'
+          antivirus.push([I18n.t("activerecord.attributes.service.antiviri.#{antiviri}"), antiviri])
+        end
+      end
+      antivirus
     end
   end
 
-  def self.antiviri_attributes_for_select_for_VM
-    antivirus = []
-    antiviri.each do |antiviri, _|
-      unless antiviri == 'incompatible_software'
-        antivirus.push([I18n.t("activerecord.attributes.service.antiviri.#{antiviri}"), antiviri])
+  # Изменение вывода значений в поле "Режим гарантированной доступности"
+  # чтобы "Рабочее время (8/5)" выводился по умолчанию для новой записи
+  def self.time_works_attributes_for_select
+    arr_time_works = []
+    other = []
+
+    time_works.each do |time_work, _|
+      if time_work == 'Рабочее время (8/5)'
+        arr_time_works.push(time_work)
+      else
+        other.push(time_work)
       end
     end
-    antivirus
+    arr_time_works.push(other).flatten
   end
 
   # Получить всех ответственных
@@ -224,7 +280,7 @@ class Service < ActiveRecord::Base
     if self.number.empty?
       "Номер формуляра отсутствует"
     else
-      "Формуляр № УИВТ-Ф-#{self.number}"
+      "Формуляр № ***REMOVED***-Ф-#{self.number}"
     end
   end
 
@@ -372,9 +428,8 @@ class Service < ActiveRecord::Base
     end
   end
 
-  # Установить в поле test_date значение nil, если приоритет не равен "Тестирование и отладка"
+  # Установить в поле test_date значение nil, если приоритет не равен "Внедрение"
   def set_deadline
-    self.deadline = nil unless self.priority == "Тестирование и отладка"
+    self.deadline = nil unless self.priority == 'Внедрение'
   end
-
 end

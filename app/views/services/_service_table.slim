@@ -10,6 +10,7 @@ table.table.table-striped.table-bordered.table-edit-service
       td
         b Наименование сервиса
       td= s.input :name, label: false, autofocus: true
+      = s.input_field :formular_type, as: :hidden
     tr
       td{ colspan=2 }
         b Краткое описание сервиса
@@ -22,7 +23,7 @@ table.table.table-striped.table-bordered.table-edit-service
         .form-group
           = select_tag "service[priority]", nil, class: "form-control", "ng-model": "service.priority.selected",
           "ng-options": "priority for priority in service.priority.values track by priority"
-    tr.ng-hide{ ng-show="service.priority.selected == 'Тестирование и отладка'" }
+    tr.ng-hide{ ng-show="service.priority.selected == 'Внедрение'" }
       td Срок тестирования
       td
         .form-group
@@ -32,7 +33,7 @@ table.table.table-striped.table-bordered.table-edit-service
     tr
       td
         b Режим гарантированной доступности
-      td= s.input :time_work, label: false, collection: Service.time_works.keys.to_a, as: :select, include_blank: false
+      td= s.input :time_work, label: false, collection: Service.time_works_attributes_for_select.to_a, as: :select, include_blank: false
     tr
       td
         b Максимальное время восстановления
@@ -77,11 +78,14 @@ table.table.table-striped.table-bordered.table-edit-service
       tr
         td
           b Операционная система
-        td= s.input :os, label: false
+        td.form-group
+          = text_field_tag "service[os]", "", class: "form-control", "ng-model": "service.values_service.os", "type": "text",
+           "ng-readonly": "service.values_service.formular_type == true"
       tr
         td
           b Ключевой программный компонент
-        td= s.input :component_key, label: false
+        td.form-group
+          = text_field_tag "service[component_key]", "", class: "form-control", "ng-model": "service.values_service.component_key", "type": "text", "ng-readonly": "service.values_service.formular_type == true"
       tr
         td{ colspan=2 }
           b Требования к вычислительным ресурсам
@@ -89,22 +93,26 @@ table.table.table-striped.table-bordered.table-edit-service
         td Количество ядер процессора
         td.form-group
           = text_field_tag "service[kernel_count]", "", "ng-model": "service.values_service.kernel_count",
-           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');",
+           "ng-readonly": "service.values_service.formular_type == true"
       tr
         td Тактовая частота процессора, ГГц
         td.form-group
           = text_field_tag "service[frequency]", "", "ng-model": "service.values_service.frequency", "placeholder": "Требования отсутствуют",
-           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');",
+           "ng-readonly": "service.values_service.formular_type == true"
       tr
         td Объем оперативной памяти, Гб
         td.form-group
           = text_field_tag "service[memory]", "", "ng-model": "service.values_service.memory", "placeholder": "Требования отсутствуют",
-           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');",
+           "ng-readonly": "service.values_service.formular_type == true"
       tr
         td Объем дискового пространства, Гб
         td.form-group
           = text_field_tag "service[disk_space]", "", "ng-model": "service.values_service.disk_space", "placeholder": "Требования отсутствуют",
-           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');",
+           "ng-readonly": "service.values_service.formular_type == true"
       tr
         td Скорость обмена с жестким диском
         td= s.input :hdd_speed, label: false
@@ -315,13 +323,15 @@ table.table.table-striped.table-bordered.table-edit-service
             b Меры обеспечения информационной безопасности
         tr
           td Антивирусные средства
-          td= s.input :antivirus, label: false, collection: Service.antiviri_attributes_for_select.to_a, as: :select, include_blank: false
+          td= s.input :antivirus, label: false, collection: Service.antiviri_attributes_for_select(@service.formular_type).to_a, as: :select, include_blank: false
         tr
           td Межсетевое экранирование
           td= s.input :firewall, label: false
         tr
           td UAC/AppArmor/SELinux
-          td= s.input :uac_app_selinux, label: false
+          td.form-group
+            = text_field_tag "service[uac_app_selinux]", "", class: "form-control", "ng-model": "service.values_service.uac_app_selinux",
+            "type": "text", "ng-readonly": "service.values_service.formular_type == true"
         tr
           td Сертифицированные СЗИ НСД
           td= s.input :szi, label: false, input_html: { value: s.object.szi || 'Не требуются' }

@@ -7,7 +7,8 @@
     .controller('ServiceEditCtrl', ServiceEditCtrl)               // Форма добавления/редактирования сервиса
     .controller('ServiceEditNetworkCtrl', ServiceEditNetworkCtrl) // Работа с подключениями к сети
     .controller('ServiceEditPortCtrl', ServiceEditPortCtrl)       // Работа с открытыми портами
-    .controller('DependenceCtrl', DependenceCtrl);                // Устанавливает зависимости сервиса
+    .controller('DependenceCtrl', DependenceCtrl)                 // Устанавливает зависимости сервиса
+    .controller('ServiceSelectedCtrl', ServiceSelectedCtrl);      // Выбор формуляра для копирования конкретных аттрибутов при создании нового сервиса/сервера
 
   ServiceIndexCtrl.$inject        = ['$controller', '$scope', '$location', '$compile', 'DTOptionsBuilder', 'DTColumnBuilder', 'Server', 'Flash', 'Cookies', 'ServiceShareFunc', 'Error', 'Ability'];
   ServicePreviewCtrl.$inject      = ['$scope', '$rootScope', 'Server', 'Ability', 'Error'];
@@ -15,6 +16,7 @@
   ServiceEditNetworkCtrl.$inject  = ['$scope', 'Service'];
   ServiceEditPortCtrl.$inject     = ['$scope', 'Service'];
   DependenceCtrl.$inject          = ['Service'];
+  ServiceSelectedCtrl.$inject     = ['$scope'];
 
 // =====================================================================================================================
 
@@ -94,6 +96,14 @@
       {
         value:  'virtNetDMZ',
         string: 'Система виртуализации ДМЗ сетевой службы'
+      },
+      {
+        value:  'onlyFormularTypeTrue',
+        string: 'Только сервисы'
+      },
+      {
+        value:  'onlyFormularTypeFalse',
+        string: 'Только серверы'
       }
     ];
     // Выбранный элемент фильтра таблицы сервисов
@@ -101,6 +111,7 @@
     // Флаг, скрывающий сервисы, которые не введены в эксплуатацию
     self.exploitation   = Cookies.Service.get('showOnlyExploitationServices');
     // Объекты сервисов (id => data)
+    self.all_name_services = {};
     self.services       = {};
     self.dtInstance     = {};
     self.dtOptions      = DTOptionsBuilder
@@ -121,8 +132,10 @@
       .withDOM(
         '<"row"' +
           '<"col-sm-2 col-md-2 col-lg-1"' +
-            '<"#services.new-record">>' +
-          '<"col-sm-2 col-md-2 col-lg-5">' +
+            '<"add-new-service">>' +
+          '<"col-sm-3 col-md-3 col-lg-2"' +
+            '<"add-service-based">>' +
+          '<"col-sm-1 col-md-1 col-lg-3">' +
           '<"col-sm-3 col-md-3 col-lg-2"' +
             '<"service-exploitation">>' +
           '<"col-sm-3 col-md-3 col-lg-2"' +
@@ -132,10 +145,10 @@
           '<"col-md-6"i>' +
           '<"col-md-6"p>>'
       );
-
     self.dtColumns  = [
       DTColumnBuilder.newColumn(null).withTitle('#').renderWith(renderIndex),
       DTColumnBuilder.newColumn('flags').withTitle('Флаг').withOption('className', 'text-center').notSortable().renderWith(priority),
+      DTColumnBuilder.newColumn('formular_type').withTitle('Тип').withOption('className', 'text-center').notSortable().renderWith(type_formular),
       DTColumnBuilder.newColumn('number').withTitle('Номер').withOption('className', 'col-md-1'),
       DTColumnBuilder.newColumn('name').withTitle('Имя').withOption('className', 'col-md-4'),
       DTColumnBuilder.newColumn('time_work').withTitle('Режим').withOption('className', 'col-md-1 text-center'),
@@ -173,6 +186,10 @@
     function renderIndex(data, type, full, meta) {
       // Сохранить данные сервиса (нужны для вывода пользователю информации об удаляемом элементе)
       self.services[data.id] = data;
+
+      // все назвния и id сервисов для выбора "Создать на основе" в модальном окне
+      self.all_name_services = data.all_name_services;
+
       return meta.row + 1;
     }
 
@@ -297,6 +314,17 @@
       return ServiceShareFunc.priority(flag);
     }
 
+    /**
+     * Установить иконку типа формуляра (true - сервис / false - сервер (ВМ))
+     *
+     * @param type - тип формуляра
+     * @returns {*}
+     * @private
+     */
+    function type_formular(type) {
+      return ServiceShareFunc.type_f(type);
+    }
+
 // =============================================== Публичные функции ===================================================
 
     /**
@@ -320,6 +348,24 @@
       Cookies.Service.set('showOnlyExploitationServices', self.exploitation);
 
       newQuery();
+    };
+
+    /**
+     * Кнопка "Создать на основе". Открытие модального окна для выбора сервиса
+     *
+     * @methodOf DataCenter.ServiceIndexCtrl
+     */
+    self.addService = function (type) {
+      // Тип формуляра и массив сервисов (id и name)
+      let obj = {
+        type: type,
+        services: self.all_name_services
+      };
+
+      // Передача параметров в ServiceSelectedCtrl
+      $scope.$broadcast('service:selected:show', obj);
+      // Открытие модального окна для выбора сервиса для копирования определенных атрибутов
+      self.selectModal = true;
     };
 
     /**
@@ -366,6 +412,8 @@
 
     // Флаг, скрывающий модальное окно
     self.previewModal           = false;
+    // Модальное окно "Создать на основе"
+    self.selectModal            = false;
     // Флаг, запрещающий просматривать информацию о сервере, т.к. предпросмотр формуляра и так открыт из режима
     // предпросмотра сервера
     self.disableClusterPreview  = false;
@@ -408,6 +456,8 @@
       self.hosting      = angular.copy(data.hosting[0]);
       // Массив сервисов-родителей
       self.parents      = angular.copy(data.parents);
+      // Массив сервисов-потомок
+      self.childs      = angular.copy(data.childs);
 
       // Всплывающее сообщение иконки хостинга
       self.tooltip = self.hosting ? 'Просмотреть информацию о сервере' : 'Хостинг сервиса отсутствует';
@@ -566,7 +616,9 @@
               instr_off: false
             };
             // Массив с сервисами-родителями.
-            self.parents      = Service.getParents();
+            // self.parents      = Service.getParents();
+            // Массив с сервисами-потомками
+            self.childs       = Service.getChilds();
             // Массив с подключениями к СХД.
             self.storages     = Service.getStorages();
             // Необходим для исключения этого имени из списка родителей-сервисов.
@@ -574,7 +626,7 @@
             // Массив всех существующих сервисов для выбора сервисов-родителей.
             self.services     = Service.getServices();
 
-            // Все значения сервиса
+            // Все значения сервиса !!!
             self.values_service = Service.getValueService();
                       
             // Объект значений <max_time_rec, time_recovery, time_after_failure, time_after_disaster> в часах и минутах
@@ -596,6 +648,7 @@
             self.time_after_disaster_hours = self.values_time.time_after_disaster.hours || 0;
             self.time_after_disaster_minutes = self.values_time.time_after_disaster.minutes || 0;
 
+            self.lists_name_service_for_vm = Service.getListsNameServiceForVM();
             self.setMinutes();
           },
           function (response, data) {
@@ -609,8 +662,8 @@
            * @methodOf DataCenter.ServiceEditCtrl
            * @returns {boolean}
            */
-          self.showParents = function () {
-            return Service.showParents();
+          self.showChilds = function () {
+            return Service.showChilds();
           };
         });
     };
@@ -903,18 +956,42 @@
      *
      * @methodOf DataCenter.DependenceCtrl
      */
-    this.addParent = function () {
-      Service.addParent();
+    this.addChild = function () {
+      Service.addChild();
     };
 
     /**
      * Удалить сервис-родитель
      *
      * @methodOf DataCenter.DependenceCtrl
-     * @param parent
+     * @param child
      */
-    this.delParent = function (parent) {
-      Service.delParent(parent);
+    this.delChild = function (child) {
+      Service.delChild(child);
     };
   }
+
+  // =====================================================================================================================
+
+  /**
+   * Работа с выбором сервиса для копирования некоторых атрибутов при создании нового сервиса/сервера
+   *
+   * @class DataCenter.ServiceSelectedCtrl
+   */
+  function ServiceSelectedCtrl($scope) {
+    let self = this;
+
+    $scope.$on('service:selected:show', function (event, data) {
+      self.services = data.services;
+      self.type = data.type;
+
+      // Выбранный объект сервиса (id и name)
+      // Изначально подставляется первый элемент из массива всех
+      self.selected_service = self.services[0];
+    });
+  }
+  
+
+// =====================================================================================================================
+
 })();
