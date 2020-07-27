@@ -93,7 +93,7 @@ table.table.table-striped.table-bordered.table-edit-service
         td Количество ядер процессора
         td.form-group
           = text_field_tag "service[kernel_count]", "", "ng-model": "service.values_service.kernel_count",
-           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');",
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9]/g, '');",
            "ng-readonly": "service.values_service.formular_type == true"
       tr
         td Тактовая частота процессора, ГГц
@@ -115,12 +115,15 @@ table.table.table-striped.table-bordered.table-edit-service
            "ng-readonly": "service.values_service.formular_type == true"
       tr
         td Скорость обмена с жестким диском
-        td= s.input :hdd_speed, label: false
+        td.form-group
+          = text_field_tag "service[hdd_speed]", "", "ng-model": "service.values_service.hdd_speed",
+           "class": "form-control", "type": "text", "ng-readonly": "service.values_service.formular_type == true"
       tr
         td Скорость сетевого соединения, Мбит/сек
         td.form-group
           = text_field_tag "service[network_speed]", "", "ng-model": "service.values_service.network_speed", "placeholder": "Требования отсутствуют",
-           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
+           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');",
+           "ng-readonly": "service.values_service.formular_type == true"
       tr
         td{ colspan=2 }
           b Дополнительные требования к среде исполнения

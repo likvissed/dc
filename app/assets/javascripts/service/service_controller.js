@@ -969,6 +969,16 @@
     this.delChild = function (child) {
       Service.delChild(child);
     };
+
+    /**
+     * Пересчитать значения полей
+     *
+     * @methodOf DataCenter.DependenceCtrl
+     */
+    this.calculateField = function () {
+      Service.calculateField();
+    };
+
   }
 
   // =====================================================================================================================

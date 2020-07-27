@@ -245,15 +245,6 @@ class ServicesController < ApplicationController
       format.json do
         get_services
 
-        # Если создается сервис, то необходимо заполнить некоторые поля фразой
-        if @@new_service.formular_type == true
-          str = 'См. формуляры в соответствии с ВМ'
-
-          @@new_service.os = str
-          @@new_service.component_key = str
-          @@new_service.uac_app_selinux = str
-        end
-
         values_service = {
           kernel_count: @@new_service.kernel_count,
           frequency: @@new_service.frequency,
@@ -302,34 +293,6 @@ class ServicesController < ApplicationController
         @service.update(dept: current_user.division)
       end
 
-      childs_attributes = @service.childs.select { |ch| ch.formular_type == false }
-      # Обновить 4 поля при взаимосвязи с ВМ (сервером)
-      if childs_attributes.present?
-
-        # frequency должен выводить максимальное число, а не сумму всех значений
-        obj = {
-          kernel_count: 0,
-          frequency: 0,
-          memory: 0,
-          disk_space: 0
-        }
-
-        childs_attributes.each do |child|
-          obj[:kernel_count] += child.kernel_count.to_f
-          obj[:memory] += child.memory.to_f
-          obj[:disk_space] += child.disk_space.to_f
-
-          obj[:frequency] = child.frequency.to_f if obj[:frequency] < child.frequency.to_f
-        end
-
-        @service.update(
-          kernel_count: obj[:kernel_count],
-          frequency: obj[:frequency],
-          memory: obj[:memory],
-          disk_space: obj[:disk_space]
-        )
-      end
-
       flash[:notice] = "Данные добавлены."
       redirect_to action: :index, id: @service.id
     else
@@ -344,7 +307,6 @@ class ServicesController < ApplicationController
   end
 
   def edit
-    # Rails.logger.info "@service: #{@service.inspect}".red
     authorize! :edit, @service
 
     respond_to do |format|
@@ -369,7 +331,7 @@ class ServicesController < ApplicationController
           priority: @service.priority,
           deadline: @service.deadline,
           childs: @service.service_dep_childs.as_json(
-            include: { child_service: { only: %i[id name] } },
+            include: { child_service: { only: %i[id name kernel_count memory disk_space formular_type frequency] } },
             only: :id
           ),
           max_time_rec: @service.max_time_rec,
@@ -401,53 +363,7 @@ class ServicesController < ApplicationController
     params[:service][:deadline] = regexp_date(params[:service][:deadline])
     params[:service][:consumer_fio] = current_user.info
 
-    # Если это сервис, то обновить значения,взятые из связанных ВМ
     # Если это сервер (ВМ), то после обновления выполняется метод update_values_service_for_parents
-    if @service.formular_type
-      childs_attributes = @service.childs.select { |ch| ch.formular_type == false }
-      id_childs_attributes = childs_attributes.map(&:id)
-
-      # Для проверки присваивания параметров obj
-      flag = false
-
-      # Обнуление значений для нового подсчета
-      # frequency должен выводить максимальное число, а не сумму всех значений
-      obj = {
-        kernel_count: 0,
-        frequency: 0,
-        memory: 0,
-        disk_space: 0
-      }
-      if params[:service][:service_dep_childs_attributes].present?
-        params[:service][:service_dep_childs_attributes].to_unsafe_h.each do |attr|
-          id = attr[1]['child_id'].to_i
-
-          service_child = if id_childs_attributes.include?(id)
-                            childs_attributes.find { |ch| ch.id == id }
-                          else
-                            Service.find_by(id: id)
-                          end
-
-          next if attr[1]['_destroy'].to_i == 1 || service_child.formular_type
-
-          flag = true
-
-          obj[:kernel_count] += service_child.kernel_count.to_f
-          obj[:memory] += service_child.memory.to_f
-          obj[:disk_space] += service_child.disk_space.to_f
-
-          obj[:frequency] = service_child.frequency.to_f if obj[:frequency] < service_child.frequency.to_f
-        end
-
-        # Применить обновленный подсчет
-        if flag
-          params[:service][:kernel_count] = obj[:kernel_count]
-          params[:service][:frequency] = obj[:frequency]
-          params[:service][:memory] = obj[:memory]
-          params[:service][:disk_space] = obj[:disk_space]
-        end
-      end
-    end
 
     if @service.update_attributes(service_params)
       flash[:notice] = 'Данные изменены'
@@ -642,10 +558,7 @@ class ServicesController < ApplicationController
 
   # Получить список всех сервисов
   def get_services
-    list_parents = @service.parents.map(&:id)
-    list_childs = @service.childs.map(&:id)
-
-    @services = Service.select(:id, :name).where.not(id: list_parents.concat(list_childs))
+    @services = Service.select(:id, :name, :formular_type, :disk_space, :kernel_count, :memory, :frequency)
   end
 
   # Найти сервис по полю name

@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_07_082503) do
+ActiveRecord::Schema.define(version: 2020_07_23_084558) do
 
   create_table "cluster_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
     t.integer "cluster_id"
@@ -171,7 +171,7 @@ ActiveRecord::Schema.define(version: 2020_07_07_082503) do
     t.text "environment"
     t.string "os"
     t.string "component_key"
-    t.float "kernel_count"
+    t.integer "kernel_count"
     t.float "frequency"
     t.float "memory"
     t.float "disk_space"

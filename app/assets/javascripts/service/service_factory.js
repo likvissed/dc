@@ -617,6 +617,15 @@
       // все данные сервиса
       values_service = data.values_service;
 
+      let str = 'См. формуляры в соответствии с ВМ';
+      // Если создается сервис, то необходимо заполнить некоторые поля фразой
+      if (values_service.formular_type == true && values_service.id == undefined) {
+        values_service.os = str;
+        values_service.component_key = str;
+        values_service.uac_app_selinux = str;
+        values_service.hdd_speed = str;
+      }
+
       // массив наименований сервисов, связанных с ВМ (сервером)
       lists_name_service_for_vm = data.lists_name_service_for_vm;
 
@@ -1042,6 +1051,7 @@
       }
 
       _addChild();
+      self.calculateField();
     };
 
     /**
@@ -1075,8 +1085,37 @@
         service.childs[index].destroy = 1;
       else // Для только что созданных потомков
         service.childs.splice(index, 1);
+
+      self.calculateField();
     };
 
+    /**
+     * Расчет суммы и максимального числа для некоторых полей сервиса
+     *
+     * @methodOf DataCenter.Service
+     * @param child
+     */
+    self.calculateField = function () {
+
+      values_service.kernel_count = 0;
+      values_service.memory = 0;
+      values_service.disk_space = 0;
+      values_service.frequency = 0;
+
+      $.each(service.childs, function (index, value) {
+        if (value.child_service.formular_type == false && value.destroy != 1) {
+          // Сумма
+          values_service.kernel_count += value.child_service.kernel_count
+          values_service.memory += value.child_service.memory
+          values_service.disk_space += value.child_service.disk_space
+
+          // Максимальное число
+          if (values_service.frequency < value.child_service.frequency) {
+            values_service.frequency = value.child_service.frequency
+          }
+        }
+      });
+    };
 // =============================================== Работа с файлами ====================================================
 
     /**
@@ -1219,7 +1258,7 @@
       if (type) {
         str = '<i class="fa fa-cloud" tooltip-placement="top" uib-tooltip="Сервис"></i>';
       } else {
-        str = '<i class="fa fa-window-restore" tooltip-placement="top" uib-tooltip="Сервер"></i>';
+        str = '<i class="fa fa-server" tooltip-placement="top" uib-tooltip="Сервер"></i>';
       }
       return str;
     }
