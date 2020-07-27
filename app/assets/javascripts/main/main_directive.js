@@ -73,6 +73,8 @@
         function compileElements() {
           $timeout(function () {
             $compile(element.find('.new-record'))(scope);
+            $compile(element.find('.add-new-service'))(scope);
+            $compile(element.find('.add-service-based'))(scope);
 
             $compile(element.find('.service-exploitation'))(scope);
             $compile(element.find('.service-filter'))(scope);

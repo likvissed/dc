@@ -51,16 +51,24 @@ $fontTableHeaderBold->setBold();
 $table->writeToCell(1, 2, '     УТВЕРЖДАЮ', $fontTableHeaderBold);
 $table->writeToCell(2, 2, '     Начальник управления информатики', $fontTableHeader);
 $table->writeToCell(3, 2, '     и вычислительной техники', $fontTableHeader);
-$table->writeToCell(4, 2, '     ________________ ***REMOVED***', $fontTableHeader);
+$table->writeToCell(4, 2, '     ________________ И. В. Потуремский', $fontTableHeader);
 $table->writeToCell(5, 2, '     "___" ________________ 20___г.', $fontTableHeader);
 
-$section->writeText('<br>ПАСПОРТ-ФОРМУЛЯР АВТОМАТИЗИРОВАННОГО СЕРВИСА № ______________________<br>', $fontHeaderBold, $parFormat);
+# Название формуляра
+$name_formular = 'сервис';
+$add_text = '(ориентировочно по серверам)'; // Добавляется текст в строку "Требования к вычислительным ресурсам"
+if ($data['formular_type'] == false) {
+  $name_formular = 'сервер';
+  $add_text = '';
+}
+
+$section->writeText('<br>ПАСПОРТ-ФОРМУЛЯР АВТОМАТИЗИРОВАННОГО ' . mb_strtoupper($name_formular) . 'А № ______________________<br>', $fontHeaderBold, $parFormat);
 
 // ===================================================== Основная Таблица ==============================================
 
 $table = $section->addTable();
 $height       = 0.45; // Базовая высота ячейки
-$baseNum      = 75;   // Статическое количество строк таблицы
+$baseNum      = 76;   // Статическое количество строк таблицы
 $variableNum  = 2;    // Динамическое количество строк таблицы
 
 // Считаем количество строк таблицы
@@ -206,7 +214,7 @@ $table->writeToCell(15, 1, 'Операционная система', $fontBold)
 $table->writeToCell(15, 2, $data['os'], $font);
 $table->writeToCell(16, 1, 'Ключевой программный компонент', $fontBold);
 $table->writeToCell(16, 2, $data['component_key'], $font);
-$table->writeToCell(17, 1, 'Требования к вычислительным ресурсам', $fontBold);
+$table->writeToCell(17, 1, 'Требования к вычислительным ресурсам ' . $add_text . '', $fontBold);
 $table->writeToCell(18, 1, 'Количество ядер процессора', $font);
 $table->writeToCell(18, 2, $data['kernel_count'], $font);
 $table->writeToCell(19, 1, 'Тактовая частота процессора, ГГц', $font);
@@ -292,8 +300,8 @@ $endTable = array(
   'Мониторинг доступности сервиса',
   'Мониторинг работы аппаратных средств',
   'Мониторинг безопасности',
-  'Дополнительные данные',
-  'СОГЛАСОВАНО',
+  'Имя в системе мониторинга',
+  'Дополнительные данные'
 );
 
 //Заполнение таблицы текстом
@@ -308,7 +316,8 @@ for ($k = 0; $k < 25; $k++) {
     $k === 18 ||
     $k === 19 ||
     $k === 20 ||
-    $k === 22
+    $k === 21 ||
+    $k === 23
   ) {
     $table->writeToCell(52 + $i + $k, 1, $endTable[$z], $fontBold);
     $z++;
@@ -319,9 +328,8 @@ for ($k = 0; $k < 25; $k++) {
     $k === 12 ||
     $k === 14 ||
     $k === 15 ||
-    $k === 21 ||
-    $k === 23 ||
-    $k === 24
+    $k === 22 ||
+    $k === 24 
   ) {
     continue;
   }
@@ -352,24 +360,25 @@ $arrSecColumn = array(
   $data['service_mon'],
   $data['hardware_mon'],
   $data['security_mon'],
+  $data['name_monitoring'],
   $data['additional_data']
 );
 
 //Оформление и заполнение таблицы
 $z = 0; //Переменная для данных второй колонки таблицы
-for ($k = 0; $k < (25 + $i + 1); $k++) {
+for ($k = 0; $k < (26 + $i + 1); $k++) {
   //Объединение столбцов
-  if ($k === 2 + $i ||     //55
-    $k === 3 + $i ||     //56
-    $k === 4 + $i ||     //57
-    $k === 9 + $i ||     //62
-    $k === 15 + $i ||    //68
-    $k === 16 + $i ||    //69
-    $k === 21 + $i ||    //74
-    $k === 22 + $i ||    //75
-    $k === 23 + $i       //76
+  if ($k === 1 + $i ||     //56
+    $k === 2 + $i ||     //57
+    $k === 3 + $i ||     //58
+    $k === 8 + $i ||     //63
+    $k === 14 + $i ||    //69
+    $k === 15 + $i ||    //70
+    $k === 21 + $i ||    //76
+    $k === 22 + $i ||    //77
+    $k === 23 + $i       //78   
   ) {
-    $table->mergeCellRange(52 + $k, 1, 52 + $k, 2);
+    $table->mergeCellRange(53 + $k, 1, 53 + $k, 2);
   }
 
   //Пунктир только снизу (Пример: строка 3)
@@ -421,7 +430,7 @@ for ($k = 0; $k < (25 + $i + 1); $k++) {
   //Пустая строка между подтаблицами
   if ($k === 2 + $i ||
     $k === 15 + $i ||
-    $k === 21 + $i
+    $k === 22 + $i
   ) {
     $table->getCell(52 + $k, 1)->setBorder($noBorderBetween);
   }
@@ -429,7 +438,7 @@ for ($k = 0; $k < (25 + $i + 1); $k++) {
   //Закрашивание подзагаловков таблицы
   if ($k === 3 + $i ||
     $k === 16 + $i ||
-    $k === 22 + $i
+    $k === 23 + $i
   ) {
     $table->setBackgroundForCellRange('#000000', 52 + $k, 1, 52 + $k, 1);
   }
@@ -439,12 +448,12 @@ for ($k = 0; $k < (25 + $i + 1); $k++) {
     $k != 14 + $i &&
     $k != 15 + $i &&
     $k != 16 + $i &&
-    $k != 21 + $i &&
     $k != 22 + $i &&
-    $k < 24 + $i
+    $k < 25 + $i
   ) {
+    
     if ($k == 23 + $i) {
-      $table->writeToCell(52 + $k, 1, $arrSecColumn[$z], $font);
+      $table->writeToCell(52 + $k + 1, 1, $arrSecColumn[$z], $font);
       continue;
     }
     $table->writeToCell(52 + $k, 2, $arrSecColumn[$z], $font);
@@ -453,7 +462,7 @@ for ($k = 0; $k < (25 + $i + 1); $k++) {
 }
 
 //Изменение высоты ячейки + 1.5
-$table->getRow(52 + 23 + $i)->setHeight(1.5);
+$table->getRow(52 + 24 + $i)->setHeight(1.5);
 
 
 //preg_match("/(.*) ;\^; (.*)/", $result['storage_system'], $storage);
@@ -498,11 +507,11 @@ for ($i = 3; $i <= 6; $i++) {
 $table->writeToCell(1, 1, 'СОГЛАСОВАНО', $fontFooterBold);
 $table->writeToCell(2, 1, 'Ответственные за инфраструктуру:', $fontFooter);
 $table->writeToCell(3, 1, '____________ Ю.М. Ершов', $fontFooter);
-$table->writeToCell(4, 1, '____________ ***REMOVED***', $fontFooter);
-$table->writeToCell(5, 1, '____________ ***REMOVED***', $fontFooter);
-$table->writeToCell(6, 1, '____________ ***REMOVED***', $fontFooter);
+$table->writeToCell(4, 1, '____________ Д.М. Сильченко', $fontFooter);
+$table->writeToCell(5, 1, '____________ П.В. Леонов', $fontFooter);
+$table->writeToCell(6, 1, '____________ Р.В. Лебедев', $fontFooter);
 
-$table->writeToCell(2, 2, 'Ответственные за сервис:', $fontFooter);
+$table->writeToCell(2, 2, 'Ответственные за ' . $name_formular .':', $fontFooter);
 
 if (empty($head))
   $table->writeToCell(3, 2, '____________ Начальник не определен', $fontFooterError);

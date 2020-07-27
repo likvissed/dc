@@ -37,12 +37,12 @@ class Server < ActiveRecord::Base
 
     clusters.each do |c|
       c.services.each do |s|
-        if ["Критическая производственная задача", "Вторичная производственная задача"].include? s.priority
+        if ['Критическая производственная задача', 'Вторичная производственная задача', 'Отладка'].include? s.priority
           level = 1
           break
         end
 
-        level = 2 if s.priority == "Тестирование и отладка"
+        level = 2 if s.priority == 'Внедрение'
       end
       break if level == 1
     end

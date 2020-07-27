@@ -3,32 +3,47 @@
     | Хостинг сервиса
   .panel-body
     = s.association :cluster, label: false, as: :select, input_html: { multiple: false }, include_blank: "Отсутствует", wrapper: false
+span{ ng-controller="DependenceCtrl as dependence" }
+  div ng-if="#{@service.formular_type} == false"
+    .panel.panel-default
+      .panel-heading
+        table.internal-table
+          tr
+            td
+              | Список взаимосвязанных сервисов
+      .panel-body
+        div.ng-hide{ ng-show="service.lists_name_service_for_vm.length == 0" } Отсутствует
 
-.panel.panel-default{ ng-controller="DependenceCtrl as dependence" }
-  .panel-heading
-    table.internal-table
-      tr
-        td
-          | Зависимости сервиса
-        td.min-td
-          i class="fa fa-plus-circle" ng-click="dependence.addParent()" tooltip-placement="top" uib-tooltip="Добавить зависимость"
+        table.ng-hide.internal-table{ ng-show="service.lists_name_service_for_vm.length != 0" }
+          tbody
+            tr ng-repeat="service_name in service.lists_name_service_for_vm"
+              td.col-sm-1 
+                li{ ng-bind="service_name" }
 
-  .panel-body
-    div.ng-hide{ ng-show="service.showParents()" } Отсутствуют
+  div ng-if="#{@service.formular_type} == true"
+    .panel.panel-default
+      .panel-heading
+        table.internal-table
+          tr
+            td
+              | Связанные зависимости
+            td.min-td
+              i class="fa fa-plus-circle" ng-click="dependence.addChild()" tooltip-placement="top" uib-tooltip="Добавить зависимость"
+      .panel-body
+        div.ng-hide{ ng-show="service.showChilds()" } Отсутствуют
 
-    table.ng-hide.internal-table{ ng-show="service.parents.length" }
-      tbody.animate-repeat.animate-show{ ng-repeat="parent in service.parents" ng-hide="parent.destroy" }
-        tr
-          td
-            .form-group.padding-right
-              ui-select ng-model="parent.parent_service" on-select="dependence.loadServices($item)" theme="bootstrap"
-                ui-select-match placeholder="Наименование сервиса" {{ $select.selected.name }}
-                ui-select-choices repeat="obj in service.services | filter: { name: '!' + service.current_name }:true | filter: $select.search track by obj.id"
-                  div ng-bind-html="obj.name | highlight: $select.search"
-              = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][parent_id]", "{{ parent.parent_service.id }}"
-              = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][id]", "{{ parent.id }}"
-              = hidden_field_tag "service[service_dep_parents_attributes][{{ $index }}][_destroy]", "{{ parent.destroy }}"
-          td.min-td
-            i class="fa fa-minus-circle" ng-click="dependence.delParent(parent)" tooltip-placement="top" uib-tooltip="Удалить зависимость"
-
-        tr.empty.animate-show{ ng-show="!$last" }
+        table.ng-hide.internal-table{ ng-show="service.childs.length" }
+          tbody.animate-repeat.animate-show{ ng-repeat="child in service.childs" ng-hide="child.destroy" }
+            tr
+              td
+                .form-group.padding-right
+                  ui-select ng-model="child.child_service" on-select="dependence.calculateField()" theme="bootstrap"
+                    ui-select-match placeholder="Наименование сервиса" {{ $select.selected.name }}
+                    ui-select-choices repeat="obj in service.services | filter: { name: '!' + service.current_name }:true | filter: $select.search track by obj.id"
+                      div ng-bind-html="obj.name | highlight: $select.search"
+                  = hidden_field_tag "service[service_dep_childs_attributes][{{ $index }}][child_id]", "{{ child.child_service.id }}"
+                  = hidden_field_tag "service[service_dep_childs_attributes][{{ $index }}][id]", "{{ child.id }}"
+                  = hidden_field_tag "service[service_dep_childs_attributes][{{ $index }}][_destroy]", "{{ child.destroy }}"
+              td.min-td
+                i class="fa fa-minus-circle" ng-click="dependence.delChild(child)" tooltip-placement="top" uib-tooltip="Удалить зависимость"
+            tr.empty.animate-show{ ng-show="!$last" }

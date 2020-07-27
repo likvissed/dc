@@ -1,0 +1,16 @@
+.modal.fade { tabindex="-1" role="document" aria-hidden=true modal-show="servicePage.selectModal" }
+  .modal-dialog
+    .modal-content{ ng-controller="ServiceSelectedCtrl as selected" }
+      .modal-header
+        h4.modal-title.text-center Выбор формуляра
+      .modal-body 
+        .form-group.string   
+          label Создать на основе существующего сервиса
+          .form-group.padding-right
+            ui-select ng-model="selected.selected_service" theme="bootstrap"
+              ui-select-match placeholder="Наименование сервиса" {{ $select.selected.name }}
+              ui-select-choices repeat="obj in selected.services | filter: { name: '!' + selected.current_name }:true | filter: $select.search track by obj.id"
+                div ng-bind-html="obj.name | highlight: $select.search"
+      .modal-footer
+        = link_to "Готово", "", class: "btn btn-success" ,"ng-href": "/services/new?type={{ selected.type }}&id={{ selected.selected_service.id }}"
+        = button_tag "Закрыть", "data-dismiss": "modal"

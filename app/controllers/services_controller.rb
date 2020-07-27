@@ -16,6 +16,7 @@ class ServicesController < ApplicationController
           :number,
           :dept,
           :name,
+          :formular_type,
           :priority,
           :deadline,
           :time_work,
@@ -53,6 +54,10 @@ class ServicesController < ApplicationController
                      "environment LIKE ('%система производственной виртуализации ЛВС сетевой службы%')"
                    when 'virtNetDMZ'
                      "environment LIKE ('%система производственной виртуализации ДМЗ сетевой службы%')"
+                    when 'onlyFormularTypeTrue'
+                      "formular_type = true"
+                    when 'onlyFormularTypeFalse'
+                      "formular_type = false"
                    else
                      ""
         end
@@ -65,15 +70,20 @@ class ServicesController < ApplicationController
                      Service.select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
                    end
 
-        now   = Time.now.to_date
-        data  = @service.as_json(
+        now = Time.now.to_date
+        all_name_services = Service.select(:id, :name)
+
+        data = @service.as_json(
           include: {
             contact_1: { only: :info },
             contact_2: { only: :info }
           },
           except: [:created_at, :updated_at]).each do |s|
             # Привести "Режим функционирования" к сокращенному формату
-            s[:time_work]  = short_time_work(s['time_work'])
+            s[:time_work] = short_time_work(s['time_work'])
+
+            # список всех формуляров (для списка выбора "Создать на основе")
+            s[:all_name_services] = all_name_services
 
             # Флаги
             s[:flags] = {}
@@ -145,7 +155,7 @@ class ServicesController < ApplicationController
         service[:number]    = @service.get_service_number
         # Проверить, прошел ли дедлайн для тестового сервиса
         deadline            = check_service_deadline service
-        # Установить время дедлайна для приоритета "Тестирование и отладка"
+        # Установить время дедлайна для приоритета "Внедрение"
         service[:deadline]  = I18n.l(@service.deadline, format: :long) unless @service.deadline.nil?
 
         service[:antivirus] = @service.antivirus.present? ? I18n.t("activerecord.attributes.service.antiviri.#{@service.antivirus}") : ''
@@ -165,6 +175,7 @@ class ServicesController < ApplicationController
           missing_file: missing_file,
           contacts:     @service.get_contacts(:formular),
           hosting:      @service.cluster.as_json(only: [:id, :name]),
+          childs:       @service.childs.as_json(only: :name),
           parents:      @service.parents.as_json(only: :name)
         }
       end
@@ -172,11 +183,95 @@ class ServicesController < ApplicationController
   end
 
   def new
+    copy_values = [
+      :priority, # json
+      :deadline,
+      :time_work,
+      :max_time_rec, # json
+      :contact_1_id,
+      :contact_2_id,
+      :environment,
+      :os,
+      :component_key,
+      :kernel_count,
+      :frequency,
+      :memory,
+      :time_recovery,
+      :disk_space,
+      :hdd_speed,
+      :network_speed,
+      :additional_require,
+      :backup_manual,
+      :recovery_manual,
+      :duplicate_ps,
+      :raid,
+      :bonding,
+      :other,
+      :resiliency,
+      :time_after_failure,
+      :disaster_rec,
+      :time_after_disaster,
+      :antivirus,
+      :firewall,
+      :uac_app_selinux,
+      :szi,
+      :internet,
+      :type_mon,
+      :service_mon,
+      :hardware_mon,
+      :security_mon,
+      :name_monitoring
+      # :additional_data,
+    ]
+
     respond_to do |format|
-      format.html { @service = Service.new }
+      format.html do
+        @service = if params['id'].present?
+                     if params['type']
+                       # Поля, которые не должны копироваться в новый сервис (они расчитываются потом, при связанных ВМ)
+                       name_destroy = %i[kernel_count frequency memory disk_space hdd_speed network_speed]
+                       name_destroy.each { |name| copy_values.delete(name) }
+                     end
+                     copy_service = Service.select(copy_values).find_by(id: params['id']).as_json
+                     copy_service.merge!(formular_type: params['type'])
+
+                     Service.new(copy_service)
+                   else
+                     Service.new(formular_type: params['type'])
+                   end
+
+        @@new_service = @service
+      end
       format.json do
         get_services
-        render json: { services: @services, priorities: Service.priorities.keys }
+
+        values_service = {
+          kernel_count: @@new_service.kernel_count,
+          frequency: @@new_service.frequency,
+          time_recovery: @@new_service.time_recovery,
+          memory: @@new_service.memory,
+          disk_space: @@new_service.disk_space,
+          network_speed: @@new_service.network_speed,
+
+          formular_type: @@new_service.formular_type,
+          os: @@new_service.os,
+          component_key: @@new_service.component_key,
+          hdd_speed: @@new_service.hdd_speed,
+          uac_app_selinux: @@new_service.uac_app_selinux
+        }
+
+        render json: {
+          services: @services,
+          priorities: Service.priorities.keys,
+          present_service: @@new_service,
+          priority: @@new_service.priority,
+          deadline: @@new_service.deadline,
+          max_time_rec: @@new_service.max_time_rec,
+          time_recovery: @@new_service.time_recovery,
+          time_after_failure: @@new_service.time_after_failure,
+          time_after_disaster: @@new_service.time_after_disaster,
+          values_service: values_service
+        }
       end
     end
   end
@@ -230,20 +325,26 @@ class ServicesController < ApplicationController
             },
             except: [:ip, :service_id, :created_at, :updated_at]
           ),
-          storage_systems:  @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
-          services:         @services,
-          priorities:       Service.priorities.keys,
-          priority:         @service.priority,
-          deadline:         @service.deadline,
-          parents:          @service.service_dep_parents.as_json(
-            include: { parent_service: { only: [:id, :name] } },
+          storage_systems: @service.storage_systems.as_json(except: [:service_id, :created_at, :updated_at]),
+          services: @services,
+          priorities: Service.priorities.keys,
+          priority: @service.priority,
+          deadline: @service.deadline,
+          childs: @service.service_dep_childs.as_json(
+            include: { child_service: { only: %i[id name kernel_count memory disk_space formular_type frequency] } },
             only: :id
           ),
           max_time_rec: @service.max_time_rec,
           time_recovery: @service.time_recovery,
           time_after_failure: @service.time_after_failure,
           time_after_disaster: @service.time_after_disaster,
-          values_service: @service
+          values_service: @service,
+          lists_name_service_for_vm: @service.parents.map(&:name),
+          formular_type: @service.formular_type,
+          os: @service.os,
+          component_key: @service.component_key,
+          hdd_speed: @service.hdd_speed,
+          uac_app_selinux: @service.uac_app_selinux
         }
       end
     end
@@ -262,8 +363,10 @@ class ServicesController < ApplicationController
     params[:service][:deadline] = regexp_date(params[:service][:deadline])
     params[:service][:consumer_fio] = current_user.info
 
+    # Если это сервер (ВМ), то после обновления выполняется метод update_values_service_for_parents
+
     if @service.update_attributes(service_params)
-      flash[:notice] = "Данные изменены"
+      flash[:notice] = 'Данные изменены'
       redirect_to action: :index, id: @service.id
     else
       @service.errors.delete(:scan)
@@ -324,7 +427,7 @@ class ServicesController < ApplicationController
 
   # Создать файл (формуляр/акт)
   def generate_file
-    send_data @service.generate_rtf(params[:type]), filename: "#{@service.name}.rtf", type: "application/rtf",
+    send_data @service.generate_rtf(params[:type]), filename: "#{@service.name.gsub(/"/, "'")}.rtf", type: "application/rtf",
               disposition: "attachment"
   end
 
@@ -380,6 +483,7 @@ class ServicesController < ApplicationController
       :number,
       :dept,
       :name,
+      :formular_type,
       :descr,
       :priority,
       :deadline,
@@ -448,13 +552,13 @@ class ServicesController < ApplicationController
         service_port_attributes: [:id, :service_network_id, :local_tcp_ports, :local_udp_ports, :inet_tcp_ports,
                                   :inet_udp_ports, :host_class, :tcp_ports_2, :udp_ports_2, :_destroy]],
       storage_systems_attributes: [:id, :service_id, :name, :_destroy],
-      service_dep_parents_attributes: [:id, :parent_id, :child_id, :_destroy]
+      service_dep_childs_attributes: [:id, :parent_id, :child_id, :_destroy]
     )
   end
 
   # Получить список всех сервисов
   def get_services
-    @services = Service.select(:id, :name)
+    @services = Service.select(:id, :name, :formular_type, :disk_space, :kernel_count, :memory, :frequency)
   end
 
   # Найти сервис по полю name

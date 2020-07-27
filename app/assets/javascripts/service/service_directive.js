@@ -7,7 +7,9 @@
     .directive('serviceFilter', serviceFilter)
     .directive('serviceExploitation', serviceExploitation)
     .directive('ngValueBlank', ngValueBlank)
-    .directive('fileServiceEvent', fileServiceEvent);
+    .directive('fileServiceEvent', fileServiceEvent)
+    .directive('addNewService', addNewService)
+    .directive('addServiceBased', addServiceBased);
 
   function serviceFilter() {
     return {
@@ -55,4 +57,25 @@
       }
     }
   }
+
+  function addNewService() {
+    return {
+      restrict: 'C',
+      template: '<div><button class="btn btn-primary btn-block dropdown-toggle" name="button" type="button" data-toggle="dropdown">'+
+      'Создать <span class="caret"></span></button><ul class="dropdown-menu dropdown-menu-left">'+
+      '<li><a href="/services/new?type=false"> Сервер </a></li>'+
+      '<li><a href="/services/new?type=true"> Сервис </a></li></ul></div>'
+    }
+  }
+
+  function addServiceBased() {
+    return {
+      restrict: 'C',
+      template: '<div><button class="btn btn-primary btn-block dropdown-toggle" name="button" type="button" data-toggle="dropdown">'+
+      'Создать на основе <span class="caret"></span></button><ul class="dropdown-menu dropdown-menu-left">'+
+      '<li><a class="pointer" ng-click="servicePage.addService(false)"> Сервер </a></li>'+
+      '<li><a class="pointer" ng-click="servicePage.addService(true)"> Сервис </a></li></ul></div>'
+    }
+  }
+
 })();

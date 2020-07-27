@@ -50,6 +50,7 @@
     }
 
     let values_service;
+    let lists_name_service_for_vm;
 
     // Переменные, которые возвращаются контроллеру
     // Основные данные сервера
@@ -72,9 +73,17 @@
         values:   []
       },
       // Массив сервисов-родителей
-      parents:  [],
+      // parents:  [],
+      // Массив сервисов-потомок
+      childs:  [],
       // Массив подключений к СХД
-      storages: []
+      storages: [],
+
+      os: null,
+      formular_type: null,
+      component_key: null,
+      hdd_speed: null,
+      uac_app_selinux: null
     };
     // Дополнительные данные, необходимые для работы страницы
     var additional = {
@@ -533,13 +542,13 @@
     /**
      * Создать массив зависимостей формуляра.
      *
-     * @param parents - текущий массив зависимостей, полученный с сервера
+     * @param childs - текущий массив зависимостей, полученный с сервера
      * @private
      */
-    function _generateParentArr(parents) {
-      if (parents)
-        $.each(parents, function (index, parent) {
-          service.parents.push(parent);
+    function _generateChaildArr(childs) {
+      if (childs)
+        $.each(childs, function (index, child) {
+          service.childs.push(child);
         });
     }
 
@@ -548,17 +557,17 @@
      *
      * @private
      */
-    function _addParent() {
+    function _addChild() {
       // Проход по циклу для проверки, какой сервис поставить первым в тэге select (нужно для того, что исключить
       // случай, когда сервис-родитель = текущему сервису)
       $.each(service.old_data.services, function (index, value) {
         if (value.name != current_name) {
           var data = {
-            parent_id:      value.id,
-            parent_service: value,
+            child_id:      value.id,
+            child_service: value,
             destroy:        0
           };
-          service.parents.push(data);
+          service.childs.push(data);
 
           return false;
         }
@@ -580,12 +589,12 @@
       if (priority) {
         service.priority.selected = priority;
 
-        // Если время ранее не было установлено (сервис не был в категории "Тестирование и отладка")
+        // Если время ранее не было установлено (сервис не был в категории "Внедрение")
         if (deadline != null)
           service.priority.deadline = new Date(deadline);
       }
       else
-        service.priority.selected = service.priority.values[0];
+        service.priority.selected = service.priority.values[1];
     }
 
 // =============================================== Публичные методы ====================================================
@@ -604,14 +613,32 @@
       current_id       = id;
       current_name     = name;
       service.old_data = data;
-
+      
       // все данные сервиса
       values_service = data.values_service;
+
+      let str = 'См. формуляры в соответствии с ВМ';
+      // Если создается сервис, то необходимо заполнить некоторые поля фразой
+      if (values_service.formular_type == true && values_service.id == undefined) {
+        values_service.os = str;
+        values_service.component_key = str;
+        values_service.uac_app_selinux = str;
+        values_service.hdd_speed = str;
+      }
+
+      // массив наименований сервисов, связанных с ВМ (сервером)
+      lists_name_service_for_vm = data.lists_name_service_for_vm;
 
       values_time.max_time_rec = data.max_time_rec;
       values_time.time_recovery = data.time_recovery;
       values_time.time_after_failure = data.time_after_failure;
       values_time.time_after_disaster = data.time_after_disaster;
+
+      service.os = data.os;
+      service.formular_type = data.formular_type;
+      service.component_key = data.component_key;
+      service.hdd_speed = data.hdd_speed;
+      service.uac_app_selinux = data.uac_app_selinux;
 
       //Для нового сервиса
       if (current_id == 0) {
@@ -628,7 +655,9 @@
         _setFileFlags(_getOldServiceData('file_flags'));
         _generateNetworkArr(_getOldServiceData('service_networks'));
         _generateStorageArr(_getOldServiceData('storage_systems'));
-        _generateParentArr(_getOldServiceData('parents'));
+        // _generateParentArr(_getOldServiceData('parents'));
+        _generateChaildArr(_getOldServiceData('childs'));
+
       }
 
       _setTotalFileStatus();
@@ -781,8 +810,8 @@
      * @methodOf DataCenter.Service
      * @returns {Array}
      */
-    self.getParents = function () {
-      return service.parents;
+    self.getChilds = function () {
+      return service.childs;
     };
 
     /**
@@ -800,6 +829,18 @@
      */
     self.getValueService = function () {
       return  values_service;
+    };
+
+    /**
+     * Получить массив наименований зависимых сервисов для текущей виртуальной машины
+     */
+    self.getListsNameServiceForVM = function () {
+      // чтобы для нового сервера (ВМ) отображалось поле "Отсутствует" для списка взаимосвязанных сервисов
+      if (lists_name_service_for_vm == undefined) {
+        return [];
+      }
+
+      return lists_name_service_for_vm;
     };
 
     /**
@@ -997,19 +1038,20 @@
 // =============================================== Работа с сервисам-родителями ========================================
 
     /**
-     * Добавить сервис-родитель
+     * Добавить сервис-потомок
      *
      * @methodOf DataCenter.Service
      * @returns {boolean}
      */
-    self.addParent = function () {
+    self.addChild = function () {
       // Провера на количество сервисов (нельзя создать зависимость, если количество сервисов = 1)
       if (service.old_data.services.length == 1 && current_id != 0) { // Если формуляр единственный и он редактируется
         alert('Для создания зависимостей необходимо добавить больше сервисов');
         return false;
       }
 
-      _addParent();
+      _addChild();
+      self.calculateField();
     };
 
     /**
@@ -1018,10 +1060,10 @@
      * @methodOf DataCenter.Service
      * @returns {boolean}
      */
-    self.showParents = function () {
+    self.showChilds = function () {
       var show = 1;
-      $.each(service.parents, function (index, parent) {
-        if (!parent.destroy) {
+      $.each(service.childs, function (index, child) {
+        if (!child.destroy) {
           show = 0;
           return false;
         }
@@ -1031,20 +1073,49 @@
     };
 
     /**
-     * Удалить сервис-родитель
+     * Удалить сервис-потомок
      *
      * @methodOf DataCenter.Service
-     * @param parent
+     * @param child
      */
-    self.delParent = function (parent) {
-      var index = $.inArray(parent, service.parents);
+    self.delChild = function (child) {
+      var index = $.inArray(child, service.childs);
 
-      if (parent.id) // Для уже существующих родителей
-        service.parents[index].destroy = 1;
-      else // Для только что созданных родителей
-        service.parents.splice(index, 1);
+      if (child.id) // Для уже существующих потомков
+        service.childs[index].destroy = 1;
+      else // Для только что созданных потомков
+        service.childs.splice(index, 1);
+
+      self.calculateField();
     };
 
+    /**
+     * Расчет суммы и максимального числа для некоторых полей сервиса
+     *
+     * @methodOf DataCenter.Service
+     * @param child
+     */
+    self.calculateField = function () {
+
+      values_service.kernel_count = 0;
+      values_service.memory = 0;
+      values_service.disk_space = 0;
+      values_service.frequency = 0;
+
+      $.each(service.childs, function (index, value) {
+        if (value.child_service.formular_type == false && value.destroy != 1) {
+          // Сумма
+          values_service.kernel_count += value.child_service.kernel_count
+          values_service.memory += value.child_service.memory
+          values_service.disk_space += value.child_service.disk_space
+
+          // Максимальное число
+          if (values_service.frequency < value.child_service.frequency) {
+            values_service.frequency = value.child_service.frequency
+          }
+        }
+      });
+    };
 // =============================================== Работа с файлами ====================================================
 
     /**
@@ -1157,8 +1228,11 @@
             str = '<i class="fas fa-star-half-alt" tooltip-placement="top" uib-tooltip="Вторичная производственная' +
               ' задача"></i>';
             break;
-          case 'Тестирование и отладка':
-            str = '<i class="far fa-star" tooltip-placement="top" uib-tooltip="Тестирование и отладка"></i>';
+          case 'Внедрение':
+            str = '<i class="far fa-star" tooltip-placement="top" uib-tooltip="Внедрение"></i>';
+            break;
+          case 'Отладка':
+            str = '<i class="fas fa-circle-notch" tooltip-placement="top" uib-tooltip="Отладка"></i>';
             break;
           default:
             str = '<i class="fa fa-question" tooltip-placement="top" uib-tooltip="Приоритет функционирования не' +
@@ -1172,6 +1246,20 @@
         str = '</i><i class="fa fa-exclamation-triangle" tooltip-placement="top" uib-tooltip="Срок тестирования' +
           ' сервиса окончен"></i>';
 
+      return str;
+    }
+
+    /**
+     * Получить иконку типа формуляра (сервис или сервер (ВМ))
+     */
+    self.type_f = function (type) {
+      var str; // Возвращаемая строка
+
+      if (type) {
+        str = '<i class="fa fa-cloud" tooltip-placement="top" uib-tooltip="Сервис"></i>';
+      } else {
+        str = '<i class="fa fa-server" tooltip-placement="top" uib-tooltip="Сервер"></i>';
+      }
       return str;
     }
   }
