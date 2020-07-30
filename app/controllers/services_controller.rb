@@ -684,7 +684,7 @@ class ServicesController < ApplicationController
 
       if tag_with_id.present?
         tag_id = tag_with_id.id
-        service_tag_id = @service.id ? tag_with_id.service_tags.find_by(service_id: @service.id).id : ''
+        service_tag_id = @service.id && tag_with_id.service_tags.find_by(service_id: @service.id) ? tag_with_id.service_tags.find_by(service_id: @service.id).id : ''
       else
         new_tag = Tag.create(name: attr['name'])
         tag_id = new_tag.id
