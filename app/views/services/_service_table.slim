@@ -402,3 +402,19 @@ table.table.table-striped.table-bordered.table-edit-service
       tbody
         tr
           td{ colspan=2 }= s.input :comment, label: false, as: :text, input_html: { rows: 3 }
+        tr
+
+      thead
+        tr
+          th{ colspan=2 } Метки
+      tbody
+        tr
+          td{ colspan=2 }
+            ui-select ng-model="service.service_tag" multiple="" tagging="service.manuallyTag" style="border: 0px;" on-remove="service.deleteTag($item)" on-select="service.selectedTag($item)"
+              ui-select-match placeholder="Введите наименование метки" {{ $item.name }}
+              ui-select-choices repeat="tag in service.list_tags | filter: $select.search track by $index"
+                span ng-bind-html="tag.name | highlight: $select.search"
+            = hidden_field_tag "service[service_tags_attributes]", "{{ {} }}"
+            = hidden_field_tag "service_tags_attributes", "{{ service.service_tag }}"
+            = hidden_field_tag "service_tags_destroy", "{{ service.delete_service_tag }}"
+

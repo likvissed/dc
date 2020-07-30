@@ -270,13 +270,22 @@ class ServicesController < ApplicationController
           time_recovery: @@new_service.time_recovery,
           time_after_failure: @@new_service.time_after_failure,
           time_after_disaster: @@new_service.time_after_disaster,
-          values_service: values_service
+          values_service: values_service,
+          list_tags: Tag.select(:id, :name)
         }
       end
     end
   end
 
   def create
+    convert_service_tags
+
+    params[:service][:storage_systems_attributes].to_unsafe_h.map do |attr|
+      if !attr[1][:id].to_i.zero? && attr[1][:name].empty?
+        attr[1][:_destroy] = 1
+      end
+    end
+
     contact = Contact.find_by(tn: current_user.tn)
     contact = Contact.create(tn: current_user.tn) if contact.blank?
 
@@ -344,7 +353,9 @@ class ServicesController < ApplicationController
           os: @service.os,
           component_key: @service.component_key,
           hdd_speed: @service.hdd_speed,
-          uac_app_selinux: @service.uac_app_selinux
+          uac_app_selinux: @service.uac_app_selinux,
+          list_tags: Tag.select(:id, :name),
+          service_tag: @service.tags
         }
       end
     end
@@ -352,6 +363,9 @@ class ServicesController < ApplicationController
 
   def update
     authorize! :update, @service
+
+    convert_service_tags
+
     # В случае, если приходит пустая строка "Подключения СХД" и существует id записи, установить флаг на удаление = 1
     params[:service][:storage_systems_attributes].to_unsafe_h.map do |attr|
       if !attr[1][:id].to_i.zero? && attr[1][:name].empty?
@@ -552,7 +566,8 @@ class ServicesController < ApplicationController
         service_port_attributes: [:id, :service_network_id, :local_tcp_ports, :local_udp_ports, :inet_tcp_ports,
                                   :inet_udp_ports, :host_class, :tcp_ports_2, :udp_ports_2, :_destroy]],
       storage_systems_attributes: [:id, :service_id, :name, :_destroy],
-      service_dep_childs_attributes: [:id, :parent_id, :child_id, :_destroy]
+      service_dep_childs_attributes: [:id, :parent_id, :child_id, :_destroy],
+      service_tags_attributes: %i[id service_id tag_id _destroy]
     )
   end
 
@@ -656,6 +671,46 @@ class ServicesController < ApplicationController
     else
       Time.now.to_date > deadline
     end
+  end
+
+  def convert_service_tags
+    all_tags = Tag.select(:id, :name)
+    service_tags = []
+
+    JSON.parse(params[:service_tags_attributes]).each do |attr|
+      tag_with_id = all_tags.find do |tag|
+        tag.name == attr['name']
+      end
+
+      if tag_with_id.present?
+        tag_id = tag_with_id.id
+        service_tag_id = @service.id ? tag_with_id.service_tags.find_by(service_id: @service.id).id : ''
+      else
+        new_tag = Tag.create(name: attr['name'])
+        tag_id = new_tag.id
+        service_tag_id = ''
+      end
+
+      obj = {}
+      obj['id'] = service_tag_id
+      obj['service_id'] = @service.id
+      obj['tag_id'] = tag_id
+
+      service_tags.push(obj)
+    end
+
+    service_tags_destroy = @service.service_tags.select { |s_tag| params[:service_tags_destroy].include?(s_tag.tag_id.to_s)}
+    service_tags_destroy.each do |s_tag|
+      obj = {}
+      obj['id'] = s_tag.id
+      obj['service_id'] = s_tag.service_id
+      obj['tag_id'] = s_tag.tag_id
+      obj['_destroy'] = 1
+
+      service_tags.push(obj)
+    end
+
+    params[:service][:service_tags_attributes] = service_tags
   end
 
   def conclusion_of_all_connections_for_service

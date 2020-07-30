@@ -52,6 +52,9 @@
     let values_service;
     let lists_name_service_for_vm;
 
+    let list_tags = [];
+    let service_tag = [];
+
     // Переменные, которые возвращаются контроллеру
     // Основные данные сервера
     var service = {
@@ -617,7 +620,10 @@
       // все данные сервиса
       values_service = data.values_service;
 
-      let str = 'См. формуляры в соответствии с ВМ';
+      list_tags = data.list_tags;
+      service_tag = data.service_tag;
+
+      let str = 'Согласно формулярам соответствующих ВМ';
       // Если создается сервис, то необходимо заполнить некоторые поля фразой
       if (values_service.formular_type == true && values_service.id == undefined) {
         values_service.os = str;
@@ -831,6 +837,28 @@
       return  values_service;
     };
 
+    /**
+     * Получить список тегов, из таблицы Tag
+     */
+    self.getListTags = function () {
+      if (list_tags == undefined) {
+        return [];
+      }
+
+      return  list_tags;
+    };
+
+    /**
+    * Получить список тегов, для конкретного формуляра
+    */
+   self.getServiceTags = function () {
+    if (service_tag == undefined) {
+      return [];
+    }
+
+     return service_tag;
+   };
+    
     /**
      * Получить массив наименований зависимых сервисов для текущей виртуальной машины
      */

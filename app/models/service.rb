@@ -23,6 +23,8 @@ class Service < ActiveRecord::Base
 
   has_many :service_hostings
   has_many :cluster, through: :service_hostings
+  has_many :service_tags, dependent: :destroy
+  has_many :tags, through: :service_tags
 
   belongs_to :contact_1, class_name: 'Contact'
   belongs_to :contact_2, class_name: 'Contact'
@@ -39,6 +41,7 @@ class Service < ActiveRecord::Base
   accepts_nested_attributes_for :storage_systems, allow_destroy: true, reject_if: proc { |attr| attr['name'].blank? }
   # accepts_nested_attributes_for :service_dep_parents, allow_destroy: true, reject_if: proc { |attr| attr['parent_id'].blank? }
   accepts_nested_attributes_for :service_dep_childs, allow_destroy: true, reject_if: proc { |attr| attr['child_id'].blank? }
+  accepts_nested_attributes_for :service_tags, allow_destroy: true, reject_if: proc { |attr| attr['tag_id'].blank? }
 
   enum priority:  ['Критическая производственная задача', 'Вторичная производственная задача', 'Внедрение', 'Отладка']
   enum time_work: ['Круглосуточно (24/7)', 'Рабочее время (8/5)', 'По запросу']
