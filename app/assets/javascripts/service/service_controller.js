@@ -629,6 +629,13 @@
             // Все значения сервиса !!!
             self.values_service = Service.getValueService();
                       
+            // Массив всех тегов из таблицы Tag
+            self.list_tags = Service.getListTags();
+            // Все теги, которые есть или будут добавлены, связанные с формуляром
+            self.service_tag = Service.getServiceTags();
+            // Массив тего, удаленных для текущего формуляра
+            self.delete_service_tag = [];
+
             // Объект значений <max_time_rec, time_recovery, time_after_failure, time_after_disaster> в часах и минутах
             self.values_time = Service.getValueTime();
 
@@ -751,6 +758,43 @@
      */
     self.delNetwork = function (network) {
       Service.delNetwork(network);
+    };
+
+    /**
+     * Удалить id выбранного тега из delete_service_tag
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     */
+    self.selectedTag = function (tag) {
+      self.delete_service_tag.forEach(function(tt, index){
+        if (tt.name == tag.name) {
+          self.delete_service_tag.splice(index, 1);
+        }
+      });
+    };
+
+    /**
+     * При удалении тега из массива service_tag
+     * добавить его id в массив delete_service_tag
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     */
+    self.deleteTag = function (tag) {
+      self.delete_service_tag.push(tag.id);
+    };
+
+    /**
+     * Добавляет в input_tag
+     * существующий или новый тег (новый объект)
+     *
+     * @methodOf DataCenter.ServiceEditCtrl
+     */
+    self.manuallyTag = function (new_tag) {
+      let new_obj = {
+        id: '',
+        name: new_tag.toLowerCase()
+      }
+      return new_obj;
     };
 
 

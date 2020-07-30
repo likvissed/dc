@@ -51,7 +51,7 @@ ru:
           enterprise: 'Корпоративный антивирус'
           another_manufacturer: 'Антивирус другого производителя'
           incompatible_software: 'Несовместимо с ПО'
-          according_vm: 'См. формуляры в соответствии с ВМ'
+          according_vm: 'Согласно формулярам соответствующих ВМ'
       service/service_dep_parents:
         parent_id: "Сервис"
       service_networks:
