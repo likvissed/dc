@@ -114,7 +114,7 @@ table.table.table-striped.table-bordered.table-edit-service
            "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');",
            "ng-readonly": "service.values_service.formular_type == true"
       tr
-        td Скорость обмена с жестким диском
+        td Скорость обмена с жестким диском, IOPS
         td.form-group
           = text_field_tag "service[hdd_speed]", "", "ng-model": "service.values_service.hdd_speed",
            "class": "form-control", "type": "text", "ng-readonly": "service.values_service.formular_type == true"

@@ -256,7 +256,7 @@ class ServicesController < ApplicationController
           formular_type: @@new_service.formular_type,
           os: @@new_service.os,
           component_key: @@new_service.component_key,
-          hdd_speed: @@new_service.hdd_speed,
+          hdd_speed: @@new_service.hdd_speed || 'Требования отсутствуют',
           uac_app_selinux: @@new_service.uac_app_selinux
         }
 

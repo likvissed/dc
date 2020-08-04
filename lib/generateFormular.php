@@ -223,7 +223,7 @@ $table->writeToCell(20, 1, 'Объем оперативной памяти, Гб
 $table->writeToCell(20, 2, $data['memory'], $font);
 $table->writeToCell(21, 1, 'Объем дискового пространства, Гб', $font);
 $table->writeToCell(21, 2, $data['disk_space'], $font);
-$table->writeToCell(22, 1, 'Скорость обмена с жестким диском', $font);
+$table->writeToCell(22, 1, 'Скорость обмена с жестким диском, IOPS', $font);
 $table->writeToCell(22, 2, $data['hdd_speed'], $font);
 $table->writeToCell(23, 1, 'Скорость сетевого соединения, Мбит/сек', $font);
 $table->writeToCell(23, 2, $data['network_speed'], $font);
