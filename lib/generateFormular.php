@@ -3,6 +3,8 @@
 include_once 'functions.inc.php';
 include_once 'lib/PHPRtfLite.php';
 
+header('Content-Type: text/html; charset=utf-8');
+
 if (!isset($argv[1]))
   exit;
 
@@ -51,7 +53,7 @@ $fontTableHeaderBold->setBold();
 $table->writeToCell(1, 2, '     УТВЕРЖДАЮ', $fontTableHeaderBold);
 $table->writeToCell(2, 2, '     Начальник управления информатики', $fontTableHeader);
 $table->writeToCell(3, 2, '     и вычислительной техники', $fontTableHeader);
-$table->writeToCell(4, 2, '     ________________ И. В. Потуремский', $fontTableHeader);
+$table->writeToCell(4, 2, '     ________________ ***REMOVED***', $fontTableHeader);
 $table->writeToCell(5, 2, '     "___" ________________ 20___г.', $fontTableHeader);
 
 # Название формуляра
@@ -507,9 +509,9 @@ for ($i = 3; $i <= 6; $i++) {
 $table->writeToCell(1, 1, 'СОГЛАСОВАНО', $fontFooterBold);
 $table->writeToCell(2, 1, 'Ответственные за инфраструктуру:', $fontFooter);
 $table->writeToCell(3, 1, '____________ Ю.М. Ершов', $fontFooter);
-$table->writeToCell(4, 1, '____________ Д.М. Сильченко', $fontFooter);
-$table->writeToCell(5, 1, '____________ П.В. Леонов', $fontFooter);
-$table->writeToCell(6, 1, '____________ Р.В. Лебедев', $fontFooter);
+$table->writeToCell(4, 1, '____________ ***REMOVED***', $fontFooter);
+$table->writeToCell(5, 1, '____________ ***REMOVED***', $fontFooter);
+$table->writeToCell(6, 1, '____________ ***REMOVED***', $fontFooter);
 
 $table->writeToCell(2, 2, 'Ответственные за ' . $name_formular .':', $fontFooter);
 
