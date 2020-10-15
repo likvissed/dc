@@ -3,8 +3,6 @@
 include_once 'functions.inc.php';
 include_once 'lib/PHPRtfLite.php';
 
-header('Content-Type: text/html; charset=utf-8');
-
 if (!isset($argv[1]))
   exit;
 
@@ -64,7 +62,7 @@ if ($data['formular_type'] == false) {
   $add_text = '';
 }
 
-$section->writeText('<br>ПАСПОРТ-ФОРМУЛЯР АВТОМАТИЗИРОВАННОГО ' . mb_strtoupper($name_formular) . 'А № ______________________<br>', $fontHeaderBold, $parFormat);
+$section->writeText('<br>ПАСПОРТ-ФОРМУЛЯР АВТОМАТИЗИРОВАННОГО ' . mb_strtoupper($name_formular, 'UTF-8') . 'А № ______________________<br>', $fontHeaderBold, $parFormat);
 
 // ===================================================== Основная Таблица ==============================================
 
