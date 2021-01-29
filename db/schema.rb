@@ -10,9 +10,9 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema.define(version: 2020_07_27_085214) do
+ActiveRecord::Schema.define(version: 2021_01_29_080431) do
 
-  create_table "cluster_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "cluster_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "cluster_id"
     t.integer "server_id"
     t.integer "node_role_id"
@@ -20,14 +20,14 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "clusters", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "clusters", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_clusters_on_name"
   end
 
-  create_table "contacts", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "contacts", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "tn"
     t.string "info"
     t.integer "dept"
@@ -41,7 +41,7 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["info"], name: "index_contacts_on_info"
   end
 
-  create_table "department_heads", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "department_heads", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "tn"
     t.integer "dept"
     t.string "info"
@@ -51,20 +51,20 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["info"], name: "index_department_heads_on_info"
   end
 
-  create_table "detail_types", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "detail_types", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_detail_types_on_name"
   end
 
-  create_table "node_roles", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "node_roles", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "real_server_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "real_server_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "server_id"
     t.integer "server_part_id"
     t.integer "count"
@@ -74,17 +74,17 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["server_part_id"], name: "index_real_server_details_on_server_part_id"
   end
 
-  create_table "roles", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "roles", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.string "name"
-    t.string "resource_type"
     t.integer "resource_id"
+    t.string "resource_type"
     t.datetime "created_at"
     t.datetime "updated_at"
     t.index ["name", "resource_type", "resource_id"], name: "index_roles_on_name_and_resource_type_and_resource_id"
     t.index ["name"], name: "index_roles_on_name"
   end
 
-  create_table "server_parts", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "server_parts", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.string "name"
     t.string "part_num"
     t.text "comment"
@@ -94,14 +94,14 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["name"], name: "index_server_parts_on_name"
   end
 
-  create_table "server_types", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "server_types", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
     t.index ["name"], name: "index_server_types_on_name"
   end
 
-  create_table "servers", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "servers", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "server_type_id"
     t.string "inventory_num"
     t.string "serial_num"
@@ -114,7 +114,7 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["inventory_num"], name: "index_servers_on_inventory_num"
   end
 
-  create_table "service_dependencies", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "service_dependencies", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "child_id"
     t.integer "parent_id"
     t.datetime "created_at", null: false
@@ -123,7 +123,7 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["parent_id"], name: "index_service_dependencies_on_parent_id"
   end
 
-  create_table "service_hostings", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "service_hostings", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "service_id"
     t.integer "cluster_id"
     t.datetime "created_at", null: false
@@ -132,7 +132,7 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["service_id"], name: "index_service_hostings_on_service_id"
   end
 
-  create_table "service_networks", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "service_networks", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "service_id"
     t.string "segment", limit: 50
     t.string "vlan", limit: 20
@@ -143,7 +143,7 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["ip"], name: "index_service_networks_on_ip"
   end
 
-  create_table "service_ports", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "service_ports", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "service_network_id"
     t.text "local_tcp_ports"
     t.text "local_udp_ports"
@@ -156,14 +156,14 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.datetime "updated_at", null: false
   end
 
-  create_table "service_tags", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "service_tags", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "service_id"
     t.integer "tag_id"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "services", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "services", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.string "number", limit: 20
     t.integer "dept"
     t.string "name"
@@ -212,21 +212,21 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.string "security_mon"
     t.text "additional_data"
     t.datetime "scan_updated_at"
-    t.bigint "scan_file_size"
+    t.integer "scan_file_size"
     t.string "scan_content_type"
     t.string "scan_file_name"
     t.datetime "act_updated_at"
-    t.bigint "act_file_size"
+    t.integer "act_file_size"
     t.string "act_content_type"
     t.string "act_file_name"
     t.boolean "has_instr_rec", default: false
     t.datetime "instr_rec_updated_at"
-    t.bigint "instr_rec_file_size"
+    t.integer "instr_rec_file_size"
     t.string "instr_rec_content_type"
     t.string "instr_rec_file_name"
     t.boolean "has_instr_off", default: false
     t.datetime "instr_off_updated_at"
-    t.bigint "instr_off_file_size"
+    t.integer "instr_off_file_size"
     t.string "instr_off_content_type"
     t.string "instr_off_file_name"
     t.boolean "exploitation"
@@ -239,20 +239,29 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["name"], name: "index_services_on_name"
   end
 
-  create_table "storage_systems", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "storage_systems", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "service_id"
     t.string "name"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
   end
 
-  create_table "tags", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+  create_table "system_requirements", options: "ENGINE=InnoDB DEFAULT CHARSET=latin1", force: :cascade do |t|
+    t.string "name_os"
+    t.integer "kernel_count"
+    t.float "frequency"
+    t.float "memory"
+    t.float "disk_space"
+  end
+
+  create_table "tags", options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.string "name", null: false
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
+    t.index ["name"], name: "index_tags_on_name", unique: true
   end
 
-  create_table "template_server_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "template_server_details", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "server_type_id"
     t.integer "server_part_id"
     t.integer "count"
@@ -262,7 +271,7 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["server_type_id"], name: "index_template_server_details_on_server_type_id"
   end
 
-  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "users", id: :integer, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "tn"
     t.string "info", null: false
     t.string "encrypted_password", default: "", null: false
@@ -277,7 +286,7 @@ ActiveRecord::Schema.define(version: 2020_07_27_085214) do
     t.index ["info"], name: "index_users_on_info"
   end
 
-  create_table "users_roles", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8", force: :cascade do |t|
+  create_table "users_roles", id: false, options: "ENGINE=InnoDB DEFAULT CHARSET=utf8 COLLATE=utf8_unicode_ci", force: :cascade do |t|
     t.integer "user_id"
     t.integer "role_id"
     t.index ["user_id", "role_id"], name: "index_users_roles_on_user_id_and_role_id"
