@@ -29,3 +29,4 @@
 //= require_tree ./service
 //= require_tree ./contact
 //= require_tree ./department_head
+//= require_tree ./request

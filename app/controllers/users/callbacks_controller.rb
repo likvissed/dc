@@ -15,6 +15,10 @@ class Users::CallbacksController < DeviseController
     user_info = Authorize.get_user(token['access_token'])
     return authorize_error unless user_info['tn']
 
+    # Создание заявки
+    session['current_user_id'] = user_info['tn']
+    redirect_to request_path if session['user_return_to'] == request_path
+
     @user = User.find_by(tn: user_info['tn'])
     return authorize_error(:user_not_found) if @user.nil?
 
