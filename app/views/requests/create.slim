@@ -1,0 +1,11 @@
+.container
+  .row
+    .col-md-12
+      .auth-header
+        h2 
+          = "Заявка № #{@case_id} создана"
+      .auth-content
+        h3
+          = link_to "Завершить", user_session_path
+        h3
+          = link_to "Создать новую заявку", request_path

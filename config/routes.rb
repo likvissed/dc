@@ -5,6 +5,11 @@ Rails.application.routes.draw do
     get 'users/callbacks/registration_user', to: 'users/callbacks#registration_user'
     get 'users/callbacks/authorize_user', to: 'users/callbacks#authorize_user'
 
+    # Заявка на сервер
+    get   'request',                 to: 'requests#index'
+    get   'request/new',             to: 'requests#new'
+    get   'request/create',          to: 'requests#create'
+
     root 'services#index'
   end
 

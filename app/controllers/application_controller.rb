@@ -97,7 +97,12 @@ class ApplicationController < ActionController::Base
 
   # Определяем, какой layout выводить: для входа в систему или основной
   def layout
-    is_a?(Devise::SessionsController) ? "sign_in_app" : "application"
+    # is_a?(Devise::SessionsController) ? "sign_in_app" : "application"
+    if devise_controller?
+      'sign_in_app'
+    else
+      'application'
+    end
   end
 
 end
