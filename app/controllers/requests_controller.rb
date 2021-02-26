@@ -38,6 +38,7 @@ class RequestsController < DeviseController
     contact = Contact.create(tn: session['current_user_id']) if contact.blank?
 
     new_service = Service.new(
+      number: '',
       dept: contact.dept,
       name: service['name'],
       time_work: 1, # Рабочее время (8/5)
