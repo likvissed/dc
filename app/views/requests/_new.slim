@@ -77,7 +77,7 @@
     .content-footer
       div ng-if="request.service.valid == true"
         = link_to "Создать заявку", "", "ng-href": "request/create?service={{ request.service }}", class: "btn btn-success"
-         = link_to "Отмена", "", "ng-href": "{{ request.cancel() }}", class: "btn btn-default", style: "margin-left: 5px;"
+        = link_to "Отмена", "", "ng-href": "{{ request.cancel() }}", class: "btn btn-default", style: "margin-left: 5px;"
       div ng-if="request.service.valid == false"
         = button_tag "Создать заявку", type: :button, class: "btn-primary", "ng-click": "request.validParam(1)"
-         = link_to "Отмена", "", "ng-href": "{{ request.cancel() }}", class: "btn btn-default", style: "margin-left: 5px;"
+        = link_to "Отмена", "", "ng-href": "{{ request.cancel() }}", class: "btn btn-default", style: "margin-left: 5px;"
