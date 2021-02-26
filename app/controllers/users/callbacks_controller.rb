@@ -22,17 +22,17 @@ class Users::CallbacksController < DeviseController
       session['was_in_request'] = true
 
       redirect_to request_path
+    else
+      @user = User.find_by(tn: user_info['tn'])
+      return authorize_error(:user_not_found) if @user.nil?
+
+      session['user'] = user_info
+      session['session_id'] = token['access_token']
+      session['refresh_token'] = token['refresh_token']
+
+      set_flash_message(:notice, :success)
+      sign_in_and_redirect @user
     end
-
-    @user = User.find_by(tn: user_info['tn'])
-    return authorize_error(:user_not_found) if @user.nil?
-
-    session['user'] = user_info
-    session['session_id'] = token['access_token']
-    session['refresh_token'] = token['refresh_token']
-
-    set_flash_message(:notice, :success)
-    sign_in_and_redirect @user
   end
 
   def authorize_error(message = :failure)

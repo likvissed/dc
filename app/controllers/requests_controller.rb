@@ -29,6 +29,7 @@ class RequestsController < DeviseController
 
   def create
     user_tn_not_found if session['current_user_id'].blank? || params[:service].blank?
+    session['user_return_to'] = root_path
 
     service = JSON.parse(params[:service])
 
@@ -50,7 +51,8 @@ class RequestsController < DeviseController
       frequency: service['frequency'],
       memory: service['memory'],
       disk_space: service['disk_space'],
-      additional_data: service['additional_data']
+      additional_data: service['additional_data'],
+      consumer_fio: contact.info
     )
 
     if new_service.save
@@ -58,15 +60,13 @@ class RequestsController < DeviseController
                           .as_json
                           .slice('name', 'dept', 'time_work', 'formular_type', 'descr', 'priority', 'contact_1_id', 'os', 'component_key', 'kernel_count', 'frequency', 'memory', 'disk_space', 'additional_data')
                           .compact
-                          .to_json
-                          .to_s
 
       data = {}
       data['user_tn'] = session['current_user_id']
       # Массив таб.номеров исполнителей
       data['accs'] = ENV['ASTRAEA_FIELD_ACCS'].split(',')
       fields_for_send['source'] = 'dc'
-      data['desc'] = fields_for_send
+      data['desc'] = fields_for_send.to_json.to_s
 
       response = JSON.parse(RestClient::Request.execute(method: :post,
                                                         proxy: nil,
