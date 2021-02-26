@@ -2,30 +2,33 @@ class RequestsController < DeviseController
   skip_before_action :authenticate_user!
 
   def index
-    if params[:tn].present?
-      redirect_to action: 'index', tn: params[:tn]
-    else
-      user_tn_not_found
+    session['user_return_to'] = request_path
+
+    if session['current_user_id'].blank?
+      if session['was_in_request'].blank?
+        redirect_to users_callbacks_registration_user_path
+      else
+        redirect_to user_session_path, flash: { notice: 'Пользователь не найден. Попробуйте авторизоваться повторно' }
+      end
     end
   end
 
   def new
-    user_tn_not_found if session['current_user_id'].blank?
-    Rails.logger.info "new_vm params: #{params.inspect}".red
-
     service = Service.new
     # count_users = UsersReference.count_all_users || UserIss.count || || 8600
+    current_user = User.find_by(tn: session['current_user_id'])
 
     render json: {
       service: service,
       system_requirement: SystemRequirement.all,
-      services_name: Service.pluck(:name)
+      services_name: Service.pluck(:name),
+      current_user: current_user
       # count_users: count_users
     }
   end
 
   def create
-    user_tn_not_found if session['current_user_id'].blank?
+    user_tn_not_found if session['current_user_id'].blank? || params[:service].blank?
 
     service = JSON.parse(params[:service])
 
@@ -50,21 +53,34 @@ class RequestsController < DeviseController
       additional_data: service['additional_data']
     )
 
-    if new_service.valid?
-      new_service.save
+    if new_service.save
+      fields_for_send = new_service
+                          .as_json
+                          .slice('name', 'dept', 'time_work', 'formular_type', 'descr', 'priority', 'contact_1_id', 'os', 'component_key', 'kernel_count', 'frequency', 'memory', 'disk_space', 'additional_data')
+                          .compact
+                          .to_json
+                          .to_s
 
-      RestClient.proxy = ''
+      data = {}
+      data['user_tn'] = session['current_user_id']
+      # Массив таб.номеров исполнителей
+      data['accs'] = ENV['ASTRAEA_FIELD_ACCS'].split(',')
+      fields_for_send['source'] = 'dc'
+      data['desc'] = fields_for_send
+
       response = JSON.parse(RestClient::Request.execute(method: :post,
+                                                        proxy: nil,
                                                         url: ENV['ASTRAEA_URI'],
-                                                        payload: {
-                                                          user_tn: session['current_user_id'],
-                                                          desc: new_service.to_json,
-                                                          accs: ENV['ASTRAEA_FIELD_ACCS']
-                                                        }))
-      if response['case_id'].present?
-        @case_id = response['case_id']
+                                                        headers: {
+                                                          'Content-Type' => 'application/json'
+                                                        },
+                                                        payload: data.to_json))
 
-        render json: { full_message: 'Заявка успешно создана' }
+      if response.try(:[], 'case_id').present?
+        @case_id = response['case_id']
+      else
+        Rails.logger.info "Для сервера #{new_service.id} не создался кейс".red
+        Rails.logger.info "Info: #{fields_for_send}".white
       end
     else
       render json: new_service.errors.full_messages.join('. '), status: 422

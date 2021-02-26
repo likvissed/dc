@@ -17,7 +17,12 @@ class Users::CallbacksController < DeviseController
 
     # Создание заявки
     session['current_user_id'] = user_info['tn']
-    redirect_to request_path if session['user_return_to'] == request_path
+
+    if session['user_return_to'] == request_path
+      session['was_in_request'] = true
+
+      redirect_to request_path
+    end
 
     @user = User.find_by(tn: user_info['tn'])
     return authorize_error(:user_not_found) if @user.nil?

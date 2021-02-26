@@ -22,6 +22,7 @@
         this.service.valid = false;
         this.system_requirement = this.addSelectInput(response.data.system_requirement);
         this.services_name = response.data.services_name;
+        this.current_user = response.data.current_user;
         // this.count_users = response.data.count_users;    
       },
       (response) => {
@@ -69,7 +70,6 @@
 
   // Отправить данные для создания заявки
   // RequestCtrl.prototype.create = function() {
-  //   console.log('Создать');
   //   if (this.validParam()) {
 
   //     this.$http.get('/request/create.json', {
@@ -78,11 +78,9 @@
   //       }
   //     }).then(
   //       (response) => {
-  //         console.log('Yes response', response);
   //         this.Flash.notice(response.data.full_message);
   //       },
   //       (response) => {
-  //         console.log('No response', response);
   //         this.Error.response(response, response.status);
   //         // this.Flash.alert('Необходимо заполнить поля для создания заявки');
   //       }
@@ -92,16 +90,18 @@
 
   // Проверить обязательные поля
   RequestCtrl.prototype.validParam = function(key) {
+
     if (!this.service.name || !this.service.priority || !this.service.os || !this.service.component_key ||
       !this.service.kernel_count || !this.service.frequency || !this.service.priority || !this.service.disk_space) {
       if (key) { this.Flash.alert('Необходимо заполнить поля для создания заявки'); }
+  
       this.service.valid = false;
-
-      return false;
-    } else { 
-      this.service.valid = true;
-
-      return true
+    } else {
+      if (this.services_name.includes(this.service.name)) {
+        this.nameUniq();
+  
+        this.service.valid = false;
+      } else { this.service.valid = true; }
     }
   };
 
@@ -109,7 +109,15 @@
   RequestCtrl.prototype.nameUniq = function() {
     if (this.services_name.includes(this.service.name)){
       this.Flash.alert('Текущее имя сервера уже существует');
-      this.service.name = '';
+    }
+  };
+
+  // Кнопка "Отмена" для заявки
+  RequestCtrl.prototype.cancel = function() {
+    if (this.current_user == null){
+      return '/users/sign_in';
+    } else {
+      return '/';
     }
   };
 
