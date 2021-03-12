@@ -5,8 +5,6 @@
 
   RequestCtrl.$inject   = ['$http', 'Flash', 'Error'];
 
-  console.log('RequestCtrl');
-
   function RequestCtrl($http, Flash, Error) {
     this.$http = $http;
     this.Flash = Flash;
@@ -23,7 +21,7 @@
         this.system_requirement = this.addSelectInput(response.data.system_requirement);
         this.services_name = response.data.services_name;
         this.current_user = response.data.current_user;
-        // this.count_users = response.data.count_users;    
+        // this.count_users = response.data.count_users;  
       },
       (response) => {
         this.Error.response(response, response.status);
@@ -97,7 +95,7 @@
   
       this.service.valid = false;
     } else {
-      if (this.services_name.includes(this.service.name)) {
+      if (this.service.name && this.services_name.includes(this.service.name.toLowerCase())) {
         this.nameUniq();
   
         this.service.valid = false;
@@ -106,8 +104,8 @@
   };
 
   // Проверить уникальность имени
-  RequestCtrl.prototype.nameUniq = function() {
-    if (this.services_name.includes(this.service.name)){
+  RequestCtrl.prototype.nameUniq = function() {   
+    if (this.service.name && this.services_name.includes(this.service.name.toLowerCase())){
       this.Flash.alert('Текущее имя сервера уже существует');
     }
   };

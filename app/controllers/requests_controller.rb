@@ -21,7 +21,7 @@ class RequestsController < DeviseController
     render json: {
       service: service,
       system_requirement: SystemRequirement.all,
-      services_name: Service.pluck(:name),
+      services_name: Service.pluck(:name).map(&:downcase),
       current_user: current_user
       # count_users: count_users
     }
@@ -77,15 +77,22 @@ class RequestsController < DeviseController
                                                         },
                                                         payload: data.to_json))
 
+      case_id = ''
       if response.try(:[], 'case_id').present?
-        @case_id = response['case_id']
+        case_id = response['case_id']
       else
         Rails.logger.info "Для сервера #{new_service.id} не создался кейс".red
         Rails.logger.info "Info: #{fields_for_send}".white
       end
+
+      redirect_to request_successful_path(case: case_id)
     else
       render json: new_service.errors.full_messages.join('. '), status: 422
     end
+  end
+
+  def successful
+    @case_id = params['case']
   end
 
   def user_tn_not_found

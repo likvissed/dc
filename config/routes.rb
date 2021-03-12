@@ -9,6 +9,7 @@ Rails.application.routes.draw do
     get   'request',                 to: 'requests#index'
     get   'request/new',             to: 'requests#new'
     get   'request/create',          to: 'requests#create'
+    get   'request/successful',      to: 'requests#successful'
 
     root 'services#index'
   end
