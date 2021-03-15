@@ -32,6 +32,16 @@ class Service < ActiveRecord::Base
   validates :name, presence: true, uniqueness: { case_sensitive: false }
   validates :number, uniqueness: { case_sensitive: false }, allow_blank: true
   validates :priority, :time_work, presence: true
+  validates :descr, length: { maximum: 400 }, allow_blank: true
+  validates :os, length: { maximum: 65 }, allow_blank: true
+  validates :kernel_count, length: { maximum: 5 }, numericality: { only_integer: true }, allow_blank: true
+  validates :frequency, length: { maximum: 5 }, numericality: { only_float: true }, allow_blank: true
+  validates :memory, length: { maximum: 5 }, numericality: { only_float: true }, allow_blank: true
+  validates :disk_space, length: { maximum: 5 }, numericality: { only_float: true }, allow_blank: true
+  validates :component_key, length: { maximum: 50 }, allow_blank: true
+  validates :additional_data, length: { maximum: 500 }, allow_blank: true
+
+  validates :os, :kernel_count, :frequency, :memory, :disk_space, :component_key, presence: true, if: -> { presence_for_request == true }
 
   # Empty attributes will not be converted to nil
   # Sequential spaces in attributes will be collapsed to one space
@@ -46,6 +56,8 @@ class Service < ActiveRecord::Base
   enum priority:  ['Критическая производственная задача', 'Вторичная производственная задача', 'Внедрение', 'Отладка']
   enum time_work: ['Круглосуточно (24/7)', 'Рабочее время (8/5)', 'По запросу']
   enum antivirus: { not_installed: 1, enterprise: 2, another_manufacturer: 3, incompatible_software: 4, according_vm: 5 }
+
+  attr_accessor :presence_for_request
 
   has_attached_file :scan
   has_attached_file :act

@@ -3,12 +3,13 @@
 
   app.controller('RequestCtrl', RequestCtrl)
 
-  RequestCtrl.$inject   = ['$http', 'Flash', 'Error'];
+  RequestCtrl.$inject   = ['$http', 'Flash', 'Error', '$window'];
 
-  function RequestCtrl($http, Flash, Error) {
+  function RequestCtrl($http, Flash, Error, $window) {
     this.$http = $http;
     this.Flash = Flash;
     this.Error = Error;
+    this.$window = $window
 
     this.loadNewService();
   }
@@ -22,6 +23,10 @@
         this.services_name = response.data.services_name;
         this.current_user = response.data.current_user;
         // this.count_users = response.data.count_users;  
+
+        this.service.select_priority = 10;
+        this.assignPriopity();
+
       },
       (response) => {
         this.Error.response(response, response.status);
@@ -67,47 +72,20 @@
   };
 
   // Отправить данные для создания заявки
-  // RequestCtrl.prototype.create = function() {
-  //   if (this.validParam()) {
-
-  //     this.$http.get('/request/create.json', {
-  //       params: {
-  //         service: this.service
-  //       }
-  //     }).then(
-  //       (response) => {
-  //         this.Flash.notice(response.data.full_message);
-  //       },
-  //       (response) => {
-  //         this.Error.response(response, response.status);
-  //         // this.Flash.alert('Необходимо заполнить поля для создания заявки');
-  //       }
-  //     );
-  //   }
-  // };
-
-  // Проверить обязательные поля
-  RequestCtrl.prototype.validParam = function(key) {
-
-    if (!this.service.name || !this.service.priority || !this.service.os || !this.service.component_key ||
-      !this.service.kernel_count || !this.service.frequency || !this.service.priority || !this.service.disk_space) {
-      if (key) { this.Flash.alert('Необходимо заполнить поля для создания заявки'); }
-  
-      this.service.valid = false;
-    } else {
-      if (this.service.name && this.services_name.includes(this.service.name.toLowerCase())) {
-        this.nameUniq();
-  
-        this.service.valid = false;
-      } else { this.service.valid = true; }
-    }
-  };
-
-  // Проверить уникальность имени
-  RequestCtrl.prototype.nameUniq = function() {   
-    if (this.service.name && this.services_name.includes(this.service.name.toLowerCase())){
-      this.Flash.alert('Текущее имя сервера уже существует');
-    }
+  RequestCtrl.prototype.create = function() {
+      this.$http.get('/request/create.json', {
+        params: {
+          service: this.service
+        }
+      }).then(
+        (response) => {
+          this.Flash.notice(response.data.full_message);
+          this.$window.location.href = `/request/successful?case_id=${response.data.case_id}`;
+        },
+        (response) => {
+          this.Flash.alert(response.data.full_message);
+        }
+      );
   };
 
   // Кнопка "Отмена" для заявки
@@ -119,4 +97,24 @@
     }
   };
 
+  // Добавить .0 к параметру frequency
+  RequestCtrl.prototype.addPointFrequency = function() {
+    if (this.service.frequency == null) {
+      this.service.frequency = '0.0';
+    }
+  };
+
+  // Добавить .0 к параметру memory
+  RequestCtrl.prototype.addPointMemory = function() {
+    if (this.service.memory == null) {
+      this.service.memory = '0.0';
+    }
+  };
+
+  // Добавить .0 к параметру disk_space
+  RequestCtrl.prototype.addPointDisk_space = function() {
+    if (this.service.disk_space == null) {
+      this.service.disk_space = '0.0';
+    }
+  };
 })();

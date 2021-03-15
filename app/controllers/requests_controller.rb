@@ -1,5 +1,6 @@
 class RequestsController < DeviseController
   skip_before_action :authenticate_user!
+  skip_after_action :verify_same_origin_request
 
   def index
     session['user_return_to'] = request_path
@@ -22,7 +23,8 @@ class RequestsController < DeviseController
       service: service,
       system_requirement: SystemRequirement.all,
       services_name: Service.pluck(:name).map(&:downcase),
-      current_user: current_user
+      current_user: current_user,
+      presence_for_request: true
       # count_users: count_users
     }
   end
@@ -53,7 +55,8 @@ class RequestsController < DeviseController
       memory: service['memory'],
       disk_space: service['disk_space'],
       additional_data: service['additional_data'],
-      consumer_fio: contact.info
+      consumer_fio: contact.info,
+      presence_for_request: true
     )
 
     if new_service.save
@@ -85,14 +88,19 @@ class RequestsController < DeviseController
         Rails.logger.info "Info: #{fields_for_send}".white
       end
 
-      redirect_to request_successful_path(case: case_id)
+      respond_to do |format|
+        format.json { render json: { full_message: 'Заявка успешно создана', case_id: case_id }, status: :ok }
+      end
     else
-      render json: new_service.errors.full_messages.join('. '), status: 422
+
+      respond_to do |format|
+        format.json { render json: { full_message: new_service.errors.full_messages.join('. '), service: new_service }, status: 422 }
+      end
     end
   end
 
   def successful
-    @case_id = params['case']
+    @case_id = params['case_id']
   end
 
   def user_tn_not_found

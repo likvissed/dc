@@ -46,6 +46,13 @@ ru:
         # dependency:
         service_dep_childs: 'сервис'
         service_dep_parents: 'сервис'
+        os: 'Операционная система'
+        kernel_count: 'Количество ядер процессора'
+        frequency: 'Тактовая частота процессора'
+        memory: 'Объем оперативной памяти'
+        disk_space: 'Объем дискового пространства'
+        component_key: 'Ключевой программный компонент'
+
         antiviri:
           not_installed: 'Не установлен'
           enterprise: 'Корпоративный антивирус'
