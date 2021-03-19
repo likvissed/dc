@@ -51,6 +51,8 @@ gem 'ransack'
 gem 'angular-ui-select-rails'
 # cache_store db
 gem 'redis'
+# Use Puma as the app server
+gem 'puma'
 
 # Use CoffeeScript for .coffee assets and views
 # gem 'coffee-rails', '~> 4.1.0'

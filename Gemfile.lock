@@ -201,6 +201,8 @@ GEM
       ast (~> 2.4.0)
     polyamorous (2.3.0)
       activerecord (>= 5.0)
+    puma (4.2.1)
+      nio4r (~> 2.0)
     rack (2.0.7)
     rack-contrib (2.1.0)
       rack (~> 2.0)
@@ -377,6 +379,7 @@ DEPENDENCIES
   omniauth
   paperclip
   paperclip-i18n
+  puma
   rails (= 5.2.0)
   rails-i18n
   ransack
