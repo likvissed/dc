@@ -40,6 +40,7 @@ class Service < ActiveRecord::Base
   validates :disk_space, length: { maximum: 5 }, numericality: { only_float: true }, allow_blank: true
   validates :component_key, length: { maximum: 50 }, allow_blank: true
   validates :additional_data, length: { maximum: 500 }, allow_blank: true
+  validates :name, length: { maximum: 65 }
 
   validates :os, :kernel_count, :frequency, :memory, :disk_space, :component_key, presence: true, if: -> { presence_for_request == true }
 

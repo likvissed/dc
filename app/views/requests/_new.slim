@@ -5,7 +5,7 @@
         td
           b * Сетевое имя сервера
         td
-          = text_field_tag "service[name]", "", class:"form-control", "ng-model": "request.service.name", "ng-required": true
+          = text_field_tag "service[name]", "", class:"form-control", "ng-model": "request.service.name", "ng-required": true, "maxlength": "65"
           = hidden_field_tag "service[formular_type]", "", "ng-model": "request.service.formular_type"
           = hidden_field_tag "service[contact_1]", "", "ng-model": "request.contact_1"
       tr
@@ -13,7 +13,7 @@
           = label_tag :cr, "Краткое описание сервера", class: "control-label"
       tr
         td{ colspan=2 }
-          = text_area_tag "service[descr]", "", class:"form-control", "ng-model": "request.service.descr", "type": "text", "ng-required": true, "rows": 3
+          = text_area_tag "service[descr]", "", class:"form-control", "ng-model": "request.service.descr", "type": "text", "ng-required": true, "rows": 3, "maxlength": "400"
       tr
         td
           b * Операционная система
@@ -21,36 +21,36 @@
           = select_tag "service[os]", nil, class: "form-control", "ng-model": "request.service.select_os",
             "ng-options": "os.id as os.name_os disable when !os.id for os in request.system_requirement", "ng-change": "request.loadRequirement()"
           div ng-if="request.service.select_os == -1"
-            = text_field_tag "", "", class:"form-control", "ng-model": "request.service.os"
+            = text_field_tag "", "", class:"form-control", "ng-model": "request.service.os", "maxlength": "65"
       tr
         td 
           b * Количество ядер процессора
         td
           = text_field_tag "service[kernel_count]", "", "ng-model": "request.service.kernel_count",
-          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9]/g, '');"
+          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9]/g, '');", "maxlength": "5"
       tr
         td 
           b * Тактовая частота процессора, ГГц
         td
           = text_field_tag "service[frequency]", "", "ng-model": "request.service.frequency", "ng-click": "request.addPointFrequency()",
-          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
+          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');", "maxlength": "5"
       tr
         td
           b * Объем оперативной памяти, Гб
         td
           = text_field_tag "service[memory]", "", "ng-model": "request.service.memory", "ng-click": "request.addPointMemory()",
-          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
+          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');", "maxlength": "5"
       tr
         td
           b * Объем дискового пространства, Гб
         td
           = text_field_tag "service[disk_space]", "", "ng-model": "request.service.disk_space", "ng-click": "request.addPointDisk_space()",
-          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
+          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');", "maxlength": "5"
       tr
         td
           b * Ключевой программный компонент
         td
-          = text_field_tag "service[component_key]", "", class: "form-control", "ng-model": "request.service.component_key", "type": "text" 
+          = text_field_tag "service[component_key]", "", class: "form-control", "ng-model": "request.service.component_key", "type": "text", "maxlength": "50"
 
       tr
         td
@@ -65,7 +65,7 @@
       tr
         td{ colspan=2 }
           = text_area_tag "service[additional_data]", "", "ng-model": "request.service.additional_data",
-          "class": "form-control", "type": "text", "rows": 4
+          "class": "form-control", "type": "text", "rows": 4, "maxlength": "500"
         tr
  
       tr
