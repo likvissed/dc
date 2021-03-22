@@ -97,24 +97,4 @@
     }
   };
 
-  // Добавить .0 к параметру frequency
-  RequestCtrl.prototype.addPointFrequency = function() {
-    if (this.service.frequency == null) {
-      this.service.frequency = '0.0';
-    }
-  };
-
-  // Добавить .0 к параметру memory
-  RequestCtrl.prototype.addPointMemory = function() {
-    if (this.service.memory == null) {
-      this.service.memory = '0.0';
-    }
-  };
-
-  // Добавить .0 к параметру disk_space
-  RequestCtrl.prototype.addPointDisk_space = function() {
-    if (this.service.disk_space == null) {
-      this.service.disk_space = '0.0';
-    }
-  };
 })();

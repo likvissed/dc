@@ -32,19 +32,19 @@
         td 
           b * Тактовая частота процессора, ГГц
         td
-          = text_field_tag "service[frequency]", "", "ng-model": "request.service.frequency", "ng-click": "request.addPointFrequency()",
-          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');", "maxlength": "5"
+          = text_field_tag "service[frequency]", "", "ng-model": "request.service.frequency",
+          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');", "maxlength": "3"
       tr
         td
           b * Объем оперативной памяти, Гб
         td
-          = text_field_tag "service[memory]", "", "ng-model": "request.service.memory", "ng-click": "request.addPointMemory()",
-          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');", "maxlength": "5"
+          = text_field_tag "service[memory]", "", "ng-model": "request.service.memory",
+          "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');", "maxlength": "4"
       tr
         td
           b * Объем дискового пространства, Гб
         td
-          = text_field_tag "service[disk_space]", "", "ng-model": "request.service.disk_space", "ng-click": "request.addPointDisk_space()",
+          = text_field_tag "service[disk_space]", "", "ng-model": "request.service.disk_space",
           "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');", "maxlength": "5"
       tr
         td
@@ -77,3 +77,7 @@
     .content-footer
       = button_tag "Создать заявку", type: "button", "ng-click": "request.create()", class: "btn-primary"
       = link_to "Отмена", "", "ng-href": "{{ request.cancel() }}", class: "btn btn-default", style: "margin-left: 5px;"
+
+.modal-footer
+  .row.text-center
+    = label_tag :pr, "По всем вопросам обращаться по т. 06", class: "control-label", style: "font-weight: normal;"
