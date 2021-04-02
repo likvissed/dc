@@ -311,6 +311,10 @@ class ServicesController < ApplicationController
       @service.errors.delete(:instr_off)
 
       flash.now[:alert] = @service.errors.full_messages.join(". ")
+
+      # Для ситуаций, когда поля text_field_tag формуляра не валидны и чтобы не удалялись значения при перезагрузки
+      # (ошибка выводилась, а поля очищались)
+      @@new_service = @service
       render :new
     end
   end
