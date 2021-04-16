@@ -34,11 +34,11 @@ class Service < ActiveRecord::Base
   validates :priority, :time_work, presence: true
   validates :descr, length: { maximum: 400 }, allow_blank: true, if: -> { new_record? }
   validates :os, length: { maximum: 65 }, allow_blank: true, if: -> { new_record? }
-  validates :kernel_count, length: { maximum: 5 }, numericality: { only_integer: true }, allow_blank: true, if: -> { new_record? }
+  validates :kernel_count, length: { maximum: 5 }, numericality: { only_integer: true }, allow_blank: true, if: -> { presence_for_request == true }
   validates_numericality_of :frequency, less_than_or_equal_to: 3.9, message: 'должна иметь значение меньшее или равное 3.9', allow_blank: true, if: -> { new_record? }
   validates_numericality_of :frequency, greater_than_or_equal_to: 2.0, message: 'должна иметь значение большее или равное 2.0', allow_blank: true, if: -> { new_record? }
-  validates :memory, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 64 }, allow_blank: true, if: -> { new_record? }
-  validates :disk_space, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 500 }, allow_blank: true, if: -> { new_record? }
+  validates :memory, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 64 }, allow_blank: true, if: -> { presence_for_request == true }
+  validates :disk_space, numericality: { greater_than_or_equal_to: 1, less_than_or_equal_to: 500 }, allow_blank: true, if: -> { presence_for_request == true }
   validates :component_key, length: { maximum: 50 }, allow_blank: true, if: -> { new_record? }
   validates :additional_data, length: { maximum: 500 }, allow_blank: true, if: -> { new_record? }
   validates :name, length: { maximum: 65 }, if: -> { new_record? }
