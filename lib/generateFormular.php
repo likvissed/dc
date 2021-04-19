@@ -183,8 +183,17 @@ $data['max_time_rec'] = get_time($data['max_time_rec']);
 $data['time_recovery'] = get_time($data['time_recovery']);
 $data['time_after_failure'] = get_time($data['time_after_failure']);
 $data['time_after_disaster'] = get_time($data['time_after_disaster']);
-if (empty($data['network_speed']))
-  $data['network_speed'] = 'Требования отсутствуют';
+
+$no_requirements = 'Требования отсутствуют';
+
+if (strval($data['frequency']) == '' || $data['frequency'] == 0.0 )
+  $data['frequency'] = $no_requirements;
+if (strval($data['memory']) == '' )
+  $data['memory'] = $no_requirements;
+if (strval($data['disk_space']) == '' )
+  $data['disk_space'] = $no_requirements;
+if (strval($data['network_speed']) == '' )
+  $data['network_speed'] = $no_requirements;
 
 // var_dump($data['max_time_rec']);
 

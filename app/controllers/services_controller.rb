@@ -69,6 +69,7 @@ class ServicesController < ApplicationController
                    else
                      Service.select(values).order(:id).where(filter).includes(:contact_1, :contact_2)
                    end
+        @service = @service.where(exploitation: true) if params[:exploitation] == 'true'
 
         now = Time.now.to_date
         all_name_services = Service.select(:id, :name)
@@ -252,6 +253,10 @@ class ServicesController < ApplicationController
           memory: @@new_service.memory,
           disk_space: @@new_service.disk_space,
           network_speed: @@new_service.network_speed,
+
+          value_backup_data: @@new_service.value_backup_data,
+          storage_time: @@new_service.storage_time,
+          backup_volume: @@new_service.backup_volume,
 
           formular_type: @@new_service.formular_type,
           os: @@new_service.os,

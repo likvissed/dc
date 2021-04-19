@@ -48,7 +48,7 @@
     return new_system_requirement;
   };
 
-  // Заполнить поля исходя из выьранной ОС
+  // Заполнить поля исходя из выбранной ОС
   RequestCtrl.prototype.loadRequirement = function() {  
     // Если выбрана ос не вручную
     if (this.service.select_os != -1) {

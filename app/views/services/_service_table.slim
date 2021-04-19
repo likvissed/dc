@@ -153,12 +153,12 @@ table.table.table-striped.table-bordered.table-edit-service
         tr
           td Оценка объемов 1 полной копии данных, Мб
           td.form-group
-            = text_field_tag "service[value_backup_data]", "", "ng-model": "service.values_service.value_backup_data", "placeholder": "Требования отсутствуют",
+            = text_field_tag "service[value_backup_data]", "", "ng-model": "service.values_service.value_backup_data",
             "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
         tr
           td Срок хранения старейшей копии, дни
           td.form-group
-            = text_field_tag "service[storage_time]", "", "ng-model": "service.values_service.storage_time", "placeholder": "Требования отсутствуют",
+            = text_field_tag "service[storage_time]", "", "ng-model": "service.values_service.storage_time",
             "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(/[^0-9]/g, '');"
         tr
           td Хранилище резервных копий
@@ -166,7 +166,7 @@ table.table.table-striped.table-bordered.table-edit-service
         tr
           td Объем хранилища резервных копий, Мб
           td.form-group
-            = text_field_tag "service[backup_volume]", "", "ng-model": "service.values_service.backup_volume", "placeholder": "Требования отсутствуют",
+            = text_field_tag "service[backup_volume]", "", "ng-model": "service.values_service.backup_volume",
             "class": "form-control", "type": "text", "oninput": "this.value = this.value.replace(',', '.').replace(/[^0-9.]/g, '');"
         tr
           td Окно резервного копирования

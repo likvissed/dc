@@ -34,9 +34,9 @@
     return {
       restrict: 'A',
       scope: {
-        value : "=ngValueBlank"
+        value : '=ngValueBlank'
       },
-      template: "<div ng-class=\"{ 'text-danger': !value }\"> {{ value || 'Не указано' }} </div>"
+      template: "<div ng-class=\"{ 'text-danger': !value.toString() }\"> {{ value.toString() || 'Не указано' }} </div>"
     }
   }
 

@@ -631,6 +631,12 @@
         values_service.uac_app_selinux = str;
         values_service.hdd_speed = str;
       }
+      
+      if (values_service.formular_type == true) {
+        if (values_service.frequency == 0) {
+          values_service.frequency = 'Требования отсутствуют'
+        }
+      }
 
       // массив наименований сервисов, связанных с ВМ (сервером)
       lists_name_service_for_vm = data.lists_name_service_for_vm;
@@ -1142,6 +1148,11 @@
             values_service.frequency = value.child_service.frequency
           }
         }
+
+        if (values_service.frequency == 0 ) {
+          values_service.frequency = 'Требования отсутствуют';
+        }
+
       });
     };
 // =============================================== Работа с файлами ====================================================
