@@ -14,7 +14,8 @@ Rails.application.routes.draw do
     root 'services#index'
   end
 
-  constraints name: /[^\/]+/ do
+  # constraints name: /[^\/]+/ do
+  constraints name: /.*/ do
     get   '/servers/:inventory_num/edit',  to: 'servers#edit'
     patch '/servers/:inventory_num',       to: 'servers#update'
 
