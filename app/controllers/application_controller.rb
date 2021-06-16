@@ -5,6 +5,7 @@ class ApplicationController < ActionController::Base
   before_action :authenticate_user!
   before_action :add_attrs_to_current_user, if: -> { current_user }
   after_action :set_csrf_cookie_for_ng
+  after_action :user_activity
 
   # Обрабтка случаев, когда у пользователя нет доступа на выполнение запрашиваемых действий
   rescue_from CanCan::AccessDenied do |exception|
@@ -32,7 +33,7 @@ class ApplicationController < ActionController::Base
       current_user.division = user['departmentForAccounting']
     end
   end
-  
+
   def render_404
     render file: "#{Rails.root}/public/404.html", status: 404, layout: false
   end
@@ -105,4 +106,7 @@ class ApplicationController < ActionController::Base
     end
   end
 
+  def user_activity
+    current_user.try(:touch)
+  end
 end
