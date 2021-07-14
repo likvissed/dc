@@ -62,7 +62,13 @@ if ($data['formular_type'] == false) {
   $add_text = '';
 }
 
-$section->writeText('<br>ПАСПОРТ-ФОРМУЛЯР АВТОМАТИЗИРОВАННОГО ' . mb_strtoupper($name_formular, 'UTF-8') . 'А № ______________________<br>', $fontHeaderBold, $parFormat);
+# Номер формуляра
+$number_formular = '______________________';
+if (!empty($data['number'])) {
+  $number_formular = '***REMOVED***-Ф-' . $data['number'];
+}
+
+$section->writeText('<br>ПАСПОРТ-ФОРМУЛЯР АВТОМАТИЗИРОВАННОГО ' . mb_strtoupper($name_formular, 'UTF-8') . 'А № ' . $number_formular . '<br>', $fontHeaderBold, $parFormat);
 
 // ===================================================== Основная Таблица ==============================================
 

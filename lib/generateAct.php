@@ -76,14 +76,36 @@ $table->writeToCell(3, 2, "и вычислительной техники", $fon
 $table->writeToCell(4, 2, "________________ ***REMOVED***", $font);
 $table->writeToCell(5, 2, "\"___\" ________________ 20___г.", $font);
 
-$section->writeText("Акт № " . $data['number'], $fontHeader, $headFormat); //________________
-$section->writeText("ввода в эксплуатацию автоматизированного сервиса<br>", $fontHeader, $headFormat);
+# Название формуляра
+$name_formular = 'сервис';
+$full_1_name_formular = 'автоматизированного сервис';
+$full_2_name_formular = 'автоматизированный сервис';
+
+if ($data['formular_type'] == false) {
+  $name_formular = 'сервер';
+
+  $full_1_name_formular = $name_formular;
+  $full_2_name_formular = $name_formular;
+}
+
+# Номер формуляра
+$number_formular_a = '_______________';
+$number_formular_f = '_______________';
+
+if (!empty($data['number'])) {
+  $number_formular_a = '***REMOVED***-А-' . $data['number'];
+  $number_formular_f = '***REMOVED***-Ф-' . $data['number'];
+}
+
+
+$section->writeText("Акт № " . $number_formular_a, $fontHeader, $headFormat); //________________
+$section->writeText("ввода в эксплуатацию " . $full_1_name_formular . "а <br>", $fontHeader, $headFormat);
 
 // ===================================================== Тело ==========================================================
 
-$section->writeText("Настоящим актом с момента его утверждения вводится в эксплуатацию автоматизированный сервис «" . $data['name'] . "», предназначенный для ", $font, $normalFormat);
+$section->writeText("Настоящим актом с момента его утверждения вводится в эксплуатацию " . $full_2_name_formular . " «" . $data['name'] . "», предназначенный для ", $font, $normalFormat);
 $section->writeText("<указать для чего>", $fontError);
-$section->writeText(". В отношении сервиса:", $font);
+$section->writeText(". В отношении " . $name_formular . "а:", $font);
 
 // Первый символ режима функционирования приводим к нижнему регистру
 $ch = mb_substr($data['time_work'], 0, 1, 'UTF-8');
@@ -92,8 +114,8 @@ $ch = mb_convert_case($ch, MB_CASE_LOWER, 'UTF-8');
 $data['time_work'] = mb_substr_replace($data['time_work'], $ch, 0, 1);
 
 $section->writeText("1.	Установлен приоритет функционирования «" . $data['priority'] . "», режим гарантированной доступности - " .
-  $data['time_work'] . ". Характеристики и параметры функционирования сервиса закреплены в «Паспорте-формуляре " .
-  "автоматизированного сервиса № " . $data['number'] . "».", $font, $firstListFormat); //__________________
+  $data['time_work'] . ". Характеристики и параметры функционирования " . $name_formular . "а закреплены в «Паспорте-формуляре " .
+  $full_1_name_formular. "а № " . $number_formular_f . "».", $font, $firstListFormat); //__________________
 
 $section->writeText('2.	Проведены предпусковые испытания:', $font, $firstListFormat);
 $section->writeText('&ndash;	проверка аппаратной части;', $font, $secListFormat);
@@ -133,7 +155,7 @@ for ($i = 1; $i <= 3; $i++) {
   $cell->setVerticalAlignment(bottom);
 }
 
-$table->writeToCell(1, 1, 'Ответственные за сервис', $fontBold);
+$table->writeToCell(1, 1, 'Ответственные за ' . $name_formular, $fontBold);
 
 $table->writeToCell(2, 1, 'Начальник отдела ' . $data['dept'], $font);
 if (empty($head))
@@ -144,7 +166,7 @@ else
 $table->writeToCell(5, 1, 'Ответственный исполнитель', $font);
 $table->writeToCell(6, 1, '________  ' . $main_contact, $font);
 
-$table->writeToCell(1, 2, 'Ответственные за контроль работы сервиса:', $fontBold);
+$table->writeToCell(1, 2, 'Ответственные за контроль работы ' . $name_formular . 'а:', $fontBold);
 $table->writeToCell(2, 2, 'Начальник отдела 713', $font);
 $table->writeToCell(3, 2, '________  ***REMOVED***', $font);
 $table->writeToCell(5, 2, 'Операторская служба', $font);
