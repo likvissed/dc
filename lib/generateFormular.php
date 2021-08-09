@@ -56,9 +56,12 @@ $table->writeToCell(5, 2, '     "___" ________________ 20___г.', $fontTableHead
 
 # Название формуляра
 $name_formular = 'сервис';
+$full_name_formular = ' АВТОМАТИЗИРОВАННОГО ';
 $add_text = '(ориентировочно по серверам)'; // Добавляется текст в строку "Требования к вычислительным ресурсам"
+
 if ($data['formular_type'] == false) {
   $name_formular = 'сервер';
+  $full_name_formular = ' '; // АВТОМАТИЗИРОВАННОГО - только для сервиса!
   $add_text = '';
 }
 
@@ -68,7 +71,7 @@ if (!empty($data['number'])) {
   $number_formular = '***REMOVED***-Ф-' . $data['number'];
 }
 
-$section->writeText('<br>ПАСПОРТ-ФОРМУЛЯР АВТОМАТИЗИРОВАННОГО ' . mb_strtoupper($name_formular, 'UTF-8') . 'А № ' . $number_formular . '<br>', $fontHeaderBold, $parFormat);
+$section->writeText('<br>ПАСПОРТ-ФОРМУЛЯР' . $full_name_formular . mb_strtoupper($name_formular, 'UTF-8') . 'А № ' . $number_formular . '<br>', $fontHeaderBold, $parFormat);
 
 // ===================================================== Основная Таблица ==============================================
 
