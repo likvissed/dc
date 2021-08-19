@@ -28,7 +28,8 @@ class ServicesController < ApplicationController
           :instr_rec_file_name,
           :has_instr_rec,
           :instr_off_file_name,
-          :has_instr_off
+          :has_instr_off,
+          :name_monitoring
         ]
 
         filter = case params[:filter]
