@@ -174,7 +174,7 @@ $table->writeToCell(6, 2, '________  ***REMOVED***', $font);
 
 $table->writeToCell(1, 3, 'Ответственные за инфраструктуру:', $fontBold);
 $table->writeToCell(2, 3, 'Начальник отдела ***REMOVED***', $font);
-$table->writeToCell(3, 3, '________  Ю. М. Ершов', $font);
+$table->writeToCell(3, 3, '________  ***REMOVED***', $font);
 $table->writeToCell(5, 3, 'Сопровождение ЦОД', $font);
 $table->writeToCell(6, 3, '________  ***REMOVED***', $font);
 

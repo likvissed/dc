@@ -526,7 +526,7 @@ for ($i = 3; $i <= 6; $i++) {
 
 $table->writeToCell(1, 1, 'СОГЛАСОВАНО', $fontFooterBold);
 $table->writeToCell(2, 1, 'Ответственные за инфраструктуру:', $fontFooter);
-$table->writeToCell(3, 1, '____________ Ю.М. Ершов', $fontFooter);
+$table->writeToCell(3, 1, '____________ ***REMOVED***', $fontFooter);
 $table->writeToCell(4, 1, '____________ ***REMOVED***', $fontFooter);
 $table->writeToCell(5, 1, '____________ ***REMOVED***', $fontFooter);
 $table->writeToCell(6, 1, '____________ ***REMOVED***', $fontFooter);
